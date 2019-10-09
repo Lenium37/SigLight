@@ -1,0 +1,174 @@
+//
+// Created by Johannes on 05.05.2019.
+//
+
+#include <iostream>
+#include <logger.h>
+#include "lightshow_fixture.h"
+#include "dmx_device.h"
+#include <string>
+#include <libusb.h>
+#include <atomic>
+
+
+LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type) {
+  this->name = name;
+  this->start_channel = start_channel;
+  this->number_of_channels = number_of_channels;
+  Logger::debug("Constructor of LightshowFixture. Type: {}", type);
+  Logger::debug("Constructor of LightshowFixture. Name: {}", name);
+  this->set_type(type);
+
+  if (name == "Cameo Flat RGB 10") {
+    this->set_channel_dimmer(1);
+    this->set_channel_strobo(2);
+    this->set_channel_red(3);
+    this->set_channel_green(4);
+    this->set_channel_blue(5);
+    this->has_global_dimmer = true;
+  } else if(name == "Helios 7") {
+    this->set_channel_dimmer(11);
+    this->set_channel_red(6);
+    this->set_channel_green(7);
+    this->set_channel_blue(8);
+    this->set_channel_strobo(10);
+    this->has_global_dimmer = true;
+  } else if(name == "Cobalt Plus Spot 5R") {
+    this->set_channel_dimmer(16);
+    // alle Farben ein Channel
+    this->set_channel_red(6);
+    this->set_channel_green(6);
+    this->set_channel_blue(6);
+    this->has_global_dimmer = true;
+  } else if(name == "Varytec PAD7 seventy") {
+    // kein Dimmer!
+    this->set_channel_red(1);
+    this->set_channel_green(2);
+    this->set_channel_blue(3);
+    this->has_global_dimmer = false;
+  } else if (name == "TOURSPOT PRO") {
+    this->set_channel_dimmer(1);
+    this->set_channel_strobo(2);
+    this->set_channel_red(3);
+    this->set_channel_green(4);
+    this->set_channel_blue(5);
+    this->has_global_dimmer = true;
+  } else if (name == "BAR TRI-LED") {
+    this->set_channel_dimmer(2);
+    this->set_channel_strobo(3);
+    this->set_channel_red(4);
+    this->set_channel_green(5);
+    this->set_channel_blue(6);
+    this->has_global_dimmer = true;
+  } else Logger::error("Fixture with unknown name created. Channels have to be set manually.");
+}
+
+LightshowFixture::~LightshowFixture() {
+}
+
+int LightshowFixture::get_start_channel() const {
+  return this->start_channel;
+}
+
+std::vector<Channel> LightshowFixture::get_channels() const {
+  return this->channels;
+}
+
+void LightshowFixture::set_start_channel(int start_channel) {
+  this->start_channel = start_channel;
+}
+
+void LightshowFixture::add_channel(Channel channel) {
+  this->channels.push_back(channel);
+}
+
+void LightshowFixture::set_number_of_channels(int number_of_channels) {
+  this->number_of_channels = number_of_channels;
+}
+
+int LightshowFixture::get_number_of_channels() {
+  return this->number_of_channels;
+}
+std::uint8_t LightshowFixture::get_channel_dimmer() {
+  return this->channel_dimmer;
+}
+std::uint8_t LightshowFixture::get_channel_strobo() {
+  return this->channel_strobo;
+}
+std::uint8_t LightshowFixture::get_channel_red() {
+  return this->channel_red;
+}
+std::uint8_t LightshowFixture::get_channel_green() {
+  return this->channel_green;
+}
+std::uint8_t LightshowFixture::get_channel_blue() {
+  return this->channel_blue;
+}
+void LightshowFixture::set_channel_dimmer(std::uint8_t channel_dimmer) {
+  Channel ch(channel_dimmer);
+  this->dimmer = ch;
+  this->channel_dimmer = channel_dimmer;
+  this->add_channel(this->dimmer);
+}
+void LightshowFixture::set_channel_strobo(std::uint8_t channel_strobo) {
+  Channel ch(channel_strobo);
+  this->strobo = ch;
+  this->channel_strobo = channel_strobo;
+  this->add_channel(this->strobo);
+}
+void LightshowFixture::set_channel_red(std::uint8_t channel_red) {
+  Channel ch(channel_red);
+  this->red = ch;
+  this->channel_red = channel_red;
+  this->add_channel(this->red);
+}
+void LightshowFixture::set_channel_green(std::uint8_t channel_green) {
+  Channel ch(channel_green);
+  this->green = ch;
+  this->channel_green = channel_green;
+  this->add_channel(this->green);
+}
+void LightshowFixture::set_channel_blue(std::uint8_t channel_blue) {
+  Channel ch(channel_blue);
+  this->blue = ch;
+  this->channel_blue = channel_blue;
+  this->add_channel(this->blue);
+}
+
+void LightshowFixture::add_value_changes_to_channel(std::vector<time_value_int> value_changes, int channel) {
+  Channel ch(channel);
+  ValueChange vc(0.0, 0);
+
+  // loop through all ValueChanges and add them to the channel
+  for (int i = 0; i < value_changes.size(); i++) {
+    vc.set_timestamp(value_changes[i].time);
+    vc.set_value(value_changes[i].value);
+    if(vc.get_value() == -1) { // end of song special
+      vc.set_value(0);
+      ch.add_value_change(vc);
+    } else if (vc.get_value() != ch.get_value_of_last_added_value_change()) // if ValueChange is different than the last one added to the channel, add it to the channel
+        ch.add_value_change(vc);
+  }
+  this->add_channel(ch);
+}
+
+void LightshowFixture::set_type(std::string type) {
+  std::transform (type.begin(), type.end(), type.begin(), ::tolower);
+  if (type == "bass" || type == "mid" || type == "high" || type == "action" || type == "everything" || type == "ambient") {
+    this->type = type;
+    Logger::debug("Set type of fixture to {}", type);
+  }
+  else Logger::error("tried to set fixture type to {}", type);
+}
+
+std::string LightshowFixture::get_type() {
+  return this->type;
+}
+
+std::string LightshowFixture::get_name() {
+  return this->name;
+}
+
+void LightshowFixture::set_name(std::string name) {
+  this->name = name;
+}

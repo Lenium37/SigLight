@@ -1,0 +1,14 @@
+//
+// Created by Jan on 06.06.2019.
+//
+
+#ifndef RASPITOLIGHT_SRC_CORE_LIB_LIGHTSHOW_ANALYSIS_RESULT_H_
+#define RASPITOLIGHT_SRC_CORE_LIB_LIGHTSHOW_ANALYSIS_RESULT_H_
+
+struct AnalysisResult {
+  /*
+   * beats, segment, psd
+   */
+};
+
+#endif //RASPITOLIGHT_SRC_CORE_LIB_LIGHTSHOW_ANALYSIS_RESULT_H_
