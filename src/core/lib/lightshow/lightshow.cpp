@@ -124,16 +124,7 @@ bool compare_by_timestamp(const time_value_float &a, const time_value_float &b)
   return a.time < b.time;
 }
 
-void Lightshow::prepare_analysis_for_song(char *song_path) {
-  this->analysis.set_resolution(this->resolution);
-  Logger::debug("1");
-  this->analysis.read_wav(song_path);
-  Logger::debug("2");
-  this->analysis.stft(); //dauert lang
-  Logger::debug("3");
-  this->analysis.normalize();
-  Logger::debug("4");
-
+void Lightshow::get_bpm_and_beats(bool &finished) {
   this->bpm = analysis.get_bpm(); //dauert lang
   Logger::debug("5");
   if(this->bpm == -1) {
@@ -150,10 +141,27 @@ void Lightshow::prepare_analysis_for_song(char *song_path) {
      */
     std::vector<time_value_int> intensity_changes = analysis.get_intensity_changes(segment_intensities, 15);
     this->timestamps_colorchanges = intensity_changes;
-
-
-
   }
+  finished = true;
+}
+
+void Lightshow::prepare_analysis_for_song(char *song_path) {
+  this->analysis.set_resolution(this->resolution);
+  this->analysis.read_wav(song_path);
+
+
+  bool bpm_analysis_finished = false;
+  try {
+    std::thread t(&Lightshow::get_bpm_and_beats, this, std::ref(bpm_analysis_finished));
+    t.detach();
+  } catch (const std::bad_alloc &e) {
+    Logger::error("Allocation failed during bpm thread creation: {}", e.what());
+  }
+
+  this->analysis.stft(); //dauert lang
+  this->analysis.normalize();
+
+
 
   this->set_length((this->analysis.get_length_of_song() + 1) * this->resolution + 3);
   //this->value_changes_bass = this->analysis.peaks_per_band(10, 45);
@@ -196,6 +204,11 @@ void Lightshow::prepare_analysis_for_song(char *song_path) {
   }
 
   this->value_changes_everything = this->analysis.peaks_per_band(0, 20000);
+
+  while(!bpm_analysis_finished) {
+    //std::cout << "waiting for bpm" << std::endl;
+    ;
+  }
 }
 
 std::vector<LightshowFixture> Lightshow::get_fixtures_bass() {

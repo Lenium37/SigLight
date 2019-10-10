@@ -118,6 +118,7 @@ class Lightshow {
                          std::uint8_t value);
   std::vector<time_value_int> calculate_fade(float fade_duration, int c_old, int c_new);
   void set_color_for_time(LightshowFixture &fix, std::string color, float begin, float end);
+  void get_bpm_and_beats(bool &finished);
 };
 
 #endif //RASPITOLIGHT_SRC_UI_LIGHTSHOW_LIGHTSHOW_H_

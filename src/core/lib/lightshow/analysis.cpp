@@ -695,8 +695,8 @@ complex_result Analysis::fft_impulse(std::vector<double> signal) {
   //ifft_result = (fftw_complex *) fftw_malloc(sizeof(fftw_complex) * signalLength);
 
   struct complex_result result;
-  result.real.reserve(308700);
-  result.imag.reserve(308700);
+  result.real.reserve(signalLength);
+  result.imag.reserve(signalLength);
 
   m_plan_forward = fftw_plan_dft_1d(signalLength, m_data, m_fft_result, FFTW_FORWARD, FFTW_ESTIMATE);
 
@@ -747,8 +747,8 @@ int Analysis::get_bpm() {
 
   std::vector<double> resultRE;
   std::vector<double> resultIM;
-  resultRE.reserve(308700);
-  resultIM.reserve(308700);
+  resultRE.reserve(signalLength);
+  resultIM.reserve(signalLength);
   std::vector<double> EBPMcs;
   std::vector<double> EBPMmax;
 
@@ -779,7 +779,7 @@ int Analysis::get_bpm() {
   int bpmObergrenze = 181;
   int bpmUntergrenze = 70;
   std::vector<double> impulse;
-  impulse.reserve(308700);
+  impulse.reserve(signalLength);
 
   m_data = (fftw_complex *) fftw_malloc(sizeof(fftw_complex) * signalLength);
   m_fft_result = (fftw_complex *) fftw_malloc(sizeof(fftw_complex) * signalLength);
