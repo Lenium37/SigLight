@@ -148,7 +148,7 @@ void Lightshow::get_bpm_and_beats(bool &finished) {
 void Lightshow::prepare_analysis_for_song(char *song_path) {
   this->analysis.set_resolution(this->resolution);
   this->analysis.read_wav(song_path);
-
+  this->analysis.stft(); //dauert lang
 
   bool bpm_analysis_finished = false;
   try {
@@ -158,9 +158,7 @@ void Lightshow::prepare_analysis_for_song(char *song_path) {
     Logger::error("Allocation failed during bpm thread creation: {}", e.what());
   }
 
-  this->analysis.stft(); //dauert lang
   this->analysis.normalize();
-
 
 
   this->set_length((this->analysis.get_length_of_song() + 1) * this->resolution + 3);
