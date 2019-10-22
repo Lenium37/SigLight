@@ -1,0 +1,2346 @@
+QLabel#bass[alpha="0"] {
+    background-color: rgba(255, 0, 0, 0.0);
+}
+QLabel#bass[alpha="1"] {
+    background-color: rgba(255, 0, 0, 0.00392156862745098);
+}
+QLabel#bass[alpha="2"] {
+    background-color: rgba(255, 0, 0, 0.00784313725490196);
+}
+QLabel#bass[alpha="3"] {
+    background-color: rgba(255, 0, 0, 0.011764705882352941);
+}
+QLabel#bass[alpha="4"] {
+    background-color: rgba(255, 0, 0, 0.01568627450980392);
+}
+QLabel#bass[alpha="5"] {
+    background-color: rgba(255, 0, 0, 0.0196078431372549);
+}
+QLabel#bass[alpha="6"] {
+    background-color: rgba(255, 0, 0, 0.023529411764705882);
+}
+QLabel#bass[alpha="7"] {
+    background-color: rgba(255, 0, 0, 0.027450980392156862);
+}
+QLabel#bass[alpha="8"] {
+    background-color: rgba(255, 0, 0, 0.03137254901960784);
+}
+QLabel#bass[alpha="9"] {
+    background-color: rgba(255, 0, 0, 0.03529411764705882);
+}
+QLabel#bass[alpha="10"] {
+    background-color: rgba(255, 0, 0, 0.0392156862745098);
+}
+QLabel#bass[alpha="11"] {
+    background-color: rgba(255, 0, 0, 0.043137254901960784);
+}
+QLabel#bass[alpha="12"] {
+    background-color: rgba(255, 0, 0, 0.047058823529411764);
+}
+QLabel#bass[alpha="13"] {
+    background-color: rgba(255, 0, 0, 0.050980392156862744);
+}
+QLabel#bass[alpha="14"] {
+    background-color: rgba(255, 0, 0, 0.054901960784313725);
+}
+QLabel#bass[alpha="15"] {
+    background-color: rgba(255, 0, 0, 0.058823529411764705);
+}
+QLabel#bass[alpha="16"] {
+    background-color: rgba(255, 0, 0, 0.06274509803921569);
+}
+QLabel#bass[alpha="17"] {
+    background-color: rgba(255, 0, 0, 0.06666666666666667);
+}
+QLabel#bass[alpha="18"] {
+    background-color: rgba(255, 0, 0, 0.07058823529411765);
+}
+QLabel#bass[alpha="19"] {
+    background-color: rgba(255, 0, 0, 0.07450980392156863);
+}
+QLabel#bass[alpha="20"] {
+    background-color: rgba(255, 0, 0, 0.0784313725490196);
+}
+QLabel#bass[alpha="21"] {
+    background-color: rgba(255, 0, 0, 0.08235294117647059);
+}
+QLabel#bass[alpha="22"] {
+    background-color: rgba(255, 0, 0, 0.08627450980392157);
+}
+QLabel#bass[alpha="23"] {
+    background-color: rgba(255, 0, 0, 0.09019607843137255);
+}
+QLabel#bass[alpha="24"] {
+    background-color: rgba(255, 0, 0, 0.09411764705882353);
+}
+QLabel#bass[alpha="25"] {
+    background-color: rgba(255, 0, 0, 0.09803921568627451);
+}
+QLabel#bass[alpha="26"] {
+    background-color: rgba(255, 0, 0, 0.10196078431372549);
+}
+QLabel#bass[alpha="27"] {
+    background-color: rgba(255, 0, 0, 0.10588235294117647);
+}
+QLabel#bass[alpha="28"] {
+    background-color: rgba(255, 0, 0, 0.10980392156862745);
+}
+QLabel#bass[alpha="29"] {
+    background-color: rgba(255, 0, 0, 0.11372549019607843);
+}
+QLabel#bass[alpha="30"] {
+    background-color: rgba(255, 0, 0, 0.11764705882352941);
+}
+QLabel#bass[alpha="31"] {
+    background-color: rgba(255, 0, 0, 0.12156862745098039);
+}
+QLabel#bass[alpha="32"] {
+    background-color: rgba(255, 0, 0, 0.12549019607843137);
+}
+QLabel#bass[alpha="33"] {
+    background-color: rgba(255, 0, 0, 0.12941176470588237);
+}
+QLabel#bass[alpha="34"] {
+    background-color: rgba(255, 0, 0, 0.13333333333333333);
+}
+QLabel#bass[alpha="35"] {
+    background-color: rgba(255, 0, 0, 0.13725490196078433);
+}
+QLabel#bass[alpha="36"] {
+    background-color: rgba(255, 0, 0, 0.1411764705882353);
+}
+QLabel#bass[alpha="37"] {
+    background-color: rgba(255, 0, 0, 0.1450980392156863);
+}
+QLabel#bass[alpha="38"] {
+    background-color: rgba(255, 0, 0, 0.14901960784313725);
+}
+QLabel#bass[alpha="39"] {
+    background-color: rgba(255, 0, 0, 0.15294117647058825);
+}
+QLabel#bass[alpha="40"] {
+    background-color: rgba(255, 0, 0, 0.1568627450980392);
+}
+QLabel#bass[alpha="41"] {
+    background-color: rgba(255, 0, 0, 0.1607843137254902);
+}
+QLabel#bass[alpha="42"] {
+    background-color: rgba(255, 0, 0, 0.16470588235294117);
+}
+QLabel#bass[alpha="43"] {
+    background-color: rgba(255, 0, 0, 0.16862745098039217);
+}
+QLabel#bass[alpha="44"] {
+    background-color: rgba(255, 0, 0, 0.17254901960784313);
+}
+QLabel#bass[alpha="45"] {
+    background-color: rgba(255, 0, 0, 0.17647058823529413);
+}
+QLabel#bass[alpha="46"] {
+    background-color: rgba(255, 0, 0, 0.1803921568627451);
+}
+QLabel#bass[alpha="47"] {
+    background-color: rgba(255, 0, 0, 0.1843137254901961);
+}
+QLabel#bass[alpha="48"] {
+    background-color: rgba(255, 0, 0, 0.18823529411764706);
+}
+QLabel#bass[alpha="49"] {
+    background-color: rgba(255, 0, 0, 0.19215686274509805);
+}
+QLabel#bass[alpha="50"] {
+    background-color: rgba(255, 0, 0, 0.19607843137254902);
+}
+QLabel#bass[alpha="51"] {
+    background-color: rgba(255, 0, 0, 0.2);
+}
+QLabel#bass[alpha="52"] {
+    background-color: rgba(255, 0, 0, 0.20392156862745098);
+}
+QLabel#bass[alpha="53"] {
+    background-color: rgba(255, 0, 0, 0.20784313725490197);
+}
+QLabel#bass[alpha="54"] {
+    background-color: rgba(255, 0, 0, 0.21176470588235294);
+}
+QLabel#bass[alpha="55"] {
+    background-color: rgba(255, 0, 0, 0.21568627450980393);
+}
+QLabel#bass[alpha="56"] {
+    background-color: rgba(255, 0, 0, 0.2196078431372549);
+}
+QLabel#bass[alpha="57"] {
+    background-color: rgba(255, 0, 0, 0.2235294117647059);
+}
+QLabel#bass[alpha="58"] {
+    background-color: rgba(255, 0, 0, 0.22745098039215686);
+}
+QLabel#bass[alpha="59"] {
+    background-color: rgba(255, 0, 0, 0.23137254901960785);
+}
+QLabel#bass[alpha="60"] {
+    background-color: rgba(255, 0, 0, 0.23529411764705882);
+}
+QLabel#bass[alpha="61"] {
+    background-color: rgba(255, 0, 0, 0.23921568627450981);
+}
+QLabel#bass[alpha="62"] {
+    background-color: rgba(255, 0, 0, 0.24313725490196078);
+}
+QLabel#bass[alpha="63"] {
+    background-color: rgba(255, 0, 0, 0.24705882352941178);
+}
+QLabel#bass[alpha="64"] {
+    background-color: rgba(255, 0, 0, 0.25098039215686274);
+}
+QLabel#bass[alpha="65"] {
+    background-color: rgba(255, 0, 0, 0.2549019607843137);
+}
+QLabel#bass[alpha="66"] {
+    background-color: rgba(255, 0, 0, 0.25882352941176473);
+}
+QLabel#bass[alpha="67"] {
+    background-color: rgba(255, 0, 0, 0.2627450980392157);
+}
+QLabel#bass[alpha="68"] {
+    background-color: rgba(255, 0, 0, 0.26666666666666666);
+}
+QLabel#bass[alpha="69"] {
+    background-color: rgba(255, 0, 0, 0.27058823529411763);
+}
+QLabel#bass[alpha="70"] {
+    background-color: rgba(255, 0, 0, 0.27450980392156865);
+}
+QLabel#bass[alpha="71"] {
+    background-color: rgba(255, 0, 0, 0.2784313725490196);
+}
+QLabel#bass[alpha="72"] {
+    background-color: rgba(255, 0, 0, 0.2823529411764706);
+}
+QLabel#bass[alpha="73"] {
+    background-color: rgba(255, 0, 0, 0.28627450980392155);
+}
+QLabel#bass[alpha="74"] {
+    background-color: rgba(255, 0, 0, 0.2901960784313726);
+}
+QLabel#bass[alpha="75"] {
+    background-color: rgba(255, 0, 0, 0.29411764705882354);
+}
+QLabel#bass[alpha="76"] {
+    background-color: rgba(255, 0, 0, 0.2980392156862745);
+}
+QLabel#bass[alpha="77"] {
+    background-color: rgba(255, 0, 0, 0.30196078431372547);
+}
+QLabel#bass[alpha="78"] {
+    background-color: rgba(255, 0, 0, 0.3058823529411765);
+}
+QLabel#bass[alpha="79"] {
+    background-color: rgba(255, 0, 0, 0.30980392156862746);
+}
+QLabel#bass[alpha="80"] {
+    background-color: rgba(255, 0, 0, 0.3137254901960784);
+}
+QLabel#bass[alpha="81"] {
+    background-color: rgba(255, 0, 0, 0.3176470588235294);
+}
+QLabel#bass[alpha="82"] {
+    background-color: rgba(255, 0, 0, 0.3215686274509804);
+}
+QLabel#bass[alpha="83"] {
+    background-color: rgba(255, 0, 0, 0.3254901960784314);
+}
+QLabel#bass[alpha="84"] {
+    background-color: rgba(255, 0, 0, 0.32941176470588235);
+}
+QLabel#bass[alpha="85"] {
+    background-color: rgba(255, 0, 0, 0.3333333333333333);
+}
+QLabel#bass[alpha="86"] {
+    background-color: rgba(255, 0, 0, 0.33725490196078434);
+}
+QLabel#bass[alpha="87"] {
+    background-color: rgba(255, 0, 0, 0.3411764705882353);
+}
+QLabel#bass[alpha="88"] {
+    background-color: rgba(255, 0, 0, 0.34509803921568627);
+}
+QLabel#bass[alpha="89"] {
+    background-color: rgba(255, 0, 0, 0.34901960784313724);
+}
+QLabel#bass[alpha="90"] {
+    background-color: rgba(255, 0, 0, 0.35294117647058826);
+}
+QLabel#bass[alpha="91"] {
+    background-color: rgba(255, 0, 0, 0.3568627450980392);
+}
+QLabel#bass[alpha="92"] {
+    background-color: rgba(255, 0, 0, 0.3607843137254902);
+}
+QLabel#bass[alpha="93"] {
+    background-color: rgba(255, 0, 0, 0.36470588235294116);
+}
+QLabel#bass[alpha="94"] {
+    background-color: rgba(255, 0, 0, 0.3686274509803922);
+}
+QLabel#bass[alpha="95"] {
+    background-color: rgba(255, 0, 0, 0.37254901960784315);
+}
+QLabel#bass[alpha="96"] {
+    background-color: rgba(255, 0, 0, 0.3764705882352941);
+}
+QLabel#bass[alpha="97"] {
+    background-color: rgba(255, 0, 0, 0.3803921568627451);
+}
+QLabel#bass[alpha="98"] {
+    background-color: rgba(255, 0, 0, 0.3843137254901961);
+}
+QLabel#bass[alpha="99"] {
+    background-color: rgba(255, 0, 0, 0.38823529411764707);
+}
+QLabel#bass[alpha="100"] {
+    background-color: rgba(255, 0, 0, 0.39215686274509803);
+}
+QLabel#bass[alpha="101"] {
+    background-color: rgba(255, 0, 0, 0.396078431372549);
+}
+QLabel#bass[alpha="102"] {
+    background-color: rgba(255, 0, 0, 0.4);
+}
+QLabel#bass[alpha="103"] {
+    background-color: rgba(255, 0, 0, 0.403921568627451);
+}
+QLabel#bass[alpha="104"] {
+    background-color: rgba(255, 0, 0, 0.40784313725490196);
+}
+QLabel#bass[alpha="105"] {
+    background-color: rgba(255, 0, 0, 0.4117647058823529);
+}
+QLabel#bass[alpha="106"] {
+    background-color: rgba(255, 0, 0, 0.41568627450980394);
+}
+QLabel#bass[alpha="107"] {
+    background-color: rgba(255, 0, 0, 0.4196078431372549);
+}
+QLabel#bass[alpha="108"] {
+    background-color: rgba(255, 0, 0, 0.4235294117647059);
+}
+QLabel#bass[alpha="109"] {
+    background-color: rgba(255, 0, 0, 0.42745098039215684);
+}
+QLabel#bass[alpha="110"] {
+    background-color: rgba(255, 0, 0, 0.43137254901960786);
+}
+QLabel#bass[alpha="111"] {
+    background-color: rgba(255, 0, 0, 0.43529411764705883);
+}
+QLabel#bass[alpha="112"] {
+    background-color: rgba(255, 0, 0, 0.4392156862745098);
+}
+QLabel#bass[alpha="113"] {
+    background-color: rgba(255, 0, 0, 0.44313725490196076);
+}
+QLabel#bass[alpha="114"] {
+    background-color: rgba(255, 0, 0, 0.4470588235294118);
+}
+QLabel#bass[alpha="115"] {
+    background-color: rgba(255, 0, 0, 0.45098039215686275);
+}
+QLabel#bass[alpha="116"] {
+    background-color: rgba(255, 0, 0, 0.4549019607843137);
+}
+QLabel#bass[alpha="117"] {
+    background-color: rgba(255, 0, 0, 0.4588235294117647);
+}
+QLabel#bass[alpha="118"] {
+    background-color: rgba(255, 0, 0, 0.4627450980392157);
+}
+QLabel#bass[alpha="119"] {
+    background-color: rgba(255, 0, 0, 0.4666666666666667);
+}
+QLabel#bass[alpha="120"] {
+    background-color: rgba(255, 0, 0, 0.47058823529411764);
+}
+QLabel#bass[alpha="121"] {
+    background-color: rgba(255, 0, 0, 0.4745098039215686);
+}
+QLabel#bass[alpha="122"] {
+    background-color: rgba(255, 0, 0, 0.47843137254901963);
+}
+QLabel#bass[alpha="123"] {
+    background-color: rgba(255, 0, 0, 0.4823529411764706);
+}
+QLabel#bass[alpha="124"] {
+    background-color: rgba(255, 0, 0, 0.48627450980392156);
+}
+QLabel#bass[alpha="125"] {
+    background-color: rgba(255, 0, 0, 0.49019607843137253);
+}
+QLabel#bass[alpha="126"] {
+    background-color: rgba(255, 0, 0, 0.49411764705882355);
+}
+QLabel#bass[alpha="127"] {
+    background-color: rgba(255, 0, 0, 0.4980392156862745);
+}
+QLabel#bass[alpha="128"] {
+    background-color: rgba(255, 0, 0, 0.5019607843137255);
+}
+QLabel#bass[alpha="129"] {
+    background-color: rgba(255, 0, 0, 0.5058823529411764);
+}
+QLabel#bass[alpha="130"] {
+    background-color: rgba(255, 0, 0, 0.5098039215686274);
+}
+QLabel#bass[alpha="131"] {
+    background-color: rgba(255, 0, 0, 0.5137254901960784);
+}
+QLabel#bass[alpha="132"] {
+    background-color: rgba(255, 0, 0, 0.5176470588235295);
+}
+QLabel#bass[alpha="133"] {
+    background-color: rgba(255, 0, 0, 0.5215686274509804);
+}
+QLabel#bass[alpha="134"] {
+    background-color: rgba(255, 0, 0, 0.5254901960784314);
+}
+QLabel#bass[alpha="135"] {
+    background-color: rgba(255, 0, 0, 0.5294117647058824);
+}
+QLabel#bass[alpha="136"] {
+    background-color: rgba(255, 0, 0, 0.5333333333333333);
+}
+QLabel#bass[alpha="137"] {
+    background-color: rgba(255, 0, 0, 0.5372549019607843);
+}
+QLabel#bass[alpha="138"] {
+    background-color: rgba(255, 0, 0, 0.5411764705882353);
+}
+QLabel#bass[alpha="139"] {
+    background-color: rgba(255, 0, 0, 0.5450980392156862);
+}
+QLabel#bass[alpha="140"] {
+    background-color: rgba(255, 0, 0, 0.5490196078431373);
+}
+QLabel#bass[alpha="141"] {
+    background-color: rgba(255, 0, 0, 0.5529411764705883);
+}
+QLabel#bass[alpha="142"] {
+    background-color: rgba(255, 0, 0, 0.5568627450980392);
+}
+QLabel#bass[alpha="143"] {
+    background-color: rgba(255, 0, 0, 0.5607843137254902);
+}
+QLabel#bass[alpha="144"] {
+    background-color: rgba(255, 0, 0, 0.5647058823529412);
+}
+QLabel#bass[alpha="145"] {
+    background-color: rgba(255, 0, 0, 0.5686274509803921);
+}
+QLabel#bass[alpha="146"] {
+    background-color: rgba(255, 0, 0, 0.5725490196078431);
+}
+QLabel#bass[alpha="147"] {
+    background-color: rgba(255, 0, 0, 0.5764705882352941);
+}
+QLabel#bass[alpha="148"] {
+    background-color: rgba(255, 0, 0, 0.5803921568627451);
+}
+QLabel#bass[alpha="149"] {
+    background-color: rgba(255, 0, 0, 0.5843137254901961);
+}
+QLabel#bass[alpha="150"] {
+    background-color: rgba(255, 0, 0, 0.5882352941176471);
+}
+QLabel#bass[alpha="151"] {
+    background-color: rgba(255, 0, 0, 0.592156862745098);
+}
+QLabel#bass[alpha="152"] {
+    background-color: rgba(255, 0, 0, 0.596078431372549);
+}
+QLabel#bass[alpha="153"] {
+    background-color: rgba(255, 0, 0, 0.6);
+}
+QLabel#bass[alpha="154"] {
+    background-color: rgba(255, 0, 0, 0.6039215686274509);
+}
+QLabel#bass[alpha="155"] {
+    background-color: rgba(255, 0, 0, 0.6078431372549019);
+}
+QLabel#bass[alpha="156"] {
+    background-color: rgba(255, 0, 0, 0.611764705882353);
+}
+QLabel#bass[alpha="157"] {
+    background-color: rgba(255, 0, 0, 0.615686274509804);
+}
+QLabel#bass[alpha="158"] {
+    background-color: rgba(255, 0, 0, 0.6196078431372549);
+}
+QLabel#bass[alpha="159"] {
+    background-color: rgba(255, 0, 0, 0.6235294117647059);
+}
+QLabel#bass[alpha="160"] {
+    background-color: rgba(255, 0, 0, 0.6274509803921569);
+}
+QLabel#bass[alpha="161"] {
+    background-color: rgba(255, 0, 0, 0.6313725490196078);
+}
+QLabel#bass[alpha="162"] {
+    background-color: rgba(255, 0, 0, 0.6352941176470588);
+}
+QLabel#bass[alpha="163"] {
+    background-color: rgba(255, 0, 0, 0.6392156862745098);
+}
+QLabel#bass[alpha="164"] {
+    background-color: rgba(255, 0, 0, 0.6431372549019608);
+}
+QLabel#bass[alpha="165"] {
+    background-color: rgba(255, 0, 0, 0.6470588235294118);
+}
+QLabel#bass[alpha="166"] {
+    background-color: rgba(255, 0, 0, 0.6509803921568628);
+}
+QLabel#bass[alpha="167"] {
+    background-color: rgba(255, 0, 0, 0.6549019607843137);
+}
+QLabel#bass[alpha="168"] {
+    background-color: rgba(255, 0, 0, 0.6588235294117647);
+}
+QLabel#bass[alpha="169"] {
+    background-color: rgba(255, 0, 0, 0.6627450980392157);
+}
+QLabel#bass[alpha="170"] {
+    background-color: rgba(255, 0, 0, 0.6666666666666666);
+}
+QLabel#bass[alpha="171"] {
+    background-color: rgba(255, 0, 0, 0.6705882352941176);
+}
+QLabel#bass[alpha="172"] {
+    background-color: rgba(255, 0, 0, 0.6745098039215687);
+}
+QLabel#bass[alpha="173"] {
+    background-color: rgba(255, 0, 0, 0.6784313725490196);
+}
+QLabel#bass[alpha="174"] {
+    background-color: rgba(255, 0, 0, 0.6823529411764706);
+}
+QLabel#bass[alpha="175"] {
+    background-color: rgba(255, 0, 0, 0.6862745098039216);
+}
+QLabel#bass[alpha="176"] {
+    background-color: rgba(255, 0, 0, 0.6901960784313725);
+}
+QLabel#bass[alpha="177"] {
+    background-color: rgba(255, 0, 0, 0.6941176470588235);
+}
+QLabel#bass[alpha="178"] {
+    background-color: rgba(255, 0, 0, 0.6980392156862745);
+}
+QLabel#bass[alpha="179"] {
+    background-color: rgba(255, 0, 0, 0.7019607843137254);
+}
+QLabel#bass[alpha="180"] {
+    background-color: rgba(255, 0, 0, 0.7058823529411765);
+}
+QLabel#bass[alpha="181"] {
+    background-color: rgba(255, 0, 0, 0.7098039215686275);
+}
+QLabel#bass[alpha="182"] {
+    background-color: rgba(255, 0, 0, 0.7137254901960784);
+}
+QLabel#bass[alpha="183"] {
+    background-color: rgba(255, 0, 0, 0.7176470588235294);
+}
+QLabel#bass[alpha="184"] {
+    background-color: rgba(255, 0, 0, 0.7215686274509804);
+}
+QLabel#bass[alpha="185"] {
+    background-color: rgba(255, 0, 0, 0.7254901960784313);
+}
+QLabel#bass[alpha="186"] {
+    background-color: rgba(255, 0, 0, 0.7294117647058823);
+}
+QLabel#bass[alpha="187"] {
+    background-color: rgba(255, 0, 0, 0.7333333333333333);
+}
+QLabel#bass[alpha="188"] {
+    background-color: rgba(255, 0, 0, 0.7372549019607844);
+}
+QLabel#bass[alpha="189"] {
+    background-color: rgba(255, 0, 0, 0.7411764705882353);
+}
+QLabel#bass[alpha="190"] {
+    background-color: rgba(255, 0, 0, 0.7450980392156863);
+}
+QLabel#bass[alpha="191"] {
+    background-color: rgba(255, 0, 0, 0.7490196078431373);
+}
+QLabel#bass[alpha="192"] {
+    background-color: rgba(255, 0, 0, 0.7529411764705882);
+}
+QLabel#bass[alpha="193"] {
+    background-color: rgba(255, 0, 0, 0.7568627450980392);
+}
+QLabel#bass[alpha="194"] {
+    background-color: rgba(255, 0, 0, 0.7607843137254902);
+}
+QLabel#bass[alpha="195"] {
+    background-color: rgba(255, 0, 0, 0.7647058823529411);
+}
+QLabel#bass[alpha="196"] {
+    background-color: rgba(255, 0, 0, 0.7686274509803922);
+}
+QLabel#bass[alpha="197"] {
+    background-color: rgba(255, 0, 0, 0.7725490196078432);
+}
+QLabel#bass[alpha="198"] {
+    background-color: rgba(255, 0, 0, 0.7764705882352941);
+}
+QLabel#bass[alpha="199"] {
+    background-color: rgba(255, 0, 0, 0.7803921568627451);
+}
+QLabel#bass[alpha="200"] {
+    background-color: rgba(255, 0, 0, 0.7843137254901961);
+}
+QLabel#bass[alpha="201"] {
+    background-color: rgba(255, 0, 0, 0.788235294117647);
+}
+QLabel#bass[alpha="202"] {
+    background-color: rgba(255, 0, 0, 0.792156862745098);
+}
+QLabel#bass[alpha="203"] {
+    background-color: rgba(255, 0, 0, 0.796078431372549);
+}
+QLabel#bass[alpha="204"] {
+    background-color: rgba(255, 0, 0, 0.8);
+}
+QLabel#bass[alpha="205"] {
+    background-color: rgba(255, 0, 0, 0.803921568627451);
+}
+QLabel#bass[alpha="206"] {
+    background-color: rgba(255, 0, 0, 0.807843137254902);
+}
+QLabel#bass[alpha="207"] {
+    background-color: rgba(255, 0, 0, 0.8117647058823529);
+}
+QLabel#bass[alpha="208"] {
+    background-color: rgba(255, 0, 0, 0.8156862745098039);
+}
+QLabel#bass[alpha="209"] {
+    background-color: rgba(255, 0, 0, 0.8196078431372549);
+}
+QLabel#bass[alpha="210"] {
+    background-color: rgba(255, 0, 0, 0.8235294117647058);
+}
+QLabel#bass[alpha="211"] {
+    background-color: rgba(255, 0, 0, 0.8274509803921568);
+}
+QLabel#bass[alpha="212"] {
+    background-color: rgba(255, 0, 0, 0.8313725490196079);
+}
+QLabel#bass[alpha="213"] {
+    background-color: rgba(255, 0, 0, 0.8352941176470589);
+}
+QLabel#bass[alpha="214"] {
+    background-color: rgba(255, 0, 0, 0.8392156862745098);
+}
+QLabel#bass[alpha="215"] {
+    background-color: rgba(255, 0, 0, 0.8431372549019608);
+}
+QLabel#bass[alpha="216"] {
+    background-color: rgba(255, 0, 0, 0.8470588235294118);
+}
+QLabel#bass[alpha="217"] {
+    background-color: rgba(255, 0, 0, 0.8509803921568627);
+}
+QLabel#bass[alpha="218"] {
+    background-color: rgba(255, 0, 0, 0.8549019607843137);
+}
+QLabel#bass[alpha="219"] {
+    background-color: rgba(255, 0, 0, 0.8588235294117647);
+}
+QLabel#bass[alpha="220"] {
+    background-color: rgba(255, 0, 0, 0.8627450980392157);
+}
+QLabel#bass[alpha="221"] {
+    background-color: rgba(255, 0, 0, 0.8666666666666667);
+}
+QLabel#bass[alpha="222"] {
+    background-color: rgba(255, 0, 0, 0.8705882352941177);
+}
+QLabel#bass[alpha="223"] {
+    background-color: rgba(255, 0, 0, 0.8745098039215686);
+}
+QLabel#bass[alpha="224"] {
+    background-color: rgba(255, 0, 0, 0.8784313725490196);
+}
+QLabel#bass[alpha="225"] {
+    background-color: rgba(255, 0, 0, 0.8823529411764706);
+}
+QLabel#bass[alpha="226"] {
+    background-color: rgba(255, 0, 0, 0.8862745098039215);
+}
+QLabel#bass[alpha="227"] {
+    background-color: rgba(255, 0, 0, 0.8901960784313725);
+}
+QLabel#bass[alpha="228"] {
+    background-color: rgba(255, 0, 0, 0.8941176470588236);
+}
+QLabel#bass[alpha="229"] {
+    background-color: rgba(255, 0, 0, 0.8980392156862745);
+}
+QLabel#bass[alpha="230"] {
+    background-color: rgba(255, 0, 0, 0.9019607843137255);
+}
+QLabel#bass[alpha="231"] {
+    background-color: rgba(255, 0, 0, 0.9058823529411765);
+}
+QLabel#bass[alpha="232"] {
+    background-color: rgba(255, 0, 0, 0.9098039215686274);
+}
+QLabel#bass[alpha="233"] {
+    background-color: rgba(255, 0, 0, 0.9137254901960784);
+}
+QLabel#bass[alpha="234"] {
+    background-color: rgba(255, 0, 0, 0.9176470588235294);
+}
+QLabel#bass[alpha="235"] {
+    background-color: rgba(255, 0, 0, 0.9215686274509803);
+}
+QLabel#bass[alpha="236"] {
+    background-color: rgba(255, 0, 0, 0.9254901960784314);
+}
+QLabel#bass[alpha="237"] {
+    background-color: rgba(255, 0, 0, 0.9294117647058824);
+}
+QLabel#bass[alpha="238"] {
+    background-color: rgba(255, 0, 0, 0.9333333333333333);
+}
+QLabel#bass[alpha="239"] {
+    background-color: rgba(255, 0, 0, 0.9372549019607843);
+}
+QLabel#bass[alpha="240"] {
+    background-color: rgba(255, 0, 0, 0.9411764705882353);
+}
+QLabel#bass[alpha="241"] {
+    background-color: rgba(255, 0, 0, 0.9450980392156862);
+}
+QLabel#bass[alpha="242"] {
+    background-color: rgba(255, 0, 0, 0.9490196078431372);
+}
+QLabel#bass[alpha="243"] {
+    background-color: rgba(255, 0, 0, 0.9529411764705882);
+}
+QLabel#bass[alpha="244"] {
+    background-color: rgba(255, 0, 0, 0.9568627450980393);
+}
+QLabel#bass[alpha="245"] {
+    background-color: rgba(255, 0, 0, 0.9607843137254902);
+}
+QLabel#bass[alpha="246"] {
+    background-color: rgba(255, 0, 0, 0.9647058823529412);
+}
+QLabel#bass[alpha="247"] {
+    background-color: rgba(255, 0, 0, 0.9686274509803922);
+}
+QLabel#bass[alpha="248"] {
+    background-color: rgba(255, 0, 0, 0.9725490196078431);
+}
+QLabel#bass[alpha="249"] {
+    background-color: rgba(255, 0, 0, 0.9764705882352941);
+}
+QLabel#bass[alpha="250"] {
+    background-color: rgba(255, 0, 0, 0.9803921568627451);
+}
+QLabel#bass[alpha="251"] {
+    background-color: rgba(255, 0, 0, 0.984313725490196);
+}
+QLabel#bass[alpha="252"] {
+    background-color: rgba(255, 0, 0, 0.9882352941176471);
+}
+QLabel#bass[alpha="253"] {
+    background-color: rgba(255, 0, 0, 0.9921568627450981);
+}
+QLabel#bass[alpha="254"] {
+    background-color: rgba(255, 0, 0, 0.996078431372549);
+}
+QLabel#bass[alpha="255"] {
+    background-color: rgba(255, 0, 0, 1);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+QLabel#mid[alpha="0"] {
+    background-color: rgba(0, 0, 255, 0.0);
+}
+QLabel#mid[alpha="1"] {
+    background-color: rgba(0, 0, 255, 0.00392156862745098);
+}
+QLabel#mid[alpha="2"] {
+    background-color: rgba(0, 0, 255, 0.00784313725490196);
+}
+QLabel#mid[alpha="3"] {
+    background-color: rgba(0, 0, 255, 0.011764705882352941);
+}
+QLabel#mid[alpha="4"] {
+    background-color: rgba(0, 0, 255, 0.01568627450980392);
+}
+QLabel#mid[alpha="5"] {
+    background-color: rgba(0, 0, 255, 0.0196078431372549);
+}
+QLabel#mid[alpha="6"] {
+    background-color: rgba(0, 0, 255, 0.023529411764705882);
+}
+QLabel#mid[alpha="7"] {
+    background-color: rgba(0, 0, 255, 0.027450980392156862);
+}
+QLabel#mid[alpha="8"] {
+    background-color: rgba(0, 0, 255, 0.03137254901960784);
+}
+QLabel#mid[alpha="9"] {
+    background-color: rgba(0, 0, 255, 0.03529411764705882);
+}
+QLabel#mid[alpha="10"] {
+    background-color: rgba(0, 0, 255, 0.0392156862745098);
+}
+QLabel#mid[alpha="11"] {
+    background-color: rgba(0, 0, 255, 0.043137254901960784);
+}
+QLabel#mid[alpha="12"] {
+    background-color: rgba(0, 0, 255, 0.047058823529411764);
+}
+QLabel#mid[alpha="13"] {
+    background-color: rgba(0, 0, 255, 0.050980392156862744);
+}
+QLabel#mid[alpha="14"] {
+    background-color: rgba(0, 0, 255, 0.054901960784313725);
+}
+QLabel#mid[alpha="15"] {
+    background-color: rgba(0, 0, 255, 0.058823529411764705);
+}
+QLabel#mid[alpha="16"] {
+    background-color: rgba(0, 0, 255, 0.06274509803921569);
+}
+QLabel#mid[alpha="17"] {
+    background-color: rgba(0, 0, 255, 0.06666666666666667);
+}
+QLabel#mid[alpha="18"] {
+    background-color: rgba(0, 0, 255, 0.07058823529411765);
+}
+QLabel#mid[alpha="19"] {
+    background-color: rgba(0, 0, 255, 0.07450980392156863);
+}
+QLabel#mid[alpha="20"] {
+    background-color: rgba(0, 0, 255, 0.0784313725490196);
+}
+QLabel#mid[alpha="21"] {
+    background-color: rgba(0, 0, 255, 0.08235294117647059);
+}
+QLabel#mid[alpha="22"] {
+    background-color: rgba(0, 0, 255, 0.08627450980392157);
+}
+QLabel#mid[alpha="23"] {
+    background-color: rgba(0, 0, 255, 0.09019607843137255);
+}
+QLabel#mid[alpha="24"] {
+    background-color: rgba(0, 0, 255, 0.09411764705882353);
+}
+QLabel#mid[alpha="25"] {
+    background-color: rgba(0, 0, 255, 0.09803921568627451);
+}
+QLabel#mid[alpha="26"] {
+    background-color: rgba(0, 0, 255, 0.10196078431372549);
+}
+QLabel#mid[alpha="27"] {
+    background-color: rgba(0, 0, 255, 0.10588235294117647);
+}
+QLabel#mid[alpha="28"] {
+    background-color: rgba(0, 0, 255, 0.10980392156862745);
+}
+QLabel#mid[alpha="29"] {
+    background-color: rgba(0, 0, 255, 0.11372549019607843);
+}
+QLabel#mid[alpha="30"] {
+    background-color: rgba(0, 0, 255, 0.11764705882352941);
+}
+QLabel#mid[alpha="31"] {
+    background-color: rgba(0, 0, 255, 0.12156862745098039);
+}
+QLabel#mid[alpha="32"] {
+    background-color: rgba(0, 0, 255, 0.12549019607843137);
+}
+QLabel#mid[alpha="33"] {
+    background-color: rgba(0, 0, 255, 0.12941176470588237);
+}
+QLabel#mid[alpha="34"] {
+    background-color: rgba(0, 0, 255, 0.13333333333333333);
+}
+QLabel#mid[alpha="35"] {
+    background-color: rgba(0, 0, 255, 0.13725490196078433);
+}
+QLabel#mid[alpha="36"] {
+    background-color: rgba(0, 0, 255, 0.1411764705882353);
+}
+QLabel#mid[alpha="37"] {
+    background-color: rgba(0, 0, 255, 0.1450980392156863);
+}
+QLabel#mid[alpha="38"] {
+    background-color: rgba(0, 0, 255, 0.14901960784313725);
+}
+QLabel#mid[alpha="39"] {
+    background-color: rgba(0, 0, 255, 0.15294117647058825);
+}
+QLabel#mid[alpha="40"] {
+    background-color: rgba(0, 0, 255, 0.1568627450980392);
+}
+QLabel#mid[alpha="41"] {
+    background-color: rgba(0, 0, 255, 0.1607843137254902);
+}
+QLabel#mid[alpha="42"] {
+    background-color: rgba(0, 0, 255, 0.16470588235294117);
+}
+QLabel#mid[alpha="43"] {
+    background-color: rgba(0, 0, 255, 0.16862745098039217);
+}
+QLabel#mid[alpha="44"] {
+    background-color: rgba(0, 0, 255, 0.17254901960784313);
+}
+QLabel#mid[alpha="45"] {
+    background-color: rgba(0, 0, 255, 0.17647058823529413);
+}
+QLabel#mid[alpha="46"] {
+    background-color: rgba(0, 0, 255, 0.1803921568627451);
+}
+QLabel#mid[alpha="47"] {
+    background-color: rgba(0, 0, 255, 0.1843137254901961);
+}
+QLabel#mid[alpha="48"] {
+    background-color: rgba(0, 0, 255, 0.18823529411764706);
+}
+QLabel#mid[alpha="49"] {
+    background-color: rgba(0, 0, 255, 0.19215686274509805);
+}
+QLabel#mid[alpha="50"] {
+    background-color: rgba(0, 0, 255, 0.19607843137254902);
+}
+QLabel#mid[alpha="51"] {
+    background-color: rgba(0, 0, 255, 0.2);
+}
+QLabel#mid[alpha="52"] {
+    background-color: rgba(0, 0, 255, 0.20392156862745098);
+}
+QLabel#mid[alpha="53"] {
+    background-color: rgba(0, 0, 255, 0.20784313725490197);
+}
+QLabel#mid[alpha="54"] {
+    background-color: rgba(0, 0, 255, 0.21176470588235294);
+}
+QLabel#mid[alpha="55"] {
+    background-color: rgba(0, 0, 255, 0.21568627450980393);
+}
+QLabel#mid[alpha="56"] {
+    background-color: rgba(0, 0, 255, 0.2196078431372549);
+}
+QLabel#mid[alpha="57"] {
+    background-color: rgba(0, 0, 255, 0.2235294117647059);
+}
+QLabel#mid[alpha="58"] {
+    background-color: rgba(0, 0, 255, 0.22745098039215686);
+}
+QLabel#mid[alpha="59"] {
+    background-color: rgba(0, 0, 255, 0.23137254901960785);
+}
+QLabel#mid[alpha="60"] {
+    background-color: rgba(0, 0, 255, 0.23529411764705882);
+}
+QLabel#mid[alpha="61"] {
+    background-color: rgba(0, 0, 255, 0.23921568627450981);
+}
+QLabel#mid[alpha="62"] {
+    background-color: rgba(0, 0, 255, 0.24313725490196078);
+}
+QLabel#mid[alpha="63"] {
+    background-color: rgba(0, 0, 255, 0.24705882352941178);
+}
+QLabel#mid[alpha="64"] {
+    background-color: rgba(0, 0, 255, 0.25098039215686274);
+}
+QLabel#mid[alpha="65"] {
+    background-color: rgba(0, 0, 255, 0.2549019607843137);
+}
+QLabel#mid[alpha="66"] {
+    background-color: rgba(0, 0, 255, 0.25882352941176473);
+}
+QLabel#mid[alpha="67"] {
+    background-color: rgba(0, 0, 255, 0.2627450980392157);
+}
+QLabel#mid[alpha="68"] {
+    background-color: rgba(0, 0, 255, 0.26666666666666666);
+}
+QLabel#mid[alpha="69"] {
+    background-color: rgba(0, 0, 255, 0.27058823529411763);
+}
+QLabel#mid[alpha="70"] {
+    background-color: rgba(0, 0, 255, 0.27450980392156865);
+}
+QLabel#mid[alpha="71"] {
+    background-color: rgba(0, 0, 255, 0.2784313725490196);
+}
+QLabel#mid[alpha="72"] {
+    background-color: rgba(0, 0, 255, 0.2823529411764706);
+}
+QLabel#mid[alpha="73"] {
+    background-color: rgba(0, 0, 255, 0.28627450980392155);
+}
+QLabel#mid[alpha="74"] {
+    background-color: rgba(0, 0, 255, 0.2901960784313726);
+}
+QLabel#mid[alpha="75"] {
+    background-color: rgba(0, 0, 255, 0.29411764705882354);
+}
+QLabel#mid[alpha="76"] {
+    background-color: rgba(0, 0, 255, 0.2980392156862745);
+}
+QLabel#mid[alpha="77"] {
+    background-color: rgba(0, 0, 255, 0.30196078431372547);
+}
+QLabel#mid[alpha="78"] {
+    background-color: rgba(0, 0, 255, 0.3058823529411765);
+}
+QLabel#mid[alpha="79"] {
+    background-color: rgba(0, 0, 255, 0.30980392156862746);
+}
+QLabel#mid[alpha="80"] {
+    background-color: rgba(0, 0, 255, 0.3137254901960784);
+}
+QLabel#mid[alpha="81"] {
+    background-color: rgba(0, 0, 255, 0.3176470588235294);
+}
+QLabel#mid[alpha="82"] {
+    background-color: rgba(0, 0, 255, 0.3215686274509804);
+}
+QLabel#mid[alpha="83"] {
+    background-color: rgba(0, 0, 255, 0.3254901960784314);
+}
+QLabel#mid[alpha="84"] {
+    background-color: rgba(0, 0, 255, 0.32941176470588235);
+}
+QLabel#mid[alpha="85"] {
+    background-color: rgba(0, 0, 255, 0.3333333333333333);
+}
+QLabel#mid[alpha="86"] {
+    background-color: rgba(0, 0, 255, 0.33725490196078434);
+}
+QLabel#mid[alpha="87"] {
+    background-color: rgba(0, 0, 255, 0.3411764705882353);
+}
+QLabel#mid[alpha="88"] {
+    background-color: rgba(0, 0, 255, 0.34509803921568627);
+}
+QLabel#mid[alpha="89"] {
+    background-color: rgba(0, 0, 255, 0.34901960784313724);
+}
+QLabel#mid[alpha="90"] {
+    background-color: rgba(0, 0, 255, 0.35294117647058826);
+}
+QLabel#mid[alpha="91"] {
+    background-color: rgba(0, 0, 255, 0.3568627450980392);
+}
+QLabel#mid[alpha="92"] {
+    background-color: rgba(0, 0, 255, 0.3607843137254902);
+}
+QLabel#mid[alpha="93"] {
+    background-color: rgba(0, 0, 255, 0.36470588235294116);
+}
+QLabel#mid[alpha="94"] {
+    background-color: rgba(0, 0, 255, 0.3686274509803922);
+}
+QLabel#mid[alpha="95"] {
+    background-color: rgba(0, 0, 255, 0.37254901960784315);
+}
+QLabel#mid[alpha="96"] {
+    background-color: rgba(0, 0, 255, 0.3764705882352941);
+}
+QLabel#mid[alpha="97"] {
+    background-color: rgba(0, 0, 255, 0.3803921568627451);
+}
+QLabel#mid[alpha="98"] {
+    background-color: rgba(0, 0, 255, 0.3843137254901961);
+}
+QLabel#mid[alpha="99"] {
+    background-color: rgba(0, 0, 255, 0.38823529411764707);
+}
+QLabel#mid[alpha="100"] {
+    background-color: rgba(0, 0, 255, 0.39215686274509803);
+}
+QLabel#mid[alpha="101"] {
+    background-color: rgba(0, 0, 255, 0.396078431372549);
+}
+QLabel#mid[alpha="102"] {
+    background-color: rgba(0, 0, 255, 0.4);
+}
+QLabel#mid[alpha="103"] {
+    background-color: rgba(0, 0, 255, 0.403921568627451);
+}
+QLabel#mid[alpha="104"] {
+    background-color: rgba(0, 0, 255, 0.40784313725490196);
+}
+QLabel#mid[alpha="105"] {
+    background-color: rgba(0, 0, 255, 0.4117647058823529);
+}
+QLabel#mid[alpha="106"] {
+    background-color: rgba(0, 0, 255, 0.41568627450980394);
+}
+QLabel#mid[alpha="107"] {
+    background-color: rgba(0, 0, 255, 0.4196078431372549);
+}
+QLabel#mid[alpha="108"] {
+    background-color: rgba(0, 0, 255, 0.4235294117647059);
+}
+QLabel#mid[alpha="109"] {
+    background-color: rgba(0, 0, 255, 0.42745098039215684);
+}
+QLabel#mid[alpha="110"] {
+    background-color: rgba(0, 0, 255, 0.43137254901960786);
+}
+QLabel#mid[alpha="111"] {
+    background-color: rgba(0, 0, 255, 0.43529411764705883);
+}
+QLabel#mid[alpha="112"] {
+    background-color: rgba(0, 0, 255, 0.4392156862745098);
+}
+QLabel#mid[alpha="113"] {
+    background-color: rgba(0, 0, 255, 0.44313725490196076);
+}
+QLabel#mid[alpha="114"] {
+    background-color: rgba(0, 0, 255, 0.4470588235294118);
+}
+QLabel#mid[alpha="115"] {
+    background-color: rgba(0, 0, 255, 0.45098039215686275);
+}
+QLabel#mid[alpha="116"] {
+    background-color: rgba(0, 0, 255, 0.4549019607843137);
+}
+QLabel#mid[alpha="117"] {
+    background-color: rgba(0, 0, 255, 0.4588235294117647);
+}
+QLabel#mid[alpha="118"] {
+    background-color: rgba(0, 0, 255, 0.4627450980392157);
+}
+QLabel#mid[alpha="119"] {
+    background-color: rgba(0, 0, 255, 0.4666666666666667);
+}
+QLabel#mid[alpha="120"] {
+    background-color: rgba(0, 0, 255, 0.47058823529411764);
+}
+QLabel#mid[alpha="121"] {
+    background-color: rgba(0, 0, 255, 0.4745098039215686);
+}
+QLabel#mid[alpha="122"] {
+    background-color: rgba(0, 0, 255, 0.47843137254901963);
+}
+QLabel#mid[alpha="123"] {
+    background-color: rgba(0, 0, 255, 0.4823529411764706);
+}
+QLabel#mid[alpha="124"] {
+    background-color: rgba(0, 0, 255, 0.48627450980392156);
+}
+QLabel#mid[alpha="125"] {
+    background-color: rgba(0, 0, 255, 0.49019607843137253);
+}
+QLabel#mid[alpha="126"] {
+    background-color: rgba(0, 0, 255, 0.49411764705882355);
+}
+QLabel#mid[alpha="127"] {
+    background-color: rgba(0, 0, 255, 0.4980392156862745);
+}
+QLabel#mid[alpha="128"] {
+    background-color: rgba(0, 0, 255, 0.5019607843137255);
+}
+QLabel#mid[alpha="129"] {
+    background-color: rgba(0, 0, 255, 0.5058823529411764);
+}
+QLabel#mid[alpha="130"] {
+    background-color: rgba(0, 0, 255, 0.5098039215686274);
+}
+QLabel#mid[alpha="131"] {
+    background-color: rgba(0, 0, 255, 0.5137254901960784);
+}
+QLabel#mid[alpha="132"] {
+    background-color: rgba(0, 0, 255, 0.5176470588235295);
+}
+QLabel#mid[alpha="133"] {
+    background-color: rgba(0, 0, 255, 0.5215686274509804);
+}
+QLabel#mid[alpha="134"] {
+    background-color: rgba(0, 0, 255, 0.5254901960784314);
+}
+QLabel#mid[alpha="135"] {
+    background-color: rgba(0, 0, 255, 0.5294117647058824);
+}
+QLabel#mid[alpha="136"] {
+    background-color: rgba(0, 0, 255, 0.5333333333333333);
+}
+QLabel#mid[alpha="137"] {
+    background-color: rgba(0, 0, 255, 0.5372549019607843);
+}
+QLabel#mid[alpha="138"] {
+    background-color: rgba(0, 0, 255, 0.5411764705882353);
+}
+QLabel#mid[alpha="139"] {
+    background-color: rgba(0, 0, 255, 0.5450980392156862);
+}
+QLabel#mid[alpha="140"] {
+    background-color: rgba(0, 0, 255, 0.5490196078431373);
+}
+QLabel#mid[alpha="141"] {
+    background-color: rgba(0, 0, 255, 0.5529411764705883);
+}
+QLabel#mid[alpha="142"] {
+    background-color: rgba(0, 0, 255, 0.5568627450980392);
+}
+QLabel#mid[alpha="143"] {
+    background-color: rgba(0, 0, 255, 0.5607843137254902);
+}
+QLabel#mid[alpha="144"] {
+    background-color: rgba(0, 0, 255, 0.5647058823529412);
+}
+QLabel#mid[alpha="145"] {
+    background-color: rgba(0, 0, 255, 0.5686274509803921);
+}
+QLabel#mid[alpha="146"] {
+    background-color: rgba(0, 0, 255, 0.5725490196078431);
+}
+QLabel#mid[alpha="147"] {
+    background-color: rgba(0, 0, 255, 0.5764705882352941);
+}
+QLabel#mid[alpha="148"] {
+    background-color: rgba(0, 0, 255, 0.5803921568627451);
+}
+QLabel#mid[alpha="149"] {
+    background-color: rgba(0, 0, 255, 0.5843137254901961);
+}
+QLabel#mid[alpha="150"] {
+    background-color: rgba(0, 0, 255, 0.5882352941176471);
+}
+QLabel#mid[alpha="151"] {
+    background-color: rgba(0, 0, 255, 0.592156862745098);
+}
+QLabel#mid[alpha="152"] {
+    background-color: rgba(0, 0, 255, 0.596078431372549);
+}
+QLabel#mid[alpha="153"] {
+    background-color: rgba(0, 0, 255, 0.6);
+}
+QLabel#mid[alpha="154"] {
+    background-color: rgba(0, 0, 255, 0.6039215686274509);
+}
+QLabel#mid[alpha="155"] {
+    background-color: rgba(0, 0, 255, 0.6078431372549019);
+}
+QLabel#mid[alpha="156"] {
+    background-color: rgba(0, 0, 255, 0.611764705882353);
+}
+QLabel#mid[alpha="157"] {
+    background-color: rgba(0, 0, 255, 0.615686274509804);
+}
+QLabel#mid[alpha="158"] {
+    background-color: rgba(0, 0, 255, 0.6196078431372549);
+}
+QLabel#mid[alpha="159"] {
+    background-color: rgba(0, 0, 255, 0.6235294117647059);
+}
+QLabel#mid[alpha="160"] {
+    background-color: rgba(0, 0, 255, 0.6274509803921569);
+}
+QLabel#mid[alpha="161"] {
+    background-color: rgba(0, 0, 255, 0.6313725490196078);
+}
+QLabel#mid[alpha="162"] {
+    background-color: rgba(0, 0, 255, 0.6352941176470588);
+}
+QLabel#mid[alpha="163"] {
+    background-color: rgba(0, 0, 255, 0.6392156862745098);
+}
+QLabel#mid[alpha="164"] {
+    background-color: rgba(0, 0, 255, 0.6431372549019608);
+}
+QLabel#mid[alpha="165"] {
+    background-color: rgba(0, 0, 255, 0.6470588235294118);
+}
+QLabel#mid[alpha="166"] {
+    background-color: rgba(0, 0, 255, 0.6509803921568628);
+}
+QLabel#mid[alpha="167"] {
+    background-color: rgba(0, 0, 255, 0.6549019607843137);
+}
+QLabel#mid[alpha="168"] {
+    background-color: rgba(0, 0, 255, 0.6588235294117647);
+}
+QLabel#mid[alpha="169"] {
+    background-color: rgba(0, 0, 255, 0.6627450980392157);
+}
+QLabel#mid[alpha="170"] {
+    background-color: rgba(0, 0, 255, 0.6666666666666666);
+}
+QLabel#mid[alpha="171"] {
+    background-color: rgba(0, 0, 255, 0.6705882352941176);
+}
+QLabel#mid[alpha="172"] {
+    background-color: rgba(0, 0, 255, 0.6745098039215687);
+}
+QLabel#mid[alpha="173"] {
+    background-color: rgba(0, 0, 255, 0.6784313725490196);
+}
+QLabel#mid[alpha="174"] {
+    background-color: rgba(0, 0, 255, 0.6823529411764706);
+}
+QLabel#mid[alpha="175"] {
+    background-color: rgba(0, 0, 255, 0.6862745098039216);
+}
+QLabel#mid[alpha="176"] {
+    background-color: rgba(0, 0, 255, 0.6901960784313725);
+}
+QLabel#mid[alpha="177"] {
+    background-color: rgba(0, 0, 255, 0.6941176470588235);
+}
+QLabel#mid[alpha="178"] {
+    background-color: rgba(0, 0, 255, 0.6980392156862745);
+}
+QLabel#mid[alpha="179"] {
+    background-color: rgba(0, 0, 255, 0.7019607843137254);
+}
+QLabel#mid[alpha="180"] {
+    background-color: rgba(0, 0, 255, 0.7058823529411765);
+}
+QLabel#mid[alpha="181"] {
+    background-color: rgba(0, 0, 255, 0.7098039215686275);
+}
+QLabel#mid[alpha="182"] {
+    background-color: rgba(0, 0, 255, 0.7137254901960784);
+}
+QLabel#mid[alpha="183"] {
+    background-color: rgba(0, 0, 255, 0.7176470588235294);
+}
+QLabel#mid[alpha="184"] {
+    background-color: rgba(0, 0, 255, 0.7215686274509804);
+}
+QLabel#mid[alpha="185"] {
+    background-color: rgba(0, 0, 255, 0.7254901960784313);
+}
+QLabel#mid[alpha="186"] {
+    background-color: rgba(0, 0, 255, 0.7294117647058823);
+}
+QLabel#mid[alpha="187"] {
+    background-color: rgba(0, 0, 255, 0.7333333333333333);
+}
+QLabel#mid[alpha="188"] {
+    background-color: rgba(0, 0, 255, 0.7372549019607844);
+}
+QLabel#mid[alpha="189"] {
+    background-color: rgba(0, 0, 255, 0.7411764705882353);
+}
+QLabel#mid[alpha="190"] {
+    background-color: rgba(0, 0, 255, 0.7450980392156863);
+}
+QLabel#mid[alpha="191"] {
+    background-color: rgba(0, 0, 255, 0.7490196078431373);
+}
+QLabel#mid[alpha="192"] {
+    background-color: rgba(0, 0, 255, 0.7529411764705882);
+}
+QLabel#mid[alpha="193"] {
+    background-color: rgba(0, 0, 255, 0.7568627450980392);
+}
+QLabel#mid[alpha="194"] {
+    background-color: rgba(0, 0, 255, 0.7607843137254902);
+}
+QLabel#mid[alpha="195"] {
+    background-color: rgba(0, 0, 255, 0.7647058823529411);
+}
+QLabel#mid[alpha="196"] {
+    background-color: rgba(0, 0, 255, 0.7686274509803922);
+}
+QLabel#mid[alpha="197"] {
+    background-color: rgba(0, 0, 255, 0.7725490196078432);
+}
+QLabel#mid[alpha="198"] {
+    background-color: rgba(0, 0, 255, 0.7764705882352941);
+}
+QLabel#mid[alpha="199"] {
+    background-color: rgba(0, 0, 255, 0.7803921568627451);
+}
+QLabel#mid[alpha="200"] {
+    background-color: rgba(0, 0, 255, 0.7843137254901961);
+}
+QLabel#mid[alpha="201"] {
+    background-color: rgba(0, 0, 255, 0.788235294117647);
+}
+QLabel#mid[alpha="202"] {
+    background-color: rgba(0, 0, 255, 0.792156862745098);
+}
+QLabel#mid[alpha="203"] {
+    background-color: rgba(0, 0, 255, 0.796078431372549);
+}
+QLabel#mid[alpha="204"] {
+    background-color: rgba(0, 0, 255, 0.8);
+}
+QLabel#mid[alpha="205"] {
+    background-color: rgba(0, 0, 255, 0.803921568627451);
+}
+QLabel#mid[alpha="206"] {
+    background-color: rgba(0, 0, 255, 0.807843137254902);
+}
+QLabel#mid[alpha="207"] {
+    background-color: rgba(0, 0, 255, 0.8117647058823529);
+}
+QLabel#mid[alpha="208"] {
+    background-color: rgba(0, 0, 255, 0.8156862745098039);
+}
+QLabel#mid[alpha="209"] {
+    background-color: rgba(0, 0, 255, 0.8196078431372549);
+}
+QLabel#mid[alpha="210"] {
+    background-color: rgba(0, 0, 255, 0.8235294117647058);
+}
+QLabel#mid[alpha="211"] {
+    background-color: rgba(0, 0, 255, 0.8274509803921568);
+}
+QLabel#mid[alpha="212"] {
+    background-color: rgba(0, 0, 255, 0.8313725490196079);
+}
+QLabel#mid[alpha="213"] {
+    background-color: rgba(0, 0, 255, 0.8352941176470589);
+}
+QLabel#mid[alpha="214"] {
+    background-color: rgba(0, 0, 255, 0.8392156862745098);
+}
+QLabel#mid[alpha="215"] {
+    background-color: rgba(0, 0, 255, 0.8431372549019608);
+}
+QLabel#mid[alpha="216"] {
+    background-color: rgba(0, 0, 255, 0.8470588235294118);
+}
+QLabel#mid[alpha="217"] {
+    background-color: rgba(0, 0, 255, 0.8509803921568627);
+}
+QLabel#mid[alpha="218"] {
+    background-color: rgba(0, 0, 255, 0.8549019607843137);
+}
+QLabel#mid[alpha="219"] {
+    background-color: rgba(0, 0, 255, 0.8588235294117647);
+}
+QLabel#mid[alpha="220"] {
+    background-color: rgba(0, 0, 255, 0.8627450980392157);
+}
+QLabel#mid[alpha="221"] {
+    background-color: rgba(0, 0, 255, 0.8666666666666667);
+}
+QLabel#mid[alpha="222"] {
+    background-color: rgba(0, 0, 255, 0.8705882352941177);
+}
+QLabel#mid[alpha="223"] {
+    background-color: rgba(0, 0, 255, 0.8745098039215686);
+}
+QLabel#mid[alpha="224"] {
+    background-color: rgba(0, 0, 255, 0.8784313725490196);
+}
+QLabel#mid[alpha="225"] {
+    background-color: rgba(0, 0, 255, 0.8823529411764706);
+}
+QLabel#mid[alpha="226"] {
+    background-color: rgba(0, 0, 255, 0.8862745098039215);
+}
+QLabel#mid[alpha="227"] {
+    background-color: rgba(0, 0, 255, 0.8901960784313725);
+}
+QLabel#mid[alpha="228"] {
+    background-color: rgba(0, 0, 255, 0.8941176470588236);
+}
+QLabel#mid[alpha="229"] {
+    background-color: rgba(0, 0, 255, 0.8980392156862745);
+}
+QLabel#mid[alpha="230"] {
+    background-color: rgba(0, 0, 255, 0.9019607843137255);
+}
+QLabel#mid[alpha="231"] {
+    background-color: rgba(0, 0, 255, 0.9058823529411765);
+}
+QLabel#mid[alpha="232"] {
+    background-color: rgba(0, 0, 255, 0.9098039215686274);
+}
+QLabel#mid[alpha="233"] {
+    background-color: rgba(0, 0, 255, 0.9137254901960784);
+}
+QLabel#mid[alpha="234"] {
+    background-color: rgba(0, 0, 255, 0.9176470588235294);
+}
+QLabel#mid[alpha="235"] {
+    background-color: rgba(0, 0, 255, 0.9215686274509803);
+}
+QLabel#mid[alpha="236"] {
+    background-color: rgba(0, 0, 255, 0.9254901960784314);
+}
+QLabel#mid[alpha="237"] {
+    background-color: rgba(0, 0, 255, 0.9294117647058824);
+}
+QLabel#mid[alpha="238"] {
+    background-color: rgba(0, 0, 255, 0.9333333333333333);
+}
+QLabel#mid[alpha="239"] {
+    background-color: rgba(0, 0, 255, 0.9372549019607843);
+}
+QLabel#mid[alpha="240"] {
+    background-color: rgba(0, 0, 255, 0.9411764705882353);
+}
+QLabel#mid[alpha="241"] {
+    background-color: rgba(0, 0, 255, 0.9450980392156862);
+}
+QLabel#mid[alpha="242"] {
+    background-color: rgba(0, 0, 255, 0.9490196078431372);
+}
+QLabel#mid[alpha="243"] {
+    background-color: rgba(0, 0, 255, 0.9529411764705882);
+}
+QLabel#mid[alpha="244"] {
+    background-color: rgba(0, 0, 255, 0.9568627450980393);
+}
+QLabel#mid[alpha="245"] {
+    background-color: rgba(0, 0, 255, 0.9607843137254902);
+}
+QLabel#mid[alpha="246"] {
+    background-color: rgba(0, 0, 255, 0.9647058823529412);
+}
+QLabel#mid[alpha="247"] {
+    background-color: rgba(0, 0, 255, 0.9686274509803922);
+}
+QLabel#mid[alpha="248"] {
+    background-color: rgba(0, 0, 255, 0.9725490196078431);
+}
+QLabel#mid[alpha="249"] {
+    background-color: rgba(0, 0, 255, 0.9764705882352941);
+}
+QLabel#mid[alpha="250"] {
+    background-color: rgba(0, 0, 255, 0.9803921568627451);
+}
+QLabel#mid[alpha="251"] {
+    background-color: rgba(0, 0, 255, 0.984313725490196);
+}
+QLabel#mid[alpha="252"] {
+    background-color: rgba(0, 0, 255, 0.9882352941176471);
+}
+QLabel#mid[alpha="253"] {
+    background-color: rgba(0, 0, 255, 0.9921568627450981);
+}
+QLabel#mid[alpha="254"] {
+    background-color: rgba(0, 0, 255, 0.996078431372549);
+}
+QLabel#mid[alpha="255"] {
+    background-color: rgba(0, 0, 255, 1.0);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+QLabel#high[alpha="0"] {
+    background-color: rgba(0, 255, 0, 0.0);
+}
+QLabel#high[alpha="1"] {
+    background-color: rgba(0, 255, 0, 0.00392156862745098);
+}
+QLabel#high[alpha="2"] {
+    background-color: rgba(0, 255, 0, 0.00784313725490196);
+}
+QLabel#high[alpha="3"] {
+    background-color: rgba(0, 255, 0, 0.011764705882352941);
+}
+QLabel#high[alpha="4"] {
+    background-color: rgba(0, 255, 0, 0.01568627450980392);
+}
+QLabel#high[alpha="5"] {
+    background-color: rgba(0, 255, 0, 0.0196078431372549);
+}
+QLabel#high[alpha="6"] {
+    background-color: rgba(0, 255, 0, 0.023529411764705882);
+}
+QLabel#high[alpha="7"] {
+    background-color: rgba(0, 255, 0, 0.027450980392156862);
+}
+QLabel#high[alpha="8"] {
+    background-color: rgba(0, 255, 0, 0.03137254901960784);
+}
+QLabel#high[alpha="9"] {
+    background-color: rgba(0, 255, 0, 0.03529411764705882);
+}
+QLabel#high[alpha="10"] {
+    background-color: rgba(0, 255, 0, 0.0392156862745098);
+}
+QLabel#high[alpha="11"] {
+    background-color: rgba(0, 255, 0, 0.043137254901960784);
+}
+QLabel#high[alpha="12"] {
+    background-color: rgba(0, 255, 0, 0.047058823529411764);
+}
+QLabel#high[alpha="13"] {
+    background-color: rgba(0, 255, 0, 0.050980392156862744);
+}
+QLabel#high[alpha="14"] {
+    background-color: rgba(0, 255, 0, 0.054901960784313725);
+}
+QLabel#high[alpha="15"] {
+    background-color: rgba(0, 255, 0, 0.058823529411764705);
+}
+QLabel#high[alpha="16"] {
+    background-color: rgba(0, 255, 0, 0.06274509803921569);
+}
+QLabel#high[alpha="17"] {
+    background-color: rgba(0, 255, 0, 0.06666666666666667);
+}
+QLabel#high[alpha="18"] {
+    background-color: rgba(0, 255, 0, 0.07058823529411765);
+}
+QLabel#high[alpha="19"] {
+    background-color: rgba(0, 255, 0, 0.07450980392156863);
+}
+QLabel#high[alpha="20"] {
+    background-color: rgba(0, 255, 0, 0.0784313725490196);
+}
+QLabel#high[alpha="21"] {
+    background-color: rgba(0, 255, 0, 0.08235294117647059);
+}
+QLabel#high[alpha="22"] {
+    background-color: rgba(0, 255, 0, 0.08627450980392157);
+}
+QLabel#high[alpha="23"] {
+    background-color: rgba(0, 255, 0, 0.09019607843137255);
+}
+QLabel#high[alpha="24"] {
+    background-color: rgba(0, 255, 0, 0.09411764705882353);
+}
+QLabel#high[alpha="25"] {
+    background-color: rgba(0, 255, 0, 0.09803921568627451);
+}
+QLabel#high[alpha="26"] {
+    background-color: rgba(0, 255, 0, 0.10196078431372549);
+}
+QLabel#high[alpha="27"] {
+    background-color: rgba(0, 255, 0, 0.10588235294117647);
+}
+QLabel#high[alpha="28"] {
+    background-color: rgba(0, 255, 0, 0.10980392156862745);
+}
+QLabel#high[alpha="29"] {
+    background-color: rgba(0, 255, 0, 0.11372549019607843);
+}
+QLabel#high[alpha="30"] {
+    background-color: rgba(0, 255, 0, 0.11764705882352941);
+}
+QLabel#high[alpha="31"] {
+    background-color: rgba(0, 255, 0, 0.12156862745098039);
+}
+QLabel#high[alpha="32"] {
+    background-color: rgba(0, 255, 0, 0.12549019607843137);
+}
+QLabel#high[alpha="33"] {
+    background-color: rgba(0, 255, 0, 0.12941176470588237);
+}
+QLabel#high[alpha="34"] {
+    background-color: rgba(0, 255, 0, 0.13333333333333333);
+}
+QLabel#high[alpha="35"] {
+    background-color: rgba(0, 255, 0, 0.13725490196078433);
+}
+QLabel#high[alpha="36"] {
+    background-color: rgba(0, 255, 0, 0.1411764705882353);
+}
+QLabel#high[alpha="37"] {
+    background-color: rgba(0, 255, 0, 0.1450980392156863);
+}
+QLabel#high[alpha="38"] {
+    background-color: rgba(0, 255, 0, 0.14901960784313725);
+}
+QLabel#high[alpha="39"] {
+    background-color: rgba(0, 255, 0, 0.15294117647058825);
+}
+QLabel#high[alpha="40"] {
+    background-color: rgba(0, 255, 0, 0.1568627450980392);
+}
+QLabel#high[alpha="41"] {
+    background-color: rgba(0, 255, 0, 0.1607843137254902);
+}
+QLabel#high[alpha="42"] {
+    background-color: rgba(0, 255, 0, 0.16470588235294117);
+}
+QLabel#high[alpha="43"] {
+    background-color: rgba(0, 255, 0, 0.16862745098039217);
+}
+QLabel#high[alpha="44"] {
+    background-color: rgba(0, 255, 0, 0.17254901960784313);
+}
+QLabel#high[alpha="45"] {
+    background-color: rgba(0, 255, 0, 0.17647058823529413);
+}
+QLabel#high[alpha="46"] {
+    background-color: rgba(0, 255, 0, 0.1803921568627451);
+}
+QLabel#high[alpha="47"] {
+    background-color: rgba(0, 255, 0, 0.1843137254901961);
+}
+QLabel#high[alpha="48"] {
+    background-color: rgba(0, 255, 0, 0.18823529411764706);
+}
+QLabel#high[alpha="49"] {
+    background-color: rgba(0, 255, 0, 0.19215686274509805);
+}
+QLabel#high[alpha="50"] {
+    background-color: rgba(0, 255, 0, 0.19607843137254902);
+}
+QLabel#high[alpha="51"] {
+    background-color: rgba(0, 255, 0, 0.2);
+}
+QLabel#high[alpha="52"] {
+    background-color: rgba(0, 255, 0, 0.20392156862745098);
+}
+QLabel#high[alpha="53"] {
+    background-color: rgba(0, 255, 0, 0.20784313725490197);
+}
+QLabel#high[alpha="54"] {
+    background-color: rgba(0, 255, 0, 0.21176470588235294);
+}
+QLabel#high[alpha="55"] {
+    background-color: rgba(0, 255, 0, 0.21568627450980393);
+}
+QLabel#high[alpha="56"] {
+    background-color: rgba(0, 255, 0, 0.2196078431372549);
+}
+QLabel#high[alpha="57"] {
+    background-color: rgba(0, 255, 0, 0.2235294117647059);
+}
+QLabel#high[alpha="58"] {
+    background-color: rgba(0, 255, 0, 0.22745098039215686);
+}
+QLabel#high[alpha="59"] {
+    background-color: rgba(0, 255, 0, 0.23137254901960785);
+}
+QLabel#high[alpha="60"] {
+    background-color: rgba(0, 255, 0, 0.23529411764705882);
+}
+QLabel#high[alpha="61"] {
+    background-color: rgba(0, 255, 0, 0.23921568627450981);
+}
+QLabel#high[alpha="62"] {
+    background-color: rgba(0, 255, 0, 0.24313725490196078);
+}
+QLabel#high[alpha="63"] {
+    background-color: rgba(0, 255, 0, 0.24705882352941178);
+}
+QLabel#high[alpha="64"] {
+    background-color: rgba(0, 255, 0, 0.25098039215686274);
+}
+QLabel#high[alpha="65"] {
+    background-color: rgba(0, 255, 0, 0.2549019607843137);
+}
+QLabel#high[alpha="66"] {
+    background-color: rgba(0, 255, 0, 0.25882352941176473);
+}
+QLabel#high[alpha="67"] {
+    background-color: rgba(0, 255, 0, 0.2627450980392157);
+}
+QLabel#high[alpha="68"] {
+    background-color: rgba(0, 255, 0, 0.26666666666666666);
+}
+QLabel#high[alpha="69"] {
+    background-color: rgba(0, 255, 0, 0.27058823529411763);
+}
+QLabel#high[alpha="70"] {
+    background-color: rgba(0, 255, 0, 0.27450980392156865);
+}
+QLabel#high[alpha="71"] {
+    background-color: rgba(0, 255, 0, 0.2784313725490196);
+}
+QLabel#high[alpha="72"] {
+    background-color: rgba(0, 255, 0, 0.2823529411764706);
+}
+QLabel#high[alpha="73"] {
+    background-color: rgba(0, 255, 0, 0.28627450980392155);
+}
+QLabel#high[alpha="74"] {
+    background-color: rgba(0, 255, 0, 0.2901960784313726);
+}
+QLabel#high[alpha="75"] {
+    background-color: rgba(0, 255, 0, 0.29411764705882354);
+}
+QLabel#high[alpha="76"] {
+    background-color: rgba(0, 255, 0, 0.2980392156862745);
+}
+QLabel#high[alpha="77"] {
+    background-color: rgba(0, 255, 0, 0.30196078431372547);
+}
+QLabel#high[alpha="78"] {
+    background-color: rgba(0, 255, 0, 0.3058823529411765);
+}
+QLabel#high[alpha="79"] {
+    background-color: rgba(0, 255, 0, 0.30980392156862746);
+}
+QLabel#high[alpha="80"] {
+    background-color: rgba(0, 255, 0, 0.3137254901960784);
+}
+QLabel#high[alpha="81"] {
+    background-color: rgba(0, 255, 0, 0.3176470588235294);
+}
+QLabel#high[alpha="82"] {
+    background-color: rgba(0, 255, 0, 0.3215686274509804);
+}
+QLabel#high[alpha="83"] {
+    background-color: rgba(0, 255, 0, 0.3254901960784314);
+}
+QLabel#high[alpha="84"] {
+    background-color: rgba(0, 255, 0, 0.32941176470588235);
+}
+QLabel#high[alpha="85"] {
+    background-color: rgba(0, 255, 0, 0.3333333333333333);
+}
+QLabel#high[alpha="86"] {
+    background-color: rgba(0, 255, 0, 0.33725490196078434);
+}
+QLabel#high[alpha="87"] {
+    background-color: rgba(0, 255, 0, 0.3411764705882353);
+}
+QLabel#high[alpha="88"] {
+    background-color: rgba(0, 255, 0, 0.34509803921568627);
+}
+QLabel#high[alpha="89"] {
+    background-color: rgba(0, 255, 0, 0.34901960784313724);
+}
+QLabel#high[alpha="90"] {
+    background-color: rgba(0, 255, 0, 0.35294117647058826);
+}
+QLabel#high[alpha="91"] {
+    background-color: rgba(0, 255, 0, 0.3568627450980392);
+}
+QLabel#high[alpha="92"] {
+    background-color: rgba(0, 255, 0, 0.3607843137254902);
+}
+QLabel#high[alpha="93"] {
+    background-color: rgba(0, 255, 0, 0.36470588235294116);
+}
+QLabel#high[alpha="94"] {
+    background-color: rgba(0, 255, 0, 0.3686274509803922);
+}
+QLabel#high[alpha="95"] {
+    background-color: rgba(0, 255, 0, 0.37254901960784315);
+}
+QLabel#high[alpha="96"] {
+    background-color: rgba(0, 255, 0, 0.3764705882352941);
+}
+QLabel#high[alpha="97"] {
+    background-color: rgba(0, 255, 0, 0.3803921568627451);
+}
+QLabel#high[alpha="98"] {
+    background-color: rgba(0, 255, 0, 0.3843137254901961);
+}
+QLabel#high[alpha="99"] {
+    background-color: rgba(0, 255, 0, 0.38823529411764707);
+}
+QLabel#high[alpha="100"] {
+    background-color: rgba(0, 255, 0, 0.39215686274509803);
+}
+QLabel#high[alpha="101"] {
+    background-color: rgba(0, 255, 0, 0.396078431372549);
+}
+QLabel#high[alpha="102"] {
+    background-color: rgba(0, 255, 0, 0.4);
+}
+QLabel#high[alpha="103"] {
+    background-color: rgba(0, 255, 0, 0.403921568627451);
+}
+QLabel#high[alpha="104"] {
+    background-color: rgba(0, 255, 0, 0.40784313725490196);
+}
+QLabel#high[alpha="105"] {
+    background-color: rgba(0, 255, 0, 0.4117647058823529);
+}
+QLabel#high[alpha="106"] {
+    background-color: rgba(0, 255, 0, 0.41568627450980394);
+}
+QLabel#high[alpha="107"] {
+    background-color: rgba(0, 255, 0, 0.4196078431372549);
+}
+QLabel#high[alpha="108"] {
+    background-color: rgba(0, 255, 0, 0.4235294117647059);
+}
+QLabel#high[alpha="109"] {
+    background-color: rgba(0, 255, 0, 0.42745098039215684);
+}
+QLabel#high[alpha="110"] {
+    background-color: rgba(0, 255, 0, 0.43137254901960786);
+}
+QLabel#high[alpha="111"] {
+    background-color: rgba(0, 255, 0, 0.43529411764705883);
+}
+QLabel#high[alpha="112"] {
+    background-color: rgba(0, 255, 0, 0.4392156862745098);
+}
+QLabel#high[alpha="113"] {
+    background-color: rgba(0, 255, 0, 0.44313725490196076);
+}
+QLabel#high[alpha="114"] {
+    background-color: rgba(0, 255, 0, 0.4470588235294118);
+}
+QLabel#high[alpha="115"] {
+    background-color: rgba(0, 255, 0, 0.45098039215686275);
+}
+QLabel#high[alpha="116"] {
+    background-color: rgba(0, 255, 0, 0.4549019607843137);
+}
+QLabel#high[alpha="117"] {
+    background-color: rgba(0, 255, 0, 0.4588235294117647);
+}
+QLabel#high[alpha="118"] {
+    background-color: rgba(0, 255, 0, 0.4627450980392157);
+}
+QLabel#high[alpha="119"] {
+    background-color: rgba(0, 255, 0, 0.4666666666666667);
+}
+QLabel#high[alpha="120"] {
+    background-color: rgba(0, 255, 0, 0.47058823529411764);
+}
+QLabel#high[alpha="121"] {
+    background-color: rgba(0, 255, 0, 0.4745098039215686);
+}
+QLabel#high[alpha="122"] {
+    background-color: rgba(0, 255, 0, 0.47843137254901963);
+}
+QLabel#high[alpha="123"] {
+    background-color: rgba(0, 255, 0, 0.4823529411764706);
+}
+QLabel#high[alpha="124"] {
+    background-color: rgba(0, 255, 0, 0.48627450980392156);
+}
+QLabel#high[alpha="125"] {
+    background-color: rgba(0, 255, 0, 0.49019607843137253);
+}
+QLabel#high[alpha="126"] {
+    background-color: rgba(0, 255, 0, 0.49411764705882355);
+}
+QLabel#high[alpha="127"] {
+    background-color: rgba(0, 255, 0, 0.4980392156862745);
+}
+QLabel#high[alpha="128"] {
+    background-color: rgba(0, 255, 0, 0.5019607843137255);
+}
+QLabel#high[alpha="129"] {
+    background-color: rgba(0, 255, 0, 0.5058823529411764);
+}
+QLabel#high[alpha="130"] {
+    background-color: rgba(0, 255, 0, 0.5098039215686274);
+}
+QLabel#high[alpha="131"] {
+    background-color: rgba(0, 255, 0, 0.5137254901960784);
+}
+QLabel#high[alpha="132"] {
+    background-color: rgba(0, 255, 0, 0.5176470588235295);
+}
+QLabel#high[alpha="133"] {
+    background-color: rgba(0, 255, 0, 0.5215686274509804);
+}
+QLabel#high[alpha="134"] {
+    background-color: rgba(0, 255, 0, 0.5254901960784314);
+}
+QLabel#high[alpha="135"] {
+    background-color: rgba(0, 255, 0, 0.5294117647058824);
+}
+QLabel#high[alpha="136"] {
+    background-color: rgba(0, 255, 0, 0.5333333333333333);
+}
+QLabel#high[alpha="137"] {
+    background-color: rgba(0, 255, 0, 0.5372549019607843);
+}
+QLabel#high[alpha="138"] {
+    background-color: rgba(0, 255, 0, 0.5411764705882353);
+}
+QLabel#high[alpha="139"] {
+    background-color: rgba(0, 255, 0, 0.5450980392156862);
+}
+QLabel#high[alpha="140"] {
+    background-color: rgba(0, 255, 0, 0.5490196078431373);
+}
+QLabel#high[alpha="141"] {
+    background-color: rgba(0, 255, 0, 0.5529411764705883);
+}
+QLabel#high[alpha="142"] {
+    background-color: rgba(0, 255, 0, 0.5568627450980392);
+}
+QLabel#high[alpha="143"] {
+    background-color: rgba(0, 255, 0, 0.5607843137254902);
+}
+QLabel#high[alpha="144"] {
+    background-color: rgba(0, 255, 0, 0.5647058823529412);
+}
+QLabel#high[alpha="145"] {
+    background-color: rgba(0, 255, 0, 0.5686274509803921);
+}
+QLabel#high[alpha="146"] {
+    background-color: rgba(0, 255, 0, 0.5725490196078431);
+}
+QLabel#high[alpha="147"] {
+    background-color: rgba(0, 255, 0, 0.5764705882352941);
+}
+QLabel#high[alpha="148"] {
+    background-color: rgba(0, 255, 0, 0.5803921568627451);
+}
+QLabel#high[alpha="149"] {
+    background-color: rgba(0, 255, 0, 0.5843137254901961);
+}
+QLabel#high[alpha="150"] {
+    background-color: rgba(0, 255, 0, 0.5882352941176471);
+}
+QLabel#high[alpha="151"] {
+    background-color: rgba(0, 255, 0, 0.592156862745098);
+}
+QLabel#high[alpha="152"] {
+    background-color: rgba(0, 255, 0, 0.596078431372549);
+}
+QLabel#high[alpha="153"] {
+    background-color: rgba(0, 255, 0, 0.6);
+}
+QLabel#high[alpha="154"] {
+    background-color: rgba(0, 255, 0, 0.6039215686274509);
+}
+QLabel#high[alpha="155"] {
+    background-color: rgba(0, 255, 0, 0.6078431372549019);
+}
+QLabel#high[alpha="156"] {
+    background-color: rgba(0, 255, 0, 0.611764705882353);
+}
+QLabel#high[alpha="157"] {
+    background-color: rgba(0, 255, 0, 0.615686274509804);
+}
+QLabel#high[alpha="158"] {
+    background-color: rgba(0, 255, 0, 0.6196078431372549);
+}
+QLabel#high[alpha="159"] {
+    background-color: rgba(0, 255, 0, 0.6235294117647059);
+}
+QLabel#high[alpha="160"] {
+    background-color: rgba(0, 255, 0, 0.6274509803921569);
+}
+QLabel#high[alpha="161"] {
+    background-color: rgba(0, 255, 0, 0.6313725490196078);
+}
+QLabel#high[alpha="162"] {
+    background-color: rgba(0, 255, 0, 0.6352941176470588);
+}
+QLabel#high[alpha="163"] {
+    background-color: rgba(0, 255, 0, 0.6392156862745098);
+}
+QLabel#high[alpha="164"] {
+    background-color: rgba(0, 255, 0, 0.6431372549019608);
+}
+QLabel#high[alpha="165"] {
+    background-color: rgba(0, 255, 0, 0.6470588235294118);
+}
+QLabel#high[alpha="166"] {
+    background-color: rgba(0, 255, 0, 0.6509803921568628);
+}
+QLabel#high[alpha="167"] {
+    background-color: rgba(0, 255, 0, 0.6549019607843137);
+}
+QLabel#high[alpha="168"] {
+    background-color: rgba(0, 255, 0, 0.6588235294117647);
+}
+QLabel#high[alpha="169"] {
+    background-color: rgba(0, 255, 0, 0.6627450980392157);
+}
+QLabel#high[alpha="170"] {
+    background-color: rgba(0, 255, 0, 0.6666666666666666);
+}
+QLabel#high[alpha="171"] {
+    background-color: rgba(0, 255, 0, 0.6705882352941176);
+}
+QLabel#high[alpha="172"] {
+    background-color: rgba(0, 255, 0, 0.6745098039215687);
+}
+QLabel#high[alpha="173"] {
+    background-color: rgba(0, 255, 0, 0.6784313725490196);
+}
+QLabel#high[alpha="174"] {
+    background-color: rgba(0, 255, 0, 0.6823529411764706);
+}
+QLabel#high[alpha="175"] {
+    background-color: rgba(0, 255, 0, 0.6862745098039216);
+}
+QLabel#high[alpha="176"] {
+    background-color: rgba(0, 255, 0, 0.6901960784313725);
+}
+QLabel#high[alpha="177"] {
+    background-color: rgba(0, 255, 0, 0.6941176470588235);
+}
+QLabel#high[alpha="178"] {
+    background-color: rgba(0, 255, 0, 0.6980392156862745);
+}
+QLabel#high[alpha="179"] {
+    background-color: rgba(0, 255, 0, 0.7019607843137254);
+}
+QLabel#high[alpha="180"] {
+    background-color: rgba(0, 255, 0, 0.7058823529411765);
+}
+QLabel#high[alpha="181"] {
+    background-color: rgba(0, 255, 0, 0.7098039215686275);
+}
+QLabel#high[alpha="182"] {
+    background-color: rgba(0, 255, 0, 0.7137254901960784);
+}
+QLabel#high[alpha="183"] {
+    background-color: rgba(0, 255, 0, 0.7176470588235294);
+}
+QLabel#high[alpha="184"] {
+    background-color: rgba(0, 255, 0, 0.7215686274509804);
+}
+QLabel#high[alpha="185"] {
+    background-color: rgba(0, 255, 0, 0.7254901960784313);
+}
+QLabel#high[alpha="186"] {
+    background-color: rgba(0, 255, 0, 0.7294117647058823);
+}
+QLabel#high[alpha="187"] {
+    background-color: rgba(0, 255, 0, 0.7333333333333333);
+}
+QLabel#high[alpha="188"] {
+    background-color: rgba(0, 255, 0, 0.7372549019607844);
+}
+QLabel#high[alpha="189"] {
+    background-color: rgba(0, 255, 0, 0.7411764705882353);
+}
+QLabel#high[alpha="190"] {
+    background-color: rgba(0, 255, 0, 0.7450980392156863);
+}
+QLabel#high[alpha="191"] {
+    background-color: rgba(0, 255, 0, 0.7490196078431373);
+}
+QLabel#high[alpha="192"] {
+    background-color: rgba(0, 255, 0, 0.7529411764705882);
+}
+QLabel#high[alpha="193"] {
+    background-color: rgba(0, 255, 0, 0.7568627450980392);
+}
+QLabel#high[alpha="194"] {
+    background-color: rgba(0, 255, 0, 0.7607843137254902);
+}
+QLabel#high[alpha="195"] {
+    background-color: rgba(0, 255, 0, 0.7647058823529411);
+}
+QLabel#high[alpha="196"] {
+    background-color: rgba(0, 255, 0, 0.7686274509803922);
+}
+QLabel#high[alpha="197"] {
+    background-color: rgba(0, 255, 0, 0.7725490196078432);
+}
+QLabel#high[alpha="198"] {
+    background-color: rgba(0, 255, 0, 0.7764705882352941);
+}
+QLabel#high[alpha="199"] {
+    background-color: rgba(0, 255, 0, 0.7803921568627451);
+}
+QLabel#high[alpha="200"] {
+    background-color: rgba(0, 255, 0, 0.7843137254901961);
+}
+QLabel#high[alpha="201"] {
+    background-color: rgba(0, 255, 0, 0.788235294117647);
+}
+QLabel#high[alpha="202"] {
+    background-color: rgba(0, 255, 0, 0.792156862745098);
+}
+QLabel#high[alpha="203"] {
+    background-color: rgba(0, 255, 0, 0.796078431372549);
+}
+QLabel#high[alpha="204"] {
+    background-color: rgba(0, 255, 0, 0.8);
+}
+QLabel#high[alpha="205"] {
+    background-color: rgba(0, 255, 0, 0.803921568627451);
+}
+QLabel#high[alpha="206"] {
+    background-color: rgba(0, 255, 0, 0.807843137254902);
+}
+QLabel#high[alpha="207"] {
+    background-color: rgba(0, 255, 0, 0.8117647058823529);
+}
+QLabel#high[alpha="208"] {
+    background-color: rgba(0, 255, 0, 0.8156862745098039);
+}
+QLabel#high[alpha="209"] {
+    background-color: rgba(0, 255, 0, 0.8196078431372549);
+}
+QLabel#high[alpha="210"] {
+    background-color: rgba(0, 255, 0, 0.8235294117647058);
+}
+QLabel#high[alpha="211"] {
+    background-color: rgba(0, 255, 0, 0.8274509803921568);
+}
+QLabel#high[alpha="212"] {
+    background-color: rgba(0, 255, 0, 0.8313725490196079);
+}
+QLabel#high[alpha="213"] {
+    background-color: rgba(0, 255, 0, 0.8352941176470589);
+}
+QLabel#high[alpha="214"] {
+    background-color: rgba(0, 255, 0, 0.8392156862745098);
+}
+QLabel#high[alpha="215"] {
+    background-color: rgba(0, 255, 0, 0.8431372549019608);
+}
+QLabel#high[alpha="216"] {
+    background-color: rgba(0, 255, 0, 0.8470588235294118);
+}
+QLabel#high[alpha="217"] {
+    background-color: rgba(0, 255, 0, 0.8509803921568627);
+}
+QLabel#high[alpha="218"] {
+    background-color: rgba(0, 255, 0, 0.8549019607843137);
+}
+QLabel#high[alpha="219"] {
+    background-color: rgba(0, 255, 0, 0.8588235294117647);
+}
+QLabel#high[alpha="220"] {
+    background-color: rgba(0, 255, 0, 0.8627450980392157);
+}
+QLabel#high[alpha="221"] {
+    background-color: rgba(0, 255, 0, 0.8666666666666667);
+}
+QLabel#high[alpha="222"] {
+    background-color: rgba(0, 255, 0, 0.8705882352941177);
+}
+QLabel#high[alpha="223"] {
+    background-color: rgba(0, 255, 0, 0.8745098039215686);
+}
+QLabel#high[alpha="224"] {
+    background-color: rgba(0, 255, 0, 0.8784313725490196);
+}
+QLabel#high[alpha="225"] {
+    background-color: rgba(0, 255, 0, 0.8823529411764706);
+}
+QLabel#high[alpha="226"] {
+    background-color: rgba(0, 255, 0, 0.8862745098039215);
+}
+QLabel#high[alpha="227"] {
+    background-color: rgba(0, 255, 0, 0.8901960784313725);
+}
+QLabel#high[alpha="228"] {
+    background-color: rgba(0, 255, 0, 0.8941176470588236);
+}
+QLabel#high[alpha="229"] {
+    background-color: rgba(0, 255, 0, 0.8980392156862745);
+}
+QLabel#high[alpha="230"] {
+    background-color: rgba(0, 255, 0, 0.9019607843137255);
+}
+QLabel#high[alpha="231"] {
+    background-color: rgba(0, 255, 0, 0.9058823529411765);
+}
+QLabel#high[alpha="232"] {
+    background-color: rgba(0, 255, 0, 0.9098039215686274);
+}
+QLabel#high[alpha="233"] {
+    background-color: rgba(0, 255, 0, 0.9137254901960784);
+}
+QLabel#high[alpha="234"] {
+    background-color: rgba(0, 255, 0, 0.9176470588235294);
+}
+QLabel#high[alpha="235"] {
+    background-color: rgba(0, 255, 0, 0.9215686274509803);
+}
+QLabel#high[alpha="236"] {
+    background-color: rgba(0, 255, 0, 0.9254901960784314);
+}
+QLabel#high[alpha="237"] {
+    background-color: rgba(0, 255, 0, 0.9294117647058824);
+}
+QLabel#high[alpha="238"] {
+    background-color: rgba(0, 255, 0, 0.9333333333333333);
+}
+QLabel#high[alpha="239"] {
+    background-color: rgba(0, 255, 0, 0.9372549019607843);
+}
+QLabel#high[alpha="240"] {
+    background-color: rgba(0, 255, 0, 0.9411764705882353);
+}
+QLabel#high[alpha="241"] {
+    background-color: rgba(0, 255, 0, 0.9450980392156862);
+}
+QLabel#high[alpha="242"] {
+    background-color: rgba(0, 255, 0, 0.9490196078431372);
+}
+QLabel#high[alpha="243"] {
+    background-color: rgba(0, 255, 0, 0.9529411764705882);
+}
+QLabel#high[alpha="244"] {
+    background-color: rgba(0, 255, 0, 0.9568627450980393);
+}
+QLabel#high[alpha="245"] {
+    background-color: rgba(0, 255, 0, 0.9607843137254902);
+}
+QLabel#high[alpha="246"] {
+    background-color: rgba(0, 255, 0, 0.9647058823529412);
+}
+QLabel#high[alpha="247"] {
+    background-color: rgba(0, 255, 0, 0.9686274509803922);
+}
+QLabel#high[alpha="248"] {
+    background-color: rgba(0, 255, 0, 0.9725490196078431);
+}
+QLabel#high[alpha="249"] {
+    background-color: rgba(0, 255, 0, 0.9764705882352941);
+}
+QLabel#high[alpha="250"] {
+    background-color: rgba(0, 255, 0, 0.9803921568627451);
+}
+QLabel#high[alpha="251"] {
+    background-color: rgba(0, 255, 0, 0.984313725490196);
+}
+QLabel#high[alpha="252"] {
+    background-color: rgba(0, 255, 0, 0.9882352941176471);
+}
+QLabel#high[alpha="253"] {
+    background-color: rgba(0, 255, 0, 0.9921568627450981);
+}
+QLabel#high[alpha="254"] {
+    background-color: rgba(0, 255, 0, 0.996078431372549);
+}
+QLabel#high[alpha="255"] {
+    background-color: rgba(0, 255, 0, 1.0);
+}
