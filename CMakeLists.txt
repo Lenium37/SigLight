@@ -1,4 +1,4 @@
-project(raspitolight) # accessable with ${PROJECT_NAME}
+project(Sound-to-Light) # accessable with ${PROJECT_NAME}
 cmake_minimum_required(VERSION 2.8.11)
 
 option(FORCE_COMPILE_FOR_RASPBERRY "Forces for example usage of portaudio" OFF)
