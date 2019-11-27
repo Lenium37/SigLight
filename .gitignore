@@ -190,3 +190,5 @@ code_style/*
 doxygen_config
 install_cmake.sh
 assetsOLD/*
+\.vs/
+CMakeSettings.json
