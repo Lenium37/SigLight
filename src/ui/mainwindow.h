@@ -30,6 +30,7 @@
 #include <QShortcut>
 #include <dmx_device_k_8062.h>
 #include <dmx_device_eurolite_pro.h>
+#include "lightshow_generator.h"
 
 using namespace std;
 
@@ -257,6 +258,7 @@ private:
     DmxDevice& get_current_dmx_device();
     LightshowPlayer *lightshow_player;
     int lightshow_resolution = 40; // 40 = DMX update every 25ms.    20 = DMX update every 50ms.    10 = DMX update every 100ms.
+		LightshowGenerator* lightshow_generator;
 
     QString rtl_path = "";
     std::string lightshows_directory_path = "";

@@ -68,11 +68,6 @@ class Lightshow {
 
   std::vector<time_value_int> clear_outlier_values(std::vector<time_value_int> vector, int time_interval);
 
-  void set_color_of_fixture_during_song(LightshowFixture &fix, std::initializer_list<std::string> a_args);
-  void color_change_at(LightshowFixture &fix, const std::string& new_color, float timestamp);
-  void set_hard_color_changes(LightshowFixture &fix, std::vector<color_change> color_changes);
-  void set_soft_color_changes(LightshowFixture &fix, std::vector<color_change> color_changes, float fade_duration);
-
   void set_resolution(const int resolution_);
   int get_resolution();
 
@@ -80,8 +75,6 @@ class Lightshow {
   int get_wait_time_special();
 
   std::vector<time_value_int> get_timestamps_colorchanges();
-  void generate_color_fades(LightshowFixture &fix, std::vector<std::string> &colors);
-  void generate_ambient_color_fades(LightshowFixture &fix, std::vector<std::string> &colors);
 
  private:
   std::string sound_src;
@@ -116,8 +109,6 @@ class Lightshow {
                          std::uint8_t lower_border,
                          std::uint8_t upper_border,
                          std::uint8_t value);
-  std::vector<time_value_int> calculate_fade(float fade_duration, int c_old, int c_new);
-  void set_color_for_time(LightshowFixture &fix, std::string color, float begin, float end);
   void get_bpm_and_beats(bool &finished);
 };
 

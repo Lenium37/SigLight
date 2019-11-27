@@ -127,6 +127,7 @@ void MainWindow::init() {
   this->lightshow_player = new LightshowPlayer(get_current_dmx_device());
   //this->lightshow_player = new LightshowPlayer(get_current_dmx_device());
   this->lightshow_resolution = 40;
+	this->lightshow_generator = new LightshowGenerator();
 
   ls_generating_thread_is_alive = false;
   player->set_songs_directory_path(this->songs_directory_path);
@@ -735,7 +736,7 @@ void MainWindow::queue_for_generating_light_show(){
 void MainWindow::generate_lightshow(Song *song) {
   //Logger::info("K8062 connected: {}", dmx_device_k8062.is_connected());
   std::shared_ptr<Lightshow>
-      generated_lightshow = LightshowGenerator::generate(this->lightshow_resolution, song, universes[0].get_fixtures());
+      generated_lightshow = this->lightshow_generator->generate(this->lightshow_resolution, song, universes[0].get_fixtures());
 
   lightShowRegistry.register_lightshow_file(song, generated_lightshow, this->lightshows_directory_path);
   if(player->playlist_index_for(song) != -1)
@@ -744,8 +745,7 @@ void MainWindow::generate_lightshow(Song *song) {
 
 void MainWindow::regenerate_lightshow(Song *song) {
   //Logger::info("K8062 connected: {}", dmx_device_k8062.is_connected());
-  std::shared_ptr<Lightshow> regenerated_lightshow =
-      LightshowGenerator::generate(this->lightshow_resolution, song, universes[0].get_fixtures());
+  std::shared_ptr<Lightshow> regenerated_lightshow = this->lightshow_generator->generate(this->lightshow_resolution, song, universes[0].get_fixtures());
 
   Logger::debug("lightshow length: {}", regenerated_lightshow->get_length());
 
