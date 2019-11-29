@@ -41,7 +41,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
     std::string fix_type = fix.get_type();
     std::transform(fix_type.begin(), fix_type.end(), fix_type.begin(), ::tolower);
 
-    if (fix_type.compare("bass") == 0) {
+    if (fix_type == "bass") {
 
       if(fix.has_global_dimmer) {
         fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_bass(), fix.get_channel_dimmer());
@@ -58,7 +58,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_bass(), fix.get_channel_red());
       }
       lightshow_from_analysis->add_fixture_bass(fix);
-    } else if (fix_type.compare("mid") == 0) {
+    } else if (fix_type == "mid") {
 
       if(fix.has_global_dimmer) {
         fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_middle(), fix.get_channel_dimmer());
@@ -75,7 +75,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_middle(), fix.get_channel_blue());
       }
       lightshow_from_analysis->add_fixture_middle(fix);
-    } else if (fix_type.compare("high") == 0) {
+    } else if (fix_type == "high") {
 
       if(fix.has_global_dimmer) {
         fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_high(), fix.get_channel_dimmer());
@@ -92,16 +92,16 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_high(), fix.get_channel_green());
       }
       lightshow_from_analysis->add_fixture_high(fix);
-    } else if (fix_type.compare("action") == 0) {
+    } else if (fix_type == "action") {
 			this->set_color_of_fixture_during_song(lightshow_from_analysis, fix, {"white"});
       fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_action(), fix.get_channel_dimmer());
       fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_action(), fix.get_channel_strobo());
       lightshow_from_analysis->add_fixture_action(fix);
-    } else if (fix_type.compare("everything") == 0) {
+    } else if (fix_type == "everything") {
 			this->set_color_of_fixture_during_song(lightshow_from_analysis, fix, { "white" });
       fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_everything(), fix.get_channel_dimmer());
       lightshow_from_analysis->add_fixture(fix);
-    } else if (fix_type.compare("ambient") == 0) {
+    } else if (fix_type == "ambient") {
       if(fix.has_global_dimmer) {
         std::vector<time_value_int> v;
         v.push_back({0.0, 200});
@@ -117,6 +117,24 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
         //lightshow_from_analysis->generate_ambient_color_fades(fix, colors);  // funktioniert noch gar nicht gut
 
+      } else {
+
+      }
+      lightshow_from_analysis->add_fixture(fix);
+    } else if(fix_type == "color_change") {
+      if(fix.has_global_dimmer) {
+        std::vector<time_value_int> v;
+        v.push_back({0.0, 200});
+        v.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+        fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
+
+        std::vector<std::string> colors;
+        colors.push_back("blue");
+        colors.push_back("light-green");
+        colors.push_back("cyan");
+        colors.push_back("red");
+        colors.push_back("green");
+        this->generate_beat_color_changes(lightshow_from_analysis, fix, colors);
       } else {
 
       }
@@ -399,4 +417,33 @@ color_values LightshowGenerator::color_to_rgb(string color) {
   } else { Logger::warning("Tried to use unknown color!"); }
 
   return cv;
+}
+
+void LightshowGenerator::generate_beat_color_changes(std::shared_ptr<Lightshow> lightshow_from_analysis,
+                                                     LightshowFixture &fix,
+                                                     std::vector<std::string> &colors) {
+
+  std::vector<color_change> color_changes;
+  std::vector<double> timestamps = lightshow_from_analysis->get_all_beats();
+  Logger::debug("Number of beat color changes in this lightshow: {}", timestamps.size());
+  int c = 0;
+  color_changes.push_back({ 0, colors[0] });
+
+  for (int i = 0; i < timestamps.size(); i++) {
+
+    c = i;
+
+    // Wenn keine weitern Farben mehr vorhanden sind, beginne wieder von vorne
+    if (c >= colors.size())
+      c = (i % colors.size());
+
+    Logger::debug("adding color change at: {}", (float) timestamps[i]);
+    color_changes.push_back({ ((float) timestamps[i]) / 44100, colors[c] });
+  }
+  this->set_soft_color_changes(lightshow_from_analysis, fix, color_changes, 0.1);
+
+}
+
+LightshowGenerator::~LightshowGenerator() {
+
 }

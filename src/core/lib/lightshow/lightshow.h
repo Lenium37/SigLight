@@ -75,6 +75,7 @@ class Lightshow {
   int get_wait_time_special();
 
   std::vector<time_value_int> get_timestamps_colorchanges();
+  std::vector<double> get_all_beats();
 
  private:
   std::string sound_src;

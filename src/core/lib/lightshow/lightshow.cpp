@@ -358,3 +358,7 @@ void Lightshow::add_value_change_mid(time_value_int tvi) {
 void Lightshow::add_value_change_high(time_value_int tvi) {
   this->value_changes_high.push_back(tvi);
 }
+
+std::vector<double> Lightshow::get_all_beats() {
+  return this->all_beats;
+}

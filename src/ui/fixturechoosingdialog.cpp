@@ -16,7 +16,7 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
     QDialog(parent),
     ui(new Ui::FixtureChoosingDialog) {
     ui->setupUi(this);
-    types /*<< "Action"*/ << "Ambient" << "Bass" << "Mid" << "High";
+    types /*<< "Action"*/ << "Ambient" << "Bass" << "Mid" << "High" << "color_change";
   auto list_size = static_cast<double>(fixtures.size());
     for (int i = 0; i < list_size; i++) {
       ui->fixture_selection->addItem(QString::fromStdString((std::next(fixtures.begin(), i))->get_name()));
