@@ -111,9 +111,12 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         std::vector<std::string> colors;
         colors.push_back("blue");
         colors.push_back("light-green");
+        colors.push_back("pink");
         colors.push_back("cyan");
         colors.push_back("red");
         colors.push_back("green");
+        colors.push_back("yellow");
+        colors.push_back("white");
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
         //lightshow_from_analysis->generate_ambient_color_fades(fix, colors);  // funktioniert noch gar nicht gut
 
@@ -425,11 +428,64 @@ void LightshowGenerator::generate_beat_color_changes(std::shared_ptr<Lightshow> 
 
   std::vector<color_change> color_changes;
   std::vector<double> timestamps = lightshow_from_analysis->get_all_beats();
-  Logger::debug("Number of beat color changes in this lightshow: {}", timestamps.size());
+
+  std::vector<time_value_int> bass_values = lightshow_from_analysis->get_value_changes_bass();
+  std::vector<time_value_int> mid_values = lightshow_from_analysis->get_value_changes_middle();
+
+  std::cout << "Number of beats in this lightshow: " << timestamps.size() << std::endl;
+  std::vector<float> timestamps_float;
+
+  /*std::cout << "timestamp0: " << (float) timestamps[0] / 44100 << std::endl;
+  std::cout << "timestamp1: " << (float) timestamps[1] / 44100 << std::endl;
+  std::cout << "timestamp2: " << (float) timestamps[2] / 44100 << std::endl;
+  std::cout << "timestamp3: " << (float) timestamps[3] / 44100 << std::endl;
+  std::cout << "timestamp4: " << (float) timestamps[4] / 44100 << std::endl;
+  std::cout << "timestamp5: " << (float) timestamps[5] / 44100 << std::endl;
+  std::cout << "timestamp6: " << (float) timestamps[6] / 44100 << std::endl;
+  std::cout << "timestamp7: " << (float) timestamps[7] / 44100 << std::endl;
+  std::cout << "timestamp8: " << (float) timestamps[8] / 44100 << std::endl;
+  std::cout << "tv1_bass.time0: " << bass_values[0].time << std::endl;
+  std::cout << "tv1_bass.time1: " << bass_values[1].time << std::endl;
+  std::cout << "tv1_bass.time2: " << bass_values[2].time << std::endl;
+  std::cout << "tv1_bass.time3: " << bass_values[3].time << std::endl;
+  std::cout << "tv1_bass.time4: " << bass_values[4].time << std::endl;
+  std::cout << "tv1_bass.time5: " << bass_values[5].time << std::endl;
+  std::cout << "tv1_bass.time6: " << bass_values[6].time << std::endl;
+  std::cout << "tv1_bass.time7: " << bass_values[7].time << std::endl;
+  std::cout << "tv1_bass.time7: " << bass_values[8].time << std::endl;*/
+
+  for(double timestamp: timestamps) {
+    for(time_value_int tvi_bass: bass_values) {
+      if(tvi_bass.time >= (float) timestamp / 44100 - 0.02 && tvi_bass.time <= (float) timestamp / 44100 + 0.02) {
+        //std::cout << "bass value at beat timestamp: " << tvi_bass.value << std::endl;
+        if (tvi_bass.value > 75)
+          timestamps_float.push_back((float) timestamp);
+        break;
+      }
+    }
+    for(time_value_int tvi_mid: mid_values) {
+      if(tvi_mid.time >= (float) timestamp / 44100 - 0.02 && tvi_mid.time <= (float) timestamp / 44100 + 0.02) {
+        if (tvi_mid.value > 175)
+          timestamps_float.push_back((float) timestamp);
+        break;
+      }
+    }
+  }
+
+  std::cout << "Number of beat color changes in this lightshow: " << timestamps_float.size() << std::endl;
+
+  Logger::debug("Number of beat color changes in this lightshow: {}", timestamps_float.size());
+
+  /*for(float ts: timestamps_float)
+    std::cout << "timestamp beat color change: " << ts / 44100 << std::endl;*/
+  timestamps_float.erase( unique( timestamps_float.begin(), timestamps_float.end() ), timestamps_float.end() );
+  /*for(float ts: timestamps_float)
+    std::cout << "timestamp beat color change: " << ts / 44100 << std::endl;*/
+
   int c = 0;
   color_changes.push_back({ 0, colors[0] });
 
-  for (int i = 0; i < timestamps.size(); i++) {
+  for (int i = 0; i < timestamps_float.size(); i++) {
 
     c = i;
 
@@ -437,10 +493,11 @@ void LightshowGenerator::generate_beat_color_changes(std::shared_ptr<Lightshow> 
     if (c >= colors.size())
       c = (i % colors.size());
 
-    Logger::debug("adding color change at: {}", (float) timestamps[i]);
-    color_changes.push_back({ ((float) timestamps[i]) / 44100, colors[c] });
+    Logger::debug("adding color change at: {}", timestamps_float[i]);
+    color_changes.push_back({ timestamps_float[i] / 44100, colors[c] });
   }
-  this->set_soft_color_changes(lightshow_from_analysis, fix, color_changes, 0.1);
+  //this->set_soft_color_changes(lightshow_from_analysis, fix, color_changes, 0.1);
+  this->set_hard_color_changes(lightshow_from_analysis, fix, color_changes);
 
 }
 
