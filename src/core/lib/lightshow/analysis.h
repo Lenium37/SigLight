@@ -11,6 +11,7 @@
 #include <iostream>
 #include <math.h>
 #include <complex>
+#include "Gist.h"
 
 struct time_value_int {
   float time;
@@ -37,6 +38,7 @@ class Analysis {
   Analysis();
   ~Analysis();
 
+  std::vector<float> get_onset_timestamps(int min_value_onset, int threshold_reset);
   void read_wav(char *filepath);
   void stft();
   std::vector<time_value_int> peaks_per_band(int f1, int f2);

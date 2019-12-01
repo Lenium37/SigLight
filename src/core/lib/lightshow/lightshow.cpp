@@ -149,6 +149,7 @@ void Lightshow::prepare_analysis_for_song(char *song_path) {
   this->analysis.set_resolution(this->resolution);
   this->analysis.read_wav(song_path);
   this->analysis.stft(); //dauert lang
+  this->onset_timestamps = this->analysis.get_onset_timestamps(150, 40);
 
   bool bpm_analysis_finished = false;
   try {
@@ -361,4 +362,8 @@ void Lightshow::add_value_change_high(time_value_int tvi) {
 
 std::vector<double> Lightshow::get_all_beats() {
   return this->all_beats;
+}
+
+std::vector<float> Lightshow::get_onset_timestamps() {
+  return this->onset_timestamps;
 }

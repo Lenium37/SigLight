@@ -144,11 +144,79 @@ void Analysis::stft(){
 
   Logger::debug("result.size(): {}", result.size());
 
+  std::cout << "result[0].size(): " << result[0].size() << std::endl;
+
   fftw_destroy_plan( plan_forward );
   fftw_free( data );
   fftw_free( fft_result );
   fftw_free( ifft_result );
 
+}
+
+std::vector<float> Analysis::get_onset_timestamps(int min_value_onset, int threshold_reset){
+
+  std::vector<float> onset_timestamps;
+
+  //Gist<double> gist(4096, 44100);
+  /*for(int i = 0; i < result.size(); i ++) {
+    gist.processAudioFrame (result[i]);
+    float hfc = gist.highFrequencyContent();
+    std::cout << "hfc(" << i << "):" << hfc << std::endl;
+  }*/
+  /*for(int i = 0; i < result.size(); i++) {
+    gist.processAudioFrame (result[i]);
+    float ed = gist.energyDifference();
+    //std::cout << "ed(" << i << "): " << ed << std::endl;
+  }*/
+
+  int window_size_onsets = 2048;
+  Gist<float> gist2(window_size_onsets, 44100);
+  float audioFrame[window_size_onsets];
+  float last_value = 0;
+  float last_time = 0;
+  bool onset_found = false;
+  bool already_added_this_onset = false;
+
+  for(int i = 0; i < signal_length_mono - window_size_onsets; i = i + window_size_onsets / 2) {
+    for(int j = i, k = 0; k < window_size_onsets; j++, k++)
+      audioFrame[k] = wav_values_mono[j];
+
+    gist2.processAudioFrame (audioFrame, window_size_onsets);
+    float ed = gist2.energyDifference();
+    float x = i;
+    float time = x/44100;
+    //if(ed > 0)
+      //std::cout << "ed(" << time << "): " << ed << std::endl;
+
+    /*if(ed > min_value_onset && ed > last_value) {
+      onset_timestamps.emplace_back(time);
+    }*/
+
+
+    if(ed > min_value_onset)
+      onset_found = true;
+
+    if(onset_found) {
+      if(ed < last_value && !already_added_this_onset) {
+        onset_timestamps.emplace_back(last_time);
+        already_added_this_onset = true;
+      }
+    }
+
+    if(ed < threshold_reset) {
+      onset_found = false;
+      already_added_this_onset = false;
+    }
+
+    last_value = ed;
+    last_time = time;
+  }
+
+
+  for(float ts: onset_timestamps)
+    std::cout << ts << std::endl;
+
+  return onset_timestamps;
 }
 
 std::vector<time_value_double> Analysis::get_intensity_function_values(){

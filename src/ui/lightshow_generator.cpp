@@ -5,7 +5,6 @@
 #include "lightshow_generator.h"
 
 
-
 LightshowGenerator::LightshowGenerator() {
 
 }
@@ -134,10 +133,14 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         std::vector<std::string> colors;
         colors.push_back("blue");
         colors.push_back("light-green");
+        colors.push_back("pink");
         colors.push_back("cyan");
         colors.push_back("red");
         colors.push_back("green");
-        this->generate_beat_color_changes(lightshow_from_analysis, fix, colors);
+        colors.push_back("yellow");
+        colors.push_back("white");
+        //this->generate_beat_color_changes(lightshow_from_analysis, fix, colors);
+        this->generate_onset_color_changes(lightshow_from_analysis, fix, colors);
       } else {
 
       }
@@ -435,25 +438,6 @@ void LightshowGenerator::generate_beat_color_changes(std::shared_ptr<Lightshow> 
   std::cout << "Number of beats in this lightshow: " << timestamps.size() << std::endl;
   std::vector<float> timestamps_float;
 
-  /*std::cout << "timestamp0: " << (float) timestamps[0] / 44100 << std::endl;
-  std::cout << "timestamp1: " << (float) timestamps[1] / 44100 << std::endl;
-  std::cout << "timestamp2: " << (float) timestamps[2] / 44100 << std::endl;
-  std::cout << "timestamp3: " << (float) timestamps[3] / 44100 << std::endl;
-  std::cout << "timestamp4: " << (float) timestamps[4] / 44100 << std::endl;
-  std::cout << "timestamp5: " << (float) timestamps[5] / 44100 << std::endl;
-  std::cout << "timestamp6: " << (float) timestamps[6] / 44100 << std::endl;
-  std::cout << "timestamp7: " << (float) timestamps[7] / 44100 << std::endl;
-  std::cout << "timestamp8: " << (float) timestamps[8] / 44100 << std::endl;
-  std::cout << "tv1_bass.time0: " << bass_values[0].time << std::endl;
-  std::cout << "tv1_bass.time1: " << bass_values[1].time << std::endl;
-  std::cout << "tv1_bass.time2: " << bass_values[2].time << std::endl;
-  std::cout << "tv1_bass.time3: " << bass_values[3].time << std::endl;
-  std::cout << "tv1_bass.time4: " << bass_values[4].time << std::endl;
-  std::cout << "tv1_bass.time5: " << bass_values[5].time << std::endl;
-  std::cout << "tv1_bass.time6: " << bass_values[6].time << std::endl;
-  std::cout << "tv1_bass.time7: " << bass_values[7].time << std::endl;
-  std::cout << "tv1_bass.time7: " << bass_values[8].time << std::endl;*/
-
   for(double timestamp: timestamps) {
     for(time_value_int tvi_bass: bass_values) {
       if(tvi_bass.time >= (float) timestamp / 44100 - 0.02 && tvi_bass.time <= (float) timestamp / 44100 + 0.02) {
@@ -503,4 +487,30 @@ void LightshowGenerator::generate_beat_color_changes(std::shared_ptr<Lightshow> 
 
 LightshowGenerator::~LightshowGenerator() {
 
+}
+
+void LightshowGenerator::generate_onset_color_changes(std::shared_ptr<Lightshow> lightshow_from_analysis,
+                                                      LightshowFixture &fix,
+                                                      std::vector<std::string> &colors) {
+  std::vector<color_change> color_changes;
+  std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
+
+  std::cout << "Number of onsets in this lightshow: " << timestamps.size() << std::endl;
+
+  int c = 0;
+  color_changes.push_back({ 0, colors[0] });
+
+  for (int i = 0; i < timestamps.size(); i++) {
+
+    c = i;
+
+    // Wenn keine weitern Farben mehr vorhanden sind, beginne wieder von vorne
+    if (c >= colors.size())
+      c = (i % colors.size());
+
+    Logger::debug("adding color change at: {}", timestamps[i]);
+    color_changes.push_back({ timestamps[i], colors[c] });
+  }
+  //this->set_soft_color_changes(lightshow_from_analysis, fix, color_changes, 0.1);
+  this->set_hard_color_changes(lightshow_from_analysis, fix, color_changes);
 }

@@ -35,7 +35,22 @@ set(CORE_LIB_SRCS
         stacktrace_registration.cpp
         version.h
         version.cpp
-        dmx_device_eurolite_pro.h dmx_device_eurolite_pro.cpp)
+        dmx_device_eurolite_pro.h dmx_device_eurolite_pro.cpp
+        ../../../external_libraries/gist/source/Gist/src/gist.h
+        ../../../external_libraries/gist/source/Gist/src/gist.cpp
+        ../../../external_libraries/gist/source/Gist/src/pitch/Yin.h
+        ../../../external_libraries/gist/source/Gist/src/pitch/Yin.cpp
+        ../../../external_libraries/gist/source/Gist/src/onset-detection-functions/OnsetDetectionFunction.h
+        ../../../external_libraries/gist/source/Gist/src/onset-detection-functions/OnsetDetectionFunction.cpp
+        ../../../external_libraries/gist/source/Gist/src/mfcc/MFCC.h
+        ../../../external_libraries/gist/source/Gist/src/mfcc/MFCC.cpp
+        ../../../external_libraries/gist/source/Gist/src/fft/WindowFunctions.h
+        ../../../external_libraries/gist/source/Gist/src/fft/WindowFunctions.cpp
+        ../../../external_libraries/gist/source/Gist/src/core/CoreTimeDomainFeatures.h
+        ../../../external_libraries/gist/source/Gist/src/core/CoreTimeDomainFeatures.cpp
+        ../../../external_libraries/gist/source/Gist/src/core/CoreFrequencyDomainFeatures.h
+        ../../../external_libraries/gist/source/Gist/src/core/CoreFrequencyDomainFeatures.cpp
+        )
 
 include(lightshow/CMakeLists.txt)
 
@@ -99,3 +114,6 @@ target_link_libraries(${CORE_LIBRARY_NAME} mp3lame)
 target_include_directories(${CORE_LIBRARY_NAME} PUBLIC ../../../external_libraries/taglib-1.11.1/install/include)
 target_link_directories(${CORE_LIBRARY_NAME} PUBLIC ../../../external_libraries/taglib-1.11.1/install/lib)
 target_link_libraries(${CORE_LIBRARY_NAME} tag)
+
+# make gist avaible
+target_include_directories(${CORE_LIBRARY_NAME} PUBLIC ../../../external_libraries/gist/source/Gist/src)

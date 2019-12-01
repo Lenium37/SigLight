@@ -76,6 +76,7 @@ class Lightshow {
 
   std::vector<time_value_int> get_timestamps_colorchanges();
   std::vector<double> get_all_beats();
+  std::vector<float> get_onset_timestamps();
 
  private:
   std::string sound_src;
@@ -95,6 +96,7 @@ class Lightshow {
   std::vector<time_value_int> value_changes_action;
   std::vector<time_value_int> value_changes_everything;
   std::vector<time_value_int> timestamps_colorchanges;
+  std::vector<float> onset_timestamps;
 
   int resolution = 40; // 40 = DMX update every 25ms.    20 = DMX update every 50ms.    10 = DMX update every 100ms.
   float fade_duration = 1; // fade of color changes takes 1s
