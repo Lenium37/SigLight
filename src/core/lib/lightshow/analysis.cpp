@@ -153,7 +153,7 @@ void Analysis::stft(){
 
 }
 
-std::vector<float> Analysis::get_onset_timestamps(int min_value_onset, int threshold_reset){
+std::vector<float> Analysis::get_onset_timestamps(){
 
   std::vector<float> onset_timestamps;
 
@@ -176,6 +176,9 @@ std::vector<float> Analysis::get_onset_timestamps(int min_value_onset, int thres
   float last_time = 0;
   bool onset_found = false;
   bool already_added_this_onset = false;
+  std::vector<time_value_float> onsets;
+  onsets.resize(signal_length_mono / window_size_onsets / 2);
+  float min_value_onset = 0;
 
   for(int i = 0; i < signal_length_mono - window_size_onsets; i = i + window_size_onsets / 2) {
     for(int j = i, k = 0; k < window_size_onsets; j++, k++)
@@ -185,36 +188,44 @@ std::vector<float> Analysis::get_onset_timestamps(int min_value_onset, int thres
     float ed = gist2.energyDifference();
     float x = i;
     float time = x/44100;
+
     //if(ed > 0)
       //std::cout << "ed(" << time << "): " << ed << std::endl;
 
-    /*if(ed > min_value_onset && ed > last_value) {
-      onset_timestamps.emplace_back(time);
-    }*/
+    onsets.push_back({time, ed});
+  }
 
+  for(int i = 0; i < onsets.size(); i++) {
+      min_value_onset += onsets[i].value;
+  }
+  min_value_onset = min_value_onset / onsets.size() * 5;
+  float threshold_reset = min_value_onset * 0.2;
 
-    if(ed > min_value_onset)
+  for(time_value_float onset: onsets) {
+    //std::cout << "ed(" << onset.time << "): " << onset.value << std::endl;
+    if(onset.value > min_value_onset)
       onset_found = true;
 
     if(onset_found) {
-      if(ed < last_value && !already_added_this_onset) {
+      if(onset.value < last_value && !already_added_this_onset) {
         onset_timestamps.emplace_back(last_time);
         already_added_this_onset = true;
       }
     }
 
-    if(ed < threshold_reset) {
+    if(onset.value < threshold_reset) {
       onset_found = false;
       already_added_this_onset = false;
     }
 
-    last_value = ed;
-    last_time = time;
+    last_value = onset.value;
+    last_time = onset.time;
   }
 
-
-  for(float ts: onset_timestamps)
-    std::cout << ts << std::endl;
+  std::cout << "min_value_onset: " << min_value_onset << std::endl;
+  std::cout << "threshold_reset: " << threshold_reset << std::endl;
+  //for(float ts: onset_timestamps)
+    //std::cout << ts << std::endl;
 
   return onset_timestamps;
 }

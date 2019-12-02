@@ -149,7 +149,7 @@ void Lightshow::prepare_analysis_for_song(char *song_path) {
   this->analysis.set_resolution(this->resolution);
   this->analysis.read_wav(song_path);
   this->analysis.stft(); //dauert lang
-  this->onset_timestamps = this->analysis.get_onset_timestamps(150, 40);
+  this->onset_timestamps = this->analysis.get_onset_timestamps();
 
   bool bpm_analysis_finished = false;
   try {
@@ -165,9 +165,7 @@ void Lightshow::prepare_analysis_for_song(char *song_path) {
   this->set_length((this->analysis.get_length_of_song() + 1) * this->resolution + 3);
   //this->value_changes_bass = this->analysis.peaks_per_band(10, 45);
 
-  Logger::debug("6");
   this->value_changes_bass = this->analysis.peaks_per_band(20, 50);
-  Logger::debug("7");
 
   BoxFIR box1(3);
   std::vector<int> v1;
