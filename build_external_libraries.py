@@ -538,6 +538,13 @@ if __name__ == '__main__':
 
     libsndfile.download_and_install()
 
+    gist = Library(library_name='gist',
+                         steps=[
+                             GitCloneStep('gist', 'https://github.com/adamstark/Gist.git')
+                         ])
+
+    gist.download_and_install()
+
     fftw3 = Library(library_name='fftw3',
                     steps=[
                         DownloadArchive('fftw3', 'http://www.fftw.org/fftw-3.3.8.tar.gz', 'fftw-3.3.8.tar.gz'),
