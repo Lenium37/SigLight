@@ -154,7 +154,7 @@ void LightshowFixture::add_value_changes_to_channel(std::vector<time_value_int> 
 
 void LightshowFixture::set_type(std::string type) {
   std::transform (type.begin(), type.end(), type.begin(), ::tolower);
-  if (type == "bass" || type == "mid" || type == "high" || type == "action" || type == "everything" || type == "ambient" || type == "color_change") {
+  if (type == "bass" || type == "mid" || type == "high" || type == "action" || type == "everything" || type == "ambient" || type == "color_change" || type == "onset_blink") {
     this->type = type;
     Logger::debug("Set type of fixture to {}", type);
   }

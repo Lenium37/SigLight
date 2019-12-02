@@ -145,6 +145,43 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
       }
       lightshow_from_analysis->add_fixture(fix);
+    } else if(fix_type == "onset_blink") {
+      if(fix.has_global_dimmer) {
+
+        std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
+  std::cout << "timestamps.size() onset_blink: " << timestamps.size() << std::endl;
+        std::vector<time_value_int> value_changes_onset_blink;
+        value_changes_onset_blink.resize(timestamps.size());
+
+        std::vector<int> values_onset_blink;
+        values_onset_blink.resize(timestamps.size());
+
+        for(int i = 0; i < timestamps.size(); i++) {
+          value_changes_onset_blink.push_back({timestamps[i], 200});
+        }
+
+        BoxFIR box1(3);
+        for (int i = 0; i < value_changes_onset_blink.size(); i++) {
+          values_onset_blink.push_back(value_changes_onset_blink[i].value);
+        }
+        box1.filter(values_onset_blink);
+        for (int i = 0; i < value_changes_onset_blink.size(); i++) {
+          value_changes_onset_blink[i].value = values_onset_blink[i];
+        }
+
+        fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
+
+        std::vector<std::string> colors;
+        colors.push_back("red");
+        colors.push_back("cyan");
+        colors.push_back("light-green");
+        colors.push_back("blue");
+        colors.push_back("pink");
+        this->generate_color_fades(lightshow_from_analysis, fix, colors);
+      } else {
+
+      }
+      lightshow_from_analysis->add_fixture(fix);
     }
   }
   auto end = chrono::steady_clock::now();
