@@ -79,7 +79,7 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 void MainWindow::init() {
-  this->setWindowState(Qt::WindowFullScreen);
+  this->setWindowState(Qt::WindowMaximized);
   rtl_path = get_home();
   if (rtl_path.endsWith("/")) {
     rtl_path = rtl_path + "Raspberry-to-Light/";

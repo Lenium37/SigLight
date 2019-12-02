@@ -151,22 +151,33 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
   std::cout << "timestamps.size() onset_blink: " << timestamps.size() << std::endl;
         std::vector<time_value_int> value_changes_onset_blink;
-        value_changes_onset_blink.resize(timestamps.size());
 
         std::vector<int> values_onset_blink;
-        values_onset_blink.resize(timestamps.size());
 
         for(int i = 0; i < timestamps.size(); i++) {
+          if(timestamps[i]-0.050f > 0) {
+            value_changes_onset_blink.push_back({timestamps[i] - 0.050f, 0});
+            value_changes_onset_blink.push_back({timestamps[i] - 0.025f, 100});
+          }
           value_changes_onset_blink.push_back({timestamps[i], 200});
+          if(i < timestamps.size() && timestamps[i]+0.050f < timestamps[timestamps.size() - 1]) {
+            value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 100});
+            value_changes_onset_blink.push_back({timestamps[i] + 0.050f, 0});
+          }
         }
 
-        BoxFIR box1(3);
+        /*BoxFIR box1(2);
         for (int i = 0; i < value_changes_onset_blink.size(); i++) {
           values_onset_blink.push_back(value_changes_onset_blink[i].value);
         }
         box1.filter(values_onset_blink);
         for (int i = 0; i < value_changes_onset_blink.size(); i++) {
           value_changes_onset_blink[i].value = values_onset_blink[i];
+        }*/
+
+        std::cout << value_changes_onset_blink.size() << std::endl;
+        for(int i = 0; i < value_changes_onset_blink.size(); i++) {
+          std::cout << value_changes_onset_blink[i].value << std::endl;
         }
 
         fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());

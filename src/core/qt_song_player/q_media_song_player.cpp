@@ -15,6 +15,7 @@ QMediaSongPlayer::QMediaSongPlayer(std::function<void(Song)> song_changed_callba
   connect(q_media_player, &QMediaPlayer::positionChanged, this, [this](long long int pos) {
     this->position_changed_callback(pos);
   });
+  this->set_volume(50);
 }
 void QMediaSongPlayer::set_current_song(Song cur_song) {
   current_song = cur_song;

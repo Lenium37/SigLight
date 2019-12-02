@@ -198,7 +198,7 @@ std::vector<float> Analysis::get_onset_timestamps(){
   for(int i = 0; i < onsets.size(); i++) {
       min_value_onset += onsets[i].value;
   }
-  min_value_onset = min_value_onset / onsets.size() * 5;
+  min_value_onset = min_value_onset / onsets.size() * 6;
   float threshold_reset = min_value_onset * 0.2;
 
   for(time_value_float onset: onsets) {
