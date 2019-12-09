@@ -28,19 +28,6 @@ bool lightshow_paused = true;
 #include <thread>
 #endif
 
-std::vector<LightshowFixture> create_multiple_fixtures(std::string type, int amount) {
-  std::vector<LightshowFixture> fixtures;
-  if (type.compare("Cameo Flat RGB 10") == 0) {
-    for (int i = 0; i < amount; i++) {
-      fixtures.push_back(LightshowFixture(type, (i * 6) + 1, 6, "mid"));
-    }
-  } else std::cout << "Fixture type unknown." << std::endl;
-  return fixtures;
-}
-
-void test_xml_and_dmx_output(MainWindow *window) {
-
-}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -255,10 +242,15 @@ void MainWindow::add_universe(QString name, QString description) {
   //delete itm;
 }
 
-void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type) {
+void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors) {
   auto *itm = new QTreeWidgetItem();
   _fixture.set_start_channel(start_channel);
   _fixture.set_type(type.toStdString());
+  if(!_colors.empty())
+    _fixture.set_colors(_colors);
+  else
+    _fixture.set_colors("Y");
+
   universes[0].add_fixture(_fixture);
 
   itm->setText(0, QString::fromStdString(universes[0].get_fixtures().back().get_name()));
@@ -313,7 +305,9 @@ void MainWindow::create_fixtures() {
                        "Bass",
                        "DMX-Funktionen: Colour Fade, Colour Jump, Master Dimmer, RGB, Sound Control, Strobe",
                        channels,
-                       "lamp");
+                       "lamp",
+                       color_palettes[0],
+                       0);
     channels.clear();
 
     channels << "Aus~0~5|Output (5-95%)~6~249|Max Output (100%)~250~255";
@@ -321,7 +315,8 @@ void MainWindow::create_fixtures() {
                        "Ambient",
                        "Ausstossmenge über DMX kontrollierbar",
                        channels,
-                       "smoke");
+                       "smoke",
+                       color_palettes[0]);
     channels.clear();
 
     channels << "NULL~0~1" << "NULL~0~1" << "NULL~0~1" << "NULL~0~1" << "NULL~0~1" << "Red (0-100%)~0~255"
@@ -331,7 +326,9 @@ void MainWindow::create_fixtures() {
                        "Mid",
                        "DMX-Funktionen: Pan, Tilt, Farben, noch viel mehr",
                        channels,
-                       "lamp");
+                       "lamp",
+                       color_palettes[0],
+                       0);
     channels.clear();
 
     channels << "NULL~0~1" << "NULL~0~1" << "NULL~0~1" << "NULL~0~1" << "NULL~0~1"
@@ -342,7 +339,9 @@ void MainWindow::create_fixtures() {
                        "High",
                        "DMX-Funktionen: Pan, Tilt, Farben, noch viel mehr",
                        channels,
-                       "lamp");
+                       "lamp",
+                       color_palettes[0],
+                       0);
     channels.clear();
 
     channels << "Red (0-100%)~0~255" << "Green (0-100%)~0~255" << "Blue (0-100%)~0~255" << "Weiß (0-100%)~0~255"
@@ -351,7 +350,9 @@ void MainWindow::create_fixtures() {
                        "Mid",
                        "DMX-Funktionen: Farben",
                        channels,
-                       "lamp");
+                       "lamp",
+                       color_palettes[0],
+                       0);
     channels.clear();
 
     channels << "Master dimmer (0-100%)~0~255" << "Strobo~0~255" << "Red (0-100%)~0~225" << "Green (0-100%)~0~225"
@@ -361,7 +362,9 @@ void MainWindow::create_fixtures() {
                        "High",
                        "DMX-Funktionen: Farben",
                        channels,
-                       "lamp");
+                       "lamp",
+                        color_palettes[0],
+                            0);
     channels.clear();
 
     channels << "Blackout/colour mix CH3 - CH5~0~4|Red~5~15|Green~16~26|Blue~27~37|Yellow~38~48|Magenta~49~59|Cyan~60~70|White~71~80|Color change (rate)~81~150|Color blending~151~220"
@@ -370,7 +373,9 @@ void MainWindow::create_fixtures() {
                        "Ambient",
                        "DMX-Funktionen: Farben",
                        channels,
-                       "lamp");
+                       "lamp",
+                       color_palettes[0],
+                       0);
 
 #if defined(_WIN32) || defined(WIN32)
     fixture_objects_file.open(QFile::ReadWrite);
@@ -393,19 +398,27 @@ void MainWindow::create_new_fixture(string _name,
                                     string _description,
                                     QStringList _channels,
                                     std::string _icon,
+                                    std::string _colors,
                                     int start_channel) {
+  std::cout << "start of MainWindow::create_new_fixture" << std::endl;
   Fixture temp;
   temp.set_name(_name);
   temp.set_type(_type);
   temp.set_description(_description);
   temp.set_channels(_channels);
   temp.set_icon(_icon);
+  /*if(!_colors.empty())
+    temp.set_colors(_colors);
+  else
+    temp.set_colors("Y");*/
   if (start_channel == 0) {
+    std::cout << "start_channel == 0" << std::endl;
     fixtures.push_back(temp);
     save_fixture_objects_to_xml();
   } else {
-    add_fixture(&universe_tree.back(), temp, start_channel, QString::fromStdString(temp.get_type()));
+    add_fixture(&universe_tree.back(), temp, start_channel, QString::fromStdString(temp.get_type()), temp.get_colors());
   }
+  std::cout << "end of MainWindow::create_new_fixture" << std::endl;
 }
 
 void MainWindow::update_label_song_position_and_duration(qint64 position) {
@@ -447,14 +460,14 @@ void MainWindow::update_label_song_position_and_duration(qint64 position) {
 
 void MainWindow::on_add_fixture_button_clicked() {
   if (universes[0].get_fixture_count() >= 512) {
-    QMessageBox::question(this, "Zu viele Geräte",
+    QMessageBox::question(this, "Too many fixtures",
                           "Reached maximum amount of Fixtures. Only 512 Devices allowed.",
                           QMessageBox::Ok);
   } else {
-    fcd = new FixtureChoosingDialog(this, fixtures);
-    fcd->set_up_dialog_options(universes[0].get_blocked_adress_range());
-    connect(fcd, SIGNAL(accepted()), this, SLOT(get_fixture_for_universe()));
-    fcd->exec();
+    this->fcd = new FixtureChoosingDialog(this, fixtures, color_palettes);
+    this->fcd->set_up_dialog_options(universes[0].get_blocked_adress_range());
+    connect(this->fcd, SIGNAL(accepted()), this, SLOT(get_fixture_for_universe()));
+    this->fcd->exec();
   }
 }
 
@@ -463,8 +476,9 @@ void MainWindow::get_fixture_for_universe() {
   int fixture_index = 0;
   int start_channel = 0;
   QString type;
-  fcd->get_fixture_options(fixture_index, start_channel, type);
-  add_fixture((&universe_tree.back()), *(std::next(fixtures.begin(), fixture_index)), start_channel, type);
+  std::string colors;
+  this->fcd->get_fixture_options(fixture_index, start_channel, type, colors);
+  add_fixture((&universe_tree.back()), *(std::next(fixtures.begin(), fixture_index)), start_channel, type, colors);
   save_fixture_objects_to_xml(false);
   fixtures_changed = true;
 }
@@ -654,7 +668,7 @@ void MainWindow::get_fixture_from_dialog() {
   if (name.empty() || type.empty() || description.empty() || channels.contains("")) {
 
   } else {
-    create_new_fixture(name, type, description, channels, icon);
+    create_new_fixture(name, type, description, channels, icon, "");
   }
 }
 
@@ -690,8 +704,7 @@ void MainWindow::on_action_add_song_to_player_triggered() {
     file_dialog.setNameFilters(supported_name_filters);
     file_dialog.setAcceptMode(QFileDialog::AcceptOpen);
     file_dialog.setFileMode(QFileDialog::ExistingFiles);
-    file_dialog.setDirectory(QStandardPaths::standardLocations(QStandardPaths::MusicLocation).value(0,
-                                                                                                    QDir::homePath()));
+    //file_dialog.setDirectory(QStandardPaths::standardLocations(QStandardPaths::MusicLocation).value(0, QDir::homePath()));
     if (file_dialog.exec() == QDialog::Accepted) {
         std::vector<Song*> temp = player->add_to_playlist(file_dialog.selectedUrls().toVector().toStdVector()) ;
 
@@ -707,6 +720,7 @@ void MainWindow::on_action_add_song_to_player_triggered() {
 
   if (ui->stackedWidget->currentIndex() == 1)
     show_edit_tools();
+  std::cout << "ENDE => MainWindow::on_action_add_song_to_player_triggered" << std::endl;
 }
 
 void MainWindow::start_thread_for_generating_queue(){
@@ -729,6 +743,7 @@ void MainWindow::queue_for_generating_light_show(){
     ls_generating_thread_is_alive = false;
     lightshows_to_generate_for.clear();
     Logger::trace("ENDE => MainWindow::queue_for_generating_light_show");
+  std::cout << "ENDE => MainWindow::queue_for_generating_light_show" << std::endl;
 }
 
 
@@ -737,9 +752,12 @@ void MainWindow::generate_lightshow(Song *song) {
   std::shared_ptr<Lightshow>
       generated_lightshow = this->lightshow_generator.generate(this->lightshow_resolution, song, universes[0].get_fixtures());
 
+  std::cout << "before register_lightshow_file" << std::endl;
   lightShowRegistry.register_lightshow_file(song, generated_lightshow, this->lightshows_directory_path);
+  std::cout << "after register_lightshow_file" << std::endl;
   if(player->playlist_index_for(song) != -1)
     emit lightshow_for_song_is_ready(song);
+  std::cout << "end of generate_lightshow" << std::endl;
 }
 
 void MainWindow::regenerate_lightshow(Song *song) {
@@ -751,10 +769,6 @@ void MainWindow::regenerate_lightshow(Song *song) {
   lightShowRegistry.renew_lightshow_for_song(song, regenerated_lightshow, this->lightshows_directory_path);
   if(player->playlist_index_for(song) != -1)
     emit lightshow_for_song_is_ready(song);
-}
-
-void MainWindow::on_action_lightshow_test_triggered() {
-  test_xml_and_dmx_output(this);
 }
 
 void MainWindow::on_action_next_song_triggered() {
@@ -994,6 +1008,10 @@ void MainWindow::save_fixture_objects_to_xml(bool is_preset) {
     xml_type->SetText(fixture.get_type().c_str());
     fixture_object->InsertEndChild(xml_type);
 
+    tinyxml2::XMLElement *xml_colors = fixture_objects.NewElement("colors");
+    xml_colors->SetText(fixture.get_colors().c_str());
+    fixture_object->InsertEndChild(xml_colors);
+
     tinyxml2::XMLElement *xml_description = fixture_objects.NewElement("description");
     xml_description->SetText(fixture.get_description().c_str());
     fixture_object->InsertEndChild(xml_description);
@@ -1044,6 +1062,7 @@ void MainWindow::save_fixture_objects_to_xml(bool is_preset) {
 void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename) {
   std::string fixture_name;
   std::string fixture_type;
+  std::string fixture_colors;
   std::string fixture_description;
   std::string fixture_icon;
   std::string functions;
@@ -1079,9 +1098,13 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
         tinyxml2::XMLElement *description = fixture->FirstChildElement("description");
         fixture_description = description->GetText();
 
+        tinyxml2::XMLElement *colors = fixture->FirstChildElement("colors");
+        fixture_colors = colors->GetText();
+
         if (!is_preset) {
           tinyxml2::XMLElement *start_channel_xml = fixture->FirstChildElement("startchannel");
           start_channel = std::atoi(start_channel_xml->GetText());
+
         }
 
         tinyxml2::XMLElement *icon = fixture->FirstChildElement("icon");
@@ -1109,7 +1132,7 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
           functions.clear();
         }
         fixture = fixture->NextSiblingElement("Fixture");
-        create_new_fixture(fixture_name, fixture_type, fixture_description, channels, fixture_icon, start_channel);
+        create_new_fixture(fixture_name, fixture_type, fixture_description, channels, fixture_icon, fixture_colors, start_channel);
         channels.clear();
       }
     }
@@ -1276,7 +1299,7 @@ void MainWindow::get_edited_fixture() {
 }
 
 void MainWindow::on_actionFixture_Presets_bearbeiten_triggered() {
-  fcd = new FixtureChoosingDialog(this, fixtures);
+  fcd = new FixtureChoosingDialog(this, fixtures, color_palettes);
   fcd->setup_for_edit();
   connect(fcd, SIGNAL(accepted()), this, SLOT(open_edit_preset()));
   fcd->exec();

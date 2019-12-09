@@ -268,7 +268,6 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="action_lightshow_test"/>
     <addaction name="action_add_song_to_player"/>
     <addaction name="action_safe_playlist"/>
     <addaction name="action_remove_song_from_playlist"/>
@@ -376,11 +375,6 @@
    </property>
    <property name="toolTip">
     <string>Add file to the playlist</string>
-   </property>
-  </action>
-  <action name="action_lightshow_test">
-   <property name="text">
-    <string>Lightshow_test</string>
    </property>
   </action>
   <action name="action_next_song">

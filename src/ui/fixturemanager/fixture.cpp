@@ -1,25 +1,29 @@
+#include <utility>
+
 #include <QtCore>
 #include <QString>
 #include "fixture.h"
 #include <cstring>
 #include <utility>
+#include <iostream>
 
 using namespace std;
 
-Fixture::Fixture(string _type, string _name, string _description, QStringList _channels, std::string icon) {
+Fixture::Fixture(string _type, string _name, string _description, QStringList _channels, std::string icon, std::string colors) {
 
-  Fixture(std::move(_type), std::move(_name), std::move(_description), 1, std::move(_channels), std::move(icon));
+  Fixture(std::move(_type), std::move(_name), std::move(_description), 1, std::move(_channels), std::move(icon), colors);
 }
 
-Fixture::Fixture(string _type, string _name, string _description, int _start_channel, QStringList _channels, std::string _icon) {
+Fixture::Fixture(string _type, string _name, string _description, int _start_channel, QStringList _channels, std::string _icon, std::string colors) {
   type = std::move(_type);
   name = std::move(_name);
   description = std::move(_description);
   start_channel = _start_channel;
-  icon = _icon;
+  icon = std::move(_icon);
   for (int i = 0; i < _channels.size(); i++) {
       channels.push_back(Channel_gui(_channels.at(i)));
   }
+  this->colors = colors;
 }
 
 string Fixture::get_description_view() {
@@ -134,4 +138,16 @@ QDebug operator<<(QDebug dbg, Fixture &f)
   dbg.nospace() << QString::fromStdString(f.to_string());
 
     return dbg;
+}
+
+std::string Fixture::get_colors() {
+  if(!this->colors.empty())
+    return this->colors;
+  else
+    return "LG/P/C/R/G/Y/W/B";
+}
+
+void Fixture::set_colors(std::string colors) {
+  std::cout << "setting fix colors to: " << colors << std::endl;
+  this->colors = colors;
 }

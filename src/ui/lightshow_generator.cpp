@@ -21,17 +21,17 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   for (Fixture fix: fixtures) {
     //std::cout << "new fix. name: " << fix.get_name() << ". start address: " << fix.get_start_channel() << ", number of addresses: " << fix.get_channel_count() << std::endl;
     if (fix.get_name() == "Cameo Flat RGB 10") {
-      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type()));
+      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors()));
     } else if(fix.get_name() == "Helios 7") {
-      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type()));
+      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors()));
     } else if(fix.get_name() == "Cobalt Plus Spot 5R") {
-      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type()));
+      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors()));
     } else if(fix.get_name() == "Varytec PAD7 seventy") {
-      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type()));
+      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors()));
     } else if (fix.get_name() == "TOURSPOT PRO") {
-      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type()));
+      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors()));
     } else if (fix.get_name() == "BAR TRI-LED") {
-      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type()));
+      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors()));
     } else std::cout << "Fixture type unknown." << std::endl;
   }
 
@@ -45,12 +45,17 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       if(fix.has_global_dimmer) {
         fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_bass(), fix.get_channel_dimmer());
 
-        std::vector<std::string> colors;
-        colors.push_back("red");
+        std::vector<std::string> colors; // = fix.get_colors();
+        for(std::string c: fix.get_colors()) {
+          colors.push_back(c);
+          std::cout << c << std::endl;
+        }
+        std::cout << colors.size() << std::endl;
+        /*colors.push_back("red");
         colors.push_back("cyan");
         colors.push_back("light-green");
         colors.push_back("blue");
-        colors.push_back("pink");
+        colors.push_back("pink");*/
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
 
       } else {
@@ -62,13 +67,13 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       if(fix.has_global_dimmer) {
         fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_middle(), fix.get_channel_dimmer());
 
-        std::vector<std::string> colors;
-        colors.push_back("blue");
+        std::vector<std::string> colors = fix.get_colors();
+        /*colors.push_back("blue");
         colors.push_back("light-green");
         colors.push_back("cyan");
         colors.push_back("red");
-        colors.push_back("green");
-				this->generate_color_fades(lightshow_from_analysis, fix, colors);
+        colors.push_back("green");*/
+        this->generate_color_fades(lightshow_from_analysis, fix, colors);
 
       } else {
         fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_middle(), fix.get_channel_blue());
@@ -79,13 +84,13 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       if(fix.has_global_dimmer) {
         fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_high(), fix.get_channel_dimmer());
 
-        std::vector<std::string> colors;
-        colors.push_back("green");
+        std::vector<std::string> colors = fix.get_colors();
+        /*colors.push_back("green");
         colors.push_back("yellow");
         colors.push_back("red");
         colors.push_back("white");
-        colors.push_back("blue");
-				this->generate_color_fades(lightshow_from_analysis, fix, colors);
+        colors.push_back("blue");*/
+        this->generate_color_fades(lightshow_from_analysis, fix, colors);
 
       } else {
         fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_high(), fix.get_channel_green());
@@ -107,15 +112,16 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         v.push_back({((float)lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() , 0});
         fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
 
-        std::vector<std::string> colors;
-        colors.push_back("blue");
+        std::vector<std::string> colors = fix.get_colors();
+
+        /*colors.push_back("blue");
         colors.push_back("light-green");
         colors.push_back("pink");
         colors.push_back("cyan");
         colors.push_back("red");
         colors.push_back("green");
         colors.push_back("yellow");
-        colors.push_back("white");
+        colors.push_back("white");*/
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
         //lightshow_from_analysis->generate_ambient_color_fades(fix, colors);  // funktioniert noch gar nicht gut
 
@@ -130,15 +136,20 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         v.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
         fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
 
-        std::vector<std::string> colors;
-        colors.push_back("blue");
+        std::vector<std::string> colors; // = fix.get_colors();
+        for(std::string c: fix.get_colors()) {
+          colors.push_back(c);
+          std::cout << c << std::endl;
+        }
+        std::cout << colors.size() << std::endl;
+        /*colors.push_back("blue");
         colors.push_back("light-green");
         colors.push_back("pink");
         colors.push_back("cyan");
         colors.push_back("red");
         colors.push_back("green");
         colors.push_back("yellow");
-        colors.push_back("white");
+        colors.push_back("white");*/
         //this->generate_beat_color_changes(lightshow_from_analysis, fix, colors);
         this->generate_onset_color_changes(lightshow_from_analysis, fix, colors);
       } else {
@@ -182,12 +193,12 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
         fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
 
-        std::vector<std::string> colors;
-        colors.push_back("red");
+        std::vector<std::string> colors = fix.get_colors();
+        /*colors.push_back("red");
         colors.push_back("cyan");
         colors.push_back("light-green");
         colors.push_back("blue");
-        colors.push_back("pink");
+        colors.push_back("pink");*/
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
       } else {
 
@@ -198,7 +209,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   auto end = chrono::steady_clock::now();
 
   Logger::info("Lightshow creation took {}s", chrono::duration_cast<chrono::seconds>(end - start).count());
-
 
   return lightshow_from_analysis;
 }

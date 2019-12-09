@@ -4,6 +4,7 @@
 
 #include <QStringList>
 #include "channel_gui.h"
+#include <vector>
 
 using namespace std;
 
@@ -16,14 +17,14 @@ public:
   Fixture() = default;
 
   /**
-   * @brief Fixture Constructor of Fixture with: name, type, description, channels, icon.
+   * @brief Fixture Constructor of Fixture with: name, type, description, channels, icon, colors.
    */
-  Fixture(string, string, string, QStringList, std::string);
+  Fixture(string, string, string, QStringList, std::string, std::string);
 
   /**
-   * @brief Fixture Fixture Constructor of Fixture with: name, type, description, start_channel, channels, icon.
+   * @brief Fixture Fixture Constructor of Fixture with: name, type, description, start_channel, channels, icon, colors.
    */
-  Fixture(string, string, string, int, QStringList, std::string);
+  Fixture(string, string, string, int, QStringList, std::string, std::string);
 
   /**
    * Default destructor.
@@ -109,7 +110,6 @@ public:
    */
   string to_string();
 
-public:
   /**
    * @brief set_type Set the type of this Fixture.
    * @param type Type.
@@ -139,6 +139,10 @@ public:
    * @return
    */
   bool has_global_dimmer();
+
+  std::string get_colors();
+
+  void set_colors(std::string colors);
 
 private:
   /**
@@ -175,6 +179,8 @@ private:
    * @brief global_dimmer If the Fixture has a global dimmer.
    */
   bool global_dimmer;
+
+  std::string colors;
 
 };
 

@@ -70,6 +70,9 @@
       <widget class="QComboBox" name="cB_type"/>
      </item>
      <item>
+      <widget class="QComboBox" name="cB_colors"/>
+     </item>
+     <item>
       <widget class="QLabel" name="l_start_channel">
        <property name="text">
         <string>Startchannel:</string>

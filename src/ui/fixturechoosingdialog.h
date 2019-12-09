@@ -15,7 +15,7 @@ Q_OBJECT
 public:
   explicit FixtureChoosingDialog(QWidget *parent = nullptr);
 
-  explicit FixtureChoosingDialog(QWidget *parent = nullptr, list<Fixture> &fixtures = *new list<Fixture>());
+  explicit FixtureChoosingDialog(QWidget *parent = nullptr, list<Fixture> &fixtures = *new list<Fixture>(), std::vector<std::string> color_palettes = *new std::vector<std::string>());
 
   ~FixtureChoosingDialog() override;
 
@@ -31,7 +31,7 @@ public:
    * @param start_channel Start channel of the fixture.
    * @param type Type of the fixture.
    */
-  void get_fixture_options(int & fixture_id,int & start_channel, QString & type);
+  void get_fixture_options(int & fixture_id,int & start_channel, QString & type, std::string &colors);
 
   /**
    * @brief setup_for_edit Setup the dialog for choosing an fixture preset to be edited.
@@ -61,6 +61,7 @@ private:
   Ui::FixtureChoosingDialog *ui;
   QStringList types;
   QStringList types_of_fixtures;
+  QStringList colors;
   std::list<int> blocked_channels;
   std::list<int> end_channels;
   bool is_delete;

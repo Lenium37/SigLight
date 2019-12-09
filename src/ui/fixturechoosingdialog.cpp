@@ -12,12 +12,14 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent) :
     FixtureChoosingDialog::is_delete = false;
 }
 
-FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fixtures) :
+FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fixtures, std::vector<std::string> color_palettes) :
     QDialog(parent),
     ui(new Ui::FixtureChoosingDialog) {
     ui->setupUi(this);
-    types /*<< "Action"*/ << "Ambient" << "Bass" << "Mid" << "High" << "color_change" << "onset_blink";
-  auto list_size = static_cast<double>(fixtures.size());
+    types << "Ambient" << "Bass" << "Mid" << "High" << "color_change" << "onset_blink";
+    for(std::string _colors: color_palettes)
+      colors << QString::fromStdString(_colors);
+    auto list_size = static_cast<double>(fixtures.size());
     for (int i = 0; i < list_size; i++) {
       ui->fixture_selection->addItem(QString::fromStdString((std::next(fixtures.begin(), i))->get_name()));
       types_of_fixtures << QString::fromStdString(std::next(fixtures.begin(), i)->get_type());
@@ -26,6 +28,7 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
 
     ui->fixture_selection->setCurrentRow(0);
     ui->cB_type->addItems(types);
+    ui->cB_colors->addItems(colors);
     ui->sB_start_channel->setRange(1,max_channel);
     ui->pB_delete_fixture->setVisible(false);
     this->setWindowTitle("Choose Fixture");
@@ -42,11 +45,12 @@ void FixtureChoosingDialog::set_up_dialog_options(std::list<int> blocked_channel
     set_first_allowed_channel(0, true);
 }
 
-void FixtureChoosingDialog::get_fixture_options(int &fixture_id,int &start_channel, QString &type)
+void FixtureChoosingDialog::get_fixture_options(int &fixture_id,int &start_channel, QString &type, std::string &colors)
 {
     fixture_id = ui->fixture_selection->currentRow();
     start_channel = ui->sB_start_channel->value();
     type = ui->cB_type->currentText();
+    colors = ui->cB_colors->currentText().toStdString();
 }
 
 void FixtureChoosingDialog::setup_for_edit()

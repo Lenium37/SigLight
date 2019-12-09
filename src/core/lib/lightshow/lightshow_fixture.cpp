@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by Johannes on 05.05.2019.
 //
@@ -11,10 +13,52 @@
 #include <atomic>
 
 
-LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type) {
+LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors) {
   this->name = name;
   this->start_channel = start_channel;
   this->number_of_channels = number_of_channels;
+  std::istringstream ss(colors);
+  std::string color;
+  if(!colors.empty()) {
+    if(colors.find("/") != std::string::npos) {
+      while (std::getline(ss, color, '/')) {
+        if (color == "R" || color == "red")
+          this->colors.push_back("red");
+        else if (color == "G" || color == "green")
+          this->colors.push_back("green");
+        else if (color == "B" || color == "blue")
+          this->colors.push_back("blue");
+        else if (color == "LG" || color == "light-green")
+          this->colors.push_back("light-green");
+        else if (color == "C" || color == "cyan")
+          this->colors.push_back("cyan");
+        else if (color == "P" || color == "pink")
+          this->colors.push_back("pink");
+        else if (color == "W" || color == "white")
+          this->colors.push_back("white");
+        else if (color == "Y" || color == "yellow")
+          this->colors.push_back("yellow");
+      }
+    } else {
+      if (colors == "R" || colors == "red")
+        this->colors.push_back("red");
+      else if (colors == "G" || colors == "green")
+        this->colors.push_back("green");
+      else if (colors == "B" || colors == "blue")
+        this->colors.push_back("blue");
+      else if (colors == "LG" || colors == "light-green")
+        this->colors.push_back("light-green");
+      else if (colors == "C" || colors == "cyan")
+        this->colors.push_back("cyan");
+      else if (colors == "P" || colors == "pink")
+        this->colors.push_back("pink");
+      else if (colors == "W" || colors == "white")
+        this->colors.push_back("white");
+      else if (colors == "Y" || colors == "yellow")
+        this->colors.push_back("yellow");
+    }
+  } else { this->colors.push_back("white"); }
+
   Logger::debug("Constructor of LightshowFixture. Type: {}", type);
   Logger::debug("Constructor of LightshowFixture. Name: {}", name);
   this->set_type(type);
@@ -171,4 +215,8 @@ std::string LightshowFixture::get_name() {
 
 void LightshowFixture::set_name(std::string name) {
   this->name = name;
+}
+
+std::vector<std::string> LightshowFixture::get_colors() {
+  return this->colors;
 }

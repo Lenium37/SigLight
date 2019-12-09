@@ -144,7 +144,7 @@ void Analysis::stft(){
 
   Logger::debug("result.size(): {}", result.size());
 
-  std::cout << "result[0].size(): " << result[0].size() << std::endl;
+  //std::cout << "result[0].size(): " << result[0].size() << std::endl;
 
   fftw_destroy_plan( plan_forward );
   fftw_free( data );

@@ -48,6 +48,14 @@ void LightShowRegistry::write_lightshow(const std::string &lightshow_filename, s
     fixture_element->SetAttribute("start_channel", fixture.get_start_channel());
     fixture_element->SetAttribute("number_of_channels", fixture.get_number_of_channels());
     fixture_element->SetAttribute("type", fixture.get_type().c_str());
+    std::string colors;
+    for(std::string c: fixture.get_colors()) {
+      colors.append(c);
+      colors.append("/");
+    }
+    if(colors.length() > 1)
+      colors.pop_back();
+    fixture_element->SetAttribute("colors", colors.c_str());
 
     for(auto channel : fixture.get_channels()) {
       if(channel.get_value_changes().size() > 0) {
@@ -119,7 +127,8 @@ std::shared_ptr<Lightshow> LightShowRegistry::read_lightshow(const std::string f
   else {
     tinyxml2::XMLElement *fixture_element = lightshow_element->FirstChildElement("fixture");
     while (fixture_element != nullptr) {
-      LightshowFixture fixture(fixture_element->Attribute("name"), std::stoi(fixture_element->Attribute("start_channel")), std::stoi(fixture_element->Attribute("number_of_channels")), fixture_element->Attribute("type"));
+      std::string colors = fixture_element->Attribute("colors");
+      LightshowFixture fixture(fixture_element->Attribute("name"), std::stoi(fixture_element->Attribute("start_channel")), std::stoi(fixture_element->Attribute("number_of_channels")), fixture_element->Attribute("type"), colors);
 
       tinyxml2::XMLElement *channel_element = fixture_element->FirstChildElement("channel");
       while(channel_element != nullptr) {

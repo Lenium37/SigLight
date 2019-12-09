@@ -31,7 +31,7 @@ class LightshowFixture {
    * @param number_of_channels
    * @param type
    */
-  LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type);
+  LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors);
   ~LightshowFixture();
 
   /**
@@ -167,6 +167,8 @@ class LightshowFixture {
    */
   bool has_global_dimmer = false;
 
+  std::vector<std::string> get_colors();
+
  private:
   int start_channel;
   int number_of_channels;
@@ -183,6 +185,7 @@ class LightshowFixture {
   Channel red = Channel(0);
   Channel green = Channel(0);
   Channel blue = Channel(0);
+  std::vector<std::string> colors;
 
 };
 
