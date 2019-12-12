@@ -952,13 +952,6 @@ void MainWindow::add_player_edit_mode(int start, int end) {
         if (player->get_playlist_media_at(index)->get_lightshow_status()) {
           Song *song = player->get_playlist_media_at(index)->get_song();
           std::shared_ptr<Lightshow> ls = lightShowRegistry.get_lightshow(song);
-          Logger::trace("Mainwindow::add_player_edit_view");
-          Logger::debug(ls->get_value_changes_bass()[0].time);
-          Logger::debug(ls->get_value_changes_bass()[0].value);
-          Logger::debug(ls->get_value_changes_bass()[1].time);
-          Logger::debug(ls->get_value_changes_bass()[1].value);
-          Logger::debug(ls->get_value_changes_bass()[2].time);
-          Logger::debug(ls->get_value_changes_bass()[2].value);
 
           player_edit_view->initialize_player_edit_scene(true, temp, ls);
           connect(player, &MusicPlayer::position_changed, player_edit_view, &Player_edit_view::make_music_slider_move);

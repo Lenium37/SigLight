@@ -221,7 +221,7 @@ void Multiple_tracks::load_timestamps_fixture_groups()
     //Logger::info(my_lightshow->get_value_changes_high().size());
 
 
-    Logger::debug("Multiple_tracks::load_timestamps_fixture_groups");
+    /*Logger::debug("Multiple_tracks::load_timestamps_fixture_groups");
     Logger::debug(my_lightshow.get()->get_value_changes_bass().at(0).time);
     Logger::debug(my_lightshow.get()->get_value_changes_bass().at(0).value);
     Logger::debug(my_lightshow.get()->get_value_changes_bass().at(1).time);
@@ -235,7 +235,7 @@ void Multiple_tracks::load_timestamps_fixture_groups()
     Logger::debug(my_lightshow.get()->get_value_changes_bass().at(5).time);
     Logger::debug(my_lightshow.get()->get_value_changes_bass().at(5).value);
     Logger::debug(my_lightshow.get()->get_value_changes_bass().at(6).time);
-    Logger::debug(my_lightshow.get()->get_value_changes_bass().at(6).value);
+    Logger::debug(my_lightshow.get()->get_value_changes_bass().at(6).value);*/
 
     for (std::vector<time_value_int>::iterator it = v.begin(); it != v.end(); ++it){
       if(it->value == 0)
