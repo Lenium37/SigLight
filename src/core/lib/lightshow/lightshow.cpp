@@ -149,7 +149,6 @@ void Lightshow::prepare_analysis_for_song(char *song_path) {
   this->analysis.set_resolution(this->resolution);
   this->analysis.read_wav(song_path);
   this->analysis.stft(); //dauert lang
-  this->onset_timestamps = this->analysis.get_onset_timestamps();
 
   bool bpm_analysis_finished = false;
   try {
@@ -160,6 +159,7 @@ void Lightshow::prepare_analysis_for_song(char *song_path) {
   }
 
   this->analysis.normalize();
+  this->onset_timestamps = this->analysis.get_onset_timestamps();
 
 
   this->set_length((this->analysis.get_length_of_song() + 1) * this->resolution + 3);

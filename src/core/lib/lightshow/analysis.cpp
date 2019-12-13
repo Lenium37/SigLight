@@ -169,6 +169,8 @@ std::vector<float> Analysis::get_onset_timestamps(){
     //std::cout << "ed(" << i << "): " << ed << std::endl;
   }*/
 
+
+
   int window_size_onsets = 2048;
   Gist<float> gist2(window_size_onsets, 44100);
   float audioFrame[window_size_onsets];
@@ -180,9 +182,42 @@ std::vector<float> Analysis::get_onset_timestamps(){
   onsets.resize(signal_length_mono / window_size_onsets / 2);
   float min_value_onset = 0;
 
+
+  // this works good for hardstyle and some other stuff, semi good for the rest
+  /*float f1_sample = ((float) window_size_onsets / 44100) * 1;
+  float f2_sample = ((float) window_size_onsets / 44100) * 10000;
+
+  std::cout << "normalized_result.size(): " << normalized_result.size() << std::endl;
+  std::cout << "signal_length_mono: " << signal_length_mono << std::endl;
+  for (int i = 0; i < normalized_result.size(); i++){
+    int this_value = 0;
+    int this_sample = 0;
+    int this_block = 0;
+    float this_freq = 0;
+
+    for(int y = 0; y < window_size_onsets; y++)
+      audioFrame[y] = 0;
+
+    for (int n = f1_sample, k = 0; n <= f2_sample ; n++, k++){
+
+      audioFrame[k] = (float) normalized_result[i][n];
+    }
+
+    gist2.processAudioFrame (audioFrame, window_size_onsets);
+    float ed = gist2.energyDifference();
+    float x = i;
+    float time = x * window_size_onsets / 44100 / 1.85796852603;
+    onsets.push_back({time, ed});
+  }*/
+
+
+
+
+
   for(int i = 0; i < signal_length_mono - window_size_onsets; i = i + window_size_onsets / 2) {
-    for(int j = i, k = 0; k < window_size_onsets; j++, k++)
+    for(int j = i, k = 0; k < window_size_onsets; j++, k++) {
       audioFrame[k] = wav_values_mono[j];
+    }
 
     gist2.processAudioFrame (audioFrame, window_size_onsets);
     float ed = gist2.energyDifference();
@@ -198,8 +233,9 @@ std::vector<float> Analysis::get_onset_timestamps(){
   for(int i = 0; i < onsets.size(); i++) {
       min_value_onset += onsets[i].value;
   }
-  min_value_onset = min_value_onset / onsets.size() * 6;
-  float threshold_reset = min_value_onset * 0.2;
+  min_value_onset = min_value_onset / onsets.size() * 5.5;
+  //float threshold_reset = min_value_onset * 0.2;
+  float threshold_reset = 0.0f;
 
   for(time_value_float onset: onsets) {
     //std::cout << "ed(" << onset.time << "): " << onset.value << std::endl;
@@ -213,7 +249,7 @@ std::vector<float> Analysis::get_onset_timestamps(){
       }
     }
 
-    if(onset.value < threshold_reset) {
+    if(onset.value <= threshold_reset) {
       onset_found = false;
       already_added_this_onset = false;
     }
