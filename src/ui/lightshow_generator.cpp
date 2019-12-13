@@ -10,7 +10,6 @@ LightshowGenerator::LightshowGenerator() {
 }
 
 std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *song, std::list<Fixture> fixtures) {
-  auto start = chrono::steady_clock::now();
   std::shared_ptr<Lightshow> lightshow_from_analysis = std::make_shared<Lightshow>();
   lightshow_from_analysis->set_resolution(resolution);
 
@@ -42,11 +41,11 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
     if (fix_type == "bass") {
 
-      if(fix.has_global_dimmer) {
+      if (fix.has_global_dimmer) {
         fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_bass(), fix.get_channel_dimmer());
 
         std::vector<std::string> colors; // = fix.get_colors();
-        for(std::string c: fix.get_colors()) {
+        for (std::string c: fix.get_colors()) {
           colors.push_back(c);
           std::cout << c << std::endl;
         }
@@ -64,7 +63,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       lightshow_from_analysis->add_fixture_bass(fix);
     } else if (fix_type == "mid") {
 
-      if(fix.has_global_dimmer) {
+      if (fix.has_global_dimmer) {
         fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_middle(), fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
@@ -81,7 +80,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       lightshow_from_analysis->add_fixture_middle(fix);
     } else if (fix_type == "high") {
 
-      if(fix.has_global_dimmer) {
+      if (fix.has_global_dimmer) {
         fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_high(), fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
@@ -97,19 +96,21 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       }
       lightshow_from_analysis->add_fixture_high(fix);
     } else if (fix_type == "action") {
-			this->set_color_of_fixture_during_song(lightshow_from_analysis, fix, {"white"});
+      this->set_color_of_fixture_during_song(lightshow_from_analysis, fix, {"white"});
       fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_action(), fix.get_channel_dimmer());
       fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_action(), fix.get_channel_strobo());
       lightshow_from_analysis->add_fixture_action(fix);
     } else if (fix_type == "everything") {
-			this->set_color_of_fixture_during_song(lightshow_from_analysis, fix, { "white" });
-      fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_everything(), fix.get_channel_dimmer());
+      this->set_color_of_fixture_during_song(lightshow_from_analysis, fix, {"white"});
+      fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_everything(),
+                                       fix.get_channel_dimmer());
       lightshow_from_analysis->add_fixture(fix);
     } else if (fix_type == "ambient") {
-      if(fix.has_global_dimmer) {
+      if (fix.has_global_dimmer) {
         std::vector<time_value_int> v;
         v.push_back({0.0, 200});
-        v.push_back({((float)lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() , 0});
+        v.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(),
+                     0});
         fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
@@ -129,76 +130,92 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
       }
       lightshow_from_analysis->add_fixture(fix);
-    } else if(fix_type == "color_change") {
-      if(fix.has_global_dimmer) {
+    } else if (fix_type == "color_change_beats") {
+      if (fix.has_global_dimmer) {
         std::vector<time_value_int> v;
         v.push_back({0.0, 200});
-        v.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+        v.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(),
+                     0});
         fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
 
-        std::vector<std::string> colors; // = fix.get_colors();
-        for(std::string c: fix.get_colors()) {
+        std::vector<std::string> colors;
+        for (std::string c: fix.get_colors()) {
           colors.push_back(c);
-          std::cout << c << std::endl;
+          //std::cout << c << std::endl;
         }
-        std::cout << colors.size() << std::endl;
-        /*colors.push_back("blue");
-        colors.push_back("light-green");
-        colors.push_back("pink");
-        colors.push_back("cyan");
-        colors.push_back("red");
-        colors.push_back("green");
-        colors.push_back("yellow");
-        colors.push_back("white");*/
-        //this->generate_beat_color_changes(lightshow_from_analysis, fix, colors);
+        //std::cout << colors.size() << std::endl;
+        this->generate_beat_color_changes(lightshow_from_analysis, fix, colors, false);
+      } else {
+
+      }
+      lightshow_from_analysis->add_fixture(fix);
+    } else if (fix_type == "color_change_beats_action") {
+      if (fix.has_global_dimmer) {
+        std::vector<time_value_int> v;
+        v.push_back({0.0, 200});
+        v.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(),
+                     0});
+        fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
+
+        std::vector<std::string> colors;
+        for (std::string c: fix.get_colors()) {
+          colors.push_back(c);
+          //std::cout << c << std::endl;
+        }
+        //std::cout << colors.size() << std::endl;
+        this->generate_beat_color_changes(lightshow_from_analysis, fix, colors, true);
+      } else {
+
+      }
+      lightshow_from_analysis->add_fixture(fix);
+    } else if (fix_type == "color_change_onsets") {
+      if (fix.has_global_dimmer) {
+        std::vector<time_value_int> v;
+        v.push_back({0.0, 200});
+        v.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(),
+                     0});
+        fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
+
+        std::vector<std::string> colors;
+        for (std::string c: fix.get_colors()) {
+          colors.push_back(c);
+          //std::cout << c << std::endl;
+        }
+        //std::cout << colors.size() << std::endl;
         this->generate_onset_color_changes(lightshow_from_analysis, fix, colors);
       } else {
 
       }
       lightshow_from_analysis->add_fixture(fix);
-    } else if(fix_type == "onset_blink") {
-      if(fix.has_global_dimmer) {
+    } else if (fix_type == "onset_blink") {
+      if (fix.has_global_dimmer) {
 
         std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
-  std::cout << "timestamps.size() onset_blink: " << timestamps.size() << std::endl;
+        std::cout << "timestamps.size() onset_blink: " << timestamps.size() << std::endl;
         std::vector<time_value_int> value_changes_onset_blink;
 
         std::vector<int> values_onset_blink;
 
-        for(int i = 0; i < timestamps.size(); i++) {
-          if(timestamps[i]-0.050f > 0) {
+        for (int i = 0; i < timestamps.size(); i++) {
+          if (timestamps[i] - 0.050f > 0) {
             value_changes_onset_blink.push_back({timestamps[i] - 0.050f, 0});
             value_changes_onset_blink.push_back({timestamps[i] - 0.025f, 100});
           }
           value_changes_onset_blink.push_back({timestamps[i], 200});
-          if(i < timestamps.size() && timestamps[i]+0.050f < timestamps[timestamps.size() - 1]) {
+          if (i < timestamps.size() && timestamps[i] + 0.050f < timestamps[timestamps.size() - 1]) {
             value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 100});
             value_changes_onset_blink.push_back({timestamps[i] + 0.050f, 0});
           }
         }
 
-        /*BoxFIR box1(2);
-        for (int i = 0; i < value_changes_onset_blink.size(); i++) {
-          values_onset_blink.push_back(value_changes_onset_blink[i].value);
-        }
-        box1.filter(values_onset_blink);
-        for (int i = 0; i < value_changes_onset_blink.size(); i++) {
-          value_changes_onset_blink[i].value = values_onset_blink[i];
-        }*/
-
         std::cout << value_changes_onset_blink.size() << std::endl;
-        for(int i = 0; i < value_changes_onset_blink.size(); i++) {
+        for (int i = 0; i < value_changes_onset_blink.size(); i++) {
           std::cout << value_changes_onset_blink[i].value << std::endl;
         }
 
         fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
-        /*colors.push_back("red");
-        colors.push_back("cyan");
-        colors.push_back("light-green");
-        colors.push_back("blue");
-        colors.push_back("pink");*/
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
       } else {
 
@@ -206,10 +223,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       lightshow_from_analysis->add_fixture(fix);
     }
   }
-  auto end = chrono::steady_clock::now();
-
-  Logger::info("Lightshow creation took {}s", chrono::duration_cast<chrono::seconds>(end - start).count());
-
   return lightshow_from_analysis;
 }
 
@@ -485,7 +498,7 @@ color_values LightshowGenerator::color_to_rgb(string color) {
 
 void LightshowGenerator::generate_beat_color_changes(std::shared_ptr<Lightshow> lightshow_from_analysis,
                                                      LightshowFixture &fix,
-                                                     std::vector<std::string> &colors) {
+                                                     std::vector<std::string> &colors, bool only_change_color_if_action) {
 
   std::vector<color_change> color_changes;
   std::vector<double> timestamps = lightshow_from_analysis->get_all_beats();
@@ -496,33 +509,33 @@ void LightshowGenerator::generate_beat_color_changes(std::shared_ptr<Lightshow> 
   std::cout << "Number of beats in this lightshow: " << timestamps.size() << std::endl;
   std::vector<float> timestamps_float;
 
-  for(double timestamp: timestamps) {
-    for(time_value_int tvi_bass: bass_values) {
-      if(tvi_bass.time >= (float) timestamp / 44100 - 0.02 && tvi_bass.time <= (float) timestamp / 44100 + 0.02) {
-        //std::cout << "bass value at beat timestamp: " << tvi_bass.value << std::endl;
-        if (tvi_bass.value > 75)
-          timestamps_float.push_back((float) timestamp);
-        break;
+  if(only_change_color_if_action) {
+    for (double timestamp: timestamps) {
+      for (time_value_int tvi_bass: bass_values) {
+        if (tvi_bass.time >= (float) timestamp / 44100 - 0.02 && tvi_bass.time <= (float) timestamp / 44100 + 0.02) {
+          if (tvi_bass.value > 75)
+            timestamps_float.push_back((float) timestamp);
+          break;
+        }
+      }
+      for (time_value_int tvi_mid: mid_values) {
+        if (tvi_mid.time >= (float) timestamp / 44100 - 0.02 && tvi_mid.time <= (float) timestamp / 44100 + 0.02) {
+          if (tvi_mid.value > 175)
+            timestamps_float.push_back((float) timestamp);
+          break;
+        }
       }
     }
-    for(time_value_int tvi_mid: mid_values) {
-      if(tvi_mid.time >= (float) timestamp / 44100 - 0.02 && tvi_mid.time <= (float) timestamp / 44100 + 0.02) {
-        if (tvi_mid.value > 175)
-          timestamps_float.push_back((float) timestamp);
-        break;
-      }
+  } else {
+    for(double timestamp: timestamps) {
+      timestamps_float.push_back((float) timestamp);
     }
   }
 
-  std::cout << "Number of beat color changes in this lightshow: " << timestamps_float.size() << std::endl;
 
   Logger::debug("Number of beat color changes in this lightshow: {}", timestamps_float.size());
 
-  /*for(float ts: timestamps_float)
-    std::cout << "timestamp beat color change: " << ts / 44100 << std::endl;*/
   timestamps_float.erase( unique( timestamps_float.begin(), timestamps_float.end() ), timestamps_float.end() );
-  /*for(float ts: timestamps_float)
-    std::cout << "timestamp beat color change: " << ts / 44100 << std::endl;*/
 
   int c = 0;
   color_changes.push_back({ 0, colors[0] });
