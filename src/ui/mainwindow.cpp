@@ -407,10 +407,10 @@ void MainWindow::create_new_fixture(string _name,
   temp.set_description(_description);
   temp.set_channels(_channels);
   temp.set_icon(_icon);
-  /*if(!_colors.empty())
+  if(!_colors.empty())
     temp.set_colors(_colors);
   else
-    temp.set_colors("Y");*/
+    temp.set_colors("Y");
   if (start_channel == 0) {
     std::cout << "start_channel == 0" << std::endl;
     fixtures.push_back(temp);
