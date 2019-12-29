@@ -208,7 +208,10 @@ void LightshowFixture::set_type(std::string type) {
   || type == "color_change_beats_action"
   || type == "color_change_onsets"
   || type == "onset_blink"
-  || type == "onset_blink_reverse") {
+  || type == "onset_blink_reverse"
+  || type == "group_one_after_another"
+  || type == "group_two_after_another"
+  || type == "group_alternate_odd_even") {
     this->type = type;
     Logger::debug("Set type of fixture to {}", type);
   }

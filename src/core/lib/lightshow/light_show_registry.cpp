@@ -172,6 +172,12 @@ std::shared_ptr<Lightshow> LightShowRegistry::read_lightshow(const std::string f
         lightshow->add_fixture_ambient(fixture);
       } else if(fixture.get_type() == "onset_blink_reverse") {
         lightshow->add_fixture_ambient(fixture);
+      } else if(fixture.get_type() == "group_one_after_another") {
+        lightshow->add_fixture_ambient(fixture);
+      } else if(fixture.get_type() == "group_two_after_another") {
+        lightshow->add_fixture_ambient(fixture);
+      } else if(fixture.get_type() == "group_alternate_odd_even") {
+        lightshow->add_fixture_ambient(fixture);
       } else {
         lightshow->add_fixture(fixture);
       }

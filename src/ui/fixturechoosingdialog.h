@@ -57,6 +57,8 @@ private slots:
 
     void on_pB_delete_fixture_clicked();
 
+    void update_position_in_group_status(QString current_type);
+
 private:
   Ui::FixtureChoosingDialog *ui;
   QStringList types;

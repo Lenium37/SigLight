@@ -1,6 +1,7 @@
 #include "fixturechoosingdialog.h"
 #include "ui_fixturechoosingdialog.h"
 #include <QtCore>
+#include <iostream>
 
 FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent) :
     QDialog(parent),
@@ -16,7 +17,7 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
     QDialog(parent),
     ui(new Ui::FixtureChoosingDialog) {
     ui->setupUi(this);
-    types << "Ambient" << "Bass" << "Mid" << "High" << "color_change_beats" << "color_change_beats_action" << "color_change_onsets" << "onset_blink" << "onset_blink_reverse";
+    types << "Ambient" << "Bass" << "Mid" << "High" << "color_change_beats" << "color_change_beats_action" << "color_change_onsets" << "onset_blink" << "onset_blink_reverse" << "group_one_after_another" << "group_two_after_another" << "group_alternate_odd_even";
     for(std::string _colors: color_palettes)
       colors << QString::fromStdString(_colors);
     auto list_size = static_cast<double>(fixtures.size());
@@ -29,10 +30,15 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
     ui->fixture_selection->setCurrentRow(0);
     ui->cB_type->addItems(types);
     ui->cB_colors->addItems(colors);
-    ui->sB_start_channel->setRange(1,max_channel);
+    ui->sB_start_channel->setRange(1, max_channel);
+    ui->sB_position_inside_group->setRange(1, 32);
+    //ui->sB_position_inside_group->setEnabled(false);
     ui->pB_delete_fixture->setVisible(false);
     this->setWindowTitle("Choose Fixture");
     FixtureChoosingDialog::is_delete = false;
+
+    connect(ui->cB_type, SIGNAL(currentTextChanged(QString)), this, SLOT(update_position_in_group_status(QString)));
+    this->update_position_in_group_status(ui->cB_type->currentText());
 }
 
 FixtureChoosingDialog::~FixtureChoosingDialog() {
@@ -45,7 +51,7 @@ void FixtureChoosingDialog::set_up_dialog_options(std::list<int> blocked_channel
     set_first_allowed_channel(0, true);
 }
 
-void FixtureChoosingDialog::get_fixture_options(int &fixture_id,int &start_channel, QString &type, std::string &colors)
+void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors)
 {
     fixture_id = ui->fixture_selection->currentRow();
     start_channel = ui->sB_start_channel->value();
@@ -137,4 +143,15 @@ void FixtureChoosingDialog::on_pB_delete_fixture_clicked()
 {
     FixtureChoosingDialog::is_delete = true;
     accept();
+}
+
+void FixtureChoosingDialog::update_position_in_group_status(QString current_type) {
+  std::cout << current_type.toStdString() << std::endl;
+  current_type = current_type.toLower();
+  if(current_type == "group_one_after_another"
+  || current_type == "group_two_after_another"
+  || current_type == "group_alternate_odd_even")
+    ui->sB_position_inside_group->setEnabled(true);
+  else
+    ui->sB_position_inside_group->setEnabled(false);
 }
