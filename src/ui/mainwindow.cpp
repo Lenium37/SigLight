@@ -752,12 +752,9 @@ void MainWindow::generate_lightshow(Song *song) {
   std::shared_ptr<Lightshow>
       generated_lightshow = this->lightshow_generator.generate(this->lightshow_resolution, song, universes[0].get_fixtures());
 
-  std::cout << "before register_lightshow_file" << std::endl;
   lightShowRegistry.register_lightshow_file(song, generated_lightshow, this->lightshows_directory_path);
-  std::cout << "after register_lightshow_file" << std::endl;
   if(player->playlist_index_for(song) != -1)
     emit lightshow_for_song_is_ready(song);
-  std::cout << "end of generate_lightshow" << std::endl;
 }
 
 void MainWindow::regenerate_lightshow(Song *song) {
@@ -1256,8 +1253,9 @@ bool MainWindow::has_fixture_changed() {
         Logger::info("renewing lightshow for song {}", song->get_song_name());
 
         lightshows_to_generate_for.push_back({true, song});
-        start_thread_for_generating_queue();
       }
+      this->playlist_view->reset_every_lightshow_status();
+      start_thread_for_generating_queue();
 
     }
   }

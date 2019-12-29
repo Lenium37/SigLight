@@ -24,6 +24,7 @@ public:
 
     void add_to_playlist_view(Playlist_item *playlist_item);
     int delete_current_selected_song();
+    void reset_every_lightshow_status();
 
 public slots:
     void slot_song_lightshow_state_has_changed(int index_in_playlist);

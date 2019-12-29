@@ -77,6 +77,11 @@ void Playlist_view::add_to_playlist_view(Playlist_item *playlist_item)
     playlist_view_model->appendRow(items);
 }
 
+void Playlist_view::reset_every_lightshow_status() {
+  for(int i = 0; i < this->playlist_view_model->rowCount(); i++)
+    playlist_view_model->item(i, 4)->setData(QIcon(":/icons_svg/svg/uncheck.svg"), Qt::DecorationRole);
+}
+
 int Playlist_view::delete_current_selected_song()
 {
     Logger::trace("Playlist_view::delete_current_selected_song");
