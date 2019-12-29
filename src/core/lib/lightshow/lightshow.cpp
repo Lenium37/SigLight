@@ -200,8 +200,6 @@ void Lightshow::prepare_analysis_for_song(char *song_path) {
     this->value_changes_high[i].value = v3[i];
   }
 
-  this->value_changes_everything = this->analysis.peaks_per_band(0, 20000);
-
   while(!bpm_analysis_finished) {
     //std::cout << "waiting for bpm" << std::endl;
     ;
@@ -218,10 +216,6 @@ std::vector<LightshowFixture> Lightshow::get_fixtures_middle() {
 
 std::vector<LightshowFixture> Lightshow::get_fixtures_high() {
   return this->fixtures_high;
-}
-
-std::vector<LightshowFixture> Lightshow::get_fixtures_action() {
-  return this->fixtures_action;
 }
 
 std::vector<LightshowFixture> Lightshow::get_fixtures_ambient() {
@@ -243,11 +237,6 @@ void Lightshow::add_fixture_high(LightshowFixture fixture) {
   this->add_fixture(fixture);
 }
 
-void Lightshow::add_fixture_action(LightshowFixture fixture) {
-  this->fixtures_action.push_back(fixture);
-  this->add_fixture(fixture);
-}
-
 void Lightshow::add_fixture_ambient(LightshowFixture fixture) {
   this->fixtures_ambient.push_back(fixture);
   this->add_fixture(fixture);
@@ -263,14 +252,6 @@ std::vector<time_value_int> Lightshow::get_value_changes_middle() {
 
 std::vector<time_value_int> Lightshow::get_value_changes_high() {
   return this->value_changes_high;
-}
-
-std::vector<time_value_int> Lightshow::get_value_changes_action() {
-  return this->value_changes_action;
-}
-
-std::vector<time_value_int> Lightshow::get_value_changes_everything() {
-  return this->value_changes_everything;
 }
 
 std::vector<time_value_int> Lightshow::clear_outlier_values(std::vector<time_value_int> vector, int time_interval) {

@@ -45,13 +45,11 @@ class Lightshow {
   std::vector<LightshowFixture> get_fixtures_bass();
   std::vector<LightshowFixture> get_fixtures_middle();
   std::vector<LightshowFixture> get_fixtures_high();
-  std::vector<LightshowFixture> get_fixtures_action();
   std::vector<LightshowFixture> get_fixtures_ambient();
 
   void add_fixture_bass(LightshowFixture fixture);
   void add_fixture_middle(LightshowFixture fixture);
   void add_fixture_high(LightshowFixture fixture);
-  void add_fixture_action(LightshowFixture fixture);
   void add_fixture_ambient(LightshowFixture fixture);
 
   void add_value_change_bass(time_value_int tvi);
@@ -61,8 +59,6 @@ class Lightshow {
   std::vector<time_value_int> get_value_changes_bass();
   std::vector<time_value_int> get_value_changes_middle();
   std::vector<time_value_int> get_value_changes_high();
-  std::vector<time_value_int> get_value_changes_action();
-  std::vector<time_value_int> get_value_changes_everything();
 
   std::vector<time_value_int> get_combined_values_changes(std::initializer_list<std::vector<time_value_int>> a_args);
 
@@ -84,7 +80,6 @@ class Lightshow {
   std::vector<LightshowFixture> fixtures_bass;
   std::vector<LightshowFixture> fixtures_middle;
   std::vector<LightshowFixture> fixtures_high;
-  std::vector<LightshowFixture> fixtures_action;
   std::vector<LightshowFixture> fixtures_ambient;
   int length;
   int channel_count;
@@ -93,8 +88,6 @@ class Lightshow {
   std::vector<time_value_int> value_changes_bass;
   std::vector<time_value_int> value_changes_middle;
   std::vector<time_value_int> value_changes_high;
-  std::vector<time_value_int> value_changes_action;
-  std::vector<time_value_int> value_changes_everything;
   std::vector<time_value_int> timestamps_colorchanges;
   std::vector<float> onset_timestamps;
 

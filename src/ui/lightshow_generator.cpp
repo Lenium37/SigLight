@@ -90,16 +90,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_high(), fix.get_channel_green());
       }
       lightshow_from_analysis->add_fixture_high(fix);
-    } else if (fix_type == "action") {
-      this->set_color_of_fixture_during_song(lightshow_from_analysis, fix, {"white"});
-      fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_action(), fix.get_channel_dimmer());
-      fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_action(), fix.get_channel_strobo());
-      lightshow_from_analysis->add_fixture_action(fix);
-    } else if (fix_type == "everything") {
-      this->set_color_of_fixture_during_song(lightshow_from_analysis, fix, {"white"});
-      fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_everything(),
-                                       fix.get_channel_dimmer());
-      lightshow_from_analysis->add_fixture(fix);
     } else if (fix_type == "ambient") {
       if (fix.has_global_dimmer) {
         std::vector<time_value_int> v;
