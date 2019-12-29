@@ -215,6 +215,8 @@ private slots:
 
     void on_action_switch_to_dark_mode_triggered();
 
+    void on_action_regenerate_lightshows_triggered();
+
 private:
     Ui::MainWindow *ui;
 

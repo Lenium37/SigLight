@@ -691,6 +691,8 @@ void MainWindow::on_exit_client_button_clicked() {
 }
 
 void MainWindow::on_action_add_song_to_player_triggered() {
+  // should fix that you get asked to regenerate the lightshows even though no fixtures changed
+  fixtures_changed = false;
 
   if (universes[0].get_fixture_count() != 0) {
     QFileDialog file_dialog(this);
@@ -1260,6 +1262,18 @@ bool MainWindow::has_fixture_changed() {
     }
   }
   return redo_lightshow;
+}
+
+void MainWindow::on_action_regenerate_lightshows_triggered() {
+  Logger::info("renewing {} lightshows", player->get_playlist_length());
+  for (int i = 0; i < player->get_playlist_length(); i++) {
+    Song *song = player->get_playlist_media_at(i)->get_song();
+    Logger::info("renewing lightshow for song {}", song->get_song_name());
+
+    lightshows_to_generate_for.push_back({true, song});
+  }
+  this->playlist_view->reset_every_lightshow_status();
+  start_thread_for_generating_queue();
 }
 
 void MainWindow::on_edit_fixture_clicked() {
