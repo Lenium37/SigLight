@@ -59,17 +59,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       if (fix.has_global_dimmer) {
         fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_bass(), fix.get_channel_dimmer());
 
-        std::vector<std::string> colors; // = fix.get_colors();
-        for (std::string c: fix.get_colors()) {
-          colors.push_back(c);
-          std::cout << c << std::endl;
-        }
-        std::cout << colors.size() << std::endl;
-        /*colors.push_back("red");
-        colors.push_back("cyan");
-        colors.push_back("light-green");
-        colors.push_back("blue");
-        colors.push_back("pink");*/
+        std::vector<std::string> colors = fix.get_colors();
+        //std::cout << colors.size() << std::endl;
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
 
       } else {
@@ -82,11 +73,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_middle(), fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
-        /*colors.push_back("blue");
-        colors.push_back("light-green");
-        colors.push_back("cyan");
-        colors.push_back("red");
-        colors.push_back("green");*/
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
 
       } else {
@@ -99,11 +85,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         fix.add_value_changes_to_channel(lightshow_from_analysis->get_value_changes_high(), fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
-        /*colors.push_back("green");
-        colors.push_back("yellow");
-        colors.push_back("red");
-        colors.push_back("white");
-        colors.push_back("blue");*/
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
 
       } else {
@@ -119,17 +100,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
-
-        /*colors.push_back("blue");
-        colors.push_back("light-green");
-        colors.push_back("pink");
-        colors.push_back("cyan");
-        colors.push_back("red");
-        colors.push_back("green");
-        colors.push_back("yellow");
-        colors.push_back("white");*/
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
-        //lightshow_from_analysis->generate_ambient_color_fades(fix, colors);  // funktioniert noch gar nicht gut
 
       } else {
 
@@ -143,12 +114,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
                      0});
         fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
 
-        std::vector<std::string> colors;
-        for (std::string c: fix.get_colors()) {
-          colors.push_back(c);
-          //std::cout << c << std::endl;
-        }
-        //std::cout << colors.size() << std::endl;
+        std::vector<std::string> colors = fix.get_colors();
         this->generate_beat_color_changes(lightshow_from_analysis, fix, colors, false);
       } else {
 
@@ -162,11 +128,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
                      0});
         fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
 
-        std::vector<std::string> colors;
-        for (std::string c: fix.get_colors()) {
-          colors.push_back(c);
-          //std::cout << c << std::endl;
-        }
+        std::vector<std::string> colors = fix.get_colors();
         //std::cout << colors.size() << std::endl;
         this->generate_beat_color_changes(lightshow_from_analysis, fix, colors, true);
       } else {
@@ -181,11 +143,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
                      0});
         fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
 
-        std::vector<std::string> colors;
-        for (std::string c: fix.get_colors()) {
-          colors.push_back(c);
-          //std::cout << c << std::endl;
-        }
+        std::vector<std::string> colors = fix.get_colors();
         //std::cout << colors.size() << std::endl;
         this->generate_onset_color_changes(lightshow_from_analysis, fix, colors);
       } else {
@@ -211,11 +169,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
           }
         }
 
-        std::cout << value_changes_onset_blink.size() << std::endl;
-        /*for (int i = 0; i < value_changes_onset_blink.size(); i++) {
-          std::cout << value_changes_onset_blink[i].value << std::endl;
-        }*/
-
+        //std::cout << value_changes_onset_blink.size() << std::endl;
         fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
@@ -295,8 +249,138 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
             if(i % fixtures_in_group_one_after_another_blink + 1 == fix.get_position_in_group()) {
               value_changes_onset_blink.push_back({timestamps[i], 200});
               if(i < timestamps.size() - 1) {
-                if(timestamps[i + 1] - timestamps[i] > 0.5 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.5f)
+
+                // TODO make nicer with loop(s)
+                if(timestamps[i + 1] - timestamps[i] > 0.5 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.5f) {
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.075f, 190});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.1f, 185});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.125f, 178});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.15f, 170});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.175f, 160});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.2f, 150});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.225f, 133});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.25f, 125});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.275f, 113});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.3f, 100});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.325f, 88});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.35f, 75});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.375f, 63});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.4f, 50});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.425f, 38});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.45f, 25});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.475f, 13});
                   value_changes_onset_blink.push_back({timestamps[i] + 0.5f, 0});
+                } else if(timestamps[i + 1] - timestamps[i] > 0.45 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.45f) {
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.075f, 190});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.1f, 185});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.125f, 178});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.15f, 170});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.175f, 160});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.2f, 150});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.225f, 133});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.25f, 125});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.275f, 113});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.3f, 100});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.325f, 88});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.35f, 75});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.375f, 63});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.4f, 50});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.425f, 38});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.45f, 25});
+                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                } else if(timestamps[i + 1] - timestamps[i] > 0.4 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.4f) {
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.075f, 190});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.1f, 185});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.125f, 178});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.15f, 170});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.175f, 160});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.2f, 150});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.225f, 133});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.25f, 125});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.275f, 113});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.3f, 100});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.325f, 88});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.35f, 75});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.375f, 63});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.4f, 50});
+                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                } else if(timestamps[i + 1] - timestamps[i] > 0.35 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.35f) {
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.075f, 190});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.1f, 185});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.125f, 178});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.15f, 170});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.175f, 160});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.2f, 150});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.225f, 133});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.25f, 125});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.275f, 113});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.3f, 100});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.325f, 88});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.35f, 75});
+                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                } else if(timestamps[i + 1] - timestamps[i] > 0.3 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.3f) {
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.075f, 190});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.1f, 185});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.125f, 178});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.15f, 170});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.175f, 160});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.2f, 150});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.225f, 133});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.25f, 125});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.275f, 113});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.3f, 100});
+                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                } else if(timestamps[i + 1] - timestamps[i] > 0.25 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.25f) {
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.075f, 190});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.1f, 185});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.125f, 178});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.15f, 170});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.175f, 160});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.2f, 150});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.225f, 133});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.25f, 125});
+                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                } else if(timestamps[i + 1] - timestamps[i] > 0.2 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.2f) {
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.075f, 190});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.1f, 185});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.125f, 178});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.15f, 170});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.175f, 160});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.2f, 150});
+                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                } else if(timestamps[i + 1] - timestamps[i] > 0.15 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.15f) {
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.075f, 190});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.1f, 185});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.125f, 178});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.15f, 170});
+                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                } else if(timestamps[i + 1] - timestamps[i] > 0.1 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.1f) {
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.075f, 190});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.1f, 185});
+                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                } else if(timestamps[i + 1] - timestamps[i] > 0.05 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.05f) {
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                }
                 else
                   value_changes_onset_blink.push_back({timestamps[i + 1], 0});
               }
