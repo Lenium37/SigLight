@@ -19,17 +19,12 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   std::vector<LightshowFixture> my_fixtures;
   for (Fixture fix: fixtures) {
     //std::cout << "new fix. name: " << fix.get_name() << ". start address: " << fix.get_start_channel() << ", number of addresses: " << fix.get_channel_count() << std::endl;
-    if (fix.get_name() == "Cameo Flat RGB 10") {
-      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors()));
-    } else if(fix.get_name() == "Helios 7") {
-      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors()));
-    } else if(fix.get_name() == "Cobalt Plus Spot 5R") {
-      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors()));
-    } else if(fix.get_name() == "Varytec PAD7 seventy") {
-      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors()));
-    } else if (fix.get_name() == "TOURSPOT PRO") {
-      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors()));
-    } else if (fix.get_name() == "BAR TRI-LED") {
+    if (fix.get_name() == "Cameo Flat RGB 10"
+    || fix.get_name() == "Helios 7"
+    || fix.get_name() == "Cobalt Plus Spot 5R"
+    || fix.get_name() == "Varytec PAD7 seventy"
+    || fix.get_name() == "TOURSPOT PRO"
+    || fix.get_name() == "BAR TRI-LED") {
       my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors()));
     } else std::cout << "Fixture type unknown." << std::endl;
   }
@@ -209,9 +204,42 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         }
 
         std::cout << value_changes_onset_blink.size() << std::endl;
-        for (int i = 0; i < value_changes_onset_blink.size(); i++) {
+        /*for (int i = 0; i < value_changes_onset_blink.size(); i++) {
           std::cout << value_changes_onset_blink[i].value << std::endl;
+        }*/
+
+        fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
+
+        std::vector<std::string> colors = fix.get_colors();
+        this->generate_color_fades(lightshow_from_analysis, fix, colors);
+      } else {
+
+      }
+      lightshow_from_analysis->add_fixture(fix);
+    } else if (fix_type == "onset_blink_reverse") {
+      if (fix.has_global_dimmer) {
+
+        std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
+        std::cout << "timestamps.size() onset_blink: " << timestamps.size() << std::endl;
+        std::vector<time_value_int> value_changes_onset_blink;
+
+        std::vector<int> values_onset_blink;
+
+        value_changes_onset_blink.push_back({0.0, 200});
+        value_changes_onset_blink.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+        for (int i = 0; i < timestamps.size(); i++) {
+          if (timestamps[i] - 0.050f > 0) {
+            value_changes_onset_blink.push_back({timestamps[i] - 0.050f, 200});
+            value_changes_onset_blink.push_back({timestamps[i] - 0.025f, 100});
+          }
+          value_changes_onset_blink.push_back({timestamps[i], 0});
+          if (i < timestamps.size() && timestamps[i] + 0.050f < timestamps[timestamps.size() - 1]) {
+            value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 100});
+            value_changes_onset_blink.push_back({timestamps[i] + 0.050f, 200});
+          }
         }
+
+        std::cout << value_changes_onset_blink.size() << std::endl;
 
         fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
 

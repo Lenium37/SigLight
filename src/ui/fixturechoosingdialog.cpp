@@ -16,7 +16,7 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
     QDialog(parent),
     ui(new Ui::FixtureChoosingDialog) {
     ui->setupUi(this);
-    types << "Ambient" << "Bass" << "Mid" << "High" << "color_change_beats" << "color_change_beats_action" << "color_change_onsets" << "onset_blink";
+    types << "Ambient" << "Bass" << "Mid" << "High" << "color_change_beats" << "color_change_beats_action" << "color_change_onsets" << "onset_blink" << "onset_blink_reverse";
     for(std::string _colors: color_palettes)
       colors << QString::fromStdString(_colors);
     auto list_size = static_cast<double>(fixtures.size());

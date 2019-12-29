@@ -172,6 +172,8 @@ std::shared_ptr<Lightshow> LightShowRegistry::read_lightshow(const std::string f
         lightshow->add_fixture_ambient(fixture);
       } else if(fixture.get_type() == "onset_blink") {
         lightshow->add_fixture_ambient(fixture);
+      } else if(fixture.get_type() == "onset_blink_reverse") {
+        lightshow->add_fixture_ambient(fixture);
       } else {
         lightshow->add_fixture(fixture);
       }

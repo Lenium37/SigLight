@@ -211,18 +211,30 @@ std::vector<float> Analysis::get_onset_timestamps(){
   }*/
 
 
+  // ??
+  /*int f1 = 100;
+  int f2 = 200;
+  int co_f1 = f1/(samplerate/window_size_onsets);
+  int co_f2 = f2/(samplerate/window_size_onsets);
+
+  for(int i = 0; i < co_f1; i++);
+  for(int i = co_f2; i < window_size_onsets; i++);*/
 
 
 
+
+  // works good for rocky stuff and clear electronic bass
   for(int i = 0; i < signal_length_mono - window_size_onsets; i = i + window_size_onsets / 2) {
     for(int j = i, k = 0; k < window_size_onsets; j++, k++) {
       audioFrame[k] = wav_values_mono[j];
+      //std::cout << audioFrame[k] << std::endl;
     }
+
 
     gist2.processAudioFrame (audioFrame, window_size_onsets);
     float ed = gist2.energyDifference();
-    float x = i;
-    float time = x/44100;
+    float i_float = i;
+    float time = i_float/44100;
 
     //if(ed > 0)
       //std::cout << "ed(" << time << "): " << ed << std::endl;
@@ -233,8 +245,12 @@ std::vector<float> Analysis::get_onset_timestamps(){
   for(int i = 0; i < onsets.size(); i++) {
       min_value_onset += onsets[i].value;
   }
-  min_value_onset = min_value_onset / onsets.size() * 5.5;
-  //float threshold_reset = min_value_onset * 0.2;
+
+  // rocky = 5.5
+  // metal (HSB Voice of the Voiceless, double bass) = 1.7
+  // metal/hard rock (Sabaton 7734) = 4.5
+  // somewhat allgemeingültig = 5
+  min_value_onset = min_value_onset / onsets.size() * 1.7;
   float threshold_reset = 0.0f;
 
   for(time_value_float onset: onsets) {

@@ -1172,6 +1172,7 @@ void MainWindow::ShowContextMenu(const QPoint &pos) {
   QAction *type_color_change_beats_action = type_menu->addAction("color_change_beats_action");
   QAction *type_color_change_onsets = type_menu->addAction("color_change_onsets");
   QAction *type_onset_blink = type_menu->addAction("onset_blink");
+  QAction *type_onset_blink_reverse = type_menu->addAction("onset_blink_reverse");
 
   QSignalMapper *signalMapper = new QSignalMapper(this);
   QString type_pos = "Bass";
@@ -1200,7 +1201,7 @@ bool MainWindow::xml_has_no_error(tinyxml2::XMLError error) {
 }
 
 void MainWindow::update_fixture_list() {
-  QStringList types = (QStringList() /*<< "Action"*/ << "Ambient" << "Bass" << "Mid" << "High" << "color_change_beats" << "color_change_beats_action" << "color_change_onsets" << "onset_blink");
+  QStringList types = (QStringList() /*<< "Action"*/ << "Ambient" << "Bass" << "Mid" << "High" << "color_change_beats" << "color_change_beats_action" << "color_change_onsets" << "onset_blink" << "onset_blink_reverse");
 
   for (auto type : types) {
     QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(QString::fromStdString(type.toStdString()),
