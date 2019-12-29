@@ -13,10 +13,11 @@
 #include <atomic>
 
 
-LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors) {
+LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group) {
   this->name = name;
   this->start_channel = start_channel;
   this->number_of_channels = number_of_channels;
+  this->position_inside_group = _position_inside_group;
   std::istringstream ss(colors);
   std::string color;
   if(!colors.empty()) {
@@ -193,7 +194,8 @@ void LightshowFixture::add_value_changes_to_channel(std::vector<time_value_int> 
     } else if (vc.get_value() != ch.get_value_of_last_added_value_change()) // if ValueChange is different than the last one added to the channel, add it to the channel
         ch.add_value_change(vc);
   }
-  this->add_channel(ch);
+  if(ch.get_value_of_last_added_value_change() != -1)
+    this->add_channel(ch);
 }
 
 void LightshowFixture::set_type(std::string type) {
@@ -210,6 +212,7 @@ void LightshowFixture::set_type(std::string type) {
   || type == "onset_blink"
   || type == "onset_blink_reverse"
   || type == "group_one_after_another"
+  || type == "group_one_after_another_blink"
   || type == "group_two_after_another"
   || type == "group_alternate_odd_even") {
     this->type = type;
@@ -232,4 +235,15 @@ void LightshowFixture::set_name(std::string name) {
 
 std::vector<std::string> LightshowFixture::get_colors() {
   return this->colors;
+}
+
+void LightshowFixture::set_position_in_group(int _position) {
+  if(_position > 0)
+    this->position_inside_group = _position;
+  else
+    this->position_inside_group = 0;
+}
+
+int LightshowFixture::get_position_in_group() {
+  return this->position_inside_group;
 }

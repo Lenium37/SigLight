@@ -16,6 +16,13 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   lightshow_from_analysis->set_sound_src(song->get_file_path());
   lightshow_from_analysis->prepare_analysis_for_song((char*)song->get_file_path().c_str());
 
+  int fixtures_in_group_one_after_another = 0;
+  int fixtures_in_group_one_after_another_blink = 0;
+  int fixtures_in_group_two_after_another = 0;
+  int fixtures_in_group_two_after_another_blink = 0;
+  int fixtures_in_group_alternate_odd_even = 0;
+  int fixtures_in_group_alternate_odd_even_blink = 0;
+
   std::vector<LightshowFixture> my_fixtures;
   for (Fixture fix: fixtures) {
     //std::cout << "new fix. name: " << fix.get_name() << ". start address: " << fix.get_start_channel() << ", number of addresses: " << fix.get_channel_count() << std::endl;
@@ -25,8 +32,21 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
     || fix.get_name() == "Varytec PAD7 seventy"
     || fix.get_name() == "TOURSPOT PRO"
     || fix.get_name() == "BAR TRI-LED") {
-      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors()));
+      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors(), fix.get_position_in_group()));
     } else std::cout << "Fixture type unknown." << std::endl;
+
+    if(fix.get_type() == "group_one_after_another" && fix.get_position_in_group() > fixtures_in_group_one_after_another)
+      fixtures_in_group_one_after_another = fix.get_position_in_group();
+    else if(fix.get_type() == "group_one_after_another_blink" && fix.get_position_in_group() > fixtures_in_group_one_after_another_blink)
+      fixtures_in_group_one_after_another_blink = fix.get_position_in_group();
+    else if(fix.get_type() == "group_two_after_another" && fix.get_position_in_group() > fixtures_in_group_two_after_another)
+      fixtures_in_group_two_after_another = fix.get_position_in_group();
+    else if(fix.get_type() == "group_two_after_another_blink" && fix.get_position_in_group() > fixtures_in_group_two_after_another_blink)
+      fixtures_in_group_two_after_another_blink = fix.get_position_in_group();
+    else if(fix.get_type() == "group_alternate_odd_even" && fix.get_position_in_group() > fixtures_in_group_alternate_odd_even)
+      fixtures_in_group_alternate_odd_even = fix.get_position_in_group();
+    else if(fix.get_type() == "group_alternate_odd_even_blink" && fix.get_position_in_group() > fixtures_in_group_alternate_odd_even_blink)
+      fixtures_in_group_alternate_odd_even_blink = fix.get_position_in_group();
   }
 
 
@@ -179,8 +199,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         std::cout << "timestamps.size() onset_blink: " << timestamps.size() << std::endl;
         std::vector<time_value_int> value_changes_onset_blink;
 
-        std::vector<int> values_onset_blink;
-
         for (int i = 0; i < timestamps.size(); i++) {
           if (timestamps[i] - 0.050f > 0) {
             value_changes_onset_blink.push_back({timestamps[i] - 0.050f, 0});
@@ -210,10 +228,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       if (fix.has_global_dimmer) {
 
         std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
-        std::cout << "timestamps.size() onset_blink: " << timestamps.size() << std::endl;
+        std::cout << "timestamps.size() onset_blink_reverse: " << timestamps.size() << std::endl;
         std::vector<time_value_int> value_changes_onset_blink;
-
-        std::vector<int> values_onset_blink;
 
         value_changes_onset_blink.push_back({0.0, 200});
         value_changes_onset_blink.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
@@ -243,29 +259,55 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       if (fix.has_global_dimmer) {
 
         std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
-        std::cout << "timestamps.size() onset_blink: " << timestamps.size() << std::endl;
         std::vector<time_value_int> value_changes_onset_blink;
 
-        std::vector<int> values_onset_blink;
+        std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
+        std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
+        if(fix.get_position_in_group() > 0) {
+          for (int i = 0; i < timestamps.size(); i++) {
+            if(i % fixtures_in_group_one_after_another + 1 == fix.get_position_in_group()) {
+              value_changes_onset_blink.push_back({timestamps[i], 200});
+              if(i < timestamps.size() - 1)
+                value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+              else
+                value_changes_onset_blink.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+            }
+          }
 
-        value_changes_onset_blink.push_back({0.0, 200});
-        value_changes_onset_blink.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
-        for (int i = 0; i < timestamps.size(); i++) {
-          if (timestamps[i] - 0.050f > 0) {
-            value_changes_onset_blink.push_back({timestamps[i] - 0.050f, 200});
-            value_changes_onset_blink.push_back({timestamps[i] - 0.025f, 100});
-          }
-          value_changes_onset_blink.push_back({timestamps[i], 0});
-          if (i < timestamps.size() && timestamps[i] + 0.050f < timestamps[timestamps.size() - 1]) {
-            value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 100});
-            value_changes_onset_blink.push_back({timestamps[i] + 0.050f, 200});
-          }
+          fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
         }
+        std::vector<std::string> colors = fix.get_colors();
+        this->generate_color_fades(lightshow_from_analysis, fix, colors);
+      } else {
 
-        std::cout << value_changes_onset_blink.size() << std::endl;
+      }
+      lightshow_from_analysis->add_fixture(fix);
+    } else if (fix_type == "group_one_after_another_blink") {
+      if (fix.has_global_dimmer) {
 
-        fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
+        std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
+        std::vector<time_value_int> value_changes_onset_blink;
 
+        std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
+        std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
+        if(fix.get_position_in_group() > 0) {
+          for (int i = 0; i < timestamps.size(); i++) {
+            if(i % fixtures_in_group_one_after_another_blink + 1 == fix.get_position_in_group()) {
+              value_changes_onset_blink.push_back({timestamps[i], 200});
+              if(i < timestamps.size() - 1) {
+                if(timestamps[i + 1] - timestamps[i] > 0.5 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.5f)
+                  value_changes_onset_blink.push_back({timestamps[i] + 0.5f, 0});
+                else
+                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+              }
+              else {
+                value_changes_onset_blink.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+              }
+            }
+          }
+
+          fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
+        }
         std::vector<std::string> colors = fix.get_colors();
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
       } else {
@@ -276,7 +318,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       if (fix.has_global_dimmer) {
 
         std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
-        std::cout << "timestamps.size() onset_blink: " << timestamps.size() << std::endl;
         std::vector<time_value_int> value_changes_onset_blink;
 
         std::vector<int> values_onset_blink;
@@ -294,8 +335,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
             value_changes_onset_blink.push_back({timestamps[i] + 0.050f, 200});
           }
         }
-
-        std::cout << value_changes_onset_blink.size() << std::endl;
 
         fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
 
@@ -309,7 +348,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       if (fix.has_global_dimmer) {
 
         std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
-        std::cout << "timestamps.size() onset_blink: " << timestamps.size() << std::endl;
         std::vector<time_value_int> value_changes_onset_blink;
 
         std::vector<int> values_onset_blink;
@@ -327,8 +365,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
             value_changes_onset_blink.push_back({timestamps[i] + 0.050f, 200});
           }
         }
-
-        std::cout << value_changes_onset_blink.size() << std::endl;
 
         fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
 

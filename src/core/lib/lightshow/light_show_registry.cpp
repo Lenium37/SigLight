@@ -48,6 +48,7 @@ void LightShowRegistry::write_lightshow(const std::string &lightshow_filename, s
     fixture_element->SetAttribute("start_channel", fixture.get_start_channel());
     fixture_element->SetAttribute("number_of_channels", fixture.get_number_of_channels());
     fixture_element->SetAttribute("type", fixture.get_type().c_str());
+    fixture_element->SetAttribute("position_inside_group", fixture.get_position_in_group());
     std::string colors;
     for(std::string c: fixture.get_colors()) {
       colors.append(c);
@@ -128,7 +129,7 @@ std::shared_ptr<Lightshow> LightShowRegistry::read_lightshow(const std::string f
     tinyxml2::XMLElement *fixture_element = lightshow_element->FirstChildElement("fixture");
     while (fixture_element != nullptr) {
       std::string colors = fixture_element->Attribute("colors");
-      LightshowFixture fixture(fixture_element->Attribute("name"), std::stoi(fixture_element->Attribute("start_channel")), std::stoi(fixture_element->Attribute("number_of_channels")), fixture_element->Attribute("type"), colors);
+      LightshowFixture fixture(fixture_element->Attribute("name"), std::stoi(fixture_element->Attribute("start_channel")), std::stoi(fixture_element->Attribute("number_of_channels")), fixture_element->Attribute("type"), colors, std::stoi(fixture_element->Attribute("position_inside_group")));
 
       tinyxml2::XMLElement *channel_element = fixture_element->FirstChildElement("channel");
       while(channel_element != nullptr) {
@@ -173,6 +174,8 @@ std::shared_ptr<Lightshow> LightShowRegistry::read_lightshow(const std::string f
       } else if(fixture.get_type() == "onset_blink_reverse") {
         lightshow->add_fixture_ambient(fixture);
       } else if(fixture.get_type() == "group_one_after_another") {
+        lightshow->add_fixture_ambient(fixture);
+      } else if(fixture.get_type() == "group_one_after_another_blink") {
         lightshow->add_fixture_ambient(fixture);
       } else if(fixture.get_type() == "group_two_after_another") {
         lightshow->add_fixture_ambient(fixture);

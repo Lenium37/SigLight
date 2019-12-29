@@ -242,7 +242,7 @@ void MainWindow::add_universe(QString name, QString description) {
   //delete itm;
 }
 
-void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors) {
+void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group) {
   auto *itm = new QTreeWidgetItem();
   _fixture.set_start_channel(start_channel);
   _fixture.set_type(type.toStdString());
@@ -250,6 +250,8 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
     _fixture.set_colors(_colors);
   else
     _fixture.set_colors("Y");
+
+  _fixture.set_position_in_group(position_in_group);
 
   universes[0].add_fixture(_fixture);
 
@@ -316,7 +318,8 @@ void MainWindow::create_fixtures() {
                        "Ausstossmenge über DMX kontrollierbar",
                        channels,
                        "smoke",
-                       color_palettes[0]);
+                       color_palettes[0],
+                       0);
     channels.clear();
 
     channels << "NULL~0~1" << "NULL~0~1" << "NULL~0~1" << "NULL~0~1" << "NULL~0~1" << "Red (0-100%)~0~255"
@@ -399,6 +402,7 @@ void MainWindow::create_new_fixture(string _name,
                                     QStringList _channels,
                                     std::string _icon,
                                     std::string _colors,
+                                    int position_in_group,
                                     int start_channel) {
   std::cout << "start of MainWindow::create_new_fixture" << std::endl;
   Fixture temp;
@@ -407,6 +411,7 @@ void MainWindow::create_new_fixture(string _name,
   temp.set_description(_description);
   temp.set_channels(_channels);
   temp.set_icon(_icon);
+  temp.set_position_in_group(position_in_group);
   if(!_colors.empty())
     temp.set_colors(_colors);
   else
@@ -416,7 +421,7 @@ void MainWindow::create_new_fixture(string _name,
     fixtures.push_back(temp);
     save_fixture_objects_to_xml();
   } else {
-    add_fixture(&universe_tree.back(), temp, start_channel, QString::fromStdString(temp.get_type()), temp.get_colors());
+    add_fixture(&universe_tree.back(), temp, start_channel, QString::fromStdString(temp.get_type()), temp.get_colors(), position_in_group);
   }
   std::cout << "end of MainWindow::create_new_fixture" << std::endl;
 }
@@ -477,8 +482,9 @@ void MainWindow::get_fixture_for_universe() {
   int start_channel = 0;
   QString type;
   std::string colors;
-  this->fcd->get_fixture_options(fixture_index, start_channel, type, colors);
-  add_fixture((&universe_tree.back()), *(std::next(fixtures.begin(), fixture_index)), start_channel, type, colors);
+  int position_in_group = 0;
+  this->fcd->get_fixture_options(fixture_index, start_channel, type, colors, position_in_group);
+  add_fixture((&universe_tree.back()), *(std::next(fixtures.begin(), fixture_index)), start_channel, type, colors, position_in_group);
   save_fixture_objects_to_xml(false);
   fixtures_changed = true;
 }
@@ -668,7 +674,7 @@ void MainWindow::get_fixture_from_dialog() {
   if (name.empty() || type.empty() || description.empty() || channels.contains("")) {
 
   } else {
-    create_new_fixture(name, type, description, channels, icon, "");
+    create_new_fixture(name, type, description, channels, icon, "", 0);
   }
 }
 
@@ -1013,6 +1019,11 @@ void MainWindow::save_fixture_objects_to_xml(bool is_preset) {
       xml_start_channel->SetText(fixture.get_start_channel());
       fixture_object->InsertEndChild(xml_start_channel);
     }
+
+    tinyxml2::XMLElement *xml_position_in_group = fixture_objects.NewElement("position_in_group");
+    xml_position_in_group->SetText(fixture.get_position_in_group());
+    fixture_object->InsertEndChild(xml_position_in_group);
+
     for (auto channel : fixture.get_channels()) {
       tinyxml2::XMLElement *xml_channel = fixture_objects.NewElement("channel");
       fixture_object->InsertEndChild(xml_channel);
@@ -1063,6 +1074,7 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
   std::string function_to;
   QStringList channels;
   int start_channel = 0;
+  int position_in_group = 0;
 
   tinyxml2::XMLDocument fixture_objects;
   tinyxml2::XMLError error;
@@ -1096,8 +1108,10 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
         if (!is_preset) {
           tinyxml2::XMLElement *start_channel_xml = fixture->FirstChildElement("startchannel");
           start_channel = std::atoi(start_channel_xml->GetText());
-
         }
+
+        tinyxml2::XMLElement *position_in_group_xml = fixture->FirstChildElement("position_in_group");
+        position_in_group = std::atoi(position_in_group_xml->GetText());
 
         tinyxml2::XMLElement *icon = fixture->FirstChildElement("icon");
         fixture_icon = icon->GetText();
@@ -1124,7 +1138,7 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
           functions.clear();
         }
         fixture = fixture->NextSiblingElement("Fixture");
-        create_new_fixture(fixture_name, fixture_type, fixture_description, channels, fixture_icon, fixture_colors, start_channel);
+        create_new_fixture(fixture_name, fixture_type, fixture_description, channels, fixture_icon, fixture_colors, position_in_group, start_channel);
         channels.clear();
       }
     }
@@ -1173,6 +1187,7 @@ void MainWindow::ShowContextMenu(const QPoint &pos) {
   QAction *type_onset_blink = type_menu->addAction("onset_blink");
   QAction *type_onset_blink_reverse = type_menu->addAction("onset_blink_reverse");
   QAction *type_group_one_after_another = type_menu->addAction("group_one_after_another");
+  QAction *type_group_one_after_another_blink = type_menu->addAction("group_one_after_another_blink");
   QAction *type_group_two_after_another = type_menu->addAction("group_two_after_another");
   QAction *type_group_alternate_odd_even = type_menu->addAction("group_alternate_odd_even");
 
@@ -1204,7 +1219,7 @@ bool MainWindow::xml_has_no_error(tinyxml2::XMLError error) {
 }
 
 void MainWindow::update_fixture_list() {
-  QStringList types = (QStringList() << "Ambient" << "Bass" << "Mid" << "High" << "color_change_beats" << "color_change_beats_action" << "color_change_onsets" << "onset_blink" << "onset_blink_reverse" << "group_one_after_another" << "group_two_after_another" << "group_alternate_odd_even");
+  QStringList types = (QStringList() << "Ambient" << "Bass" << "Mid" << "High" << "color_change_beats" << "color_change_beats_action" << "color_change_onsets" << "onset_blink" << "onset_blink_reverse" << "group_one_after_another" << "group_one_after_another_blink" << "group_two_after_another" << "group_alternate_odd_even");
 
   for (auto type : types) {
     QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(QString::fromStdString(type.toStdString()),

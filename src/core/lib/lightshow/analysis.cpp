@@ -250,7 +250,7 @@ std::vector<float> Analysis::get_onset_timestamps(){
   // metal (HSB Voice of the Voiceless, double bass) = 1.7
   // metal/hard rock (Sabaton 7734) = 4.5
   // somewhat allgemeingültig = 5
-  min_value_onset = min_value_onset / onsets.size() * 1.7;
+  min_value_onset = min_value_onset / onsets.size() * 5;
   float threshold_reset = 0.0f;
 
   for(time_value_float onset: onsets) {

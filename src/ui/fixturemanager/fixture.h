@@ -144,6 +144,10 @@ public:
 
   void set_colors(std::string colors);
 
+  void set_position_in_group(int _position);
+
+  int get_position_in_group();
+
 private:
   /**
    * @brief name Name of the Fixture.
@@ -181,6 +185,8 @@ private:
   bool global_dimmer;
 
   std::string colors;
+
+  int position_in_group;
 
 };
 

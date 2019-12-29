@@ -17,7 +17,7 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
     QDialog(parent),
     ui(new Ui::FixtureChoosingDialog) {
     ui->setupUi(this);
-    types << "Ambient" << "Bass" << "Mid" << "High" << "color_change_beats" << "color_change_beats_action" << "color_change_onsets" << "onset_blink" << "onset_blink_reverse" << "group_one_after_another" << "group_two_after_another" << "group_alternate_odd_even";
+    types << "Ambient" << "Bass" << "Mid" << "High" << "color_change_beats" << "color_change_beats_action" << "color_change_onsets" << "onset_blink" << "onset_blink_reverse" << "group_one_after_another" << "group_one_after_another_blink" << "group_two_after_another" << "group_alternate_odd_even";
     for(std::string _colors: color_palettes)
       colors << QString::fromStdString(_colors);
     auto list_size = static_cast<double>(fixtures.size());
@@ -51,11 +51,12 @@ void FixtureChoosingDialog::set_up_dialog_options(std::list<int> blocked_channel
     set_first_allowed_channel(0, true);
 }
 
-void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors)
+void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group)
 {
     fixture_id = ui->fixture_selection->currentRow();
     start_channel = ui->sB_start_channel->value();
     type = ui->cB_type->currentText();
+    position_in_group = ui->sB_position_inside_group->value();
     colors = ui->cB_colors->currentText().toStdString();
 }
 
@@ -150,7 +151,8 @@ void FixtureChoosingDialog::update_position_in_group_status(QString current_type
   current_type = current_type.toLower();
   if(current_type == "group_one_after_another"
   || current_type == "group_two_after_another"
-  || current_type == "group_alternate_odd_even")
+  || current_type == "group_alternate_odd_even"
+  || current_type == "group_one_after_another_blink")
     ui->sB_position_inside_group->setEnabled(true);
   else
     ui->sB_position_inside_group->setEnabled(false);

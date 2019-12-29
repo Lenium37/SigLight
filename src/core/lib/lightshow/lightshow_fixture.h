@@ -31,7 +31,7 @@ class LightshowFixture {
    * @param number_of_channels
    * @param type
    */
-  LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors);
+  LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group);
   ~LightshowFixture();
 
   /**
@@ -169,6 +169,10 @@ class LightshowFixture {
 
   std::vector<std::string> get_colors();
 
+  void set_position_in_group(int _position);
+
+  int get_position_in_group();
+
  private:
   int start_channel;
   int number_of_channels;
@@ -186,6 +190,7 @@ class LightshowFixture {
   Channel green = Channel(0);
   Channel blue = Channel(0);
   std::vector<std::string> colors;
+  int position_inside_group;
 
 };
 

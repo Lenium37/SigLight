@@ -151,3 +151,14 @@ void Fixture::set_colors(std::string colors) {
   std::cout << "setting fix colors to: " << colors << std::endl;
   this->colors = colors;
 }
+
+void Fixture::set_position_in_group(int _position) {
+  if(_position > 0)
+    this->position_in_group = _position;
+  else
+    this->position_in_group = 0;
+}
+
+int Fixture::get_position_in_group() {
+  return this->position_in_group;
+}
