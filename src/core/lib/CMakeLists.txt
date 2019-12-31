@@ -45,8 +45,6 @@ set(CORE_LIB_SRCS
         ../../../external_libraries/gist/source/Gist/src/core/CoreTimeDomainFeatures.cpp
         ../../../external_libraries/gist/source/Gist/src/core/CoreFrequencyDomainFeatures.h
         ../../../external_libraries/gist/source/Gist/src/core/CoreFrequencyDomainFeatures.cpp
-        ../../../external_libraries/gist/source/Gist/src/fft/AccelerateFFT.h
-        ../../../external_libraries/gist/source/Gist/src/fft/AccelerateFFT.cpp
         ../../../external_libraries/gist/source/Gist/src/fft/WindowFunctions.h
         ../../../external_libraries/gist/source/Gist/src/fft/WindowFunctions.cpp
         ../../../external_libraries/gist/source/Gist/src/mfcc/MFCC.h
