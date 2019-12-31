@@ -71,6 +71,12 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_green(4);
     this->set_channel_blue(5);
     this->has_global_dimmer = true;
+  } else if(name == "Stairville LED Flood Panel 150") {
+      this->set_channel_dimmer(1);
+      this->set_channel_red(2);
+      this->set_channel_green(3);
+      this->set_channel_blue(4);
+      this->has_global_dimmer = true;
   } else if(name == "Helios 7") {
     this->set_channel_dimmer(11);
     this->set_channel_red(6);

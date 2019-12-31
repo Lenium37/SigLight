@@ -311,6 +311,17 @@ void MainWindow::create_fixtures() {
                        color_palettes[0],
                        0);
     channels.clear();
+      channels << "Master dimmer (0-100%)~0~255" << "Red (0-100%)~0~225" << "Green (0-100%)~0~225"
+               << "Blue (0-100%)~0~225";
+
+      create_new_fixture("Stairville LED Flood Panel 150",
+                         "Bass",
+                         "DMX-Funktionen: R/G/B/D",
+                         channels,
+                         "lamp",
+                         color_palettes[0],
+                         0);
+      channels.clear();
 
     channels << "Aus~0~5|Output (5-95%)~6~249|Max Output (100%)~250~255";
     create_new_fixture("ANTARI Z-1200 MKII",

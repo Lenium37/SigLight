@@ -179,7 +179,7 @@ std::vector<float> Analysis::get_onset_timestamps(){
   bool onset_found = false;
   bool already_added_this_onset = false;
   std::vector<time_value_float> onsets;
-  onsets.resize(signal_length_mono / window_size_onsets / 2);
+  onsets.resize(signal_length_mono / window_size_onsets * 2);
   float min_value_onset = 0;
 
 
@@ -224,8 +224,14 @@ std::vector<float> Analysis::get_onset_timestamps(){
 
 
   // works good for rocky stuff and clear electronic bass
+
+
+  //FILE *fp;
+  //fp = fopen("../../../../assets/onsets.txt", "w");
   for(int i = 0; i < signal_length_mono - window_size_onsets; i = i + window_size_onsets / 2) {
     for(int j = i, k = 0; k < window_size_onsets; j++, k++) {
+        // TODO: HIER MUSS BANDPASS HIN, WIR MÜSSEN HIER NE FFT MACHEN VON DEN EINZELNEN FRAMES
+        // TODO: ONSET DETECTION BITTE IM FREQUENZBEREICH!!!!! DANKE!
       audioFrame[k] = wav_values_mono[j];
       //std::cout << audioFrame[k] << std::endl;
     }
@@ -233,24 +239,32 @@ std::vector<float> Analysis::get_onset_timestamps(){
 
     gist2.processAudioFrame (audioFrame, window_size_onsets);
     float ed = gist2.energyDifference();
+    float sd = gist2.spectralDifference();
+    float sdhwr = gist2.spectralDifferenceHWR();
+    float csd = gist2.complexSpectralDifference();
+    float hfc = gist2.highFrequencyContent();
     float i_float = i;
     float time = i_float/44100;
 
-    //if(ed > 0)
-      //std::cout << "ed(" << time << "): " << ed << std::endl;
+    //fprintf(fp,"%f, %f, %f, %f, %f, %f\n", time, ed, sd, sdhwr, csd, hfc);
 
+    // UNCOMMENT TO PRINT
+    //std::cout << time << ", " << ed << ", " << sd << ", " << sdhwr << ", " << csd << ", " << hfc << std::endl;
+
+    // Choose: ED, SD, SDHWR, CSD, HFC
     onsets.push_back({time, ed});
   }
 
+  //fclose(fp);
+
+
   for(int i = 0; i < onsets.size(); i++) {
-      min_value_onset += onsets[i].value;
+      min_value_onset += onsets[i].value; // TODO: DAS IST DIE SUMME!
   }
 
-  // rocky = 5.5
-  // metal (HSB Voice of the Voiceless, double bass) = 1.7
   // metal/hard rock (Sabaton 7734) = 4.5
   // somewhat allgemeingültig = 5
-  min_value_onset = min_value_onset / onsets.size() * 5;
+  min_value_onset = min_value_onset / onsets.size() * 5; // TODO: DAS IST MEAN!!! SUMME/N * FAKTOR ZUR ANHEBUNG! WARUM?
   float threshold_reset = 0.0f;
 
   for(time_value_float onset: onsets) {

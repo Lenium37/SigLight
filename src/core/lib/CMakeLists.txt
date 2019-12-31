@@ -16,6 +16,7 @@ execute_process(
 add_definitions( -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" )
 message("Building commit with hash ${GIT_COMMIT_HASH}")
 
+add_definitions(-DUSE_FFTW)
 
 set(CORE_LIB_SRCS
         logger.h
@@ -35,21 +36,29 @@ set(CORE_LIB_SRCS
         stacktrace_registration.cpp
         version.h
         version.cpp
-        dmx_device_eurolite_pro.h dmx_device_eurolite_pro.cpp
+        dmx_device_eurolite_pro.h
+        dmx_device_eurolite_pro.cpp
+
         ../../../external_libraries/gist/source/Gist/src/gist.h
         ../../../external_libraries/gist/source/Gist/src/gist.cpp
-        ../../../external_libraries/gist/source/Gist/src/pitch/Yin.h
-        ../../../external_libraries/gist/source/Gist/src/pitch/Yin.cpp
-        ../../../external_libraries/gist/source/Gist/src/onset-detection-functions/OnsetDetectionFunction.h
-        ../../../external_libraries/gist/source/Gist/src/onset-detection-functions/OnsetDetectionFunction.cpp
-        ../../../external_libraries/gist/source/Gist/src/mfcc/MFCC.h
-        ../../../external_libraries/gist/source/Gist/src/mfcc/MFCC.cpp
-        ../../../external_libraries/gist/source/Gist/src/fft/WindowFunctions.h
-        ../../../external_libraries/gist/source/Gist/src/fft/WindowFunctions.cpp
         ../../../external_libraries/gist/source/Gist/src/core/CoreTimeDomainFeatures.h
         ../../../external_libraries/gist/source/Gist/src/core/CoreTimeDomainFeatures.cpp
         ../../../external_libraries/gist/source/Gist/src/core/CoreFrequencyDomainFeatures.h
         ../../../external_libraries/gist/source/Gist/src/core/CoreFrequencyDomainFeatures.cpp
+        ../../../external_libraries/gist/source/Gist/src/fft/AccelerateFFT.h
+        ../../../external_libraries/gist/source/Gist/src/fft/AccelerateFFT.cpp
+        ../../../external_libraries/gist/source/Gist/src/fft/WindowFunctions.h
+        ../../../external_libraries/gist/source/Gist/src/fft/WindowFunctions.cpp
+        ../../../external_libraries/gist/source/Gist/src/mfcc/MFCC.h
+        ../../../external_libraries/gist/source/Gist/src/mfcc/MFCC.cpp
+        ../../../external_libraries/gist/source/Gist/src/onset-detection-functions/OnsetDetectionFunction.h
+        ../../../external_libraries/gist/source/Gist/src/onset-detection-functions/OnsetDetectionFunction.cpp
+        ../../../external_libraries/gist/source/Gist/src/pitch/Yin.h
+        ../../../external_libraries/gist/source/Gist/src/pitch/Yin.cpp
+
+
+
+
         )
 
 include(lightshow/CMakeLists.txt)
@@ -117,3 +126,20 @@ target_link_libraries(${CORE_LIBRARY_NAME} tag)
 
 # make gist avaible
 target_include_directories(${CORE_LIBRARY_NAME} PUBLIC ../../../external_libraries/gist/source/Gist/src)
+
+#make essentia and dependencies avaible
+
+# THIS WORKED SOMEHOW
+#target_include_directories(${CORE_LIBRARY_NAME} PUBLIC ../../../external_libraries/essentia)
+#target_link_directories(${CORE_LIBRARY_NAME} PUBLIC ../../../external_libraries/essentia/build/src/)
+#target_link_libraries(${CORE_LIBRARY_NAME} essentia)
+
+#target_include_directories(${CORE_LIBRARY_NAME} PUBLIC /usr/local/Cellar/eigen/3.3.7/include/eigen3)
+
+
+# THIS DIDN'T WORK AT ALL
+#add_library(essentia STATIC IMPORTED)
+#set_target_properties(essentia PROPERTIES
+        #IMPORTED_LOCATION ../../../external_libraries/essentia/build/src/libessentia.a)
+
+
