@@ -180,6 +180,10 @@ std::vector<float> Analysis::get_onset_timestamps(){
   bool already_added_this_onset = false;
   std::vector<time_value_float> onsets;
   onsets.resize(signal_length_mono / window_size_onsets * 2);
+  std::vector<time_value_float> values_ed;
+  values_ed.resize(signal_length_mono / window_size_onsets * 2);
+  std::vector<time_value_float> values_sdhwr;
+  values_sdhwr.resize(signal_length_mono / window_size_onsets * 2);
   float min_value_onset = 0;
 
 
@@ -239,20 +243,24 @@ std::vector<float> Analysis::get_onset_timestamps(){
 
     gist2.processAudioFrame (audioFrame, window_size_onsets);
     float ed = gist2.energyDifference();
-    float sd = gist2.spectralDifference();
+    //float sd = gist2.spectralDifference();
     float sdhwr = gist2.spectralDifferenceHWR();
-    float csd = gist2.complexSpectralDifference();
-    float hfc = gist2.highFrequencyContent();
+    //float csd = gist2.complexSpectralDifference();
+    //float hfc = gist2.highFrequencyContent();
     float i_float = i;
     float time = i_float/44100;
 
     //fprintf(fp,"%f, %f, %f, %f, %f, %f\n", time, ed, sd, sdhwr, csd, hfc);
 
     // UNCOMMENT TO PRINT
-    //std::cout << time << ", " << ed << ", " << sd << ", " << sdhwr << ", " << csd << ", " << hfc << std::endl;
+    //std::cout << time << ", \t" << (int)ed << ", \t" << (int)sd << ", \t" << (int)sdhwr << ", \t" << (int)csd << ", \t" << (int)hfc << std::endl;
+    //std::cout << time << ", \t" << (int)ed << ", \t" << (int)sdhwr << std::endl;
 
     // Choose: ED, SD, SDHWR, CSD, HFC
     onsets.push_back({time, ed});
+
+    values_ed.push_back({time, ed});
+    values_sdhwr.push_back({time, sdhwr});
   }
 
   //fclose(fp);
@@ -261,12 +269,16 @@ std::vector<float> Analysis::get_onset_timestamps(){
   for(int i = 0; i < onsets.size(); i++) {
       min_value_onset += onsets[i].value; // TODO: DAS IST DIE SUMME!
   }
+  //std::cout << "durchschnitt sdhwr: " << min_value_onset / onsets.size() << std::endl;
 
   // metal/hard rock (Sabaton 7734) = 4.5
   // somewhat allgemeingültig = 5
-  min_value_onset = min_value_onset / onsets.size() * 5; // TODO: DAS IST MEAN!!! SUMME/N * FAKTOR ZUR ANHEBUNG! WARUM?
-  float threshold_reset = 0.0f;
+  float threshold_reset = min_value_onset / onsets.size();
+  min_value_onset = min_value_onset / onsets.size() * 5.5; // TODO: DAS IST MEAN!!! SUMME/N * FAKTOR ZUR ANHEBUNG! WARUM?
 
+
+  // for ED
+  /*threshold_reset = 0;
   for(time_value_float onset: onsets) {
     //std::cout << "ed(" << onset.time << "): " << onset.value << std::endl;
     if(onset.value > min_value_onset)
@@ -286,10 +298,74 @@ std::vector<float> Analysis::get_onset_timestamps(){
 
     last_value = onset.value;
     last_time = onset.time;
+  }*/
+
+
+  // for SDHWR
+  /*threshold_reset = min_value_onset;
+  for(time_value_float onset: onsets) {
+    //std::cout << "ed(" << onset.time << "): " << onset.value << std::endl;
+    if(onset.value > min_value_onset && onset.value > last_value + 150)
+      onset_found = true;
+
+    if(onset_found) {
+      if(onset.value < last_value ) {
+        onset_timestamps.emplace_back(last_time);
+        onset_found = false;
+      }
+    }
+
+    last_value = onset.value;
+    last_time = onset.time;
+  }*/
+
+
+  // trying to combine ED and SDHWR:
+  float min_value_onset_ed = 0;
+  float min_value_onset_sdhwr = 0;
+  for(int i = 0; i < values_ed.size(); i++) {
+    min_value_onset_ed += values_ed[i].value; // TODO: DAS IST DIE SUMME!
+  }
+  min_value_onset_ed = min_value_onset_ed / values_ed.size() * 4.4;
+  for(int i = 0; i < values_sdhwr.size(); i++) {
+    min_value_onset_sdhwr += values_sdhwr[i].value; // TODO: DAS IST DIE SUMME!
+  }
+  min_value_onset_sdhwr = min_value_onset_sdhwr / values_sdhwr.size() * 3;
+
+  std::cout << "min_value_onset_ed: " << min_value_onset_ed << std::endl;
+  std::cout << "min_value_onset_sdhwr: " << min_value_onset_sdhwr << std::endl;
+  float last_value_ed = 0;
+  //float last_value_sdhwr = 0;
+  last_time = 0;
+  onset_found = false;
+  onset_timestamps.clear();
+  threshold_reset = 0;
+  for(int i = 0; i < values_ed.size(); i++) {
+
+    if(values_ed[i].value > min_value_onset_ed && values_sdhwr[i].value > min_value_onset_sdhwr) {
+      onset_found = true;
+    }
+
+    if(onset_found) {
+      if(values_ed[i].value < last_value_ed && !already_added_this_onset) {
+        onset_timestamps.emplace_back(last_time);
+        already_added_this_onset = true;
+      }
+    }
+
+    if(values_ed[i].value <= threshold_reset) {
+      onset_found = false;
+      already_added_this_onset = false;
+    }
+
+    last_value_ed = values_ed[i].value;
+    //last_value_sdhwr = values_sdhwr[i].value;
+    last_time = values_ed[i].time;
   }
 
+
   std::cout << "min_value_onset: " << min_value_onset << std::endl;
-  std::cout << "threshold_reset: " << threshold_reset << std::endl;
+  //std::cout << "threshold_reset: " << threshold_reset << std::endl;
   //for(float ts: onset_timestamps)
     //std::cout << ts << std::endl;
 
