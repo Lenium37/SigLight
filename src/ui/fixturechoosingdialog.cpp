@@ -17,7 +17,7 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
     QDialog(parent),
     ui(new Ui::FixtureChoosingDialog) {
     ui->setupUi(this);
-    types << "Ambient" << "Bass" << "Mid" << "High" << "color_change_beats" << "color_change_beats_action" << "color_change_onsets" << "onset_blink" << "onset_blink_reverse" << "group_one_after_another" << "group_one_after_another_blink" << "group_two_after_another" << "group_alternate_odd_even";
+    types << "Ambient" << "Bass" << "Mid" << "High" << "color_change_beats" << "color_change_beats_action" << "color_change_onsets" << "onset_blink" << "onset_blink_reverse" << "group_one_after_another" << "group_one_after_another_blink" << "group_two_after_another" << "group_alternate_odd_even" << "group_random_flashes";
     for(std::string _colors: color_palettes)
       colors << QString::fromStdString(_colors);
     auto list_size = static_cast<double>(fixtures.size());
@@ -152,7 +152,8 @@ void FixtureChoosingDialog::update_position_in_group_status(QString current_type
   if(current_type == "group_one_after_another"
   || current_type == "group_two_after_another"
   || current_type == "group_alternate_odd_even"
-  || current_type == "group_one_after_another_blink")
+  || current_type == "group_one_after_another_blink"
+  || current_type == "group_random_flashes")
     ui->sB_position_inside_group->setEnabled(true);
   else
     ui->sB_position_inside_group->setEnabled(false);

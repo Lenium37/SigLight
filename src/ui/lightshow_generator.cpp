@@ -2,6 +2,7 @@
 // Created by Jan on 06.06.2019.
 //
 
+#include <random>
 #include "lightshow_generator.h"
 
 
@@ -22,6 +23,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   int fixtures_in_group_two_after_another_blink = 0;
   int fixtures_in_group_alternate_odd_even = 0;
   int fixtures_in_group_alternate_odd_even_blink = 0;
+  int fixtures_in_group_random_flashes = 0;
 
   std::vector<LightshowFixture> my_fixtures;
   for (Fixture fix: fixtures) {
@@ -48,6 +50,10 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       fixtures_in_group_alternate_odd_even = fix.get_position_in_group();
     else if(fix.get_type() == "group_alternate_odd_even_blink" && fix.get_position_in_group() > fixtures_in_group_alternate_odd_even_blink)
       fixtures_in_group_alternate_odd_even_blink = fix.get_position_in_group();
+    else if(fix.get_type() == "group_random_flashes" && fix.get_position_in_group() > fixtures_in_group_random_flashes)
+      fixtures_in_group_random_flashes = fix.get_position_in_group();
+
+
   }
 
 
@@ -452,6 +458,120 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         }
 
         fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
+
+        std::vector<std::string> colors = fix.get_colors();
+        this->generate_color_fades(lightshow_from_analysis, fix, colors);
+      } else {
+
+      }
+      lightshow_from_analysis->add_fixture(fix);
+    } else if (fix_type == "group_alternate_odd_even") {
+      if (fix.has_global_dimmer) {
+
+        std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
+        std::vector<time_value_int> value_changes_onset_blink;
+
+        std::vector<int> values_onset_blink;
+
+        value_changes_onset_blink.push_back({0.0, 200});
+        value_changes_onset_blink.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+        for (int i = 0; i < timestamps.size(); i++) {
+          if (timestamps[i] - 0.050f > 0) {
+            value_changes_onset_blink.push_back({timestamps[i] - 0.050f, 200});
+            value_changes_onset_blink.push_back({timestamps[i] - 0.025f, 100});
+          }
+          value_changes_onset_blink.push_back({timestamps[i], 0});
+          if (i < timestamps.size() && timestamps[i] + 0.050f < timestamps[timestamps.size() - 1]) {
+            value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 100});
+            value_changes_onset_blink.push_back({timestamps[i] + 0.050f, 200});
+          }
+        }
+
+        fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
+
+        std::vector<std::string> colors = fix.get_colors();
+        this->generate_color_fades(lightshow_from_analysis, fix, colors);
+      } else {
+
+      }
+      lightshow_from_analysis->add_fixture(fix);
+    } else if (fix_type == "group_alternate_odd_even_blink") {
+      if (fix.has_global_dimmer) {
+
+        std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
+        std::vector<time_value_int> value_changes_onset_blink;
+
+        std::vector<int> values_onset_blink;
+
+        value_changes_onset_blink.push_back({0.0, 200});
+        value_changes_onset_blink.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+        for (int i = 0; i < timestamps.size(); i++) {
+          if (timestamps[i] - 0.050f > 0) {
+            value_changes_onset_blink.push_back({timestamps[i] - 0.050f, 200});
+            value_changes_onset_blink.push_back({timestamps[i] - 0.025f, 100});
+          }
+          value_changes_onset_blink.push_back({timestamps[i], 0});
+          if (i < timestamps.size() && timestamps[i] + 0.050f < timestamps[timestamps.size() - 1]) {
+            value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 100});
+            value_changes_onset_blink.push_back({timestamps[i] + 0.050f, 200});
+          }
+        }
+
+        fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
+
+        std::vector<std::string> colors = fix.get_colors();
+        this->generate_color_fades(lightshow_from_analysis, fix, colors);
+      } else {
+
+      }
+      lightshow_from_analysis->add_fixture(fix);
+    } else if (fix_type == "group_random_flashes") {
+      if (fix.has_global_dimmer) {
+
+
+
+        std::vector<float> timestamps;// = lightshow_from_analysis->get_onset_timestamps();
+        timestamps.push_back(1);
+        //timestamps.push_back(1.5f);
+        //timestamps.push_back(3.5f);
+        timestamps.push_back(6);
+
+        std::vector<time_value_int> value_changes;
+
+        std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
+        std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
+
+        std::random_device rd;     // only used once to initialise (seed) engine
+        std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
+        std::uniform_int_distribution<int> uni(1, fixtures_in_group_random_flashes); // guaranteed unbiased
+        float begin_flashing = 0;
+        float end_flashing = 0;
+        float time_of_next_flash = 0;
+
+        if(fix.get_position_in_group() > 0) {
+          for (int i = 0; i < timestamps.size() - 1; i = i + 2) {
+            begin_flashing = timestamps[i];
+            end_flashing = timestamps[i + 1];
+            time_of_next_flash = begin_flashing;
+
+
+
+            while(time_of_next_flash < end_flashing) {
+              auto random_integer = uni(rng);
+              std::cout << "random_integer: " << random_integer << std::endl;
+              if(random_integer == fix.get_position_in_group()) {
+                value_changes.push_back({time_of_next_flash, 200});
+                if(((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > time_of_next_flash + 0.025f)
+                  value_changes.push_back({time_of_next_flash + 0.025f, 0});
+                else
+                  value_changes.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+              }
+              time_of_next_flash += 0.025f;
+            }
+          }
+        }
+
+        fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
