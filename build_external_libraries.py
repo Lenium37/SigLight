@@ -536,14 +536,14 @@ if __name__ == '__main__':
                              CallMake('libsndfile')
                          ])
 
-    libsndfile.download_and_install()
+    #libsndfile.download_and_install()
 
     gist = Library(library_name='gist',
                          steps=[
                              GitCloneStep('gist', 'https://github.com/adamstark/Gist.git')
                          ])
 
-    gist.download_and_install()
+    #gist.download_and_install()
 
     fftw3 = Library(library_name='fftw3',
                     steps=[
@@ -553,7 +553,7 @@ if __name__ == '__main__':
                         CallMake('fftw3')
                     ])
 
-    fftw3.download_and_install()
+    #fftw3.download_and_install()
 
     if sys.platform == 'win32':
         mingw_thread = Library(library_name='mingw_thread',
@@ -581,7 +581,7 @@ if __name__ == '__main__':
                              InstallLibUsbUnix('libusb')
                          ])
 
-        libusb.download_and_install()
+        #libusb.download_and_install()
 
     portaudio = Library(library_name='portaudio',
                         steps=[

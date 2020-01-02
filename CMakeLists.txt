@@ -1,6 +1,5 @@
 project(Sound-to-Light) # accessable with ${PROJECT_NAME}
 cmake_minimum_required(VERSION 2.8.11)
-
 option(FORCE_COMPILE_FOR_RASPBERRY "Forces for example usage of portaudio" OFF)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/modules)
@@ -29,7 +28,7 @@ endif ()
 set(CONAN_FOUND ${UNIX})
 
 if (${CONAN_FOUND})
-    message("conan is avaible")
+    message("conan is available")
 
     message("calling conan..")
     message("adding bincrafters remote")
@@ -44,11 +43,11 @@ if (${CONAN_FOUND})
     )
 
     # If conan is being used, configure CMake to use conan for dependencies.
-    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-    conan_basic_setup()
+    #include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+    #conan_basic_setup()
     add_definitions(-DBOOST_STACK_TRACE_AVAIBLE="")
     add_definitions(-DBOOST_STACKTRACE_USE_ADDR2LINE="")
-    set(BOOST_STACK_TRACE_AVAIBLE TRUE)
+    set(BOOST_STACK_TRACE_AVAIBLE FALSE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 else ()
     message("Conan not found. Skipping.")
@@ -86,5 +85,6 @@ endif ()
 
 
 set(CMAKE_PREFIX_PATH "C:\\Qt\\5.12.2\\mingw73_64")
+
 add_subdirectory(src)
 

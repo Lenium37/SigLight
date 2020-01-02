@@ -155,145 +155,129 @@ void Analysis::stft(){
 
 std::vector<float> Analysis::get_onset_timestamps(){
 
-  std::vector<float> onset_timestamps;
-
-  //Gist<double> gist(4096, 44100);
-  /*for(int i = 0; i < result.size(); i ++) {
-    gist.processAudioFrame (result[i]);
-    float hfc = gist.highFrequencyContent();
-    std::cout << "hfc(" << i << "):" << hfc << std::endl;
-  }*/
-  /*for(int i = 0; i < result.size(); i++) {
-    gist.processAudioFrame (result[i]);
-    float ed = gist.energyDifference();
-    //std::cout << "ed(" << i << "): " << ed << std::endl;
-  }*/
-
-
-
   int window_size_onsets = 2048;
   Gist<float> gist2(window_size_onsets, 44100);
   float audioFrame[window_size_onsets];
-  float last_value = 0;
-  float last_time = 0;
-  bool onset_found = false;
-  bool already_added_this_onset = false;
-  std::vector<time_value_float> onsets;
-  onsets.resize(signal_length_mono / window_size_onsets * 2);
-  float min_value_onset = 0;
+
+  std::vector<time_value_float> onsets_raw;
+  onsets_raw.resize(signal_length_mono / window_size_onsets * 3);
+
+  std::vector<float> onsets;
+  onsets.resize(signal_length_mono / window_size_onsets * 3);
 
 
-  // this works good for hardstyle and some other stuff, semi good for the rest
-  /*float f1_sample = ((float) window_size_onsets / 44100) * 1;
-  float f2_sample = ((float) window_size_onsets / 44100) * 10000;
+  std::vector<time_value_float> spectral_flux;
+  spectral_flux.resize(signal_length_mono / window_size_onsets * 3);
 
-  std::cout << "normalized_result.size(): " << normalized_result.size() << std::endl;
-  std::cout << "signal_length_mono: " << signal_length_mono << std::endl;
-  for (int i = 0; i < normalized_result.size(); i++){
-    int this_value = 0;
-    int this_sample = 0;
-    int this_block = 0;
-    float this_freq = 0;
+  std::vector<float> magnitude_spectrum;
+  magnitude_spectrum.resize(window_size_onsets * 3);
 
-    for(int y = 0; y < window_size_onsets; y++)
-      audioFrame[y] = 0;
+  std::vector<float> last_magnitude_spectrum;
+  last_magnitude_spectrum.resize(window_size_onsets * 3);
 
-    for (int n = f1_sample, k = 0; n <= f2_sample ; n++, k++){
+  FILE *fp_onsets_raw;
+  fp_onsets_raw = std::fopen("onsets_raw.txt", "w");
 
-      audioFrame[k] = (float) normalized_result[i][n];
-    }
+  FILE *fp_spectral_flux;
+  fp_spectral_flux = std::fopen("spectral_flux.txt", "w");
 
-    gist2.processAudioFrame (audioFrame, window_size_onsets);
-    float ed = gist2.energyDifference();
-    float x = i;
-    float time = x * window_size_onsets / 44100 / 1.85796852603;
-    onsets.push_back({time, ed});
-  }*/
+  FILE *fp_onsets;
+  fp_onsets = std::fopen("onsets.txt", "w");
 
-
-  // ??
-  /*int f1 = 100;
-  int f2 = 200;
-  int co_f1 = f1/(samplerate/window_size_onsets);
-  int co_f2 = f2/(samplerate/window_size_onsets);
-
-  for(int i = 0; i < co_f1; i++);
-  for(int i = co_f2; i < window_size_onsets; i++);*/
-
-
-
-
-  // works good for rocky stuff and clear electronic bass
-
-
-  //FILE *fp;
-  //fp = fopen("../../../../assets/onsets.txt", "w");
   for(int i = 0; i < signal_length_mono - window_size_onsets; i = i + window_size_onsets / 2) {
+
     for(int j = i, k = 0; k < window_size_onsets; j++, k++) {
-        // TODO: HIER MUSS BANDPASS HIN, WIR MÜSSEN HIER NE FFT MACHEN VON DEN EINZELNEN FRAMES
-        // TODO: ONSET DETECTION BITTE IM FREQUENZBEREICH!!!!! DANKE!
       audioFrame[k] = wav_values_mono[j];
-      //std::cout << audioFrame[k] << std::endl;
     }
 
-
     gist2.processAudioFrame (audioFrame, window_size_onsets);
+
+    magnitude_spectrum = gist2.getMagnitudeSpectrum();
+
+    if (i == 0){
+        last_magnitude_spectrum = gist2.getMagnitudeSpectrum();
+        continue;
+    }
+
     float ed = gist2.energyDifference();
     float sd = gist2.spectralDifference();
     float sdhwr = gist2.spectralDifferenceHWR();
     float csd = gist2.complexSpectralDifference();
     float hfc = gist2.highFrequencyContent();
+
     float i_float = i;
     float time = i_float/44100;
 
-    //fprintf(fp,"%f, %f, %f, %f, %f, %f\n", time, ed, sd, sdhwr, csd, hfc);
+    // PRINT FÜR VERLEICHENDE PLOTS DER VERSCHIEDNEEN ALGORITHMEN VOR DEM SORTIEREN IN /ONSETS_RAW.TXT (ALLES SEHR ÄHNLICH)
+    fprintf(fp_onsets_raw, "%f, %f, %f, %f, %f, %f\n", time, ed, sd, sdhwr, csd, hfc);
 
-    // UNCOMMENT TO PRINT
-    //std::cout << time << ", " << ed << ", " << sd << ", " << sdhwr << ", " << csd << ", " << hfc << std::endl;
+    // WELCHER ALGORITHMUS SOLL LETZTENDLICH GENUTZT WERDEN?: ED, SD, SDHWR, CSD, HFC
+    //onsets_raw.push_back({time, ed});
+    //onsets_raw.push_back({time, sd});
+    onsets_raw.push_back({time, sd});
+    //onsets_raw.push_back({time, csd});
+    //onsets_raw.push_back({time, hfc});
 
-    // Choose: ED, SD, SDHWR, CSD, HFC
-    onsets.push_back({time, ed});
-  }
+      fprintf(fp_onsets_raw, "%f, %f\n", time, sd);
 
-  //fclose(fp);
+    float flux_l2_no_hwr = 0;
+    float flux_l1_no_hwr = 0;
+    float flux_l2_hwr = 0;
+    float flux_l1_hwr = 0;
 
 
-  for(int i = 0; i < onsets.size(); i++) {
-      min_value_onset += onsets[i].value; // TODO: DAS IST DIE SUMME!
-  }
+    for( int m = 0; m < magnitude_spectrum.size(); m++ ) {
 
-  // metal/hard rock (Sabaton 7734) = 4.5
-  // somewhat allgemeingültig = 5
-  min_value_onset = min_value_onset / onsets.size() * 5; // TODO: DAS IST MEAN!!! SUMME/N * FAKTOR ZUR ANHEBUNG! WARUM?
-  float threshold_reset = 0.0f;
+        float flux_value_l2_no_hwr = (magnitude_spectrum[m] - last_magnitude_spectrum[m]) * (magnitude_spectrum[m] - last_magnitude_spectrum[m]);
+        flux_l2_no_hwr += flux_value_l2_no_hwr;
 
-  for(time_value_float onset: onsets) {
-    //std::cout << "ed(" << onset.time << "): " << onset.value << std::endl;
-    if(onset.value > min_value_onset)
-      onset_found = true;
+        float flux_value_l1_no_hwr = (magnitude_spectrum[m] - last_magnitude_spectrum[m]);
+        flux_l1_no_hwr += flux_value_l1_no_hwr;
 
-    if(onset_found) {
-      if(onset.value < last_value && !already_added_this_onset) {
-        onset_timestamps.emplace_back(last_time);
-        already_added_this_onset = true;
-      }
+        float flux_value_l2_hwr = (magnitude_spectrum[m] - last_magnitude_spectrum[m]) * (magnitude_spectrum[m] - last_magnitude_spectrum[m]);
+        flux_l2_hwr += flux_value_l2_hwr < 0 ? 0 : flux_value_l2_hwr;
+
+        float flux_value_l1_hwr = (magnitude_spectrum[m] - last_magnitude_spectrum[m]);
+        //std::cout << flux_value_l1_hwr << std::endl;
+        flux_l1_hwr += flux_value_l1_hwr < 0 ? 0 : flux_value_l1_hwr;
+
     }
 
-    if(onset.value <= threshold_reset) {
-      onset_found = false;
-      already_added_this_onset = false;
+    // CHANGE FLUX TO DESIRED FLUX
+    if (time > 0) {
+        spectral_flux.push_back({time, flux_l1_hwr});
     }
+    last_magnitude_spectrum.clear();
+    last_magnitude_spectrum = gist2.getMagnitudeSpectrum();
 
-    last_value = onset.value;
-    last_time = onset.time;
   }
 
-  std::cout << "min_value_onset: " << min_value_onset << std::endl;
-  std::cout << "threshold_reset: " << threshold_reset << std::endl;
-  //for(float ts: onset_timestamps)
-    //std::cout << ts << std::endl;
+  std::fclose(fp_onsets_raw);
 
-  return onset_timestamps;
+  // WIR HABEN HIER NOCH KEINE WIRKLICHEN ONSETS...
+  // DESWEGEN: SPECTRAL FLUX
+
+  // JETZT KÖNNEN WIR ONSETS_RAW UND SPECTRAL_FLUX AUFEINANDERSCHMEISSEN UND SCHAUEN WO WIRKLICH ONSETS SIND
+  for (int i = 0; i < onsets_raw.size(); i++){
+    if (onsets_raw[i].value > spectral_flux[i].value && onsets_raw[i].value > onsets_raw[i+1].value){
+        onsets.push_back(onsets_raw[i].time);
+    }
+  }
+
+  // PRINTS ZUR PRÜFUNG DER GANZEN SHITS
+  for (int i = 0; i < spectral_flux.size(); i++){
+      fprintf(fp_spectral_flux, "%f, %f\n", spectral_flux[i].time, spectral_flux[i].value);
+  }
+  std::fclose(fp_spectral_flux);
+
+  for (int i = 0; i < onsets.size(); i++){
+      fprintf(fp_onsets, "%f, 1\n", onsets[i]);
+  }
+  std::fclose(fp_onsets);
+
+
+  return onsets;
+
 }
 
 std::vector<time_value_double> Analysis::get_intensity_function_values(){
@@ -1171,4 +1155,9 @@ void Analysis::set_resolution(int resolution) {
 
 int Analysis::get_samplerate() {
   return this->samplerate;
+}
+
+int Analysis::get_spectral_flux(){
+
+    return 0;
 }

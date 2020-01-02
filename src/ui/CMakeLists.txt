@@ -6,6 +6,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
 # Find the QtWidgets library
+set(Qt5Widgets_DIR /Users/stevendrewers/Qt/5.12.4/clang_64/lib/cmake/Qt5Widgets)
+
 find_package(Qt5Widgets CONFIG REQUIRED)
 
 set(Main_SRCS
@@ -60,6 +62,8 @@ target_link_libraries(${UI_EXECUTABLE_NAME} Qt5::Widgets)
 target_link_libraries(${UI_EXECUTABLE_NAME} CORE_LIB song_tag_utils mp3_to_wav)
 
 if (NOT ${COMPILE_FOR_RASPBERRY})
+    set(Qt5Multimedia_DIR /Users/stevendrewers/Qt/5.12.4/clang_64/lib/cmake/Qt5Multimedia)
+
     find_package(Qt5Multimedia CONFIG REQUIRED)
     target_link_libraries(${UI_EXECUTABLE_NAME} Qt5::Multimedia)
 endif ()
