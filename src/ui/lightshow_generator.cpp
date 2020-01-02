@@ -528,18 +528,44 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
     } else if (fix_type == "group_random_flashes") {
       if (fix.has_global_dimmer) {
 
+        std::vector<float> onset_timestamps = lightshow_from_analysis->get_onset_timestamps();
+        std::vector<float> begin_and_end_of_flashing_timestamps;
+        int onset_counter = 0;
+        float last_time = 0;
+        float begin_timestamp = 0;
+        float time_of_one_eigth = ((float) 60 / (float) lightshow_from_analysis->get_bpm()) / 2;
+        std::cout << "time_of_one_eigth: " << time_of_one_eigth << std::endl;
+        for(float onset_timestamp: onset_timestamps) {
+          if(onset_counter == 0 && onset_timestamp - last_time < time_of_one_eigth) {
+            begin_timestamp = last_time;
+            onset_counter = 1;
+          }
+
+          if(onset_counter > 0 && onset_timestamp - last_time < time_of_one_eigth) {
+            onset_counter++;
+          }
+
+          if(onset_counter > 0 && onset_timestamp - last_time >= time_of_one_eigth) {
+            if(onset_counter > 12) {
+              begin_and_end_of_flashing_timestamps.push_back(begin_timestamp);
+              begin_and_end_of_flashing_timestamps.push_back(last_time);
+            }
+            onset_counter = 0;
+          }
+          last_time = onset_timestamp;
+        }
 
 
-        std::vector<float> timestamps;// = lightshow_from_analysis->get_onset_timestamps();
-        timestamps.push_back(1);
-        //timestamps.push_back(1.5f);
-        //timestamps.push_back(3.5f);
-        timestamps.push_back(6);
+        //begin_and_end_of_flashing_timestamps.push_back(1);
+        //begin_and_end_of_flashing_timestamps.push_back(1.5f);
+        //begin_and_end_of_flashing_timestamps.push_back(3.5f);
+        //begin_and_end_of_flashing_timestamps.push_back(6);
 
         std::vector<time_value_int> value_changes;
 
         std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
-        std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
+        std::cout << "begin_and_end_of_flashing_timestamps.size(): " << begin_and_end_of_flashing_timestamps.size() << std::endl;
+        std::cout << "old bpm analysis: " << lightshow_from_analysis->get_bpm() << std::endl;
 
         std::random_device rd;     // only used once to initialise (seed) engine
         std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
@@ -548,17 +574,15 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         float end_flashing = 0;
         float time_of_next_flash = 0;
 
-        if(fix.get_position_in_group() > 0) {
-          for (int i = 0; i < timestamps.size() - 1; i = i + 2) {
-            begin_flashing = timestamps[i];
-            end_flashing = timestamps[i + 1];
+        if(fix.get_position_in_group() > 0 && begin_and_end_of_flashing_timestamps.size() >= 2) {
+          for (int i = 0; i < begin_and_end_of_flashing_timestamps.size() - 1; i = i + 2) {
+            begin_flashing = begin_and_end_of_flashing_timestamps[i];
+            end_flashing = begin_and_end_of_flashing_timestamps[i + 1];
             time_of_next_flash = begin_flashing;
-
-
 
             while(time_of_next_flash < end_flashing) {
               auto random_integer = uni(rng);
-              std::cout << "random_integer: " << random_integer << std::endl;
+              //std::cout << "random_integer: " << random_integer << std::endl;
               if(random_integer == fix.get_position_in_group()) {
                 value_changes.push_back({time_of_next_flash, 200});
                 if(((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > time_of_next_flash + 0.025f)

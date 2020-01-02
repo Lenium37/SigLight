@@ -155,6 +155,8 @@ void FixtureChoosingDialog::update_position_in_group_status(QString current_type
   || current_type == "group_one_after_another_blink"
   || current_type == "group_random_flashes")
     ui->sB_position_inside_group->setEnabled(true);
-  else
+  else {
     ui->sB_position_inside_group->setEnabled(false);
+    ui->sB_position_inside_group->setValue(0);
+  }
 }
