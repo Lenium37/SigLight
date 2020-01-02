@@ -73,6 +73,7 @@ class Lightshow {
   std::vector<time_value_int> get_timestamps_colorchanges();
   std::vector<double> get_all_beats();
   std::vector<float> get_onset_timestamps();
+  int get_bpm();
 
  private:
   std::string sound_src;
@@ -106,6 +107,7 @@ class Lightshow {
                          std::uint8_t upper_border,
                          std::uint8_t value);
   void get_bpm_and_beats(bool &finished);
+  double first_beat = 0;
 };
 
 #endif //RASPITOLIGHT_SRC_UI_LIGHTSHOW_LIGHTSHOW_H_

@@ -3,6 +3,7 @@
 //
 
 #include "lightshow.h"
+#include<map>
 
 #if defined(_WIN32) || defined(WIN32)
 
@@ -132,10 +133,10 @@ void Lightshow::get_bpm_and_beats(bool &finished) {
     this->timestamps_colorchanges.push_back({0.0, 0});
   } else {
     //Logger::info("analysed bpm of: {}", this->bpm);
-    double first_beat = analysis.get_first_beat();
-    this->all_beats = analysis.get_all_beats(this->bpm, first_beat);
+    this->first_beat = analysis.get_first_beat();
+    this->all_beats = analysis.get_all_beats(this->bpm, this->first_beat);
 
-    std::vector<time_value_int> segment_intensities = analysis.get_intensity_average_for_next_segment(this->all_beats, this->bpm, first_beat);
+    std::vector<time_value_int> segment_intensities = analysis.get_intensity_average_for_next_segment(this->all_beats, this->bpm, this->first_beat);
     /*
      * TODO: threshold wert damit nur changes in intensity_changes gepeichert werden, die um threshold % vom letzten change abweichen
      */
@@ -160,6 +161,47 @@ void Lightshow::prepare_analysis_for_song(char *song_path) {
 
   this->analysis.normalize();
   this->onset_timestamps = this->analysis.get_onset_timestamps();
+
+
+  // trying to get bpm from onsets
+  std::map<float, int> onset_distance_occurrences;
+  float timestamp_difference = 0;
+  if(this->onset_timestamps.size() > 0) {
+    for (int i = 0; i < this->onset_timestamps.size() - 1; i++) {
+      timestamp_difference = onset_timestamps[i + 1] - onset_timestamps[i];
+      timestamp_difference = roundf(timestamp_difference * 1000) / 1000;
+      if (timestamp_difference >= 0.2 && timestamp_difference <= 0.75) {
+        if (onset_distance_occurrences.find(timestamp_difference) == onset_distance_occurrences.end())
+          onset_distance_occurrences.insert({timestamp_difference, 1});
+        else
+          onset_distance_occurrences.find(timestamp_difference)->second++;
+      }
+    }
+  }
+  auto most_occured_onset_difference = std::max_element(onset_distance_occurrences.begin(), onset_distance_occurrences.end(), [](const std::pair<float, int>& p1, const std::pair<float, int>& p2) { return p1.second < p2.second; });
+  std::cout << "most occured onset difference: " << most_occured_onset_difference->first  << " (" << most_occured_onset_difference->second << " times)" << std::endl;
+
+  for(std::pair<float, int> difference_occurence: onset_distance_occurrences) {
+    if (onset_distance_occurrences.find(roundf(difference_occurence.first * 2 * 1000) / 1000) != onset_distance_occurrences.end()) {
+      onset_distance_occurrences.erase(difference_occurence.first);
+      //onset_distance_occurrences.find(roundf(difference_occurence.first * 2 * 1000) / 1000)->second *= 2;
+    }
+  }
+  float time_of_one_beat = 0;
+  int number_of_beats = 0;
+  for(std::pair<float, int> difference_occurence: onset_distance_occurrences) {
+    if(difference_occurence.second > 50) {
+      time_of_one_beat += difference_occurence.first * difference_occurence.second;
+      number_of_beats += difference_occurence.second;
+    }
+    std::cout << "time difference: " << difference_occurence.first  << " (" << difference_occurence.second << " times)" << std::endl;
+  }
+  time_of_one_beat /= (float) number_of_beats;
+  float bpm_from_onsets = 60/time_of_one_beat;
+  //std::cout << "bpm from onsets: " << bpm_from_onsets << std::endl;
+  bpm_from_onsets = roundf(bpm_from_onsets);
+  std::cout << "bpm from onsets: " << bpm_from_onsets << std::endl;
+
 
 
   this->set_length((this->analysis.get_length_of_song() + 1) * this->resolution + 3);
@@ -203,6 +245,18 @@ void Lightshow::prepare_analysis_for_song(char *song_path) {
   while(!bpm_analysis_finished) {
     //std::cout << "waiting for bpm" << std::endl;
     ;
+  }
+
+  if(this->bpm * 2  - 15 < bpm_from_onsets && this->bpm * 2 + 15 > bpm_from_onsets) {
+    this->bpm = this->bpm * 2;
+    this->all_beats = analysis.get_all_beats(this->bpm, this->first_beat);
+
+    std::vector<time_value_int> segment_intensities = analysis.get_intensity_average_for_next_segment(this->all_beats, this->bpm, this->first_beat);
+    /*
+     * TODO: threshold wert damit nur changes in intensity_changes gepeichert werden, die um threshold % vom letzten change abweichen
+     */
+    std::vector<time_value_int> intensity_changes = analysis.get_intensity_changes(segment_intensities, 15);
+    this->timestamps_colorchanges = intensity_changes;
   }
 }
 
@@ -345,4 +399,8 @@ std::vector<double> Lightshow::get_all_beats() {
 
 std::vector<float> Lightshow::get_onset_timestamps() {
   return this->onset_timestamps;
+}
+
+int Lightshow::get_bpm() {
+  return this->bpm;
 }
