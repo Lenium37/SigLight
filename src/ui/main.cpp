@@ -5,7 +5,7 @@
 #include "mp_3_to_wav_converter.h"
 
 int main(int argc, char *argv[]) {
-  Logger::info("RaspiToLight, commit hash {} on branch \"{}\"", getCommitHash(), getBranchName());
+  Logger::info("SigLight, commit hash {} on branch \"{}\"", getCommitHash(), getBranchName());
   const bool lame_avaible = Mp3ToWavConverter::is_avaible();
   if(lame_avaible){
     Logger::info("Lame is avaible");

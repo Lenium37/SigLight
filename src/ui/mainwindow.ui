@@ -44,7 +44,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Welcome to the Raspberry to Light project!</string>
+           <string>Welcome to the SigLight project!</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
