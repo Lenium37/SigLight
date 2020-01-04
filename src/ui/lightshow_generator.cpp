@@ -157,7 +157,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
       }
       lightshow_from_analysis->add_fixture(fix);
-    } else if (fix_type == "onset_blink") {
+    } else if (fix_type == "onset_flash") {
       if (fix.has_global_dimmer) {
 
         std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
@@ -185,7 +185,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
       }
       lightshow_from_analysis->add_fixture(fix);
-    } else if (fix_type == "onset_blink_reverse") {
+    } else if (fix_type == "onset_flash_reverse") {
       if (fix.has_global_dimmer) {
 
         std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
@@ -209,6 +209,165 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         std::cout << value_changes_onset_blink.size() << std::endl;
 
         fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
+
+        std::vector<std::string> colors = fix.get_colors();
+        this->generate_color_fades(lightshow_from_analysis, fix, colors);
+      } else {
+
+      }
+      lightshow_from_analysis->add_fixture(fix);
+    }else if (fix_type == "onset_blink") {
+      if (fix.has_global_dimmer) {
+
+        std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
+        std::cout << "timestamps.size() onset_blink: " << timestamps.size() << std::endl;
+        std::vector<time_value_int> value_changes;
+
+        for (int i = 0; i < timestamps.size(); i++) {
+            value_changes.push_back({timestamps[i], 200});
+            if(i < timestamps.size() - 1) {
+
+              // TODO make nicer with loop(s)
+              if(timestamps[i + 1] - timestamps[i] > 0.5 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.5f) {
+                value_changes.push_back({timestamps[i] + 0.025f, 198});
+                value_changes.push_back({timestamps[i] + 0.05f, 195});
+                value_changes.push_back({timestamps[i] + 0.075f, 190});
+                value_changes.push_back({timestamps[i] + 0.1f, 185});
+                value_changes.push_back({timestamps[i] + 0.125f, 178});
+                value_changes.push_back({timestamps[i] + 0.15f, 170});
+                value_changes.push_back({timestamps[i] + 0.175f, 160});
+                value_changes.push_back({timestamps[i] + 0.2f, 150});
+                value_changes.push_back({timestamps[i] + 0.225f, 133});
+                value_changes.push_back({timestamps[i] + 0.25f, 125});
+                value_changes.push_back({timestamps[i] + 0.275f, 113});
+                value_changes.push_back({timestamps[i] + 0.3f, 100});
+                value_changes.push_back({timestamps[i] + 0.325f, 88});
+                value_changes.push_back({timestamps[i] + 0.35f, 75});
+                value_changes.push_back({timestamps[i] + 0.375f, 63});
+                value_changes.push_back({timestamps[i] + 0.4f, 50});
+                value_changes.push_back({timestamps[i] + 0.425f, 38});
+                value_changes.push_back({timestamps[i] + 0.45f, 25});
+                value_changes.push_back({timestamps[i] + 0.475f, 13});
+                value_changes.push_back({timestamps[i] + 0.5f, 0});
+              } else if(timestamps[i + 1] - timestamps[i] > 0.45 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.45f) {
+                value_changes.push_back({timestamps[i] + 0.025f, 198});
+                value_changes.push_back({timestamps[i] + 0.05f, 195});
+                value_changes.push_back({timestamps[i] + 0.075f, 190});
+                value_changes.push_back({timestamps[i] + 0.1f, 185});
+                value_changes.push_back({timestamps[i] + 0.125f, 178});
+                value_changes.push_back({timestamps[i] + 0.15f, 170});
+                value_changes.push_back({timestamps[i] + 0.175f, 160});
+                value_changes.push_back({timestamps[i] + 0.2f, 150});
+                value_changes.push_back({timestamps[i] + 0.225f, 133});
+                value_changes.push_back({timestamps[i] + 0.25f, 125});
+                value_changes.push_back({timestamps[i] + 0.275f, 113});
+                value_changes.push_back({timestamps[i] + 0.3f, 100});
+                value_changes.push_back({timestamps[i] + 0.325f, 88});
+                value_changes.push_back({timestamps[i] + 0.35f, 75});
+                value_changes.push_back({timestamps[i] + 0.375f, 63});
+                value_changes.push_back({timestamps[i] + 0.4f, 50});
+                value_changes.push_back({timestamps[i] + 0.425f, 38});
+                value_changes.push_back({timestamps[i] + 0.45f, 25});
+                value_changes.push_back({timestamps[i + 1], 0});
+              } else if(timestamps[i + 1] - timestamps[i] > 0.4 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.4f) {
+                value_changes.push_back({timestamps[i] + 0.025f, 198});
+                value_changes.push_back({timestamps[i] + 0.05f, 195});
+                value_changes.push_back({timestamps[i] + 0.075f, 190});
+                value_changes.push_back({timestamps[i] + 0.1f, 185});
+                value_changes.push_back({timestamps[i] + 0.125f, 178});
+                value_changes.push_back({timestamps[i] + 0.15f, 170});
+                value_changes.push_back({timestamps[i] + 0.175f, 160});
+                value_changes.push_back({timestamps[i] + 0.2f, 150});
+                value_changes.push_back({timestamps[i] + 0.225f, 133});
+                value_changes.push_back({timestamps[i] + 0.25f, 125});
+                value_changes.push_back({timestamps[i] + 0.275f, 113});
+                value_changes.push_back({timestamps[i] + 0.3f, 100});
+                value_changes.push_back({timestamps[i] + 0.325f, 88});
+                value_changes.push_back({timestamps[i] + 0.35f, 75});
+                value_changes.push_back({timestamps[i] + 0.375f, 63});
+                value_changes.push_back({timestamps[i] + 0.4f, 50});
+                value_changes.push_back({timestamps[i + 1], 0});
+              } else if(timestamps[i + 1] - timestamps[i] > 0.35 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.35f) {
+                value_changes.push_back({timestamps[i] + 0.025f, 198});
+                value_changes.push_back({timestamps[i] + 0.05f, 195});
+                value_changes.push_back({timestamps[i] + 0.075f, 190});
+                value_changes.push_back({timestamps[i] + 0.1f, 185});
+                value_changes.push_back({timestamps[i] + 0.125f, 178});
+                value_changes.push_back({timestamps[i] + 0.15f, 170});
+                value_changes.push_back({timestamps[i] + 0.175f, 160});
+                value_changes.push_back({timestamps[i] + 0.2f, 150});
+                value_changes.push_back({timestamps[i] + 0.225f, 133});
+                value_changes.push_back({timestamps[i] + 0.25f, 125});
+                value_changes.push_back({timestamps[i] + 0.275f, 113});
+                value_changes.push_back({timestamps[i] + 0.3f, 100});
+                value_changes.push_back({timestamps[i] + 0.325f, 88});
+                value_changes.push_back({timestamps[i] + 0.35f, 75});
+                value_changes.push_back({timestamps[i + 1], 0});
+              } else if(timestamps[i + 1] - timestamps[i] > 0.3 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.3f) {
+                value_changes.push_back({timestamps[i] + 0.025f, 198});
+                value_changes.push_back({timestamps[i] + 0.05f, 195});
+                value_changes.push_back({timestamps[i] + 0.075f, 190});
+                value_changes.push_back({timestamps[i] + 0.1f, 185});
+                value_changes.push_back({timestamps[i] + 0.125f, 178});
+                value_changes.push_back({timestamps[i] + 0.15f, 170});
+                value_changes.push_back({timestamps[i] + 0.175f, 160});
+                value_changes.push_back({timestamps[i] + 0.2f, 150});
+                value_changes.push_back({timestamps[i] + 0.225f, 133});
+                value_changes.push_back({timestamps[i] + 0.25f, 125});
+                value_changes.push_back({timestamps[i] + 0.275f, 113});
+                value_changes.push_back({timestamps[i] + 0.3f, 100});
+                value_changes.push_back({timestamps[i + 1], 0});
+              } else if(timestamps[i + 1] - timestamps[i] > 0.25 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.25f) {
+                value_changes.push_back({timestamps[i] + 0.025f, 198});
+                value_changes.push_back({timestamps[i] + 0.05f, 195});
+                value_changes.push_back({timestamps[i] + 0.075f, 190});
+                value_changes.push_back({timestamps[i] + 0.1f, 185});
+                value_changes.push_back({timestamps[i] + 0.125f, 178});
+                value_changes.push_back({timestamps[i] + 0.15f, 170});
+                value_changes.push_back({timestamps[i] + 0.175f, 160});
+                value_changes.push_back({timestamps[i] + 0.2f, 150});
+                value_changes.push_back({timestamps[i] + 0.225f, 133});
+                value_changes.push_back({timestamps[i] + 0.25f, 125});
+                value_changes.push_back({timestamps[i + 1], 0});
+              } else if(timestamps[i + 1] - timestamps[i] > 0.2 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.2f) {
+                value_changes.push_back({timestamps[i] + 0.025f, 198});
+                value_changes.push_back({timestamps[i] + 0.05f, 195});
+                value_changes.push_back({timestamps[i] + 0.075f, 190});
+                value_changes.push_back({timestamps[i] + 0.1f, 185});
+                value_changes.push_back({timestamps[i] + 0.125f, 178});
+                value_changes.push_back({timestamps[i] + 0.15f, 170});
+                value_changes.push_back({timestamps[i] + 0.175f, 160});
+                value_changes.push_back({timestamps[i] + 0.2f, 150});
+                value_changes.push_back({timestamps[i + 1], 0});
+              } else if(timestamps[i + 1] - timestamps[i] > 0.15 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.15f) {
+                value_changes.push_back({timestamps[i] + 0.025f, 198});
+                value_changes.push_back({timestamps[i] + 0.05f, 195});
+                value_changes.push_back({timestamps[i] + 0.075f, 190});
+                value_changes.push_back({timestamps[i] + 0.1f, 185});
+                value_changes.push_back({timestamps[i] + 0.125f, 178});
+                value_changes.push_back({timestamps[i] + 0.15f, 170});
+                value_changes.push_back({timestamps[i + 1], 0});
+              } else if(timestamps[i + 1] - timestamps[i] > 0.1 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.1f) {
+                value_changes.push_back({timestamps[i] + 0.025f, 198});
+                value_changes.push_back({timestamps[i] + 0.05f, 195});
+                value_changes.push_back({timestamps[i] + 0.075f, 190});
+                value_changes.push_back({timestamps[i] + 0.1f, 185});
+                value_changes.push_back({timestamps[i + 1], 0});
+              } else if(timestamps[i + 1] - timestamps[i] > 0.05 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.05f) {
+                value_changes.push_back({timestamps[i] + 0.025f, 198});
+                value_changes.push_back({timestamps[i] + 0.05f, 195});
+                value_changes.push_back({timestamps[i + 1], 0});
+              }
+              else
+                value_changes.push_back({timestamps[i + 1], 0});
+            }
+            else {
+              value_changes.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+            }
+        }
+
+        //std::cout << value_changes_onset_blink.size() << std::endl;
+        fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
@@ -247,157 +406,157 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       if (fix.has_global_dimmer) {
 
         std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
-        std::vector<time_value_int> value_changes_onset_blink;
+        std::vector<time_value_int> value_changes;
 
         std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
         std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
         if(fix.get_position_in_group() > 0) {
           for (int i = 0; i < timestamps.size(); i++) {
             if(i % fixtures_in_group_one_after_another_blink + 1 == fix.get_position_in_group()) {
-              value_changes_onset_blink.push_back({timestamps[i], 200});
+              value_changes.push_back({timestamps[i], 200});
               if(i < timestamps.size() - 1) {
 
                 // TODO make nicer with loop(s)
                 if(timestamps[i + 1] - timestamps[i] > 0.5 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.5f) {
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.075f, 190});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.1f, 185});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.125f, 178});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.15f, 170});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.175f, 160});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.2f, 150});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.225f, 133});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.25f, 125});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.275f, 113});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.3f, 100});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.325f, 88});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.35f, 75});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.375f, 63});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.4f, 50});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.425f, 38});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.45f, 25});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.475f, 13});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.5f, 0});
+                  value_changes.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes.push_back({timestamps[i] + 0.075f, 190});
+                  value_changes.push_back({timestamps[i] + 0.1f, 185});
+                  value_changes.push_back({timestamps[i] + 0.125f, 178});
+                  value_changes.push_back({timestamps[i] + 0.15f, 170});
+                  value_changes.push_back({timestamps[i] + 0.175f, 160});
+                  value_changes.push_back({timestamps[i] + 0.2f, 150});
+                  value_changes.push_back({timestamps[i] + 0.225f, 133});
+                  value_changes.push_back({timestamps[i] + 0.25f, 125});
+                  value_changes.push_back({timestamps[i] + 0.275f, 113});
+                  value_changes.push_back({timestamps[i] + 0.3f, 100});
+                  value_changes.push_back({timestamps[i] + 0.325f, 88});
+                  value_changes.push_back({timestamps[i] + 0.35f, 75});
+                  value_changes.push_back({timestamps[i] + 0.375f, 63});
+                  value_changes.push_back({timestamps[i] + 0.4f, 50});
+                  value_changes.push_back({timestamps[i] + 0.425f, 38});
+                  value_changes.push_back({timestamps[i] + 0.45f, 25});
+                  value_changes.push_back({timestamps[i] + 0.475f, 13});
+                  value_changes.push_back({timestamps[i] + 0.5f, 0});
                 } else if(timestamps[i + 1] - timestamps[i] > 0.45 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.45f) {
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.075f, 190});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.1f, 185});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.125f, 178});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.15f, 170});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.175f, 160});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.2f, 150});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.225f, 133});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.25f, 125});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.275f, 113});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.3f, 100});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.325f, 88});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.35f, 75});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.375f, 63});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.4f, 50});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.425f, 38});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.45f, 25});
-                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                  value_changes.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes.push_back({timestamps[i] + 0.075f, 190});
+                  value_changes.push_back({timestamps[i] + 0.1f, 185});
+                  value_changes.push_back({timestamps[i] + 0.125f, 178});
+                  value_changes.push_back({timestamps[i] + 0.15f, 170});
+                  value_changes.push_back({timestamps[i] + 0.175f, 160});
+                  value_changes.push_back({timestamps[i] + 0.2f, 150});
+                  value_changes.push_back({timestamps[i] + 0.225f, 133});
+                  value_changes.push_back({timestamps[i] + 0.25f, 125});
+                  value_changes.push_back({timestamps[i] + 0.275f, 113});
+                  value_changes.push_back({timestamps[i] + 0.3f, 100});
+                  value_changes.push_back({timestamps[i] + 0.325f, 88});
+                  value_changes.push_back({timestamps[i] + 0.35f, 75});
+                  value_changes.push_back({timestamps[i] + 0.375f, 63});
+                  value_changes.push_back({timestamps[i] + 0.4f, 50});
+                  value_changes.push_back({timestamps[i] + 0.425f, 38});
+                  value_changes.push_back({timestamps[i] + 0.45f, 25});
+                  value_changes.push_back({timestamps[i + 1], 0});
                 } else if(timestamps[i + 1] - timestamps[i] > 0.4 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.4f) {
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.075f, 190});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.1f, 185});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.125f, 178});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.15f, 170});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.175f, 160});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.2f, 150});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.225f, 133});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.25f, 125});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.275f, 113});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.3f, 100});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.325f, 88});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.35f, 75});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.375f, 63});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.4f, 50});
-                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                  value_changes.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes.push_back({timestamps[i] + 0.075f, 190});
+                  value_changes.push_back({timestamps[i] + 0.1f, 185});
+                  value_changes.push_back({timestamps[i] + 0.125f, 178});
+                  value_changes.push_back({timestamps[i] + 0.15f, 170});
+                  value_changes.push_back({timestamps[i] + 0.175f, 160});
+                  value_changes.push_back({timestamps[i] + 0.2f, 150});
+                  value_changes.push_back({timestamps[i] + 0.225f, 133});
+                  value_changes.push_back({timestamps[i] + 0.25f, 125});
+                  value_changes.push_back({timestamps[i] + 0.275f, 113});
+                  value_changes.push_back({timestamps[i] + 0.3f, 100});
+                  value_changes.push_back({timestamps[i] + 0.325f, 88});
+                  value_changes.push_back({timestamps[i] + 0.35f, 75});
+                  value_changes.push_back({timestamps[i] + 0.375f, 63});
+                  value_changes.push_back({timestamps[i] + 0.4f, 50});
+                  value_changes.push_back({timestamps[i + 1], 0});
                 } else if(timestamps[i + 1] - timestamps[i] > 0.35 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.35f) {
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.075f, 190});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.1f, 185});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.125f, 178});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.15f, 170});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.175f, 160});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.2f, 150});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.225f, 133});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.25f, 125});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.275f, 113});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.3f, 100});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.325f, 88});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.35f, 75});
-                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                  value_changes.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes.push_back({timestamps[i] + 0.075f, 190});
+                  value_changes.push_back({timestamps[i] + 0.1f, 185});
+                  value_changes.push_back({timestamps[i] + 0.125f, 178});
+                  value_changes.push_back({timestamps[i] + 0.15f, 170});
+                  value_changes.push_back({timestamps[i] + 0.175f, 160});
+                  value_changes.push_back({timestamps[i] + 0.2f, 150});
+                  value_changes.push_back({timestamps[i] + 0.225f, 133});
+                  value_changes.push_back({timestamps[i] + 0.25f, 125});
+                  value_changes.push_back({timestamps[i] + 0.275f, 113});
+                  value_changes.push_back({timestamps[i] + 0.3f, 100});
+                  value_changes.push_back({timestamps[i] + 0.325f, 88});
+                  value_changes.push_back({timestamps[i] + 0.35f, 75});
+                  value_changes.push_back({timestamps[i + 1], 0});
                 } else if(timestamps[i + 1] - timestamps[i] > 0.3 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.3f) {
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.075f, 190});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.1f, 185});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.125f, 178});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.15f, 170});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.175f, 160});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.2f, 150});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.225f, 133});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.25f, 125});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.275f, 113});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.3f, 100});
-                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                  value_changes.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes.push_back({timestamps[i] + 0.075f, 190});
+                  value_changes.push_back({timestamps[i] + 0.1f, 185});
+                  value_changes.push_back({timestamps[i] + 0.125f, 178});
+                  value_changes.push_back({timestamps[i] + 0.15f, 170});
+                  value_changes.push_back({timestamps[i] + 0.175f, 160});
+                  value_changes.push_back({timestamps[i] + 0.2f, 150});
+                  value_changes.push_back({timestamps[i] + 0.225f, 133});
+                  value_changes.push_back({timestamps[i] + 0.25f, 125});
+                  value_changes.push_back({timestamps[i] + 0.275f, 113});
+                  value_changes.push_back({timestamps[i] + 0.3f, 100});
+                  value_changes.push_back({timestamps[i + 1], 0});
                 } else if(timestamps[i + 1] - timestamps[i] > 0.25 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.25f) {
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.075f, 190});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.1f, 185});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.125f, 178});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.15f, 170});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.175f, 160});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.2f, 150});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.225f, 133});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.25f, 125});
-                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                  value_changes.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes.push_back({timestamps[i] + 0.075f, 190});
+                  value_changes.push_back({timestamps[i] + 0.1f, 185});
+                  value_changes.push_back({timestamps[i] + 0.125f, 178});
+                  value_changes.push_back({timestamps[i] + 0.15f, 170});
+                  value_changes.push_back({timestamps[i] + 0.175f, 160});
+                  value_changes.push_back({timestamps[i] + 0.2f, 150});
+                  value_changes.push_back({timestamps[i] + 0.225f, 133});
+                  value_changes.push_back({timestamps[i] + 0.25f, 125});
+                  value_changes.push_back({timestamps[i + 1], 0});
                 } else if(timestamps[i + 1] - timestamps[i] > 0.2 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.2f) {
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.075f, 190});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.1f, 185});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.125f, 178});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.15f, 170});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.175f, 160});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.2f, 150});
-                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                  value_changes.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes.push_back({timestamps[i] + 0.075f, 190});
+                  value_changes.push_back({timestamps[i] + 0.1f, 185});
+                  value_changes.push_back({timestamps[i] + 0.125f, 178});
+                  value_changes.push_back({timestamps[i] + 0.15f, 170});
+                  value_changes.push_back({timestamps[i] + 0.175f, 160});
+                  value_changes.push_back({timestamps[i] + 0.2f, 150});
+                  value_changes.push_back({timestamps[i + 1], 0});
                 } else if(timestamps[i + 1] - timestamps[i] > 0.15 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.15f) {
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.075f, 190});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.1f, 185});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.125f, 178});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.15f, 170});
-                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                  value_changes.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes.push_back({timestamps[i] + 0.075f, 190});
+                  value_changes.push_back({timestamps[i] + 0.1f, 185});
+                  value_changes.push_back({timestamps[i] + 0.125f, 178});
+                  value_changes.push_back({timestamps[i] + 0.15f, 170});
+                  value_changes.push_back({timestamps[i + 1], 0});
                 } else if(timestamps[i + 1] - timestamps[i] > 0.1 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.1f) {
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.075f, 190});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.1f, 185});
-                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                  value_changes.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes.push_back({timestamps[i] + 0.075f, 190});
+                  value_changes.push_back({timestamps[i] + 0.1f, 185});
+                  value_changes.push_back({timestamps[i + 1], 0});
                 } else if(timestamps[i + 1] - timestamps[i] > 0.05 && ((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution() > timestamps[i] + 0.05f) {
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes_onset_blink.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                  value_changes.push_back({timestamps[i] + 0.025f, 198});
+                  value_changes.push_back({timestamps[i] + 0.05f, 195});
+                  value_changes.push_back({timestamps[i + 1], 0});
                 }
                 else
-                  value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                  value_changes.push_back({timestamps[i + 1], 0});
               }
               else {
-                value_changes_onset_blink.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+                value_changes.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
               }
             }
           }
 
-          fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
+          fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
         }
         std::vector<std::string> colors = fix.get_colors();
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
@@ -409,25 +568,23 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       if (fix.has_global_dimmer) {
 
         std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
-        std::vector<time_value_int> value_changes_onset_blink;
+        std::vector<time_value_int> value_changes;
 
-        std::vector<int> values_onset_blink;
-
-        value_changes_onset_blink.push_back({0.0, 200});
-        value_changes_onset_blink.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+        value_changes.push_back({0.0, 200});
+        value_changes.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
         for (int i = 0; i < timestamps.size(); i++) {
           if (timestamps[i] - 0.050f > 0) {
-            value_changes_onset_blink.push_back({timestamps[i] - 0.050f, 200});
-            value_changes_onset_blink.push_back({timestamps[i] - 0.025f, 100});
+            value_changes.push_back({timestamps[i] - 0.050f, 200});
+            value_changes.push_back({timestamps[i] - 0.025f, 100});
           }
-          value_changes_onset_blink.push_back({timestamps[i], 0});
+          value_changes.push_back({timestamps[i], 0});
           if (i < timestamps.size() && timestamps[i] + 0.050f < timestamps[timestamps.size() - 1]) {
-            value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 100});
-            value_changes_onset_blink.push_back({timestamps[i] + 0.050f, 200});
+            value_changes.push_back({timestamps[i] + 0.025f, 100});
+            value_changes.push_back({timestamps[i] + 0.050f, 200});
           }
         }
 
-        fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
+        fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
@@ -439,25 +596,23 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       if (fix.has_global_dimmer) {
 
         std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
-        std::vector<time_value_int> value_changes_onset_blink;
+        std::vector<time_value_int> value_changes;
 
-        std::vector<int> values_onset_blink;
-
-        value_changes_onset_blink.push_back({0.0, 200});
-        value_changes_onset_blink.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+        value_changes.push_back({0.0, 200});
+        value_changes.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
         for (int i = 0; i < timestamps.size(); i++) {
           if (timestamps[i] - 0.050f > 0) {
-            value_changes_onset_blink.push_back({timestamps[i] - 0.050f, 200});
-            value_changes_onset_blink.push_back({timestamps[i] - 0.025f, 100});
+            value_changes.push_back({timestamps[i] - 0.050f, 200});
+            value_changes.push_back({timestamps[i] - 0.025f, 100});
           }
-          value_changes_onset_blink.push_back({timestamps[i], 0});
+          value_changes.push_back({timestamps[i], 0});
           if (i < timestamps.size() && timestamps[i] + 0.050f < timestamps[timestamps.size() - 1]) {
-            value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 100});
-            value_changes_onset_blink.push_back({timestamps[i] + 0.050f, 200});
+            value_changes.push_back({timestamps[i] + 0.025f, 100});
+            value_changes.push_back({timestamps[i] + 0.050f, 200});
           }
         }
 
-        fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
+        fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
@@ -469,25 +624,23 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       if (fix.has_global_dimmer) {
 
         std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
-        std::vector<time_value_int> value_changes_onset_blink;
+        std::vector<time_value_int> value_changes;
 
-        std::vector<int> values_onset_blink;
-
-        value_changes_onset_blink.push_back({0.0, 200});
-        value_changes_onset_blink.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+        value_changes.push_back({0.0, 200});
+        value_changes.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
         for (int i = 0; i < timestamps.size(); i++) {
           if (timestamps[i] - 0.050f > 0) {
-            value_changes_onset_blink.push_back({timestamps[i] - 0.050f, 200});
-            value_changes_onset_blink.push_back({timestamps[i] - 0.025f, 100});
+            value_changes.push_back({timestamps[i] - 0.050f, 200});
+            value_changes.push_back({timestamps[i] - 0.025f, 100});
           }
-          value_changes_onset_blink.push_back({timestamps[i], 0});
+          value_changes.push_back({timestamps[i], 0});
           if (i < timestamps.size() && timestamps[i] + 0.050f < timestamps[timestamps.size() - 1]) {
-            value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 100});
-            value_changes_onset_blink.push_back({timestamps[i] + 0.050f, 200});
+            value_changes.push_back({timestamps[i] + 0.025f, 100});
+            value_changes.push_back({timestamps[i] + 0.050f, 200});
           }
         }
 
-        fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
+        fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
@@ -499,25 +652,23 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       if (fix.has_global_dimmer) {
 
         std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
-        std::vector<time_value_int> value_changes_onset_blink;
+        std::vector<time_value_int> value_changes;
 
-        std::vector<int> values_onset_blink;
-
-        value_changes_onset_blink.push_back({0.0, 200});
-        value_changes_onset_blink.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+        value_changes.push_back({0.0, 200});
+        value_changes.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
         for (int i = 0; i < timestamps.size(); i++) {
           if (timestamps[i] - 0.050f > 0) {
-            value_changes_onset_blink.push_back({timestamps[i] - 0.050f, 200});
-            value_changes_onset_blink.push_back({timestamps[i] - 0.025f, 100});
+            value_changes.push_back({timestamps[i] - 0.050f, 200});
+            value_changes.push_back({timestamps[i] - 0.025f, 100});
           }
-          value_changes_onset_blink.push_back({timestamps[i], 0});
+          value_changes.push_back({timestamps[i], 0});
           if (i < timestamps.size() && timestamps[i] + 0.050f < timestamps[timestamps.size() - 1]) {
-            value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 100});
-            value_changes_onset_blink.push_back({timestamps[i] + 0.050f, 200});
+            value_changes.push_back({timestamps[i] + 0.025f, 100});
+            value_changes.push_back({timestamps[i] + 0.050f, 200});
           }
         }
 
-        fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
+        fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
