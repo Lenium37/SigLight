@@ -31,6 +31,7 @@
 #include <dmx_device_k_8062.h>
 #include <dmx_device_eurolite_pro.h>
 #include "lightshow_generator.h"
+#include "edit_fixture_dialog.h"
 
 using namespace std;
 
@@ -240,6 +241,7 @@ private:
     QLabel *label_current_song_and_duration;
     CreateFixtureDialog * create_dialog;
     FixtureChoosingDialog * fcd;
+    EditFixtureDialog * efd;
     QComboBox* combobox_edit_chosen_song;
     QStandardItemModel* combobox_model;
     bool default_is_active;

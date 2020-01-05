@@ -17,6 +17,7 @@ set(Main_SRCS
         lightshow_generator.cpp
         file_system_utils_qt.cpp
         lightshow_player.cpp
+        edit_fixture_dialog.cpp
         )
 
 set(Main_headers
@@ -27,12 +28,14 @@ set(Main_headers
         lightshow_generator.h
         file_system_utils_qt.h
         lightshow_player.h
+        edit_fixture_dialog.h
         )
 
 set(Main_ui
         mainwindow.ui
         fixturechoosingdialog.ui
         createfixturedialog.ui
+        edit_fixture_dialog.ui
         )
 
 qt5_add_resources(RESOURCE_FILES resources/resources.qrc)

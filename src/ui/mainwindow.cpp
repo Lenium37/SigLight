@@ -262,18 +262,25 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
   itm->setIcon(0,
                QIcon(
                    ":icons_svg/svg/" + QString::fromStdString(universes[0].get_fixtures().back().get_icon()) + ".svg"));
-  QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(QString::fromStdString(_fixture.get_type()),
+  /*QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(QString::fromStdString(_fixture.get_type()),
                                                                     Qt::MatchExactly | Qt::MatchRecursive,
-                                                                    0);
+                                                                    0);*/
+  QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(type, Qt::MatchExactly | Qt::MatchRecursive, 0);
+
   QTreeWidgetItem *type_item;
   if (type_items.size() == 0) {
     type_item = new QTreeWidgetItem();
-    type_item->setText(0, QString::fromStdString(_fixture.get_type()));
-    parent->addChild(type_item);
+    type_item->setText(0, type);
     type_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled);
+    std::cout << "parent: " << parent->text(0).toStdString() << std::endl;
+    std::cout << "debug22 " << type_item->text(0).toStdString()<< std::endl;
+
+    parent->addChild(type_item);
+    std::cout << "debug23" << std::endl;
   } else {
     type_item = type_items.back();
   }
+  std::cout << "debug3" << std::endl;
   itm->setFlags(
       Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
   type_item->addChild(itm);
@@ -1313,19 +1320,23 @@ void MainWindow::on_edit_fixture_clicked() {
   if (!ui->fixture_list->selectedItems().empty()) {
     // Toplevelitems should not have a description.
     if (ui->fixture_list->currentItem()->parent()) {
-      create_dialog = new CreateFixtureDialog();
+      /*create_dialog = new CreateFixtureDialog();
       create_dialog->edit_fixture_dialog(universes[0].get_fixture(universes[0].get_fixtureid_by_startchannel(
           ui->fixture_list->currentItem()->text(1).split(" ")[0]
               .toInt())),
                                          universes[0].get_blocked_adress_range(), false);
       connect(create_dialog, SIGNAL(accepted()), this, SLOT(get_edited_fixture()));
-      create_dialog->exec();
+      create_dialog->exec();*/
+      this->efd = new EditFixtureDialog(this, fixtures, color_palettes);
+      this->efd->set_up_dialog_options(universes[0].get_blocked_adress_range(), ui->fixture_list->currentItem()->text(1).toStdString(), ui->fixture_list->currentItem()->text(0).toStdString());
+      connect(this->efd, SIGNAL(accepted()), this, SLOT(get_edited_fixture()));
+      this->efd->exec();
     }
   }
 }
 
 void MainWindow::get_edited_fixture() {
-  Fixture edited_fixture;
+  /*Fixture edited_fixture;
   create_dialog->edit_fixture_finished(edited_fixture);
   universes[0].set_fixture(
       edited_fixture,
@@ -1335,7 +1346,69 @@ void MainWindow::get_edited_fixture() {
   on_fixture_list_itemSelectionChanged();
   save_fixture_objects_to_xml(false);
   ui->fixture_list->resizeColumnToContents(0);
+  fixtures_changed = true;*/
+
+
+  // Adds the chosen Fixture from the dialog.
+  int fixture_index = 0;
+  int start_channel = 0;
+  QString type;
+  std::string colors;
+  int position_in_group = 0;
+
+  this->efd->get_fixture_options(fixture_index, start_channel, type, colors, position_in_group);
+
+
+
+
+  int cur_item = universes[0].get_fixtureid_by_startchannel(ui->fixture_list->currentItem()->text(1).split(" ")[0].toInt());
+  // Delete the fixture from the Dataside.
+  universes[0].remove_fixture(cur_item);
+  QTreeWidgetItem *item = ui->fixture_list->currentItem();
+  QTreeWidgetItem *parent = item->parent();
+  if (item) {
+    //parent->takeChild(parent->indexOfChild(item));
+    parent->removeChild(item);
+  }
+
+
+  std::cout << "new type of fixture: " << type.toStdString() << std::endl;
+/*
+  QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(type,
+                                                                    Qt::MatchExactly | Qt::MatchRecursive,
+                                                                    0);
+
+
+  if (type_items.size() == 0) {
+    std::cout << "adding new type item" << std::endl;
+    auto *type_item = new QTreeWidgetItem();
+    type_item->setText(0, type);
+    type_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled);
+    std::cout << "parent get_edited_fix: " << parent->parent()->text(0).toStdString() << std::endl;
+    std::cout << "debug22 " << type_item->text(0).toStdString()<< std::endl;
+
+    parent->parent()->addChild(type_item);
+    std::cout << "debug23" << std::endl;
+  } else {
+    std::cout << "type item already exists" << std::endl;
+  }
+
+*/
+
+
+
+  add_fixture((&universe_tree.back()), *(std::next(fixtures.begin(), fixture_index)), start_channel, type, colors, position_in_group);
+  save_fixture_objects_to_xml(false);
+  ui->fixture_list->resizeColumnToContents(0);
   fixtures_changed = true;
+
+  /*save_fixture_objects_to_xml(false);
+  fixtures_changed = true;
+
+
+  on_fixture_list_itemSelectionChanged();
+  ui->fixture_list->resizeColumnToContents(0);*/
+
 }
 
 void MainWindow::on_actionFixture_Presets_bearbeiten_triggered() {
