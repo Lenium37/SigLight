@@ -45,8 +45,6 @@ set(CORE_LIB_SRCS
         ../../../external_libraries/gist/source/Gist/src/core/CoreTimeDomainFeatures.cpp
         ../../../external_libraries/gist/source/Gist/src/core/CoreFrequencyDomainFeatures.h
         ../../../external_libraries/gist/source/Gist/src/core/CoreFrequencyDomainFeatures.cpp
-        ../../../external_libraries/gist/source/Gist/src/fft/AccelerateFFT.h
-        ../../../external_libraries/gist/source/Gist/src/fft/AccelerateFFT.cpp
         ../../../external_libraries/gist/source/Gist/src/fft/WindowFunctions.h
         ../../../external_libraries/gist/source/Gist/src/fft/WindowFunctions.cpp
         ../../../external_libraries/gist/source/Gist/src/mfcc/MFCC.h
@@ -120,7 +118,7 @@ target_link_directories(${CORE_LIBRARY_NAME} PUBLIC ../../../external_libraries/
 target_link_libraries(${CORE_LIBRARY_NAME} mp3lame)
 
 # make taglib avaible
-target_include_directories(${CORE_LIBRARY_NAME} PUBLIC ../../../external_libraries/taglib-1.11.1/install/include)
+target_include_directories(${CORE_LIBRARY_NAME} PUBLIC ../../../external_libraries/taglib-1.11.1/install/include/taglib)
 target_link_directories(${CORE_LIBRARY_NAME} PUBLIC ../../../external_libraries/taglib-1.11.1/install/lib)
 target_link_libraries(${CORE_LIBRARY_NAME} tag)
 
