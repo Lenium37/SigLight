@@ -12,6 +12,10 @@
 #include <math.h>
 #include <complex>
 #include "Gist.h"
+//#include <essentia.h>
+//#include <algorithmfactory.h>
+//#include <algorithm.h>
+
 
 struct time_value_int {
   float time;
@@ -65,7 +69,21 @@ class Analysis {
   std::vector<double> get_all_beats(int bpm, double firstBeat);
   void set_resolution(int resolution);
   int get_samplerate();
+  int get_spectral_flux();
 
+  ////////////////////////////////
+  // START ///////////////////////
+  // CUSTOM ESSENTIA EXTRACTORS //
+  ////////////////////////////////
+
+  //int onset_detection(char* songname);
+
+  //int get_onset_times(char* songname);
+
+  ////////////////////////////////
+  // END /////////////////////////
+  // CUSTOM ESSENTIA EXTRACTORS //
+  ////////////////////////////////
 
 
 

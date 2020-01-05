@@ -29,7 +29,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   for (Fixture fix: fixtures) {
     //std::cout << "new fix. name: " << fix.get_name() << ". start address: " << fix.get_start_channel() << ", number of addresses: " << fix.get_channel_count() << std::endl;
     if (fix.get_name() == "Cameo Flat RGB 10"
-    || fix.get_name() == "Stairville LED Flood Panel 150"
+    || fix.get_name() == "Stairville LED Flood Panel 150 (3ch)"
+    || fix.get_name() == "Stairville LED Flood Panel 150 (4ch)"
     || fix.get_name() == "Helios 7"
     || fix.get_name() == "Cobalt Plus Spot 5R"
     || fix.get_name() == "Varytec PAD7 seventy"

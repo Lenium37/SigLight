@@ -5,12 +5,12 @@
 #include "stacktrace_registration.h"
 
 #ifdef BOOST_STACK_TRACE_AVAIBLE
-#include <boost/stacktrace.hpp>
+//#include <boost/stacktrace.hpp>
 #endif
 
 void print_stack_trace() {
 #ifdef BOOST_STACK_TRACE_AVAIBLE
-  std::cout << boost::stacktrace::stacktrace() << std::endl;
+ // std::cout << boost::stacktrace::stacktrace() << std::endl;
 #else
   std::cout << "Sorry, stack trace at the moment only avaible on Raspberry Pi " << std::endl;
 #endif

@@ -118,7 +118,7 @@ target_link_directories(${CORE_LIBRARY_NAME} PUBLIC ../../../external_libraries/
 target_link_libraries(${CORE_LIBRARY_NAME} mp3lame)
 
 # make taglib avaible
-target_include_directories(${CORE_LIBRARY_NAME} PUBLIC ../../../external_libraries/taglib-1.11.1/install/include)
+target_include_directories(${CORE_LIBRARY_NAME} PUBLIC ../../../external_libraries/taglib-1.11.1/install/include/taglib)
 target_link_directories(${CORE_LIBRARY_NAME} PUBLIC ../../../external_libraries/taglib-1.11.1/install/lib)
 target_link_libraries(${CORE_LIBRARY_NAME} tag)
 

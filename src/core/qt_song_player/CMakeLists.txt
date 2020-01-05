@@ -6,6 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
 # Find the QtMultimedia library
+set(Qt5Multimedia_DIR /Users/stevendrewers/Qt/5.12.4/clang_64/lib/cmake/Qt5Multimedia)
 find_package(Qt5Multimedia CONFIG REQUIRED)
 
 add_library(qt_song_player STATIC

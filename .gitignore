@@ -192,3 +192,4 @@ install_cmake.sh
 assetsOLD/*
 \.vs/
 CMakeSettings.json
+/assets/

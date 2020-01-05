@@ -318,12 +318,22 @@ void MainWindow::create_fixtures() {
                        color_palettes[0],
                        0);
     channels.clear();
-      channels << "Master dimmer (0-100%)~0~255" << "Red (0-100%)~0~225" << "Green (0-100%)~0~225"
-               << "Blue (0-100%)~0~225";
+      channels << "Red (0-100%)~0~255" << "Green (0-100%)~0~255" << "Blue (0-100%)~0~255";
 
-      create_new_fixture("Stairville LED Flood Panel 150",
+      create_new_fixture("Stairville LED Flood Panel 150 (3ch)",
                          "Bass",
-                         "DMX-Funktionen: R/G/B/D",
+                         "DMX-Funktionen: R/G/B",
+                         channels,
+                         "lamp",
+                         color_palettes[0],
+                         0);
+      channels.clear();
+      channels << "Master dimmer (0-100%)~0~255" << "Red (0-100%)~0~255" << "Green (0-100%)~0~255"
+               << "Blue (0-100%)~0~255";
+
+      create_new_fixture("Stairville LED Flood Panel 150 (4ch)",
+                         "Bass",
+                         "DMX-Funktionen: D/R/G/B",
                          channels,
                          "lamp",
                          color_palettes[0],
