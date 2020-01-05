@@ -151,76 +151,65 @@ void Analysis::stft() {
 
 std::vector<float> Analysis::get_onset_timestamps() {
 
+    // BAND PASS FREQUENCIES
+    float f_start = 0;
+    float f_end = 22050;
+
     int window_size_onsets = 1024;
     Gist<float> gist2(window_size_onsets, 44100);
     float audioFrame[window_size_onsets];
     float window_function[window_size_onsets];
-
-    std::vector<time_value_float> onsets_raw;
-    //onsets_raw.resize(signal_length_mono / window_size_onsets * 2);
-
-    std::vector<float> onsets;
-    //onsets.resize(signal_length_mono / window_size_onsets * 2);
-
-    std::vector<time_value_float> spectral_flux;
-    //spectral_flux.resize(signal_length_mono / window_size_onsets * 2);
-
-    std::vector<float> magnitude_spectrum;
-    //magnitude_spectrum.resize(window_size_onsets * 2);
-
-    std::vector<float> last_magnitude_spectrum;
-    //last_magnitude_spectrum.resize(window_size_onsets * 2);
-
-    // create hanning_window for audio frame smoothing
-    //std::vector<float> window_function;
-
     int numSamplesMinus1 = window_size_onsets - 1;
-
-    for (int i = 0; i < window_size_onsets; i++) {
-        //std::cout << "WERT; " << (0.5 * (1 - cos(2 * M_PI * ((float)i / (float)numSamplesMinus1)))) << std::endl;
-        window_function[i] = (float)(0.5 * (float)(1.0 - cos(2.0 * (float)M_PI * ((float)i / (float)numSamplesMinus1))));
-    }
-
-    FILE* fp_window = fopen("window.csv", "w");
-    for (int i = 0; i < window_size_onsets; i++){
-        fprintf(fp_window, "%f\n", window_function[i]);
-    }
-    fclose(fp_window);
-
+    std::vector<float> onsets;
+    std::vector<time_value_float> spectral_flux;
+    std::vector<float> magnitude_spectrum;
+    std::vector<float> last_magnitude_spectrum;
     std::vector<time_value_float> threshold_function_values;
 
+    // PREPARE CSV FILES WITH HEADERS FOR ALGORITHM COMPARISON
     FILE *fp_spectral_flux = std::fopen("spectral_flux.csv", "w");
     fprintf(fp_spectral_flux, "time, ed, sd, sdhwr, csd, hfc, l2nohwr, l1nohwr, l2hwr, l1hwr\n");
 
     FILE* fp_threshold_function = std::fopen("threshold.csv", "w");
     fprintf(fp_threshold_function, "time, value\n");
 
-
     FILE *fp_onsets = std::fopen("onsets.csv", "w");
     fprintf(fp_onsets, "time, dummyvalue\n");
 
+    // GENERATE HAMMING WINDOW FOR AUDIOFRAME (TIME-DOMAIN SMOOTHING)
+    for (int i = 0; i < window_size_onsets; i++) {
+        window_function[i] = (float)(0.5 * (float)(1.0 - cos(2.0 * (float)M_PI * ((float)i / (float)numSamplesMinus1))));
+    }
 
-
-
-
+    // LOOP OVER COMPLETE SIGNAL WITH WINDOW_SIZE_ONSETS AND A HOPSIZE OF 50%
     for (int i = 0; i < signal_length_mono - window_size_onsets; i = i + window_size_onsets / 2) {
 
+        // PREPARE FRAME AND MULTIPLY WITH HAMMING WINDOW FOR ONSET DETECTION
         for (int j = i, k = 0; k < window_size_onsets; j++, k++) {
-            audioFrame[k] = wav_values_mono[j] *  window_function[k];
+            audioFrame[k] = wav_values_mono[j] * window_function[k];
         }
-
+        // GIST PROCESS FOR FFT, MAGNITUDE SPECTRUM ETC. - THIS IS NECESSARY
         gist2.processAudioFrame(audioFrame, window_size_onsets);
 
+        // GET GIST MAGNITUDE SPECTRUM (SEEMS TO BE DFT COEFFICIENTS RMS)
+        // ALSO DELETE COEFFICIENTS FOR FREQUENCIES OUT OF RANGE OF [F_START, F_END]
         magnitude_spectrum = gist2.getMagnitudeSpectrum();
-        std::cout << "SIZE OF MAGNITUDE SPECTRUM: " << magnitude_spectrum.size() << std::endl;
 
-        if (i == 0) {
-            last_magnitude_spectrum = gist2.getMagnitudeSpectrum();
-            continue;
+        for (int k = 0; k < magnitude_spectrum.size(); k++){
+            float f_current = (44100/window_size_onsets) * k;
+            if (f_current <= f_start || f_current >= f_end){
+                magnitude_spectrum[k] = 0.0;
+            }
         }
 
-        // SPECTRAL FLUXES AUS GIST
+        // HACK TO ALSO SAVE LAST MAGNITUDE SPECTRUM TEMPORARY, WE NEED THIS TO GET THE DELTA FOR SPECTRAL FLUX
+        if (i == 0) {
+            for (int k = 0; k <= magnitude_spectrum.size(); k++){
+                last_magnitude_spectrum.push_back(magnitude_spectrum[k]);
+            }
+        }
 
+        // CALCULATE SPECTRAL FLUXES INCLUDED BY GIST
         float ed = gist2.energyDifference();
         float sd = gist2.spectralDifference();
         float sdhwr = gist2.spectralDifferenceHWR();
@@ -230,12 +219,12 @@ std::vector<float> Analysis::get_onset_timestamps() {
         float i_float = i;
         float time = i_float / 44100;
 
+
+        // CALCULATE SPECTRAL FLUXES INCLUDED BY ESSENTIA
         float flux_l2_no_hwr = 0.0;
         float flux_l1_no_hwr = 0.0;
         float flux_l2_hwr = 0.0;
         float flux_l1_hwr = 0.0;
-
-        // SPECTRAL FLUXES AUS ESSENTIA
 
         for (int m = 0; m < magnitude_spectrum.size(); m++) {
 
@@ -255,56 +244,61 @@ std::vector<float> Analysis::get_onset_timestamps() {
             flux_l1_hwr += flux_value_l1_hwr < 0 ? 0 : flux_value_l1_hwr;
 
         }
-
         flux_l2_no_hwr = sqrt(flux_l2_no_hwr);
+        flux_l2_hwr = sqrt(flux_l2_hwr);
 
-        // PRINT FÜR VERGLEICHENDE PLOTS DER VERSCHIEDENEN ALGORITHMEN
+        // PRINT ALL THE SPECTRAL FLUXES TO A CSV FILE FOR COMPARISON
         fprintf(fp_spectral_flux, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", time, ed, sd, sdhwr, csd, hfc, flux_l2_no_hwr, flux_l1_no_hwr, flux_l2_hwr, flux_l1_hwr);
 
-        // HIER DEN ENTSPRECHENDEN FLUX WÄHLEN, DER LETZTENDLICH GENUTZT WIRD
-        spectral_flux.push_back({time, sd});
+        // CHOOSE A SPECTRAL FLUX TO USE FOR ONSET DETECTION (SEE LINE 251 FOR THEIR NAMES)
+        spectral_flux.push_back({time, flux_l2_hwr});
 
+        // SAVE CURRENT SPECTRAL FLUX AS LAST TEMPORAL FLUX FOR COMPARISON
         last_magnitude_spectrum.clear();
-        last_magnitude_spectrum = gist2.getMagnitudeSpectrum();
+
+        // COPY THIS MAGNITUDE_SPECTRUM AS OLD MAGNITUDE SPECTRUM
+        for (int k = 0; k < magnitude_spectrum.size(); k++) {
+            last_magnitude_spectrum.push_back(magnitude_spectrum[k]);
+        }
+
+
     }
 
-    // GENERIEREN DURCH MOVING AVERAGE DES SPECTRAL FLUX
-    // TODO: EIGENER MOVING AVERAGE; DER FÜR DIE SEGMENTIERUNG IST IRGENDWIE BORKED
+    // GENERATE MOVING AVERAGE OF THE CHOSEN SPECTRAL FLUX - THIS IS USED FOR THRESHOLDING AKA FINDING REAL ONSETS!
 
-
+    // CALCULATE HOW MANY FLUXES WILL BE USED FOR MOVING AVERAGE (LEFT/RIGHT)
     int fluxes = 0.5/(44100/window_size_onsets*0.001);
 
+    // SET A MULTIPLIER TO MOVE UP THE THRESHOLD FUNCTION VALUES AND FIND REAL ONSETS
+    // THIS VALUE CAN BE TWEAKED!!! (1.5 IS THE VALUE USED IN THE ONSET DETECTION TUTORIAL)
+    // ANYTHING BETWEEN ~1.3 AND ~1.9 MIGHT YIELD GOOD RESULTS
     float multiplier = 1.5;
 
+    // SIMPLE MOVING AVERAGE LOOP OVER ALL SPECTRAL FLUX VALUES
     for( int i = 0; i < spectral_flux.size(); i++ )
     {
         int start = fmax( 0, i - (fluxes/2) + 1 );
         int end = fmin( spectral_flux.size() - 1, i + (fluxes/2) + 1 );
         float mean = 0;
 
-
         for( int j = start; j <= end; j++ ) {
             mean += spectral_flux[j].value;
         }
         mean /= (end - start);
 
-
         float this_time = spectral_flux[i+(fluxes/2)].time;
         threshold_function_values.push_back({this_time, (mean * multiplier) });
         fprintf(fp_threshold_function, "%f, %f\n", threshold_function_values[i].time, threshold_function_values[i].value);
-
     }
-
     fclose(fp_threshold_function);
 
-    // ADD FLUX TIMES TO ONSETS IF THEYRE ABOVE THRESHOLD
+    // ADD FLUX TIMES TO ONSETS IF THEYRE ABOVE THRESHOLD AND IF THEY'RE A PEAK (GREATER THAN LAST AND NEXT VALUE)
     for (int i = 1; i < spectral_flux.size() - 2; i++) {
         if (spectral_flux[i].value > threshold_function_values[i].value && spectral_flux[i].value > spectral_flux[i+1].value && spectral_flux[i].value > spectral_flux[i-1].value) {
             onsets.push_back({spectral_flux[i].time});
             fprintf(fp_onsets, "%f, %d\n", spectral_flux[i].time, 1);
         }
     }
-
     fclose(fp_onsets);
 
     return onsets;
