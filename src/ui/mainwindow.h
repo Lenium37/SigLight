@@ -261,7 +261,7 @@ private:
     int lightshow_resolution = 40; // 40 = DMX update every 25ms.    20 = DMX update every 50ms.    10 = DMX update every 100ms.
     LightshowGenerator lightshow_generator;
 
-    QString rtl_path = "";
+    QString sig_light_path = "";
     std::string lightshows_directory_path = "";
     std::string songs_directory_path = "";
 

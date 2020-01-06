@@ -67,19 +67,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::init() {
   this->setWindowState(Qt::WindowMaximized);
-  rtl_path = get_home();
-  if (rtl_path.endsWith("/")) {
-    rtl_path = rtl_path + "Raspberry-to-Light/";
-    lightshows_directory_path = rtl_path.toStdString() + "xml-lightshows/";
-    songs_directory_path = rtl_path.toStdString() + "songs/";
+  sig_light_path = get_home();
+  if (sig_light_path.endsWith("/")) {
+    sig_light_path = sig_light_path + "SigLight/";
+    lightshows_directory_path = sig_light_path.toStdString() + "xml-lightshows/";
+    songs_directory_path = sig_light_path.toStdString() + "songs/";
   } else {
-    rtl_path = rtl_path + "Music\\Raspberry-to-Light\\";
-    lightshows_directory_path = rtl_path.toStdString() + "xml-lightshows\\";
-    songs_directory_path = rtl_path.toStdString() + "songs\\";
+    sig_light_path = sig_light_path + "Music\\SigLight\\";
+    lightshows_directory_path = sig_light_path.toStdString() + "xml-lightshows\\";
+    songs_directory_path = sig_light_path.toStdString() + "songs\\";
   }
   QDir dir;
-  if (!dir.exists(rtl_path)) {
-    dir.mkdir(rtl_path);
+  if (!dir.exists(sig_light_path)) {
+    dir.mkdir(sig_light_path);
   }
   if (!dir.exists(QString::fromStdString(this->lightshows_directory_path))) {
     dir.mkdir(QString::fromStdString(this->lightshows_directory_path));
@@ -106,7 +106,7 @@ void MainWindow::init() {
   // Adds the first Univers.
   add_universe("Universe1", "USB-DMX-Interface");
   load_fixture_objects_from_xml(false);
-  this->setWindowTitle("Raspberry To Light");
+  this->setWindowTitle("SigLight");
   this->check_which_dmx_device_is_connected();
   // claim device interface
   if(get_current_dmx_device().is_connected())
@@ -294,7 +294,7 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
 
 void MainWindow::create_fixtures() {
   // setup the file for Fixture objects.
-  QFile fixture_objects_file(rtl_path + fixture_objects_file_name);
+  QFile fixture_objects_file(sig_light_path + fixture_objects_file_name);
   QFileInfo datei(fixture_objects_file);
 
   // If the file is older than the 28.05.2019 it has to be deleted.
@@ -934,7 +934,7 @@ void MainWindow::change_player_edit_view(int index) {
 
 void MainWindow::read_own_m3u_on_startup() {
   if (universes[0].get_fixture_count() != 0)
-    player->read_own_m_3_u_on_startup(rtl_path.toStdString());
+    player->read_own_m_3_u_on_startup(sig_light_path.toStdString());
 
   int i = 0;
   while (player->get_playlist_media_at(i) != nullptr) {
@@ -1080,7 +1080,7 @@ void MainWindow::save_fixture_objects_to_xml(bool is_preset) {
     xml_icon->SetText(fixture.get_icon().c_str());
     fixture_object->InsertEndChild(xml_icon);
   }
-  std::string fixture_objects_path = rtl_path.toLocal8Bit().toStdString();
+  std::string fixture_objects_path = sig_light_path.toLocal8Bit().toStdString();
   if (is_preset) {
     // Ein Fixture wird geschrieben.
     fixture_objects_path = fixture_objects_path + fixture_objects_file_name.toLocal8Bit().toStdString();
@@ -1109,10 +1109,10 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
   if (filename != nullptr) {
     error = fixture_objects.LoadFile(filename->toLocal8Bit().data());
   } else if (is_preset) {
-    std::string path = rtl_path.toLocal8Bit().toStdString() + fixture_objects_file_name.toLocal8Bit().toStdString();
+    std::string path = sig_light_path.toLocal8Bit().toStdString() + fixture_objects_file_name.toLocal8Bit().toStdString();
     error = fixture_objects.LoadFile(path.c_str());
   } else {
-    std::string path = rtl_path.toLocal8Bit().toStdString() + fixture_list_file_name.toLocal8Bit().toStdString();
+    std::string path = sig_light_path.toLocal8Bit().toStdString() + fixture_list_file_name.toLocal8Bit().toStdString();
     error = fixture_objects.LoadFile(path.c_str());
   }
   if (xml_has_no_error(error)) {
@@ -1499,7 +1499,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
             else
                 event->accept();
         } else {
-            player->save_playlist(rtl_path.toStdString());
+            player->save_playlist(sig_light_path.toStdString());
             event->accept();
         }
 
