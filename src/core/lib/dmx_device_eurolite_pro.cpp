@@ -151,10 +151,13 @@ void DmxDeviceEurolitePro::start_daemon_thread() {
     Logger::info("Eurolite not using deamon thread");
 }
 
-int DmxDeviceEurolitePro::turn_off_all_channels() {
+int DmxDeviceEurolitePro::turn_off_all_channels(std::vector<int> pan_tilt_channels) {
   usleep(25000);
   int actual = 0;
   std::memset(dmx_frame + 5, 0, 512);
+  for(int i = 0; i < pan_tilt_channels.size(); i++) {
+    dmx_frame[4 + pan_tilt_channels[i]] = 127;
+  }
   libusb_interrupt_transfer(
       devh,                 // dev handle
       (0x2 | LIBUSB_ENDPOINT_OUT), // EP
