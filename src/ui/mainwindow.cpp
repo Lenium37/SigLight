@@ -306,8 +306,8 @@ void MainWindow::create_fixtures() {
   } else {
     QStringList channels;
 
-    channels << "Master dimmer (0-100%)~0~255" << "Strobo~0~255" << "Red (0-100%)~0~225" << "Green (0-100%)~0~225"
-             << "Blue (0-100%)~0~225"
+    channels << "Master dimmer (0-100%)~0~255" << "Strobo~0~255" << "Red (0-100%)~0~255" << "Green (0-100%)~0~25"
+             << "Blue (0-100%)~0~255"
              << "Blackout/colour mix CH3 - CH5~0~4|Red~5~15|Green~16~26|Blue~27~37|Yellow~38~48|Magenta~49~59|Cyan~60~70|White~71~80|Color change (rate)~81~150|Color blending~151~220";
 
     create_new_fixture("Cameo Flat RGB 10",
@@ -318,27 +318,49 @@ void MainWindow::create_fixtures() {
                        color_palettes[0],
                        0);
     channels.clear();
-      channels << "Red (0-100%)~0~255" << "Green (0-100%)~0~255" << "Blue (0-100%)~0~255";
 
-      create_new_fixture("Stairville LED Flood Panel 150 (3ch)",
-                         "Bass",
-                         "DMX-Funktionen: R/G/B",
-                         channels,
-                         "lamp",
-                         color_palettes[0],
-                         0);
-      channels.clear();
-      channels << "Master dimmer (0-100%)~0~255" << "Red (0-100%)~0~255" << "Green (0-100%)~0~255"
-               << "Blue (0-100%)~0~255";
+    channels << "Pan (X) 430°~0~255" << "Pan (X) fein~0~255" << "Tilt (Y) 300°~0~255" << "Tilt (Y) fein~0~255"
+             << "Control 100% Ausgangsleistung der LED-Straenge~0~7|Fade out with Fader (langsam - schnell)~8~15"
+             << "Shutter zu~0~15|Shutter auf~255~255"
+             << "Dimmer (0-100%)~0~255"
+             << "Zoom (12° - 36°)~0~255"
+             << "Red (0-100%)~0~255" << "Green (0-100%)~0~255" << "Blue (0-100%)~0~255"
+             << "CTC (0-100%)~0~255"
+             << "Color wheel~0~255"
+             << "Pan/Tilt speed real time~0~3|movement delayed (fast-slow)~4~255"
+             << "Effektgeschwindigkeit real time~0~3|Effekte delayed (fast-slow)~4~255"
+             << "Blackout move~0~255";
 
-      create_new_fixture("Stairville LED Flood Panel 150 (4ch)",
-                         "Bass",
-                         "DMX-Funktionen: D/R/G/B",
-                         channels,
-                         "lamp",
-                         color_palettes[0],
-                         0);
-      channels.clear();
+    create_new_fixture("JBLED A7 (S8)",
+                       "color_change_onsets",
+                       "DMX-Funktionen: Pan, Tilt, Colour Fade, Master Dimmer, RGB, Strobe",
+                       channels,
+                       "lamp",
+                       color_palettes[0],
+                       0);
+    channels.clear();
+
+    channels << "Red (0-100%)~0~255" << "Green (0-100%)~0~255" << "Blue (0-100%)~0~255";
+
+    create_new_fixture("Stairville LED Flood Panel 150 (3ch)",
+                       "Bass",
+                       "DMX-Funktionen: R/G/B",
+                       channels,
+                       "lamp",
+                       color_palettes[0],
+                       0);
+    channels.clear();
+    channels << "Master dimmer (0-100%)~0~255" << "Red (0-100%)~0~255" << "Green (0-100%)~0~255"
+             << "Blue (0-100%)~0~255";
+
+    create_new_fixture("Stairville LED Flood Panel 150 (4ch)",
+                       "Bass",
+                       "DMX-Funktionen: D/R/G/B",
+                       channels,
+                       "lamp",
+                       color_palettes[0],
+                       0);
+    channels.clear();
 
     channels << "Aus~0~5|Output (5-95%)~6~249|Max Output (100%)~250~255";
     create_new_fixture("ANTARI Z-1200 MKII",
@@ -633,7 +655,8 @@ void MainWindow::on_action_switch_play_pause_triggered() {
 void MainWindow::on_action_stop_triggered() {
   ui->action_switch_play_pause->setIcon(QIcon(":/icons_svg/svg/iconfinder_001_-_play_2949892.svg"));
   lightshow_playing = false;
-  get_current_dmx_device().turn_off_all_channels();
+  std::vector<int> v;
+  get_current_dmx_device().turn_off_all_channels(v);
   player->stop_song();
   usleep(2 * 625 * this->lightshow_resolution
              + 1); // sleep extra to make sure everything really is turned off! 50ms if resolution is 40
@@ -828,7 +851,8 @@ void MainWindow::on_action_next_song_triggered() {
   if (get_current_dmx_device().is_connected()) {
     lightshow_playing = false;
     lightshow_paused = true;
-    get_current_dmx_device().turn_off_all_channels();
+    std::vector<int> v;
+    get_current_dmx_device().turn_off_all_channels(v);
     get_current_dmx_device().stop_device();
     Logger::debug(player->get_current_song()->get_file_path());
     if (player->is_media_playing())
@@ -861,7 +885,8 @@ void MainWindow::on_action_previous_song_triggered() {
   if (get_current_dmx_device().is_connected()) {
     lightshow_playing = false;
     lightshow_paused = true;
-    get_current_dmx_device().turn_off_all_channels();
+    std::vector<int> v;
+    get_current_dmx_device().turn_off_all_channels(v);
     get_current_dmx_device().stop_device();
     if (player->is_media_playing())
       this->start_to_play_lightshow();
@@ -1509,7 +1534,8 @@ void MainWindow::closeEvent(QCloseEvent *event) {
             lightshow_playing = false;
             usleep(625 * this->lightshow_resolution
                + 1); // sleep extra on close event to make sure everything really is turned off! 25ms if resolution = 40
-            get_current_dmx_device().turn_off_all_channels();
+          std::vector<int> v;
+          get_current_dmx_device().turn_off_all_channels(v);
             usleep(625 * this->lightshow_resolution
                + 1); // sleep extra on close event to make sure everything really is turned off! 25ms if resolution = 40
             get_current_dmx_device().stop_device();
