@@ -155,7 +155,7 @@ std::vector<float> Analysis::get_onset_timestamps() {
   float f_start = 0;
   float f_end = 22050;
 
-  int window_size_onsets = 1024;
+  int window_size_onsets = 2048;
   Gist<float> gist2(window_size_onsets, 44100);
   float audioFrame[window_size_onsets];
   float window_function[window_size_onsets];
@@ -274,20 +274,30 @@ std::vector<float> Analysis::get_onset_timestamps() {
   // ANYTHING BETWEEN ~1.3 AND ~1.9 MIGHT YIELD GOOD RESULTS
   float multiplier = 1.5;
 
-  // SIMPLE MOVING AVERAGE LOOP OVER ALL SPECTRAL FLUX VALUES
-  for( int i = 0; i < spectral_flux.size(); i++ )
+  // ZERO PADDING FOR MOVING AVERAGE
+
+    float delta = 0;
+  for (int f = 0; f < spectral_flux.size(); f++){
+      delta += (spectral_flux[f].value / spectral_flux.size());
+  }
+    // SIMPLE MOVING AVERAGE LOOP OVER ALL SPECTRAL FLUX VALUES
+
+    for( int i = 0; i < spectral_flux.size(); i++ )
   {
     int start = fmax( 0, i - (fluxes/2) + 1 );
     int end = fmin( spectral_flux.size() - 1, i + (fluxes/2) + 1 );
-    float mean = 0;
+    float mean = delta * 1.5;
+    float mean_current = 0;
 
-    for( int j = start; j <= end; j++ ) {
-      mean += spectral_flux[j].value;
+    for (int j = start; j <= end; j++) {
+        mean_current = spectral_flux[j].value / (end - start);
+        mean = mean + mean_current;
     }
-    mean /= (end - start);
+    //mean /= (float)(end - start);
 
     float this_time = spectral_flux[i+(fluxes/2)].time;
-    threshold_function_values.push_back({this_time, (mean * multiplier) });
+    //mean *= multiplier;
+    threshold_function_values.push_back({this_time, mean});
     fprintf(fp_threshold_function, "%f, %f\n", threshold_function_values[i].time, threshold_function_values[i].value);
   }
   fclose(fp_threshold_function);

@@ -32,6 +32,12 @@ add_executable(main_dmx_device
         main_dmx_device.cpp
         )
 
+add_executable(onset_test
+        onset_test.cpp
+        )
+target_link_libraries(onset_test CORE_LIB)
+
+
 
 add_executable(crash_demo crash_demo.cpp)
 

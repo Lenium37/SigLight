@@ -49,7 +49,6 @@ include(player_edit_view/CMakeLists.txt)
 include(playlist_and_player/CMakeLists.txt)
 include(playlist_view/CMakeLists.txt)
 
-
 add_executable(${UI_EXECUTABLE_NAME}
         ${Main_SRCS}
         ${Main_headers}
