@@ -109,8 +109,10 @@ void MainWindow::init() {
   this->setWindowTitle("SigLight");
   this->check_which_dmx_device_is_connected();
   // claim device interface
-  if(get_current_dmx_device().is_connected())
+  if(get_current_dmx_device().is_connected()) {
     get_current_dmx_device().start_device();
+    get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
+  }
   this->lightshow_player = new LightshowPlayer(get_current_dmx_device());
   //this->lightshow_player = new LightshowPlayer(get_current_dmx_device());
   this->lightshow_resolution = 40;
