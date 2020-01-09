@@ -91,7 +91,7 @@ void MainWindow::init() {
   ui->fixture_list->setSelectionMode(QAbstractItemView::SingleSelection);
 
   // Sets the layout for the fixturelist.
-  ui->fixture_list->setColumnCount(2);
+  ui->fixture_list->setColumnCount(4);
 
   ui->fixture_list->invisibleRootItem()->setFlags(Qt::ItemIsEnabled);
 
@@ -100,6 +100,8 @@ void MainWindow::init() {
   QStringList headers;
   headers.append("Fixtures");
   headers.append("Channel");
+  headers.append("Colors");
+  headers.append("# in group");
   ui->fixture_list->setHeaderLabels(headers);
   // Create the Fixtureobjects.
   create_fixtures();
@@ -267,6 +269,9 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
   /*QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(QString::fromStdString(_fixture.get_type()),
                                                                     Qt::MatchExactly | Qt::MatchRecursive,
                                                                     0);*/
+  itm->setText(2, QString::fromStdString(universes[0].get_fixtures().back().get_colors()));
+  itm->setText(3, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_position_in_group())));
+
   QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(type, Qt::MatchExactly | Qt::MatchRecursive, 0);
 
   QTreeWidgetItem *type_item;
@@ -1362,7 +1367,7 @@ void MainWindow::on_edit_fixture_clicked() {
       connect(create_dialog, SIGNAL(accepted()), this, SLOT(get_edited_fixture()));
       create_dialog->exec();*/
       this->efd = new EditFixtureDialog(this, fixtures, color_palettes);
-      this->efd->set_up_dialog_options(universes[0].get_blocked_adress_range(), ui->fixture_list->currentItem()->text(1).toStdString(), ui->fixture_list->currentItem()->text(0).toStdString());
+      this->efd->set_up_dialog_options(universes[0].get_blocked_adress_range(), ui->fixture_list->currentItem()->text(1).toStdString(), ui->fixture_list->currentItem()->text(0).toStdString(), ui->fixture_list->currentItem()->text(2).toStdString(), ui->fixture_list->currentItem()->text(3).toInt(), ui->fixture_list->currentItem()->parent()->text(0).toStdString());
       connect(this->efd, SIGNAL(accepted()), this, SLOT(get_edited_fixture()));
       this->efd->exec();
     }

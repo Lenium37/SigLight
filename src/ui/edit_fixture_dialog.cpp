@@ -47,48 +47,44 @@ EditFixtureDialog::~EditFixtureDialog() {
   delete ui;
 }
 
-void EditFixtureDialog::set_up_dialog_options(std::list<int> _blocked_channels, std::string _own_channels, std::string _name)
+void EditFixtureDialog::set_up_dialog_options(std::list<int> _blocked_channels, std::string _own_channels, std::string _name, std::string _colors, int pos_in_group, std::string _type)
 {
 
   ui->lE_fixture_name->setText(QString::fromStdString(_name));
 
   Logger::debug("_own_channels: {}", _own_channels);
 
-  stringstream ss;
 
-  /* Storing the whole string into string stream */
-  ss << _own_channels;
+  int own_start_channel = QString::fromStdString(_own_channels).split(" ")[0].toInt();
+  int own_end_channel = own_start_channel;
+  if(QString::fromStdString(_own_channels).split(" ").size() > 1)
+    own_end_channel = QString::fromStdString(_own_channels).split(" ")[2].toInt();
 
-  std::vector<int> allowed_channel_range;
-  /* Running loop till the end of the stream */
-  string temp;
-  int found;
-  while (!ss.eof()) {
-    /* extracting word by word from stream */
-    ss >> temp;
-    /* Checking the given word is integer or not */
-    if (stringstream(temp) >> found)
-      allowed_channel_range.push_back(found);
-    /* To save from space at the end of string */
-    temp = "";
+
+  ui->sB_start_channel->setValue(own_start_channel);
+
+  _blocked_channels.remove(own_start_channel);
+  _blocked_channels.remove(own_end_channel);
+
+  int index_colors = ui->cB_colors->findText(QString::fromStdString(_colors));
+  if ( index_colors != -1 ) { // -1 for not found
+    ui->cB_colors->setCurrentIndex(index_colors);
   }
 
-  for(int i: allowed_channel_range)
-    Logger::debug(i);
+  ui->sB_position_inside_group->setValue(pos_in_group);
 
-  if(allowed_channel_range.size() > 0)
-    ui->sB_start_channel->setValue(allowed_channel_range[0]);
-
-  if(allowed_channel_range.size() > 1) {
-    _blocked_channels.remove(allowed_channel_range[0]);
-    _blocked_channels.remove(allowed_channel_range[1]);
+  int index_type = ui->cB_type->findText(QString::fromStdString(_type));
+  if ( index_type != -1 ) { // -1 for not found
+    ui->cB_type->setCurrentIndex(index_type);
   }
+
+  ui->sB_start_channel->setValue(own_start_channel);
 
   for(int c: _blocked_channels)
     Logger::debug("blocked channel: {}", c);
 
   this->blocked_channels = _blocked_channels;
-  set_first_allowed_channel(0, true);
+  //set_first_allowed_channel(0, true);
 }
 
 void EditFixtureDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group)
@@ -176,8 +172,8 @@ void EditFixtureDialog::set_first_allowed_channel(int current_Row, bool first_st
 
 void EditFixtureDialog::on_fixture_selection_currentRowChanged(int currentRow)
 {
-  ui->cB_type->setCurrentIndex(ui->cB_type->findText(types_of_fixtures.at(currentRow)));
-  set_first_allowed_channel(currentRow);
+  //ui->cB_type->setCurrentIndex(ui->cB_type->findText(types_of_fixtures.at(currentRow)));
+  //set_first_allowed_channel(currentRow);
 }
 
 void EditFixtureDialog::on_pB_delete_fixture_clicked()
