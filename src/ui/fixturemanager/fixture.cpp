@@ -162,3 +162,14 @@ void Fixture::set_position_in_group(int _position) {
 int Fixture::get_position_in_group() {
   return this->position_in_group;
 }
+
+std::vector<int> Fixture::get_pan_tilt_channels() {
+  std::vector<int> pan_tilt_channels;
+  if(this->name == "JBLED A7 (S8)") {
+    pan_tilt_channels.push_back(1);
+    pan_tilt_channels.push_back(2);
+    pan_tilt_channels.push_back(3);
+    pan_tilt_channels.push_back(4);
+  }
+  return pan_tilt_channels;
+}

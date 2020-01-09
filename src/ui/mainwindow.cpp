@@ -655,8 +655,7 @@ void MainWindow::on_action_switch_play_pause_triggered() {
 void MainWindow::on_action_stop_triggered() {
   ui->action_switch_play_pause->setIcon(QIcon(":/icons_svg/svg/iconfinder_001_-_play_2949892.svg"));
   lightshow_playing = false;
-  std::vector<int> v;
-  get_current_dmx_device().turn_off_all_channels(v);
+  get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
   player->stop_song();
   usleep(2 * 625 * this->lightshow_resolution
              + 1); // sleep extra to make sure everything really is turned off! 50ms if resolution is 40
@@ -851,8 +850,7 @@ void MainWindow::on_action_next_song_triggered() {
   if (get_current_dmx_device().is_connected()) {
     lightshow_playing = false;
     lightshow_paused = true;
-    std::vector<int> v;
-    get_current_dmx_device().turn_off_all_channels(v);
+    get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
     get_current_dmx_device().stop_device();
     Logger::debug(player->get_current_song()->get_file_path());
     if (player->is_media_playing())
@@ -885,8 +883,7 @@ void MainWindow::on_action_previous_song_triggered() {
   if (get_current_dmx_device().is_connected()) {
     lightshow_playing = false;
     lightshow_paused = true;
-    std::vector<int> v;
-    get_current_dmx_device().turn_off_all_channels(v);
+    get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
     get_current_dmx_device().stop_device();
     if (player->is_media_playing())
       this->start_to_play_lightshow();
@@ -1534,8 +1531,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
             lightshow_playing = false;
             usleep(625 * this->lightshow_resolution
                + 1); // sleep extra on close event to make sure everything really is turned off! 25ms if resolution = 40
-          std::vector<int> v;
-          get_current_dmx_device().turn_off_all_channels(v);
+          get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
             usleep(625 * this->lightshow_resolution
                + 1); // sleep extra on close event to make sure everything really is turned off! 25ms if resolution = 40
             get_current_dmx_device().stop_device();
@@ -1756,4 +1752,16 @@ void MainWindow::check_which_dmx_device_is_connected() {
   }
   if(this->dmx_device_connected == DmxDeviceConnected::NOT_FOUND)
     Logger::debug("No connected DMX Device found!");
+}
+
+std::vector<int> MainWindow::get_all_pan_tilt_channels() {
+  std::vector<int> all_pan_tilt_channels;
+  for(Fixture f: universes[0].get_fixtures()) {
+    std::vector<int> fixture_pan_tilt_channels = f.get_pan_tilt_channels();
+    for(int i = 0; i < fixture_pan_tilt_channels.size(); i++) {
+      fixture_pan_tilt_channels[i] = fixture_pan_tilt_channels[i] + f.get_start_channel() - 1;
+    }
+    all_pan_tilt_channels.insert(all_pan_tilt_channels.end(), fixture_pan_tilt_channels.begin(), fixture_pan_tilt_channels.end());
+  }
+  return all_pan_tilt_channels;
 }
