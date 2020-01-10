@@ -75,6 +75,18 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_green(4);
     this->set_channel_blue(5);
     this->has_global_dimmer = true;
+  } else if(name == "JBLED A7 (S8)") {
+    this->set_channel_pan(1);
+    this->set_channel_tilt(3);
+    this->set_channel_shutter(6);
+    this->set_channel_dimmer(7);
+    this->set_channel_red(9);
+    this->set_channel_green(10);
+    this->set_channel_blue(11);
+    this->has_global_dimmer = true;
+    this->has_pan = true;
+    this->has_tilt = true;
+    this->has_shutter = true;
   } else if(name == "Stairville LED Flood Panel 150 (3ch)") {
     this->set_channel_red(1);
     this->set_channel_green(2);
@@ -263,4 +275,29 @@ void LightshowFixture::set_position_in_group(int _position) {
 
 int LightshowFixture::get_position_in_group() {
   return this->position_inside_group;
+}
+
+std::uint8_t LightshowFixture::get_channel_shutter() {
+  return this->channel_shutter;
+}
+
+void LightshowFixture::set_channel_shutter(std::uint8_t channel_shutter) {
+  this->channel_shutter = channel_shutter;
+}
+
+std::uint8_t LightshowFixture::get_channel_pan() {
+  return this->channel_pan;
+}
+
+void LightshowFixture::set_channel_pan(std::uint8_t _channel_pan) {
+  this->channel_pan = _channel_pan;
+}
+
+
+std::uint8_t LightshowFixture::get_channel_tilt() {
+  return this->channel_tilt;
+}
+
+void LightshowFixture::set_channel_tilt(std::uint8_t _channel_tilt) {
+  this->channel_tilt = _channel_tilt;
 }

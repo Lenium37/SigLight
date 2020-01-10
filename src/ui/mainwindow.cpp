@@ -67,19 +67,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::init() {
   this->setWindowState(Qt::WindowMaximized);
-  rtl_path = get_home();
-  if (rtl_path.endsWith("/")) {
-    rtl_path = rtl_path + "Raspberry-to-Light/";
-    lightshows_directory_path = rtl_path.toStdString() + "xml-lightshows/";
-    songs_directory_path = rtl_path.toStdString() + "songs/";
+  sig_light_path = get_home();
+  if (sig_light_path.endsWith("/")) {
+    sig_light_path = sig_light_path + "SigLight/";
+    lightshows_directory_path = sig_light_path.toStdString() + "xml-lightshows/";
+    songs_directory_path = sig_light_path.toStdString() + "songs/";
   } else {
-    rtl_path = rtl_path + "Music\\Raspberry-to-Light\\";
-    lightshows_directory_path = rtl_path.toStdString() + "xml-lightshows\\";
-    songs_directory_path = rtl_path.toStdString() + "songs\\";
+    sig_light_path = sig_light_path + "Music\\SigLight\\";
+    lightshows_directory_path = sig_light_path.toStdString() + "xml-lightshows\\";
+    songs_directory_path = sig_light_path.toStdString() + "songs\\";
   }
   QDir dir;
-  if (!dir.exists(rtl_path)) {
-    dir.mkdir(rtl_path);
+  if (!dir.exists(sig_light_path)) {
+    dir.mkdir(sig_light_path);
   }
   if (!dir.exists(QString::fromStdString(this->lightshows_directory_path))) {
     dir.mkdir(QString::fromStdString(this->lightshows_directory_path));
@@ -91,7 +91,7 @@ void MainWindow::init() {
   ui->fixture_list->setSelectionMode(QAbstractItemView::SingleSelection);
 
   // Sets the layout for the fixturelist.
-  ui->fixture_list->setColumnCount(2);
+  ui->fixture_list->setColumnCount(4);
 
   ui->fixture_list->invisibleRootItem()->setFlags(Qt::ItemIsEnabled);
 
@@ -100,17 +100,21 @@ void MainWindow::init() {
   QStringList headers;
   headers.append("Fixtures");
   headers.append("Channel");
+  headers.append("Colors");
+  headers.append("# in group");
   ui->fixture_list->setHeaderLabels(headers);
   // Create the Fixtureobjects.
   create_fixtures();
   // Adds the first Univers.
   add_universe("Universe1", "USB-DMX-Interface");
   load_fixture_objects_from_xml(false);
-  this->setWindowTitle("Raspberry To Light");
+  this->setWindowTitle("SigLight");
   this->check_which_dmx_device_is_connected();
   // claim device interface
-  if(get_current_dmx_device().is_connected())
+  if(get_current_dmx_device().is_connected()) {
     get_current_dmx_device().start_device();
+    get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
+  }
   this->lightshow_player = new LightshowPlayer(get_current_dmx_device());
   //this->lightshow_player = new LightshowPlayer(get_current_dmx_device());
   this->lightshow_resolution = 40;
@@ -265,6 +269,9 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
   /*QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(QString::fromStdString(_fixture.get_type()),
                                                                     Qt::MatchExactly | Qt::MatchRecursive,
                                                                     0);*/
+  itm->setText(2, QString::fromStdString(universes[0].get_fixtures().back().get_colors()));
+  itm->setText(3, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_position_in_group())));
+
   QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(type, Qt::MatchExactly | Qt::MatchRecursive, 0);
 
   QTreeWidgetItem *type_item;
@@ -294,7 +301,7 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
 
 void MainWindow::create_fixtures() {
   // setup the file for Fixture objects.
-  QFile fixture_objects_file(rtl_path + fixture_objects_file_name);
+  QFile fixture_objects_file(sig_light_path + fixture_objects_file_name);
   QFileInfo datei(fixture_objects_file);
 
   // If the file is older than the 28.05.2019 it has to be deleted.
@@ -306,8 +313,8 @@ void MainWindow::create_fixtures() {
   } else {
     QStringList channels;
 
-    channels << "Master dimmer (0-100%)~0~255" << "Strobo~0~255" << "Red (0-100%)~0~225" << "Green (0-100%)~0~225"
-             << "Blue (0-100%)~0~225"
+    channels << "Master dimmer (0-100%)~0~255" << "Strobo~0~255" << "Red (0-100%)~0~255" << "Green (0-100%)~0~25"
+             << "Blue (0-100%)~0~255"
              << "Blackout/colour mix CH3 - CH5~0~4|Red~5~15|Green~16~26|Blue~27~37|Yellow~38~48|Magenta~49~59|Cyan~60~70|White~71~80|Color change (rate)~81~150|Color blending~151~220";
 
     create_new_fixture("Cameo Flat RGB 10",
@@ -318,27 +325,49 @@ void MainWindow::create_fixtures() {
                        color_palettes[0],
                        0);
     channels.clear();
-      channels << "Red (0-100%)~0~255" << "Green (0-100%)~0~255" << "Blue (0-100%)~0~255";
 
-      create_new_fixture("Stairville LED Flood Panel 150 (3ch)",
-                         "Bass",
-                         "DMX-Funktionen: R/G/B",
-                         channels,
-                         "lamp",
-                         color_palettes[0],
-                         0);
-      channels.clear();
-      channels << "Master dimmer (0-100%)~0~255" << "Red (0-100%)~0~255" << "Green (0-100%)~0~255"
-               << "Blue (0-100%)~0~255";
+    channels << "Pan (X) 430°~0~255" << "Pan (X) fein~0~255" << "Tilt (Y) 300°~0~255" << "Tilt (Y) fein~0~255"
+             << "Control 100% Ausgangsleistung der LED-Straenge~0~7|Fade out with Fader (langsam - schnell)~8~15"
+             << "Shutter zu~0~15|Shutter auf~255~255"
+             << "Dimmer (0-100%)~0~255"
+             << "Zoom (12° - 36°)~0~255"
+             << "Red (0-100%)~0~255" << "Green (0-100%)~0~255" << "Blue (0-100%)~0~255"
+             << "CTC (0-100%)~0~255"
+             << "Color wheel~0~255"
+             << "Pan/Tilt speed real time~0~3|movement delayed (fast-slow)~4~255"
+             << "Effektgeschwindigkeit real time~0~3|Effekte delayed (fast-slow)~4~255"
+             << "Blackout move~0~255";
 
-      create_new_fixture("Stairville LED Flood Panel 150 (4ch)",
-                         "Bass",
-                         "DMX-Funktionen: D/R/G/B",
-                         channels,
-                         "lamp",
-                         color_palettes[0],
-                         0);
-      channels.clear();
+    create_new_fixture("JBLED A7 (S8)",
+                       "color_change_onsets",
+                       "DMX-Funktionen: Pan, Tilt, Colour Fade, Master Dimmer, RGB, Strobe",
+                       channels,
+                       "lamp",
+                       color_palettes[0],
+                       0);
+    channels.clear();
+
+    channels << "Red (0-100%)~0~255" << "Green (0-100%)~0~255" << "Blue (0-100%)~0~255";
+
+    create_new_fixture("Stairville LED Flood Panel 150 (3ch)",
+                       "Bass",
+                       "DMX-Funktionen: R/G/B",
+                       channels,
+                       "lamp",
+                       color_palettes[0],
+                       0);
+    channels.clear();
+    channels << "Master dimmer (0-100%)~0~255" << "Red (0-100%)~0~255" << "Green (0-100%)~0~255"
+             << "Blue (0-100%)~0~255";
+
+    create_new_fixture("Stairville LED Flood Panel 150 (4ch)",
+                       "Bass",
+                       "DMX-Funktionen: D/R/G/B",
+                       channels,
+                       "lamp",
+                       color_palettes[0],
+                       0);
+    channels.clear();
 
     channels << "Aus~0~5|Output (5-95%)~6~249|Max Output (100%)~250~255";
     create_new_fixture("ANTARI Z-1200 MKII",
@@ -633,7 +662,7 @@ void MainWindow::on_action_switch_play_pause_triggered() {
 void MainWindow::on_action_stop_triggered() {
   ui->action_switch_play_pause->setIcon(QIcon(":/icons_svg/svg/iconfinder_001_-_play_2949892.svg"));
   lightshow_playing = false;
-  get_current_dmx_device().turn_off_all_channels();
+  get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
   player->stop_song();
   usleep(2 * 625 * this->lightshow_resolution
              + 1); // sleep extra to make sure everything really is turned off! 50ms if resolution is 40
@@ -828,7 +857,7 @@ void MainWindow::on_action_next_song_triggered() {
   if (get_current_dmx_device().is_connected()) {
     lightshow_playing = false;
     lightshow_paused = true;
-    get_current_dmx_device().turn_off_all_channels();
+    get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
     get_current_dmx_device().stop_device();
     Logger::debug(player->get_current_song()->get_file_path());
     if (player->is_media_playing())
@@ -861,7 +890,7 @@ void MainWindow::on_action_previous_song_triggered() {
   if (get_current_dmx_device().is_connected()) {
     lightshow_playing = false;
     lightshow_paused = true;
-    get_current_dmx_device().turn_off_all_channels();
+    get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
     get_current_dmx_device().stop_device();
     if (player->is_media_playing())
       this->start_to_play_lightshow();
@@ -934,7 +963,7 @@ void MainWindow::change_player_edit_view(int index) {
 
 void MainWindow::read_own_m3u_on_startup() {
   if (universes[0].get_fixture_count() != 0)
-    player->read_own_m_3_u_on_startup(rtl_path.toStdString());
+    player->read_own_m_3_u_on_startup(sig_light_path.toStdString());
 
   int i = 0;
   while (player->get_playlist_media_at(i) != nullptr) {
@@ -1080,7 +1109,7 @@ void MainWindow::save_fixture_objects_to_xml(bool is_preset) {
     xml_icon->SetText(fixture.get_icon().c_str());
     fixture_object->InsertEndChild(xml_icon);
   }
-  std::string fixture_objects_path = rtl_path.toLocal8Bit().toStdString();
+  std::string fixture_objects_path = sig_light_path.toLocal8Bit().toStdString();
   if (is_preset) {
     // Ein Fixture wird geschrieben.
     fixture_objects_path = fixture_objects_path + fixture_objects_file_name.toLocal8Bit().toStdString();
@@ -1109,10 +1138,10 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
   if (filename != nullptr) {
     error = fixture_objects.LoadFile(filename->toLocal8Bit().data());
   } else if (is_preset) {
-    std::string path = rtl_path.toLocal8Bit().toStdString() + fixture_objects_file_name.toLocal8Bit().toStdString();
+    std::string path = sig_light_path.toLocal8Bit().toStdString() + fixture_objects_file_name.toLocal8Bit().toStdString();
     error = fixture_objects.LoadFile(path.c_str());
   } else {
-    std::string path = rtl_path.toLocal8Bit().toStdString() + fixture_list_file_name.toLocal8Bit().toStdString();
+    std::string path = sig_light_path.toLocal8Bit().toStdString() + fixture_list_file_name.toLocal8Bit().toStdString();
     error = fixture_objects.LoadFile(path.c_str());
   }
   if (xml_has_no_error(error)) {
@@ -1338,7 +1367,7 @@ void MainWindow::on_edit_fixture_clicked() {
       connect(create_dialog, SIGNAL(accepted()), this, SLOT(get_edited_fixture()));
       create_dialog->exec();*/
       this->efd = new EditFixtureDialog(this, fixtures, color_palettes);
-      this->efd->set_up_dialog_options(universes[0].get_blocked_adress_range(), ui->fixture_list->currentItem()->text(1).toStdString(), ui->fixture_list->currentItem()->text(0).toStdString());
+      this->efd->set_up_dialog_options(universes[0].get_blocked_adress_range(), ui->fixture_list->currentItem()->text(1).toStdString(), ui->fixture_list->currentItem()->text(0).toStdString(), ui->fixture_list->currentItem()->text(2).toStdString(), ui->fixture_list->currentItem()->text(3).toInt(), ui->fixture_list->currentItem()->parent()->text(0).toStdString());
       connect(this->efd, SIGNAL(accepted()), this, SLOT(get_edited_fixture()));
       this->efd->exec();
     }
@@ -1499,7 +1528,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
             else
                 event->accept();
         } else {
-            player->save_playlist(rtl_path.toStdString());
+            player->save_playlist(sig_light_path.toStdString());
             event->accept();
         }
 
@@ -1509,7 +1538,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
             lightshow_playing = false;
             usleep(625 * this->lightshow_resolution
                + 1); // sleep extra on close event to make sure everything really is turned off! 25ms if resolution = 40
-            get_current_dmx_device().turn_off_all_channels();
+          get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
             usleep(625 * this->lightshow_resolution
                + 1); // sleep extra on close event to make sure everything really is turned off! 25ms if resolution = 40
             get_current_dmx_device().stop_device();
@@ -1730,4 +1759,16 @@ void MainWindow::check_which_dmx_device_is_connected() {
   }
   if(this->dmx_device_connected == DmxDeviceConnected::NOT_FOUND)
     Logger::debug("No connected DMX Device found!");
+}
+
+std::vector<int> MainWindow::get_all_pan_tilt_channels() {
+  std::vector<int> all_pan_tilt_channels;
+  for(Fixture f: universes[0].get_fixtures()) {
+    std::vector<int> fixture_pan_tilt_channels = f.get_pan_tilt_channels();
+    for(int i = 0; i < fixture_pan_tilt_channels.size(); i++) {
+      fixture_pan_tilt_channels[i] = fixture_pan_tilt_channels[i] + f.get_start_channel() - 1;
+    }
+    all_pan_tilt_channels.insert(all_pan_tilt_channels.end(), fixture_pan_tilt_channels.begin(), fixture_pan_tilt_channels.end());
+  }
+  return all_pan_tilt_channels;
 }

@@ -100,6 +100,10 @@ class LightshowFixture {
    */
   std::uint8_t get_channel_blue();
 
+  std::uint8_t get_channel_shutter();
+  std::uint8_t get_channel_pan();
+  std::uint8_t get_channel_tilt();
+
   /**
    * Sets the channel number of the global dimmer.
    * @param channel_dimmer
@@ -129,6 +133,10 @@ class LightshowFixture {
    * @param channel_blue
    */
   void set_channel_blue(std::uint8_t channel_blue);
+
+  void set_channel_shutter(std::uint8_t channel_shutter);
+  void set_channel_pan(std::uint8_t _channel_pan);
+  void set_channel_tilt(std::uint8_t _channel_tilt);
 
   /**
    * Sets the name of the Fixture.
@@ -167,6 +175,11 @@ class LightshowFixture {
    */
   bool has_global_dimmer = false;
 
+  bool has_shutter = false;
+
+  bool has_pan = false;
+  bool has_tilt = false;
+
   std::vector<std::string> get_colors();
 
   void set_position_in_group(int _position);
@@ -184,6 +197,9 @@ class LightshowFixture {
   std::uint8_t channel_red;
   std::uint8_t channel_green;
   std::uint8_t channel_blue;
+  std::uint8_t channel_shutter;
+  std::uint8_t channel_pan;
+  std::uint8_t channel_tilt;
   Channel dimmer = Channel(0);
   Channel strobo = Channel(0);
   Channel red = Channel(0);

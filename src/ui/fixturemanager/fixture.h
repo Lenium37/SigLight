@@ -148,6 +148,8 @@ public:
 
   int get_position_in_group();
 
+  std::vector<int> get_pan_tilt_channels();
+
 private:
   /**
    * @brief name Name of the Fixture.

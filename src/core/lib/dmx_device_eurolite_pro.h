@@ -29,7 +29,7 @@ class DmxDeviceEurolitePro : public DmxDevice{
   int start_device() override;
   int stop_device() override;
   bool is_connected() const override;
-  int turn_off_all_channels() override;
+  int turn_off_all_channels(std::vector<int> pan_tilt_channels) override;
   void start_daemon_thread() override;
 
  private:
