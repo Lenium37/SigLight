@@ -42,7 +42,8 @@ class Analysis {
   Analysis();
   ~Analysis();
 
-  std::vector<float> get_onset_timestamps();
+  std::vector<float> get_onset_timestamps_energy_difference();
+  std::vector<float> get_onset_timestamps_frequencies(float f_start, float f_end);
   void read_wav(char *filepath);
   void stft();
   std::vector<time_value_int> peaks_per_band(int f1, int f2);

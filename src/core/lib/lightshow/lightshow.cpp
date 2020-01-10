@@ -160,7 +160,7 @@ void Lightshow::prepare_analysis_for_song(char *song_path) {
   }
 
   this->analysis.normalize();
-  this->onset_timestamps = this->analysis.get_onset_timestamps();
+  this->onset_timestamps = this->analysis.get_onset_timestamps_energy_difference();
 
 
   // trying to get bpm from onsets
