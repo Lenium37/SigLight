@@ -148,7 +148,6 @@ std::string Fixture::get_colors() {
 }
 
 void Fixture::set_colors(std::string colors) {
-  std::cout << "setting fix colors to: " << colors << std::endl;
   this->colors = colors;
 }
 

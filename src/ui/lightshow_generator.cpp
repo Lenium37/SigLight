@@ -1160,12 +1160,12 @@ color_values LightshowGenerator::color_to_rgb(string color) {
     cv.b = 255;
   } else if(color == "yellow") {
     cv.r = 255;
-    cv.g = 255; // looked to green on Cameo, maybe change back if mostly other fixtures are used
+    cv.g = 130; // looked to green on Cameo, maybe change back if mostly other fixtures are used
     //cv.g = 100;
     cv.b = 0;
   } else if(color == "orange") {
     cv.r = 255;
-    cv.g = 165;
+    cv.g = 80;
     cv.b = 0;
   } else if(color == "cyan") {
     cv.r = 0;
