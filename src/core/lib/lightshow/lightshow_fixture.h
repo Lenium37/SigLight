@@ -179,6 +179,7 @@ class LightshowFixture {
 
   bool has_pan = false;
   bool has_tilt = false;
+  bool has_strobe = false;
 
   std::vector<std::string> get_colors();
 

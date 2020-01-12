@@ -75,6 +75,7 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_green(4);
     this->set_channel_blue(5);
     this->has_global_dimmer = true;
+    this->has_strobe = true;
   } else if(name == "JBLED A7 (S8)") {
     this->set_channel_pan(1);
     this->set_channel_tilt(3);
@@ -105,6 +106,7 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_blue(8);
     this->set_channel_strobo(10);
     this->has_global_dimmer = true;
+    this->has_strobe = true;
   } else if(name == "Cobalt Plus Spot 5R") {
     this->set_channel_dimmer(16);
     // alle Farben ein Channel
@@ -125,6 +127,7 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_green(4);
     this->set_channel_blue(5);
     this->has_global_dimmer = true;
+    this->has_strobe = true;
   } else if (name == "BAR TRI-LED") {
     this->set_channel_dimmer(2);
     this->set_channel_strobo(3);
@@ -132,6 +135,7 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_green(5);
     this->set_channel_blue(6);
     this->has_global_dimmer = true;
+    this->has_strobe = true;
   } else Logger::error("Fixture with unknown name created. Channels have to be set manually.");
 }
 
@@ -243,7 +247,8 @@ void LightshowFixture::set_type(std::string type) {
   || type == "group_one_after_another_blink"
   || type == "group_two_after_another"
   || type == "group_alternate_odd_even"
-  || type == "group_random_flashes") {
+  || type == "group_random_flashes"
+  || type == "strobe_if_many_onsets") {
     this->type = type;
     Logger::debug("Set type of fixture to {}", type);
   }

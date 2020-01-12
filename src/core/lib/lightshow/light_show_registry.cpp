@@ -185,6 +185,8 @@ std::shared_ptr<Lightshow> LightShowRegistry::read_lightshow(const std::string f
         lightshow->add_fixture_ambient(fixture);
       } else if(fixture.get_type() == "group_random_flashes") {
         lightshow->add_fixture_ambient(fixture);
+      } else if(fixture.get_type() == "strobe_if_many_onsets") {
+        lightshow->add_fixture_ambient(fixture);
       } else {
         lightshow->add_fixture(fixture);
       }

@@ -905,6 +905,67 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
       }
       lightshow_from_analysis->add_fixture(fix);
+    } else if (fix_type == "strobe_if_many_onsets") {
+      if(fix.has_global_dimmer) {
+        if (fix.has_strobe) {
+          std::vector<float> onset_timestamps = lightshow_from_analysis->get_onset_timestamps();
+          std::vector<float> begin_and_end_of_flashing_timestamps;
+          int onset_counter = 0;
+          float last_time = 0;
+          float begin_timestamp = 0;
+          float time_of_one_eigth = ((float) 60 / (float) lightshow_from_analysis->get_bpm()) / 2;
+          //std::cout << "time_of_one_eigth: " << time_of_one_eigth << std::endl;
+          for (float onset_timestamp: onset_timestamps) {
+            if (onset_counter == 0 && onset_timestamp - last_time < time_of_one_eigth) {
+              begin_timestamp = last_time;
+              onset_counter = 1;
+            }
+
+            if (onset_counter > 0 && onset_timestamp - last_time < time_of_one_eigth) {
+              onset_counter++;
+            }
+
+            if (onset_counter > 0 && onset_timestamp - last_time >= time_of_one_eigth) {
+              if (onset_counter > 12) {
+                begin_and_end_of_flashing_timestamps.push_back(begin_timestamp);
+                begin_and_end_of_flashing_timestamps.push_back(last_time);
+              }
+              onset_counter = 0;
+            }
+            last_time = onset_timestamp;
+          }
+
+          std::vector<time_value_int> value_changes;
+
+          std::cout << "begin_and_end_of_flashing_timestamps.size(): " << begin_and_end_of_flashing_timestamps.size() << std::endl;
+          //std::cout << "old bpm analysis: " << lightshow_from_analysis->get_bpm() << std::endl;
+
+          float begin_flashing = 0;
+          float end_flashing = 0;
+
+          if(begin_and_end_of_flashing_timestamps.size() > 0) {
+            for (int i = 0; i < begin_and_end_of_flashing_timestamps.size() - 1; i = i + 2) {
+              begin_flashing = begin_and_end_of_flashing_timestamps[i];
+              end_flashing = begin_and_end_of_flashing_timestamps[i + 1];
+
+              value_changes.push_back({begin_flashing, 255});
+              value_changes.push_back({end_flashing, 0});
+            }
+            fix.add_value_changes_to_channel(value_changes, fix.get_channel_strobo());
+          }
+
+          fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
+
+          std::vector<std::string> colors = fix.get_colors();
+          this->generate_color_fades(lightshow_from_analysis, fix, colors);
+
+        } else if (fix.has_shutter) {
+
+        } else {
+
+        }
+      }
+      lightshow_from_analysis->add_fixture(fix);
     }
 
   }

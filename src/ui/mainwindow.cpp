@@ -1246,6 +1246,7 @@ void MainWindow::ShowContextMenu(const QPoint &pos) {
   QAction *type_group_two_after_another = type_menu->addAction("group_two_after_another");
   QAction *type_group_alternate_odd_even = type_menu->addAction("group_alternate_odd_even");
   QAction *type_group_random_flashes = type_menu->addAction("group_random_flashes");
+  QAction *type_strobe_if_many_onsets = type_menu->addAction("strobe_if_many_onsets");
 
 
   QSignalMapper *signalMapper = new QSignalMapper(this);
@@ -1275,7 +1276,7 @@ bool MainWindow::xml_has_no_error(tinyxml2::XMLError error) {
 }
 
 void MainWindow::update_fixture_list() {
-  QStringList types = (QStringList() << "Ambient" << "Bass" << "Mid" << "High" << "color_change_beats" << "color_change_beats_action" << "color_change_onsets" << "onset_flash"<< "onset_flash_reverse" << "onset_blink" << "group_one_after_another" << "group_one_after_another_blink" << "group_two_after_another" << "group_alternate_odd_even" << "group_random_flashes");
+  QStringList types = (QStringList() << "Ambient" << "Bass" << "Mid" << "High" << "color_change_beats" << "color_change_beats_action" << "color_change_onsets" << "onset_flash"<< "onset_flash_reverse" << "onset_blink" << "group_one_after_another" << "group_one_after_another_blink" << "group_two_after_another" << "group_alternate_odd_even" << "group_random_flashes" << "strobe_if_many_onsets");
 
   for (auto type : types) {
     QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(QString::fromStdString(type.toStdString()),
