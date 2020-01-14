@@ -26,6 +26,7 @@ EditFixtureDialog::EditFixtureDialog(QWidget *parent, list<Fixture> &fixtures, s
   for (int i = 0; i < list_size; i++) {
     ui->fixture_selection->addItem(QString::fromStdString((std::next(fixtures.begin(), i))->get_name()));
     types_of_fixtures << QString::fromStdString(std::next(fixtures.begin(), i)->get_type());
+    names_of_fixtures << QString::fromStdString(std::next(fixtures.begin(), i)->get_name());
     end_channels.push_back(std::next(fixtures.begin(), i)->get_channel_count());
   }
 
@@ -36,7 +37,7 @@ EditFixtureDialog::EditFixtureDialog(QWidget *parent, list<Fixture> &fixtures, s
   ui->sB_position_inside_group->setRange(1, 32);
   //ui->sB_position_inside_group->setEnabled(false);
   ui->pB_delete_fixture->setVisible(false);
-  this->setWindowTitle("Choose Fixture");
+  this->setWindowTitle("Edit Fixture");
   EditFixtureDialog::is_delete = false;
 
   connect(ui->cB_type, SIGNAL(currentTextChanged(QString)), this, SLOT(update_position_in_group_status(QString)));
@@ -49,8 +50,13 @@ EditFixtureDialog::~EditFixtureDialog() {
 
 void EditFixtureDialog::set_up_dialog_options(std::list<int> _blocked_channels, std::string _own_channels, std::string _name, std::string _colors, int pos_in_group, std::string _type)
 {
+  for(int i = 0; i < names_of_fixtures.size(); i++) {
+    if(names_of_fixtures[i] == QString::fromStdString(_name))
+      ui->fixture_selection->setCurrentRow(i);
+  }
 
-  ui->lE_fixture_name->setText(QString::fromStdString(_name));
+  //ui->lE_fixture_name->setText(QString::fromStdString(_name));
+  ui->l_fixture_name->setText(QString::fromStdString(_name));
 
   Logger::debug("_own_channels: {}", _own_channels);
 
@@ -174,6 +180,7 @@ void EditFixtureDialog::on_fixture_selection_currentRowChanged(int currentRow)
 {
   //ui->cB_type->setCurrentIndex(ui->cB_type->findText(types_of_fixtures.at(currentRow)));
   //set_first_allowed_channel(currentRow);
+  ui->l_fixture_name->setText(names_of_fixtures.at(currentRow));
 }
 
 void EditFixtureDialog::on_pB_delete_fixture_clicked()

@@ -63,6 +63,7 @@ class EditFixtureDialog : public QDialog {
   Ui::EditFixtureDialog *ui;
   QStringList types;
   QStringList types_of_fixtures;
+  QStringList names_of_fixtures;
   QStringList colors;
   std::list<int> blocked_channels;
   std::list<int> end_channels;

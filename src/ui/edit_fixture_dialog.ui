@@ -74,9 +74,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QLineEdit" name="lE_fixture_name"/>
-      </item>
       <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
        <widget class="QLabel" name="l_start_channel">
         <property name="sizePolicy">
