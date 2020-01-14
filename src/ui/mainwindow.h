@@ -310,7 +310,7 @@ private:
      * @param start_channel The start channel of the Fixture.
      * @param type Type of the Fixutre.
      */
-    void add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group);
+    void add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage);
 
     /**
      * @brief create_fixtures Creates the preset Fixtures or loads them if the Fixturefile exists.
@@ -329,7 +329,7 @@ private:
      * @param start_channel Set the start channel of a Fixture.
      */
     void create_new_fixture(std::string name, std::string type, std::string description, QStringList channels,
-                            std::string icon_identifyer, std::string colors, int position_in_group, int start_channel = 0);
+                            std::string icon_identifyer, std::string colors, int position_in_group, std::string position_on_stage = "Left", int start_channel = 0);
 
     /**
      * @brief init Initializes some settings of the UI and sets some Presets.

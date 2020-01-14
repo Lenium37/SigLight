@@ -39,8 +39,9 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
     || fix.get_name() == "Cobalt Plus Spot 5R"
     || fix.get_name() == "Varytec PAD7 seventy"
     || fix.get_name() == "TOURSPOT PRO"
-    || fix.get_name() == "BAR TRI-LED") {
-      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors(), fix.get_position_in_group()));
+    || fix.get_name() == "BAR TRI-LED"
+    || fix.get_name() == "SGM X-5 (1CH)") {
+      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors(), fix.get_position_in_group(), fix.get_position_on_stage()));
     } else std::cout << "Fixture type unknown." << std::endl;
 
     if(fix.get_type() == "group_one_after_another" && fix.get_position_in_group() > fixtures_in_group_one_after_another)
@@ -105,14 +106,27 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       pan_steps.push_back({6.0, pan_tilt_center});
       pan_steps.push_back({7.0, (int) (pan_tilt_center - amplitude_pan)});*/
 
-      pan_steps.push_back({0.0, (int) (pan_tilt_center + amplitude_pan)});
-      pan_steps.push_back({1.0f * time_of_two_beats, (int) (pan_tilt_center + (amplitude_pan * 2 / 3))});
-      pan_steps.push_back({2.0f * time_of_two_beats, pan_tilt_center});
-      pan_steps.push_back({3.0f * time_of_two_beats, (int) (pan_tilt_center - (amplitude_pan * 2 / 3))});
-      pan_steps.push_back({4.0f * time_of_two_beats, (int) (pan_tilt_center - amplitude_pan)});
-      pan_steps.push_back({5.0f * time_of_two_beats, (int) (pan_tilt_center - (amplitude_pan * 2 / 3))});
-      pan_steps.push_back({6.0f * time_of_two_beats, pan_tilt_center});
-      pan_steps.push_back({7.0f * time_of_two_beats, (int) (pan_tilt_center + (amplitude_pan * 2 / 3))});
+      if(fix.get_position_on_stage() == "Left") {
+        std::cout << "position on stage: left" << std::endl;
+        pan_steps.push_back({0.0, (int) (pan_tilt_center + amplitude_pan)});
+        pan_steps.push_back({1.0f * time_of_two_beats, (int) (pan_tilt_center + (amplitude_pan * 2 / 3))});
+        pan_steps.push_back({2.0f * time_of_two_beats, pan_tilt_center});
+        pan_steps.push_back({3.0f * time_of_two_beats, (int) (pan_tilt_center - (amplitude_pan * 2 / 3))});
+        pan_steps.push_back({4.0f * time_of_two_beats, (int) (pan_tilt_center - amplitude_pan)});
+        pan_steps.push_back({5.0f * time_of_two_beats, (int) (pan_tilt_center - (amplitude_pan * 2 / 3))});
+        pan_steps.push_back({6.0f * time_of_two_beats, pan_tilt_center});
+        pan_steps.push_back({7.0f * time_of_two_beats, (int) (pan_tilt_center + (amplitude_pan * 2 / 3))});
+      } else {
+        std::cout << "position on stage: right" << std::endl;
+        pan_steps.push_back({0.0, (int) (pan_tilt_center - amplitude_pan)});
+        pan_steps.push_back({1.0f * time_of_two_beats, (int) (pan_tilt_center - (amplitude_pan * 2 / 3))});
+        pan_steps.push_back({2.0f * time_of_two_beats, pan_tilt_center});
+        pan_steps.push_back({3.0f * time_of_two_beats, (int) (pan_tilt_center + (amplitude_pan * 2 / 3))});
+        pan_steps.push_back({4.0f * time_of_two_beats, (int) (pan_tilt_center + amplitude_pan)});
+        pan_steps.push_back({5.0f * time_of_two_beats, (int) (pan_tilt_center + (amplitude_pan * 2 / 3))});
+        pan_steps.push_back({6.0f * time_of_two_beats, pan_tilt_center});
+        pan_steps.push_back({7.0f * time_of_two_beats, (int) (pan_tilt_center - (amplitude_pan * 2 / 3))});
+      }
 
 
       tilt_steps.push_back({0.0, pan_tilt_center});
@@ -906,63 +920,81 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       }
       lightshow_from_analysis->add_fixture(fix);
     } else if (fix_type == "strobe_if_many_onsets") {
-      if(fix.has_global_dimmer) {
-        if (fix.has_strobe) {
-          std::vector<float> onset_timestamps = lightshow_from_analysis->get_onset_timestamps();
-          std::vector<float> begin_and_end_of_flashing_timestamps;
-          int onset_counter = 0;
-          float last_time = 0;
-          float begin_timestamp = 0;
-          float time_of_one_eigth = ((float) 60 / (float) lightshow_from_analysis->get_bpm()) / 2;
-          //std::cout << "time_of_one_eigth: " << time_of_one_eigth << std::endl;
-          for (float onset_timestamp: onset_timestamps) {
-            if (onset_counter == 0 && onset_timestamp - last_time < time_of_one_eigth) {
-              begin_timestamp = last_time;
-              onset_counter = 1;
-            }
 
-            if (onset_counter > 0 && onset_timestamp - last_time < time_of_one_eigth) {
-              onset_counter++;
-            }
+      std::vector<float> onset_timestamps = lightshow_from_analysis->get_onset_timestamps();
+      std::vector<float> begin_and_end_of_flashing_timestamps;
+      int onset_counter = 0;
+      float last_time = 0;
+      float begin_timestamp = 0;
+      float time_of_one_eigth = ((float) 60 / (float) lightshow_from_analysis->get_bpm()) / 2;
+      //std::cout << "time_of_one_eigth: " << time_of_one_eigth << std::endl;
+      for (float onset_timestamp: onset_timestamps) {
+        if (onset_counter == 0 && onset_timestamp - last_time < time_of_one_eigth) {
+          begin_timestamp = last_time;
+          onset_counter = 1;
+        }
 
-            if (onset_counter > 0 && onset_timestamp - last_time >= time_of_one_eigth) {
-              if (onset_counter > 12) {
-                begin_and_end_of_flashing_timestamps.push_back(begin_timestamp);
-                begin_and_end_of_flashing_timestamps.push_back(last_time);
+        if (onset_counter > 0 && onset_timestamp - last_time < time_of_one_eigth) {
+          onset_counter++;
+        }
+
+        if (onset_counter > 0 && onset_timestamp - last_time >= time_of_one_eigth) {
+          if (onset_counter > 12) {
+            begin_and_end_of_flashing_timestamps.push_back(begin_timestamp);
+            begin_and_end_of_flashing_timestamps.push_back(last_time);
+          }
+          onset_counter = 0;
+        }
+        last_time = onset_timestamp;
+      }
+
+      std::vector<time_value_int> value_changes;
+
+      std::cout << "begin_and_end_of_flashing_timestamps.size(): " << begin_and_end_of_flashing_timestamps.size()
+                << std::endl;
+      //std::cout << "old bpm analysis: " << lightshow_from_analysis->get_bpm() << std::endl;
+
+      float begin_flashing = 0;
+      float end_flashing = 0;
+
+      if(fix.is_blinder) {
+        if (begin_and_end_of_flashing_timestamps.size() > 0) {
+          for (int i = 0; i < begin_and_end_of_flashing_timestamps.size() - 1; i = i + 2) {
+            begin_flashing = begin_and_end_of_flashing_timestamps[i];
+            end_flashing = begin_and_end_of_flashing_timestamps[i + 1];
+
+            value_changes.push_back({begin_flashing, fix.get_blinder_value()});
+            value_changes.push_back({end_flashing, 0});
+          }
+          fix.add_value_changes_to_channel(value_changes, fix.get_channel_blinder());
+        }
+      }
+      else {
+        if (fix.has_global_dimmer) {
+          if (fix.has_strobe) {
+
+
+            if (begin_and_end_of_flashing_timestamps.size() > 0) {
+              for (int i = 0; i < begin_and_end_of_flashing_timestamps.size() - 1; i = i + 2) {
+                begin_flashing = begin_and_end_of_flashing_timestamps[i];
+                end_flashing = begin_and_end_of_flashing_timestamps[i + 1];
+
+                value_changes.push_back({begin_flashing, 255});
+                value_changes.push_back({end_flashing, 0});
               }
-              onset_counter = 0;
+              fix.add_value_changes_to_channel(value_changes, fix.get_channel_strobo());
             }
-            last_time = onset_timestamp;
+
+            fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
+
+            std::vector<std::string> colors = fix.get_colors();
+            this->generate_color_fades(lightshow_from_analysis, fix, colors);
+
+          } else if (fix.has_shutter) {
+
+          } else {
+
           }
-
-          std::vector<time_value_int> value_changes;
-
-          std::cout << "begin_and_end_of_flashing_timestamps.size(): " << begin_and_end_of_flashing_timestamps.size() << std::endl;
-          //std::cout << "old bpm analysis: " << lightshow_from_analysis->get_bpm() << std::endl;
-
-          float begin_flashing = 0;
-          float end_flashing = 0;
-
-          if(begin_and_end_of_flashing_timestamps.size() > 0) {
-            for (int i = 0; i < begin_and_end_of_flashing_timestamps.size() - 1; i = i + 2) {
-              begin_flashing = begin_and_end_of_flashing_timestamps[i];
-              end_flashing = begin_and_end_of_flashing_timestamps[i + 1];
-
-              value_changes.push_back({begin_flashing, 255});
-              value_changes.push_back({end_flashing, 0});
-            }
-            fix.add_value_changes_to_channel(value_changes, fix.get_channel_strobo());
-          }
-
-          fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
-
-          std::vector<std::string> colors = fix.get_colors();
-          this->generate_color_fades(lightshow_from_analysis, fix, colors);
-
-        } else if (fix.has_shutter) {
-
-        } else {
-
         }
       }
       lightshow_from_analysis->add_fixture(fix);

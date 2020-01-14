@@ -148,6 +148,10 @@ public:
 
   int get_position_in_group();
 
+  void set_position_on_stage(std::string _position);
+
+  std::string get_position_on_stage();
+
   std::vector<int> get_pan_tilt_channels();
 
 private:
@@ -189,6 +193,8 @@ private:
   std::string colors;
 
   int position_in_group;
+
+  std::string position_on_stage;
 
 };
 

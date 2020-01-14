@@ -24,8 +24,12 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
     for (int i = 0; i < list_size; i++) {
       ui->fixture_selection->addItem(QString::fromStdString((std::next(fixtures.begin(), i))->get_name()));
       types_of_fixtures << QString::fromStdString(std::next(fixtures.begin(), i)->get_type());
+      names_of_fixtures << QString::fromStdString(std::next(fixtures.begin(), i)->get_name());
       end_channels.push_back(std::next(fixtures.begin(), i)->get_channel_count());
     }
+
+    ui->cB_moving_head_position->addItem("Left");
+    ui->cB_moving_head_position->addItem("Right");
 
     ui->fixture_selection->setCurrentRow(0);
     ui->cB_type->addItems(types);
@@ -51,13 +55,14 @@ void FixtureChoosingDialog::set_up_dialog_options(std::list<int> blocked_channel
     set_first_allowed_channel(0, true);
 }
 
-void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group)
+void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group, std::string &position_on_stage)
 {
     fixture_id = ui->fixture_selection->currentRow();
     start_channel = ui->sB_start_channel->value();
     type = ui->cB_type->currentText();
     position_in_group = ui->sB_position_inside_group->value();
     colors = ui->cB_colors->currentText().toStdString();
+    position_on_stage = ui->cB_moving_head_position->currentText().toStdString();
 }
 
 void FixtureChoosingDialog::setup_for_edit()
@@ -138,6 +143,7 @@ void FixtureChoosingDialog::on_fixture_selection_currentRowChanged(int currentRo
 {
     ui->cB_type->setCurrentIndex(ui->cB_type->findText(types_of_fixtures.at(currentRow)));
     set_first_allowed_channel(currentRow);
+    this->update_moving_head_position_status(names_of_fixtures.at(currentRow));
 }
 
 void FixtureChoosingDialog::on_pB_delete_fixture_clicked()
@@ -158,5 +164,14 @@ void FixtureChoosingDialog::update_position_in_group_status(QString current_type
   else {
     ui->sB_position_inside_group->setEnabled(false);
     ui->sB_position_inside_group->setValue(0);
+  }
+}
+
+void FixtureChoosingDialog::update_moving_head_position_status(QString current_fixture) {
+  if(current_fixture == "JBLED A7 (S8)") {
+    ui->cB_moving_head_position->setEnabled(true);
+  } else {
+    ui->cB_moving_head_position->setCurrentIndex(0);
+    ui->cB_moving_head_position->setEnabled(false);
   }
 }

@@ -31,7 +31,7 @@ class LightshowFixture {
    * @param number_of_channels
    * @param type
    */
-  LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group);
+  LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage);
   ~LightshowFixture();
 
   /**
@@ -103,6 +103,8 @@ class LightshowFixture {
   std::uint8_t get_channel_shutter();
   std::uint8_t get_channel_pan();
   std::uint8_t get_channel_tilt();
+  std::uint8_t get_channel_blinder();
+  std::uint8_t get_blinder_value();
 
   /**
    * Sets the channel number of the global dimmer.
@@ -137,6 +139,8 @@ class LightshowFixture {
   void set_channel_shutter(std::uint8_t channel_shutter);
   void set_channel_pan(std::uint8_t _channel_pan);
   void set_channel_tilt(std::uint8_t _channel_tilt);
+  void set_channel_blinder(std::uint8_t _channel_blinder);
+  void set_blinder_value(std::uint8_t _blinder_value);
 
   /**
    * Sets the name of the Fixture.
@@ -180,12 +184,17 @@ class LightshowFixture {
   bool has_pan = false;
   bool has_tilt = false;
   bool has_strobe = false;
+  bool is_blinder = false;
 
   std::vector<std::string> get_colors();
 
   void set_position_in_group(int _position);
 
   int get_position_in_group();
+
+  void set_position_on_stage(std::string _position);
+
+  std::string get_position_on_stage();
 
  private:
   int start_channel;
@@ -201,6 +210,8 @@ class LightshowFixture {
   std::uint8_t channel_shutter;
   std::uint8_t channel_pan;
   std::uint8_t channel_tilt;
+  std::uint8_t channel_blinder;
+  std::uint8_t blinder_value;
   Channel dimmer = Channel(0);
   Channel strobo = Channel(0);
   Channel red = Channel(0);
@@ -208,6 +219,7 @@ class LightshowFixture {
   Channel blue = Channel(0);
   std::vector<std::string> colors;
   int position_inside_group;
+  std::string position_on_stage;
 
 };
 

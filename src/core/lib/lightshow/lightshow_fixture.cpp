@@ -13,11 +13,12 @@
 #include <atomic>
 
 
-LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group) {
+LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage) {
   this->name = name;
   this->start_channel = start_channel;
   this->number_of_channels = number_of_channels;
   this->position_inside_group = _position_inside_group;
+  this->position_on_stage = _position_on_stage;
   std::istringstream ss(colors);
   std::string color;
   if(!colors.empty()) {
@@ -136,7 +137,11 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_blue(6);
     this->has_global_dimmer = true;
     this->has_strobe = true;
-  } else Logger::error("Fixture with unknown name created. Channels have to be set manually.");
+  } else if(name == "SGM X-5 (1CH)") {
+    this->set_channel_blinder(1);
+    this->set_blinder_value(249);
+    this->is_blinder = true;
+  } else Logger::error("Fixture with unknown name created. Channels have not been set.");
 }
 
 LightshowFixture::~LightshowFixture() {
@@ -305,4 +310,28 @@ std::uint8_t LightshowFixture::get_channel_tilt() {
 
 void LightshowFixture::set_channel_tilt(std::uint8_t _channel_tilt) {
   this->channel_tilt = _channel_tilt;
+}
+
+void LightshowFixture::set_position_on_stage(std::string _position) {
+  this->position_on_stage = _position;
+}
+
+std::string LightshowFixture::get_position_on_stage() {
+  return this->position_on_stage;
+}
+
+std::uint8_t LightshowFixture::get_channel_blinder() {
+  return this->channel_blinder;
+}
+
+std::uint8_t LightshowFixture::get_blinder_value() {
+  return this->blinder_value;
+}
+
+void LightshowFixture::set_blinder_value(std::uint8_t _blinder_value) {
+  this->blinder_value = _blinder_value;
+}
+
+void LightshowFixture::set_channel_blinder(std::uint8_t _channel_blinder) {
+  this->channel_blinder = _channel_blinder;
 }

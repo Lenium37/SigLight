@@ -172,3 +172,11 @@ std::vector<int> Fixture::get_pan_tilt_channels() {
   }
   return pan_tilt_channels;
 }
+
+void Fixture::set_position_on_stage(std::string _position) {
+  this->position_on_stage = _position;
+}
+
+std::string Fixture::get_position_on_stage() {
+  return this->position_on_stage;
+}
