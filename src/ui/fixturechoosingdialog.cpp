@@ -174,4 +174,16 @@ void FixtureChoosingDialog::update_moving_head_position_status(QString current_f
     ui->cB_moving_head_position->setCurrentIndex(0);
     ui->cB_moving_head_position->setEnabled(false);
   }
+
+  if(current_fixture == "SGM X-5 (1CH)") {
+    ui->cB_type->setEnabled(false);
+    int index_white = ui->cB_colors->findText("W");
+    if ( index_white != -1 ) { // -1 for not found
+      ui->cB_colors->setCurrentIndex(index_white);
+    }
+    ui->cB_colors->setEnabled(false);
+  } else {
+    ui->cB_type->setEnabled(true);
+    ui->cB_colors->setEnabled(true);
+  }
 }

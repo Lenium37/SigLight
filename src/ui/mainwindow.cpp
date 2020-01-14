@@ -443,7 +443,7 @@ void MainWindow::create_fixtures() {
 
     channels << "Blinder Blackout~0~5|Flash rate slow-fast~6~249|Continuous blinder effect~250~255";
     create_new_fixture("SGM X-5 (1CH)",
-                       "Ambient",
+                       "strobe_if_many_onsets",
                        "DMX-Funktionen: Blinder",
                        channels,
                        "lamp",
