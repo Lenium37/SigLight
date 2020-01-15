@@ -91,7 +91,7 @@ void MainWindow::init() {
   ui->fixture_list->setSelectionMode(QAbstractItemView::SingleSelection);
 
   // Sets the layout for the fixturelist.
-  ui->fixture_list->setColumnCount(5);
+  ui->fixture_list->setColumnCount(6);
 
   ui->fixture_list->invisibleRootItem()->setFlags(Qt::ItemIsEnabled);
 
@@ -103,6 +103,7 @@ void MainWindow::init() {
   headers.append("Colors");
   headers.append("# in group");
   headers.append("Pos. on stage");
+  headers.append("Mov. Head type");
   ui->fixture_list->setHeaderLabels(headers);
   // Create the Fixtureobjects.
   create_fixtures();
@@ -247,7 +248,7 @@ void MainWindow::add_universe(QString name, QString description) {
   //delete itm;
 }
 
-void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage) {
+void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage, std::string moving_head_type) {
   auto *itm = new QTreeWidgetItem();
   _fixture.set_start_channel(start_channel);
   _fixture.set_type(type.toStdString());
@@ -258,6 +259,7 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
 
   _fixture.set_position_in_group(position_in_group);
   _fixture.set_position_on_stage(position_on_stage);
+  _fixture.set_moving_head_type(moving_head_type);
 
   universes[0].add_fixture(_fixture);
 
@@ -274,6 +276,9 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
   itm->setText(2, QString::fromStdString(universes[0].get_fixtures().back().get_colors()));
   itm->setText(3, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_position_in_group())));
   itm->setText(4, QString::fromStdString(universes[0].get_fixtures().back().get_position_on_stage()));
+  if(universes[0].get_fixtures().back().get_moving_head_type() != "Nothing")
+    itm->setText(5, QString::fromStdString(universes[0].get_fixtures().back().get_moving_head_type()));
+  else itm->setText(5, "");
 
   QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(type, Qt::MatchExactly | Qt::MatchRecursive, 0);
 
@@ -343,7 +348,36 @@ void MainWindow::create_fixtures() {
 
     create_new_fixture("JBLED A7 (S8)",
                        "color_change_onsets",
-                       "DMX-Funktionen: Pan, Tilt, Colour Fade, Master Dimmer, RGB, Strobe",
+                       "DMX-Funktionen: Pan, Tilt, Colour Fade, Master Dimmer, RGB, Shutter",
+                       channels,
+                       "lamp",
+                       color_palettes[0],
+                       0);
+    channels.clear();
+
+    channels << "Pan (X) 433,6°~0~255" << "Pan (X) fein~0~255" << "Tilt (Y) 280°~0~255" << "Tilt (Y) fein~0~255"
+             << "Control channel~0~255"
+             << "Shutter zu~0~15|Shutter auf~255~255"
+             << "Dimmer (0-100%)~0~255"
+             << "Focus 0-100%~0~255"
+             << "Zoom 0-100% (far - near)~0~255"
+             << "Beamformung~0~255"
+             << "Gobo wheel 1~0~255"
+             << "Gobo wheel 2 - rotating gobos~0~255"
+             << "Gobo wheel 2 positioning / rotation ~0~255"
+             << "Color wheel white~0~1|red~4~5|yellow~8~9|magenta~12~13|green~16~17|orange~20~21|pink~32~33|cyan~36~37|blue~52~53"
+             << "Prisma 1~0~255"
+             << "Prisma 1 rotation~0~255"
+             << "Prisma 2~0~255"
+             << "Prisma 2 rotation~0~255"
+             << "Frost~0~255"
+             << "Pan/Tilt speed real time~0~3|movement delayed (fast-slow)~4~255"
+             << "Effektgeschwindigkeit real time~0~3|Effekte delayed (fast-slow)~4~255"
+             << "Blackout move~0~255";
+
+    create_new_fixture("JBLED P4 (M1)",
+                       "color_change_onsets",
+                       "DMX-Funktionen: Pan, Tilt, Colour Fade, Master Dimmer, Color wheel, Shutter",
                        channels,
                        "lamp",
                        color_palettes[0],
@@ -476,6 +510,7 @@ void MainWindow::create_new_fixture(string _name,
                                     std::string _colors,
                                     int position_in_group,
                                     std::string position_on_stage,
+                                    std::string moving_head_type,
                                     int start_channel) {
   Fixture temp;
   temp.set_name(_name);
@@ -485,6 +520,7 @@ void MainWindow::create_new_fixture(string _name,
   temp.set_icon(_icon);
   temp.set_position_in_group(position_in_group);
   temp.set_position_on_stage(position_on_stage);
+  temp.set_moving_head_type(moving_head_type);
   if(!_colors.empty())
     temp.set_colors(_colors);
   else
@@ -493,7 +529,7 @@ void MainWindow::create_new_fixture(string _name,
     fixtures.push_back(temp);
     save_fixture_objects_to_xml();
   } else {
-    add_fixture(&universe_tree.back(), temp, start_channel, QString::fromStdString(temp.get_type()), temp.get_colors(), position_in_group, position_on_stage);
+    add_fixture(&universe_tree.back(), temp, start_channel, QString::fromStdString(temp.get_type()), temp.get_colors(), position_in_group, position_on_stage, moving_head_type);
   }
 }
 
@@ -555,8 +591,9 @@ void MainWindow::get_fixture_for_universe() {
   std::string colors;
   int position_in_group = 0;
   std::string position_on_stage;
-  this->fcd->get_fixture_options(fixture_index, start_channel, type, colors, position_in_group, position_on_stage);
-  add_fixture((&universe_tree.back()), *(std::next(fixtures.begin(), fixture_index)), start_channel, type, colors, position_in_group, position_on_stage);
+  std::string moving_head_type;
+  this->fcd->get_fixture_options(fixture_index, start_channel, type, colors, position_in_group, position_on_stage, moving_head_type);
+  add_fixture((&universe_tree.back()), *(std::next(fixtures.begin(), fixture_index)), start_channel, type, colors, position_in_group, position_on_stage, moving_head_type);
   save_fixture_objects_to_xml(false);
   fixtures_changed = true;
 }
@@ -1096,6 +1133,10 @@ void MainWindow::save_fixture_objects_to_xml(bool is_preset) {
       xml_start_channel->SetText(fixture.get_start_channel());
       fixture_object->InsertEndChild(xml_start_channel);
 
+      tinyxml2::XMLElement *xml_moving_head_type = fixture_objects.NewElement("moving_head_type");
+      xml_moving_head_type->SetText(fixture.get_moving_head_type().c_str());
+      fixture_object->InsertEndChild(xml_moving_head_type);
+
       tinyxml2::XMLElement *xml_position_on_stage = fixture_objects.NewElement("position_on_stage");
       xml_position_on_stage->SetText(fixture.get_position_on_stage().c_str());
       fixture_object->InsertEndChild(xml_position_on_stage);
@@ -1158,6 +1199,7 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
   int start_channel = 0;
   int position_in_group = 0;
   std::string position_on_stage;
+  std::string moving_head_type;
 
   tinyxml2::XMLDocument fixture_objects;
   tinyxml2::XMLError error;
@@ -1192,6 +1234,11 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
           tinyxml2::XMLElement *start_channel_xml = fixture->FirstChildElement("startchannel");
           start_channel = std::atoi(start_channel_xml->GetText());
 
+          tinyxml2::XMLElement *moving_head_type_xml = fixture->FirstChildElement("moving_head_type");
+          moving_head_type = moving_head_type_xml->GetText();
+          if(moving_head_type == "")
+            moving_head_type = "Nothing";
+
           tinyxml2::XMLElement *position_on_stage_xml = fixture->FirstChildElement("position_on_stage");
           position_on_stage = position_on_stage_xml->GetText();
         }
@@ -1224,7 +1271,7 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
           functions.clear();
         }
         fixture = fixture->NextSiblingElement("Fixture");
-        create_new_fixture(fixture_name, fixture_type, fixture_description, channels, fixture_icon, fixture_colors, position_in_group, position_on_stage, start_channel);
+        create_new_fixture(fixture_name, fixture_type, fixture_description, channels, fixture_icon, fixture_colors, position_in_group, position_on_stage, moving_head_type, start_channel);
         channels.clear();
       }
     }
@@ -1405,7 +1452,8 @@ void MainWindow::on_edit_fixture_clicked() {
                                            ui->fixture_list->currentItem()->text(2).toStdString(),
                                            ui->fixture_list->currentItem()->text(3).toInt(),
                                            ui->fixture_list->currentItem()->parent()->text(0).toStdString(),
-                                           ui->fixture_list->currentItem()->text(4).toStdString());
+                                           ui->fixture_list->currentItem()->text(4).toStdString(),
+                                           ui->fixture_list->currentItem()->text(5).toStdString());
           connect(this->efd, SIGNAL(accepted()), this, SLOT(get_edited_fixture()));
           this->efd->exec();
         }
@@ -1435,8 +1483,9 @@ void MainWindow::get_edited_fixture() {
   std::string colors;
   int position_in_group = 0;
   std::string position_on_stage;
+  std::string moving_head_type;
 
-  this->efd->get_fixture_options(fixture_index, start_channel, type, colors, position_in_group, position_on_stage);
+  this->efd->get_fixture_options(fixture_index, start_channel, type, colors, position_in_group, position_on_stage, moving_head_type);
 
 
   std::cout << "new type of fixture: " << type.toStdString() << std::endl;
@@ -1453,6 +1502,7 @@ void MainWindow::get_edited_fixture() {
     type_item->setText(2, "");
     type_item->setText(3, "");
     type_item->setText(4, "");
+    type_item->setText(5, "");
     type_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled);
     std::cout << "debug22 " << type_item->text(0).toStdString()<< std::endl;
 
@@ -1473,6 +1523,7 @@ void MainWindow::get_edited_fixture() {
 
   fix.set_position_in_group(position_in_group);
   fix.set_position_on_stage(position_on_stage);
+  fix.set_moving_head_type(moving_head_type);
 
   auto *new_item = new QTreeWidgetItem(type_item);
   new_item->setFlags(
@@ -1487,6 +1538,9 @@ void MainWindow::get_edited_fixture() {
   new_item->setText(2, QString::fromStdString(fix.get_colors()));
   new_item->setText(3, QString::fromStdString(std::to_string(fix.get_position_in_group())));
   new_item->setText(4, QString::fromStdString(fix.get_position_on_stage()));
+  if(fix.get_moving_head_type() != "Nothing")
+    new_item->setText(5, QString::fromStdString(fix.get_moving_head_type()));
+  else new_item->setText(5, "");
 
 
   if(type_item && new_item) {

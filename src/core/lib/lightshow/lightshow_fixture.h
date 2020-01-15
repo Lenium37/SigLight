@@ -31,7 +31,7 @@ class LightshowFixture {
    * @param number_of_channels
    * @param type
    */
-  LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage);
+  LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage, std::string _moving_head_type);
   ~LightshowFixture();
 
   /**
@@ -105,6 +105,9 @@ class LightshowFixture {
   std::uint8_t get_channel_tilt();
   std::uint8_t get_channel_blinder();
   std::uint8_t get_blinder_value();
+  std::uint8_t get_channel_colorwheel();
+  std::uint8_t get_channel_focus();
+  std::uint8_t get_channel_zoom();
 
   /**
    * Sets the channel number of the global dimmer.
@@ -141,6 +144,9 @@ class LightshowFixture {
   void set_channel_tilt(std::uint8_t _channel_tilt);
   void set_channel_blinder(std::uint8_t _channel_blinder);
   void set_blinder_value(std::uint8_t _blinder_value);
+  void set_channel_colorwheel(std::uint8_t _channel_colowheel);
+  void set_channel_focus(std::uint8_t _channel_focus);
+  void set_channel_zoom(std::uint8_t _channel_zoom);
 
   /**
    * Sets the name of the Fixture.
@@ -185,16 +191,20 @@ class LightshowFixture {
   bool has_tilt = false;
   bool has_strobe = false;
   bool is_blinder = false;
+  bool has_colorwheel = false;
+  bool has_focus = false;
+  bool has_zoom = false;
 
   std::vector<std::string> get_colors();
 
   void set_position_in_group(int _position);
-
   int get_position_in_group();
 
   void set_position_on_stage(std::string _position);
-
   std::string get_position_on_stage();
+
+  void set_moving_head_type(std::string _moving_head_type);
+  std::string get_moving_head_type();
 
  private:
   int start_channel;
@@ -212,6 +222,9 @@ class LightshowFixture {
   std::uint8_t channel_tilt;
   std::uint8_t channel_blinder;
   std::uint8_t blinder_value;
+  std::uint8_t channel_colorwheel;
+  std::uint8_t channel_focus;
+  std::uint8_t channel_zoom;
   Channel dimmer = Channel(0);
   Channel strobo = Channel(0);
   Channel red = Channel(0);
@@ -220,6 +233,7 @@ class LightshowFixture {
   std::vector<std::string> colors;
   int position_inside_group;
   std::string position_on_stage;
+  std::string moving_head_type;
 
 };
 

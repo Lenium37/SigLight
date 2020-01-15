@@ -164,7 +164,8 @@ int Fixture::get_position_in_group() {
 
 std::vector<int> Fixture::get_pan_tilt_channels() {
   std::vector<int> pan_tilt_channels;
-  if(this->name == "JBLED A7 (S8)") {
+  if(this->name == "JBLED A7 (S8)"
+  || this->name == "JBLED P4 (M1)") {
     pan_tilt_channels.push_back(1);
     pan_tilt_channels.push_back(2);
     pan_tilt_channels.push_back(3);
@@ -179,4 +180,12 @@ void Fixture::set_position_on_stage(std::string _position) {
 
 std::string Fixture::get_position_on_stage() {
   return this->position_on_stage;
+}
+
+void Fixture::set_moving_head_type(std::string _moving_head_type) {
+  this->moving_head_type = _moving_head_type;
+}
+
+std::string Fixture::get_moving_head_type() {
+  return this->moving_head_type;
 }

@@ -13,12 +13,13 @@
 #include <atomic>
 
 
-LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage) {
+LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage, std::string _moving_head_type) {
   this->name = name;
   this->start_channel = start_channel;
   this->number_of_channels = number_of_channels;
   this->position_inside_group = _position_inside_group;
   this->position_on_stage = _position_on_stage;
+  this->moving_head_type = _moving_head_type;
   std::istringstream ss(colors);
   std::string color;
   if(!colors.empty()) {
@@ -89,6 +90,21 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->has_pan = true;
     this->has_tilt = true;
     this->has_shutter = true;
+  } else if(name == "JBLED P4 (M1)") {
+    this->set_channel_pan(1);
+    this->set_channel_tilt(3);
+    this->set_channel_shutter(6);
+    this->set_channel_dimmer(7);
+    this->set_channel_focus(8);
+    this->set_channel_zoom(9);
+    this->set_channel_colorwheel(14);
+    this->has_global_dimmer = true;
+    this->has_pan = true;
+    this->has_tilt = true;
+    this->has_shutter = true;
+    this->has_colorwheel = true;
+    this->has_focus = true;
+    this->has_zoom = true;
   } else if(name == "Stairville LED Flood Panel 150 (3ch)") {
     this->set_channel_red(1);
     this->set_channel_green(2);
@@ -334,4 +350,36 @@ void LightshowFixture::set_blinder_value(std::uint8_t _blinder_value) {
 
 void LightshowFixture::set_channel_blinder(std::uint8_t _channel_blinder) {
   this->channel_blinder = _channel_blinder;
+}
+
+void LightshowFixture::set_channel_colorwheel(std::uint8_t _channel_colorwheel) {
+  this->channel_colorwheel = _channel_colorwheel;
+}
+
+std::uint8_t LightshowFixture::get_channel_colorwheel() {
+  return this->channel_colorwheel;
+}
+
+void LightshowFixture::set_channel_focus(std::uint8_t _channel_focus) {
+  this->channel_focus = _channel_focus;
+}
+
+std::uint8_t LightshowFixture::get_channel_focus() {
+  return this->channel_focus;
+}
+
+void LightshowFixture::set_channel_zoom(std::uint8_t _channel_zoom) {
+  this->channel_zoom = _channel_zoom;
+}
+
+std::uint8_t LightshowFixture::get_channel_zoom() {
+  return this->channel_zoom;
+}
+
+void LightshowFixture::set_moving_head_type(std::string _moving_head_type) {
+  this->moving_head_type = _moving_head_type;
+}
+
+std::string LightshowFixture::get_moving_head_type() {
+  return this->moving_head_type;
 }

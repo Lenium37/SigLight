@@ -25,11 +25,18 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
       ui->fixture_selection->addItem(QString::fromStdString((std::next(fixtures.begin(), i))->get_name()));
       types_of_fixtures << QString::fromStdString(std::next(fixtures.begin(), i)->get_type());
       names_of_fixtures << QString::fromStdString(std::next(fixtures.begin(), i)->get_name());
+      //positions_of_fixtures << QString::fromStdString(std::next(fixtures.begin(), i)->get_position_on_stage());
+      //moving_head_types_of_fixtures << QString::fromStdString(std::next(fixtures.begin(), i)->get_moving_head_type());
       end_channels.push_back(std::next(fixtures.begin(), i)->get_channel_count());
     }
 
+    ui->cB_moving_head_position->addItem("Center");
     ui->cB_moving_head_position->addItem("Left");
     ui->cB_moving_head_position->addItem("Right");
+
+    ui->cB_moving_head_type->addItem("Nothing");
+    ui->cB_moving_head_type->addItem("Continuous 8");
+    ui->cB_moving_head_type->addItem("Backlight, drop on action");
 
     ui->fixture_selection->setCurrentRow(0);
     ui->cB_type->addItems(types);
@@ -55,7 +62,7 @@ void FixtureChoosingDialog::set_up_dialog_options(std::list<int> blocked_channel
     set_first_allowed_channel(0, true);
 }
 
-void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group, std::string &position_on_stage)
+void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type)
 {
     fixture_id = ui->fixture_selection->currentRow();
     start_channel = ui->sB_start_channel->value();
@@ -63,6 +70,7 @@ void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_chan
     position_in_group = ui->sB_position_inside_group->value();
     colors = ui->cB_colors->currentText().toStdString();
     position_on_stage = ui->cB_moving_head_position->currentText().toStdString();
+    moving_head_type = ui->cB_moving_head_type->currentText().toStdString();
 }
 
 void FixtureChoosingDialog::setup_for_edit()
@@ -168,11 +176,15 @@ void FixtureChoosingDialog::update_position_in_group_status(QString current_type
 }
 
 void FixtureChoosingDialog::update_moving_head_position_status(QString current_fixture) {
-  if(current_fixture == "JBLED A7 (S8)") {
+  if(current_fixture == "JBLED A7 (S8)"
+  || current_fixture == "JBLED P4 (M1)") {
     ui->cB_moving_head_position->setEnabled(true);
+    ui->cB_moving_head_type->setEnabled(true);
   } else {
     ui->cB_moving_head_position->setCurrentIndex(0);
     ui->cB_moving_head_position->setEnabled(false);
+    ui->cB_moving_head_type->setCurrentIndex(0);
+    ui->cB_moving_head_type->setEnabled(false);
   }
 
   if(current_fixture == "SGM X-5 (1CH)") {
