@@ -727,6 +727,11 @@ void MainWindow::on_delete_fixture_button_clicked() {
       fixtures_changed = true;
     }
   }
+  for(int i = 0; i < universe_tree.back().childCount(); i++) {
+    if(universe_tree.back().child(i)->childCount() == 0)
+      universe_tree.back().removeChild(universe_tree.back().child(i));
+  }
+  ui->fixture_list->resizeColumnToContents(0);
 }
 
 void MainWindow::on_create_fixture_button_clicked() {
@@ -1383,18 +1388,28 @@ void MainWindow::on_edit_fixture_clicked() {
   // Only delete if an Item was clicked.
   if (!ui->fixture_list->selectedItems().empty()) {
     // Toplevelitems should not have a description.
-    if (ui->fixture_list->currentItem()->parent()) {
-      /*create_dialog = new CreateFixtureDialog();
-      create_dialog->edit_fixture_dialog(universes[0].get_fixture(universes[0].get_fixtureid_by_startchannel(
-          ui->fixture_list->currentItem()->text(1).split(" ")[0]
-              .toInt())),
-                                         universes[0].get_blocked_adress_range(), false);
-      connect(create_dialog, SIGNAL(accepted()), this, SLOT(get_edited_fixture()));
-      create_dialog->exec();*/
-      this->efd = new EditFixtureDialog(this, fixtures, color_palettes);
-      this->efd->set_up_dialog_options(universes[0].get_blocked_adress_range(), ui->fixture_list->currentItem()->text(1).toStdString(), ui->fixture_list->currentItem()->text(0).toStdString(), ui->fixture_list->currentItem()->text(2).toStdString(), ui->fixture_list->currentItem()->text(3).toInt(), ui->fixture_list->currentItem()->parent()->text(0).toStdString(), ui->fixture_list->currentItem()->text(4).toStdString());
-      connect(this->efd, SIGNAL(accepted()), this, SLOT(get_edited_fixture()));
-      this->efd->exec();
+    if (ui->fixture_list->currentItem()) {
+      if (ui->fixture_list->currentItem()->parent()) {
+        if (ui->fixture_list->currentItem()->parent()->parent()) {
+          /*create_dialog = new CreateFixtureDialog();
+          create_dialog->edit_fixture_dialog(universes[0].get_fixture(universes[0].get_fixtureid_by_startchannel(
+              ui->fixture_list->currentItem()->text(1).split(" ")[0]
+                  .toInt())),
+                                             universes[0].get_blocked_adress_range(), false);
+          connect(create_dialog, SIGNAL(accepted()), this, SLOT(get_edited_fixture()));
+          create_dialog->exec();*/
+          this->efd = new EditFixtureDialog(this, fixtures, color_palettes);
+          this->efd->set_up_dialog_options(universes[0].get_blocked_adress_range(),
+                                           ui->fixture_list->currentItem()->text(1).toStdString(),
+                                           ui->fixture_list->currentItem()->text(0).toStdString(),
+                                           ui->fixture_list->currentItem()->text(2).toStdString(),
+                                           ui->fixture_list->currentItem()->text(3).toInt(),
+                                           ui->fixture_list->currentItem()->parent()->text(0).toStdString(),
+                                           ui->fixture_list->currentItem()->text(4).toStdString());
+          connect(this->efd, SIGNAL(accepted()), this, SLOT(get_edited_fixture()));
+          this->efd->exec();
+        }
+      }
     }
   }
 }
@@ -1427,31 +1442,21 @@ void MainWindow::get_edited_fixture() {
   std::cout << "new type of fixture: " << type.toStdString() << std::endl;
 
 
-  int cur_item = universes[0].get_fixtureid_by_startchannel(ui->fixture_list->currentItem()->text(1).split(" ")[0].toInt());
-  // Delete the fixture from the Dataside.
-  universes[0].remove_fixture(cur_item);
 
-  QTreeWidgetItem *item = ui->fixture_list->currentItem();
-  QTreeWidgetItem *parent = item->parent();
-  if (item && parent) {
-    //item = parent->takeChild(parent->indexOfChild(item));
-    parent->removeChild(item);
-  }
 
   QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(type, Qt::MatchExactly | Qt::MatchRecursive, 0);
   QTreeWidgetItem *type_item;
-  if (type_items.size() == 0 && parent) {
+  if (type_items.size() == 0) {
     type_item = new QTreeWidgetItem();
     type_item->setText(0, type);
     type_item->setText(1, "");
     type_item->setText(2, "");
     type_item->setText(3, "");
+    type_item->setText(4, "");
     type_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled);
-    std::cout << "parent: " << parent->text(0).toStdString() << std::endl;
     std::cout << "debug22 " << type_item->text(0).toStdString()<< std::endl;
-    std::cout << "universe_tree.back(): " << universe_tree.back().text(0).toStdString() << std::endl;
 
-    universe_tree.back().addChild(type_item);
+    ui->fixture_list->topLevelItem(0)->addChild(type_item);
     //parent->addChild(type_item);
     std::cout << "debug23" << std::endl;
   } else {
@@ -1469,47 +1474,62 @@ void MainWindow::get_edited_fixture() {
   fix.set_position_in_group(position_in_group);
   fix.set_position_on_stage(position_on_stage);
 
-  universes[0].add_fixture(fix);
-
   auto *new_item = new QTreeWidgetItem(type_item);
   new_item->setFlags(
       Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
 
-  new_item->setText(0, QString::fromStdString(universes[0].get_fixtures().back().get_name()));
-  new_item->setText(1, QString::fromStdString(
-      std::to_string(universes[0].get_fixtures().back().get_start_channel()) + " - " +
-          std::to_string(universes[0].get_fixtures().back().get_last_channel())));
+  new_item->setText(0, QString::fromStdString(fix.get_name()));
+  new_item->setText(1, QString::fromStdString(std::to_string(fix.get_start_channel()) + " - " +
+          std::to_string(fix.get_last_channel())));
   new_item->setIcon(0,
-               QIcon(
-                   ":icons_svg/svg/" + QString::fromStdString(universes[0].get_fixtures().back().get_icon()) + ".svg"));
-  /*QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(QString::fromStdString(_fixture.get_type()),
-                                                                    Qt::MatchExactly | Qt::MatchRecursive,
-                                                                    0);*/
-  new_item->setText(2, QString::fromStdString(universes[0].get_fixtures().back().get_colors()));
-  new_item->setText(3, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_position_in_group())));
-  new_item->setText(4, QString::fromStdString(universes[0].get_fixtures().back().get_position_on_stage()));
+                    QIcon(
+                        ":icons_svg/svg/" + QString::fromStdString(fix.get_icon()) + ".svg"));
+  new_item->setText(2, QString::fromStdString(fix.get_colors()));
+  new_item->setText(3, QString::fromStdString(std::to_string(fix.get_position_in_group())));
+  new_item->setText(4, QString::fromStdString(fix.get_position_on_stage()));
 
 
-  type_item->addChild(new_item);
-  type_item->setExpanded(true);
+  if(type_item && new_item) {
+    type_item->addChild(new_item);
+    type_item->setExpanded(true);
+  }
+
+  int cur_item = universes[0].get_fixtureid_by_startchannel(ui->fixture_list->currentItem()->text(1).split(" ")[0].toInt());
+  // Delete the fixture from the Dataside.
+  universes[0].remove_fixture(cur_item);
+
+  QTreeWidgetItem *item = ui->fixture_list->currentItem();
+  QTreeWidgetItem *parent = item->parent();
+  if (item && parent) {
+    //item = parent->takeChild(parent->indexOfChild(item));
+    parent->removeChild(item);
+  }
+
+  universes[0].add_fixture(fix);
+
+
 
 
   save_fixture_objects_to_xml(false);
-  ui->fixture_list->resizeColumnToContents(0);
+  //ui->fixture_list->resizeColumnToContents(0);
   fixtures_changed = true;
 
   /*save_fixture_objects_to_xml(false);
   fixtures_changed = true;
 
-
+*/
   on_fixture_list_itemSelectionChanged();
-  ui->fixture_list->resizeColumnToContents(0);*/
 
 
 
   if (parent && parent->childCount() > 0) parent->setExpanded(true);
 
 
+  for(int i = 0; i < universe_tree.back().childCount(); i++) {
+    if(universe_tree.back().child(i)->childCount() == 0)
+      universe_tree.back().removeChild(universe_tree.back().child(i));
+  }
+  ui->fixture_list->resizeColumnToContents(0);
 
 
 }
