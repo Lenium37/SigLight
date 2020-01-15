@@ -1101,7 +1101,12 @@ void LightshowGenerator::generate_color_fades(std::shared_ptr<Lightshow> lightsh
     Logger::debug("adding color change at: {}", timestamps[i].time);
     color_changes.push_back({ timestamps[i].time, colors[c] });
   }
-  this->set_soft_color_changes(lightshow_from_analysis, fix, color_changes, this->fade_duration);
+  if(fix.has_colorwheel) {
+    //this->set_colorwheel_color_changes(lightshow_from_analysis, fix, color_changes);
+    this->set_hard_color_changes(lightshow_from_analysis, fix, color_changes);
+  } else {
+    this->set_soft_color_changes(lightshow_from_analysis, fix, color_changes, this->fade_duration);
+  }
 }
 
 void LightshowGenerator::set_soft_color_changes(std::shared_ptr<Lightshow> lightshow_from_analysis, LightshowFixture& fix, std::vector<color_change> color_changes, float fade_duration) {
@@ -1169,41 +1174,47 @@ void LightshowGenerator::set_hard_color_changes(const std::shared_ptr<Lightshow>
   if (color_changes.empty())
     return;
 
-  std::vector<time_value_int> data_pairs_red;
-  std::vector<time_value_int> data_pairs_green;
-  std::vector<time_value_int> data_pairs_blue;
-
-  int counter = 0;
-  float start_of_color = 0;
-  float end_of_color = 0;
-
-  while (counter < color_changes.size()) {
-    start_of_color = color_changes[counter].timestamp;
-    if (counter == color_changes.size() - 1)
-      end_of_color = ((lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution());
-    else
-      end_of_color = color_changes[counter + 1].timestamp;
-
-    color_values cv = this->color_to_rgb(color_changes[counter].color);
-    if (cv.r > 0) {
-      data_pairs_red.push_back({start_of_color, cv.r});
-      data_pairs_red.push_back({end_of_color, 0});
-    }
-    if (cv.g > 0) {
-      data_pairs_green.push_back({start_of_color, cv.g});
-      data_pairs_green.push_back({end_of_color, 0});
-    }
-    if (cv.b > 0) {
-      data_pairs_blue.push_back({start_of_color, cv.b});
-      data_pairs_blue.push_back({end_of_color, 0});
-    }
-
-    counter++;
-  }
 
   if (fix.has_colorwheel) {
-
+    std::vector<time_value_int> color_changes_colorwheel;
+    for(color_change cc: color_changes) {
+      color_changes_colorwheel.push_back({cc.timestamp, fix.get_colorwheel_value(cc.color)});
+    }
+    fix.add_value_changes_to_channel(color_changes_colorwheel, fix.get_channel_colorwheel());
   } else {
+
+    std::vector<time_value_int> data_pairs_red;
+    std::vector<time_value_int> data_pairs_green;
+    std::vector<time_value_int> data_pairs_blue;
+
+    int counter = 0;
+    float start_of_color = 0;
+    float end_of_color = 0;
+
+    while (counter < color_changes.size()) {
+      start_of_color = color_changes[counter].timestamp;
+      if (counter == color_changes.size() - 1)
+        end_of_color = ((lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution());
+      else
+        end_of_color = color_changes[counter + 1].timestamp;
+
+      color_values cv = this->color_to_rgb(color_changes[counter].color);
+      if (cv.r > 0) {
+        data_pairs_red.push_back({start_of_color, cv.r});
+        data_pairs_red.push_back({end_of_color, 0});
+      }
+      if (cv.g > 0) {
+        data_pairs_green.push_back({start_of_color, cv.g});
+        data_pairs_green.push_back({end_of_color, 0});
+      }
+      if (cv.b > 0) {
+        data_pairs_blue.push_back({start_of_color, cv.b});
+        data_pairs_blue.push_back({end_of_color, 0});
+      }
+
+      counter++;
+    }
+
     fix.add_value_changes_to_channel(data_pairs_red, fix.get_channel_red());
     fix.add_value_changes_to_channel(data_pairs_green, fix.get_channel_green());
     fix.add_value_changes_to_channel(data_pairs_blue, fix.get_channel_blue());
@@ -1407,9 +1418,7 @@ void LightshowGenerator::generate_beat_color_changes(std::shared_ptr<Lightshow> 
     Logger::debug("adding color change at: {}", timestamps_float[i]);
     color_changes.push_back({ timestamps_float[i] / 44100, colors[c] });
   }
-  //this->set_soft_color_changes(lightshow_from_analysis, fix, color_changes, 0.1);
   this->set_hard_color_changes(lightshow_from_analysis, fix, color_changes);
-
 }
 
 LightshowGenerator::~LightshowGenerator() {
@@ -1438,6 +1447,5 @@ void LightshowGenerator::generate_onset_color_changes(std::shared_ptr<Lightshow>
     Logger::debug("adding color change at: {}", timestamps[i]);
     color_changes.push_back({ timestamps[i], colors[c] });
   }
-  //this->set_soft_color_changes(lightshow_from_analysis, fix, color_changes, 0.1);
   this->set_hard_color_changes(lightshow_from_analysis, fix, color_changes);
 }

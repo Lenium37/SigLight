@@ -98,6 +98,14 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_focus(8);
     this->set_channel_zoom(9);
     this->set_channel_colorwheel(14);
+    this->colorwheel_values.insert(std::pair<std::string, uint8_t>("white", 0));
+    this->colorwheel_values.insert(std::pair<std::string, uint8_t>("red", 4));
+    this->colorwheel_values.insert(std::pair<std::string, uint8_t>("yellow", 8));
+    this->colorwheel_values.insert(std::pair<std::string, uint8_t>("green", 16));
+    this->colorwheel_values.insert(std::pair<std::string, uint8_t>("orange", 20));
+    this->colorwheel_values.insert(std::pair<std::string, uint8_t>("pink", 32));
+    this->colorwheel_values.insert(std::pair<std::string, uint8_t>("cyan", 36));
+    this->colorwheel_values.insert(std::pair<std::string, uint8_t>("blue", 52));
     this->has_global_dimmer = true;
     this->has_pan = true;
     this->has_tilt = true;
@@ -382,4 +390,11 @@ void LightshowFixture::set_moving_head_type(std::string _moving_head_type) {
 
 std::string LightshowFixture::get_moving_head_type() {
   return this->moving_head_type;
+}
+
+std::uint8_t LightshowFixture::get_colorwheel_value(std::string color) {
+  if(this->colorwheel_values.count(color) == 1)
+    return this->colorwheel_values.at(color);
+  else
+    return 0;
 }

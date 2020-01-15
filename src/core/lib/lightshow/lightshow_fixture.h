@@ -10,6 +10,7 @@
 #include "channel.h"
 #include <string>
 #include "analysis.h"
+#include <map>
 
 /**
  * Represents a DMX Fixture in the context of a Lightshow.
@@ -206,6 +207,8 @@ class LightshowFixture {
   void set_moving_head_type(std::string _moving_head_type);
   std::string get_moving_head_type();
 
+  std::uint8_t get_colorwheel_value(std::string color);
+
  private:
   int start_channel;
   int number_of_channels;
@@ -234,6 +237,7 @@ class LightshowFixture {
   int position_inside_group;
   std::string position_on_stage;
   std::string moving_head_type;
+  std::map<const std::string, std::uint8_t> colorwheel_values;
 
 };
 
