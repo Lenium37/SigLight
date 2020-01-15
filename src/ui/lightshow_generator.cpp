@@ -96,8 +96,11 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
       float time_per_step_tilt = time_of_two_beats; // seconds
       float time_per_step_pan = time_of_two_beats; // seconds
+      bool loop = false;
 
       if(fix.get_moving_head_type() == "Continuous 8") {
+        amplitude_tilt = 30;
+        amplitude_pan = 30;
         /* weak 8
         pan_steps.push_back({0.0, pan_tilt_center});
         pan_steps.push_back({1.0, (int) (pan_tilt_center + amplitude_pan)});
@@ -138,13 +141,68 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         tilt_steps.push_back({5.0f * time_of_two_beats, (int) (pan_tilt_center - (amplitude_tilt * 2 / 3))});
         tilt_steps.push_back({6.0f * time_of_two_beats, (int) (pan_tilt_center - amplitude_tilt)});
         tilt_steps.push_back({7.0f * time_of_two_beats, (int) (pan_tilt_center - (amplitude_tilt * 2 / 3))});
+
+        loop = true;
+
       } else if(fix.get_moving_head_type() == "Backlight, drop on action") {
+        amplitude_tilt = 100;
+        amplitude_pan = 0;
+        time_per_step_tilt = time_of_one_beat;
+        time_step = 0.025f;
+
+        std::vector<time_value_int> segment_changes = lightshow_from_analysis->get_timestamps_colorchanges();
+        std::vector<float> timestamps_of_drops;
+        for(int i = 1; i < segment_changes.size(); i++) {
+          if(segment_changes[i].value > segment_changes[i-1].value + 30 && segment_changes[i].time > segment_changes[i-1].time + time_of_four_bars) {
+            timestamps_of_drops.push_back(segment_changes[i].time - time_of_two_bars);
+            //timestamps_of_drops.push_back(segment_changes[i].time);
+          }
+        }
+        for(float f: timestamps_of_drops)
+          std::cout << f << std::endl;
+
+
+        int start_value = pan_tilt_center;
+        // TODO hier switch case plus oder minus
+        int end_value = pan_tilt_center - amplitude_tilt;
+        float value_step = (float) (end_value - start_value) * time_step / time_of_two_bars;
+        for(float begin_timestamp: timestamps_of_drops) {
+          float time = begin_timestamp;
+          float current_value = start_value;
+          while(time <= begin_timestamp + time_of_two_bars) {
+            current_value += value_step;
+
+            vc_tilt.push_back({time, (int) current_value});
+            time = time + time_step;
+          }
+          vc_tilt.push_back({time + 0.5f, pan_tilt_center});
+
+          /*for (int i = 0; i < tilt_steps.size(); i++) {
+            //float start_time = tilt_steps[i].time + j * tilt_steps.size() * time_per_step_tilt;
+            float start_time = begin_timestamp + tilt_steps.size() * time_per_step_tilt;
+            int start_value = tilt_steps[i].value;
+            int end_value = tilt_steps[tilt_steps.size()-1].value;
+            if (i < tilt_steps.size() - 1)
+              end_value = tilt_steps[i + 1].value;
+
+            float value_step = (float) (end_value - start_value) / (time_per_step_tilt * frequency);
+
+            for (int i = 0; i < time_per_step_tilt * frequency; i++) {
+              vc_tilt.push_back({start_time + i * time_step, (int) (start_value + i * value_step)});
+
+            }
+          }*/
+        }
+        fix.add_value_changes_to_channel(vc_pan, fix.get_channel_pan());
+        fix.add_value_changes_to_channel(vc_tilt, fix.get_channel_tilt());
+
+        loop = false;
 
       } else {
 
       }
 
-      if(fix.get_moving_head_type() != "Nothing") {
+      if(fix.get_moving_head_type() != "Nothing" && loop) {
         int j = 0;
         //for(int j = 0; j < 400; j = j + tilt_steps.size() * (time_per_step_tilt * freq)) {
         if(tilt_steps.size() > 0) {
