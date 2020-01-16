@@ -43,6 +43,8 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
     ui->cB_colors->addItems(colors);
     ui->sB_start_channel->setRange(1, max_channel);
     ui->sB_position_inside_group->setRange(1, 32);
+    ui->sB_modifier_pan->setRange(-360, 360);
+    ui->sB_modifier_tilt->setRange(-180, 180);
     //ui->sB_position_inside_group->setEnabled(false);
     ui->pB_delete_fixture->setVisible(false);
     this->setWindowTitle("Choose Fixture");
@@ -62,7 +64,7 @@ void FixtureChoosingDialog::set_up_dialog_options(std::list<int> blocked_channel
     set_first_allowed_channel(0, true);
 }
 
-void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type)
+void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type, int &modifier_pan, int &modifier_tilt)
 {
     fixture_id = ui->fixture_selection->currentRow();
     start_channel = ui->sB_start_channel->value();
@@ -71,6 +73,8 @@ void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_chan
     colors = ui->cB_colors->currentText().toStdString();
     position_on_stage = ui->cB_moving_head_position->currentText().toStdString();
     moving_head_type = ui->cB_moving_head_type->currentText().toStdString();
+    modifier_pan = ui->sB_modifier_pan->value();
+    modifier_tilt = ui->sB_modifier_tilt->value();
 }
 
 void FixtureChoosingDialog::setup_for_edit()

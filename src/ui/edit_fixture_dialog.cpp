@@ -43,6 +43,8 @@ EditFixtureDialog::EditFixtureDialog(QWidget *parent, list<Fixture> &fixtures, s
   ui->cB_colors->addItems(colors);
   ui->sB_start_channel->setRange(1, max_channel);
   ui->sB_position_inside_group->setRange(1, 32);
+  ui->sB_modifier_pan->setRange(-360, 360);
+  ui->sB_modifier_tilt->setRange(-180, 180);
   //ui->sB_position_inside_group->setEnabled(false);
   ui->pB_delete_fixture->setVisible(false);
   this->setWindowTitle("Edit Fixture");
@@ -114,7 +116,7 @@ void EditFixtureDialog::set_up_dialog_options(std::list<int> _blocked_channels, 
   //set_first_allowed_channel(0, true);
 }
 
-void EditFixtureDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type)
+void EditFixtureDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type, int &modifier_pan, int &modifier_tilt)
 {
   fixture_id = ui->fixture_selection->currentRow();
   start_channel = ui->sB_start_channel->value();
@@ -123,6 +125,8 @@ void EditFixtureDialog::get_fixture_options(int &fixture_id, int &start_channel,
   colors = ui->cB_colors->currentText().toStdString();
   position_on_stage = ui->cB_moving_head_position->currentText().toStdString();
   moving_head_type = ui->cB_moving_head_type->currentText().toStdString();
+  modifier_pan = ui->sB_modifier_pan->value();
+  modifier_tilt = ui->sB_modifier_tilt->value();
 }
 
 void EditFixtureDialog::setup_for_edit()
@@ -233,11 +237,17 @@ void EditFixtureDialog::update_moving_head_position_status(QString current_fixtu
   || current_fixture == "JBLED P4 (M1)") {
     ui->cB_moving_head_position->setEnabled(true);
     ui->cB_moving_head_type->setEnabled(true);
+    ui->sB_modifier_pan->setEnabled(true);
+    ui->sB_modifier_tilt->setEnabled(true);
   } else {
     ui->cB_moving_head_position->setCurrentIndex(0);
     ui->cB_moving_head_position->setEnabled(false);
     ui->cB_moving_head_type->setCurrentIndex(0);
     ui->cB_moving_head_type->setEnabled(false);
+    ui->sB_modifier_pan->setEnabled(false);
+    ui->sB_modifier_pan->setValue(0);
+    ui->sB_modifier_tilt->setEnabled(false);
+    ui->sB_modifier_tilt->setValue(0);
   }
 
   if(current_fixture == "SGM X-5 (1CH)") {

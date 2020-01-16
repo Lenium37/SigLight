@@ -42,7 +42,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
     || fix.get_name() == "TOURSPOT PRO"
     || fix.get_name() == "BAR TRI-LED"
     || fix.get_name() == "SGM X-5 (1CH)") {
-      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors(), fix.get_position_in_group(), fix.get_position_on_stage(), fix.get_moving_head_type()));
+      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors(), fix.get_position_in_group(), fix.get_position_on_stage(), fix.get_moving_head_type(), fix.get_modifier_pan(), fix.get_modifier_tilt()));
     } else std::cout << "Fixture type unknown." << std::endl;
 
     if(fix.get_type() == "group_one_after_another" && fix.get_position_in_group() > fixtures_in_group_one_after_another)
@@ -83,6 +83,9 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       std::vector<time_value_int> pan_steps;
       std::vector<time_value_int> vc_tilt;
       std::vector<time_value_int> vc_pan;
+      std::vector<time_value_int> vc_shutter;
+      std::vector<time_value_int> vc_zoom;
+      std::vector<time_value_int> vc_focus;
 
       float time_step = 0.025;
       int pan_tilt_center = 127;
@@ -149,13 +152,29 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         amplitude_pan = 0;
         time_per_step_tilt = time_of_one_beat;
         time_step = 0.025f;
+        vc_tilt.push_back({0.0, 127});
+        vc_tilt.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+        vc_pan.push_back({0.0, 127});
+        vc_pan.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+        vc_zoom.push_back({0.0, 200});
+        vc_zoom.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+        vc_focus.push_back({0.0, 200});
+        vc_focus.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
 
         std::vector<time_value_int> segment_changes = lightshow_from_analysis->get_timestamps_colorchanges();
+
+        std::cout << "all segment changes:" << std::endl;
+        for(time_value_int f: segment_changes) {
+          std::cout << f.time << "    " << f.value << std::endl;
+        }
         std::vector<float> timestamps_of_drops;
         for(int i = 1; i < segment_changes.size(); i++) {
-          if(segment_changes[i].value > segment_changes[i-1].value + 30 && segment_changes[i].time > segment_changes[i-1].time + time_of_four_bars) {
-            timestamps_of_drops.push_back(segment_changes[i].time - time_of_two_bars);
-            //timestamps_of_drops.push_back(segment_changes[i].time);
+          //if(segment_changes[i].value > segment_changes[i-1].value + 30 && segment_changes[i].time > segment_changes[i-1].time + time_of_four_bars) {
+          if(segment_changes[i].value >= 90) {
+            if(segment_changes[i].time - time_of_two_bars > 0)
+              timestamps_of_drops.push_back(segment_changes[i].time - time_of_two_bars);
+            else if(segment_changes[i].time - 2 * time_of_two_beats > 0)
+              timestamps_of_drops.push_back(segment_changes[i].time - 2 * time_of_two_beats);
           }
         }
         for(float f: timestamps_of_drops)
@@ -177,24 +196,11 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
           }
           vc_tilt.push_back({time + 0.5f, pan_tilt_center});
 
-          /*for (int i = 0; i < tilt_steps.size(); i++) {
-            //float start_time = tilt_steps[i].time + j * tilt_steps.size() * time_per_step_tilt;
-            float start_time = begin_timestamp + tilt_steps.size() * time_per_step_tilt;
-            int start_value = tilt_steps[i].value;
-            int end_value = tilt_steps[tilt_steps.size()-1].value;
-            if (i < tilt_steps.size() - 1)
-              end_value = tilt_steps[i + 1].value;
-
-            float value_step = (float) (end_value - start_value) / (time_per_step_tilt * frequency);
-
-            for (int i = 0; i < time_per_step_tilt * frequency; i++) {
-              vc_tilt.push_back({start_time + i * time_step, (int) (start_value + i * value_step)});
-
-            }
-          }*/
         }
         fix.add_value_changes_to_channel(vc_pan, fix.get_channel_pan());
         fix.add_value_changes_to_channel(vc_tilt, fix.get_channel_tilt());
+        fix.add_value_changes_to_channel(vc_zoom, fix.get_channel_zoom());
+        fix.add_value_changes_to_channel(vc_focus, fix.get_channel_focus());
 
         loop = false;
 

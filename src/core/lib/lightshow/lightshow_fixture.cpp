@@ -13,13 +13,15 @@
 #include <atomic>
 
 
-LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage, std::string _moving_head_type) {
+LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage, std::string _moving_head_type, int _modifier_pan, int _modifier_tilt) {
   this->name = name;
   this->start_channel = start_channel;
   this->number_of_channels = number_of_channels;
   this->position_inside_group = _position_inside_group;
   this->position_on_stage = _position_on_stage;
   this->moving_head_type = _moving_head_type;
+  this->modifier_pan = _modifier_pan;
+  this->modifier_tilt = _modifier_tilt;
   std::istringstream ss(colors);
   std::string color;
   if(!colors.empty()) {
@@ -98,7 +100,9 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_focus(8);
     this->set_channel_zoom(9);
     this->set_channel_colorwheel(14);
-    this->colorwheel_values.insert(std::pair<std::string, uint8_t>("white", 0));
+    this->degrees_per_pan = (float) 433.6 / (float) 256;
+    this->degrees_per_pan = (float) 280 / (float) 256;
+    this->colorwheel_values.insert(std::pair<std::string, uint8_t>("white", 1));
     this->colorwheel_values.insert(std::pair<std::string, uint8_t>("red", 4));
     this->colorwheel_values.insert(std::pair<std::string, uint8_t>("yellow", 8));
     this->colorwheel_values.insert(std::pair<std::string, uint8_t>("green", 16));
@@ -397,4 +401,10 @@ std::uint8_t LightshowFixture::get_colorwheel_value(std::string color) {
     return this->colorwheel_values.at(color);
   else
     return 0;
+}
+int LightshowFixture::get_modifier_pan() {
+  return this->modifier_pan;
+}
+int LightshowFixture::get_modifier_tilt() {
+  return this->modifier_tilt;
 }

@@ -189,3 +189,15 @@ void Fixture::set_moving_head_type(std::string _moving_head_type) {
 std::string Fixture::get_moving_head_type() {
   return this->moving_head_type;
 }
+int Fixture::get_modifier_pan() {
+  return this->modifier_pan;
+}
+int Fixture::get_modifier_tilt() {
+  return this->modifier_tilt;
+}
+void Fixture::set_modifier_pan(int _modifier_pan) {
+  this->modifier_pan = _modifier_pan;
+}
+void Fixture::set_modifier_tilt(int _modifier_tilt) {
+  this->modifier_tilt = _modifier_tilt;
+}

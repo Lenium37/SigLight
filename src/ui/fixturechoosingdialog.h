@@ -31,7 +31,7 @@ public:
    * @param start_channel Start channel of the fixture.
    * @param type Type of the fixture.
    */
-  void get_fixture_options(int & fixture_id, int & start_channel, QString & type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type);
+  void get_fixture_options(int & fixture_id, int & start_channel, QString & type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type, int &modifier_pan, int &modifier_tilt);
 
   /**
    * @brief setup_for_edit Setup the dialog for choosing an fixture preset to be edited.

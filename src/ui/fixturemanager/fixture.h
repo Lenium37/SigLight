@@ -155,6 +155,11 @@ public:
 
   std::vector<int> get_pan_tilt_channels();
 
+  void set_modifier_pan(int _modifier_pan);
+  void set_modifier_tilt(int _modifier_tilt);
+  int get_modifier_pan();
+  int get_modifier_tilt();
+
 private:
   /**
    * @brief name Name of the Fixture.
@@ -198,6 +203,9 @@ private:
   std::string position_on_stage;
 
   std::string moving_head_type;
+
+  int modifier_pan;
+  int modifier_tilt;
 
 };
 

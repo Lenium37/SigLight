@@ -248,7 +248,7 @@ void MainWindow::add_universe(QString name, QString description) {
   //delete itm;
 }
 
-void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage, std::string moving_head_type) {
+void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt) {
   auto *itm = new QTreeWidgetItem();
   _fixture.set_start_channel(start_channel);
   _fixture.set_type(type.toStdString());
@@ -260,6 +260,8 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
   _fixture.set_position_in_group(position_in_group);
   _fixture.set_position_on_stage(position_on_stage);
   _fixture.set_moving_head_type(moving_head_type);
+  _fixture.set_modifier_pan(modifier_pan);
+  _fixture.set_modifier_tilt(modifier_tilt);
 
   universes[0].add_fixture(_fixture);
 
@@ -511,6 +513,8 @@ void MainWindow::create_new_fixture(string _name,
                                     int position_in_group,
                                     std::string position_on_stage,
                                     std::string moving_head_type,
+                                    int modifier_pan,
+                                    int modifier_tilt,
                                     int start_channel) {
   Fixture temp;
   temp.set_name(_name);
@@ -521,6 +525,8 @@ void MainWindow::create_new_fixture(string _name,
   temp.set_position_in_group(position_in_group);
   temp.set_position_on_stage(position_on_stage);
   temp.set_moving_head_type(moving_head_type);
+  temp.set_modifier_pan(modifier_pan);
+  temp.set_modifier_tilt(modifier_tilt);
   if(!_colors.empty())
     temp.set_colors(_colors);
   else
@@ -529,7 +535,7 @@ void MainWindow::create_new_fixture(string _name,
     fixtures.push_back(temp);
     save_fixture_objects_to_xml();
   } else {
-    add_fixture(&universe_tree.back(), temp, start_channel, QString::fromStdString(temp.get_type()), temp.get_colors(), position_in_group, position_on_stage, moving_head_type);
+    add_fixture(&universe_tree.back(), temp, start_channel, QString::fromStdString(temp.get_type()), temp.get_colors(), position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt);
   }
 }
 
@@ -592,8 +598,10 @@ void MainWindow::get_fixture_for_universe() {
   int position_in_group = 0;
   std::string position_on_stage;
   std::string moving_head_type;
-  this->fcd->get_fixture_options(fixture_index, start_channel, type, colors, position_in_group, position_on_stage, moving_head_type);
-  add_fixture((&universe_tree.back()), *(std::next(fixtures.begin(), fixture_index)), start_channel, type, colors, position_in_group, position_on_stage, moving_head_type);
+  int modifier_pan;
+  int modifier_tilt;
+  this->fcd->get_fixture_options(fixture_index, start_channel, type, colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt);
+  add_fixture((&universe_tree.back()), *(std::next(fixtures.begin(), fixture_index)), start_channel, type, colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt);
   save_fixture_objects_to_xml(false);
   fixtures_changed = true;
 }
@@ -1140,6 +1148,14 @@ void MainWindow::save_fixture_objects_to_xml(bool is_preset) {
       tinyxml2::XMLElement *xml_position_on_stage = fixture_objects.NewElement("position_on_stage");
       xml_position_on_stage->SetText(fixture.get_position_on_stage().c_str());
       fixture_object->InsertEndChild(xml_position_on_stage);
+
+      tinyxml2::XMLElement *xml_modifier_pan = fixture_objects.NewElement("modifier_pan");
+      xml_modifier_pan->SetText(fixture.get_modifier_pan());
+      fixture_object->InsertEndChild(xml_modifier_pan);
+
+      tinyxml2::XMLElement *xml_modifier_tilt = fixture_objects.NewElement("modifier_tilt");
+      xml_modifier_tilt->SetText(fixture.get_modifier_tilt());
+      fixture_object->InsertEndChild(xml_modifier_tilt);
     }
 
     tinyxml2::XMLElement *xml_position_in_group = fixture_objects.NewElement("position_in_group");
@@ -1200,6 +1216,8 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
   int position_in_group = 0;
   std::string position_on_stage;
   std::string moving_head_type;
+  int modifier_pan = 0;
+  int modifier_tilt = 0;
 
   tinyxml2::XMLDocument fixture_objects;
   tinyxml2::XMLError error;
@@ -1241,6 +1259,12 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
 
           tinyxml2::XMLElement *position_on_stage_xml = fixture->FirstChildElement("position_on_stage");
           position_on_stage = position_on_stage_xml->GetText();
+
+          tinyxml2::XMLElement *modifier_pan_xml = fixture->FirstChildElement("modifier_pan");
+          modifier_pan = std::atoi(modifier_pan_xml->GetText());
+
+          tinyxml2::XMLElement *modifier_tilt_xml = fixture->FirstChildElement("modifier_tilt");
+          modifier_tilt = std::atoi(modifier_tilt_xml->GetText());
         }
 
         tinyxml2::XMLElement *position_in_group_xml = fixture->FirstChildElement("position_in_group");
@@ -1271,7 +1295,7 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
           functions.clear();
         }
         fixture = fixture->NextSiblingElement("Fixture");
-        create_new_fixture(fixture_name, fixture_type, fixture_description, channels, fixture_icon, fixture_colors, position_in_group, position_on_stage, moving_head_type, start_channel);
+        create_new_fixture(fixture_name, fixture_type, fixture_description, channels, fixture_icon, fixture_colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt, start_channel);
         channels.clear();
       }
     }
@@ -1484,8 +1508,10 @@ void MainWindow::get_edited_fixture() {
   int position_in_group = 0;
   std::string position_on_stage;
   std::string moving_head_type;
+  int modifier_pan;
+  int modifier_tilt;
 
-  this->efd->get_fixture_options(fixture_index, start_channel, type, colors, position_in_group, position_on_stage, moving_head_type);
+  this->efd->get_fixture_options(fixture_index, start_channel, type, colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt);
 
 
   std::cout << "new type of fixture: " << type.toStdString() << std::endl;
@@ -1524,6 +1550,8 @@ void MainWindow::get_edited_fixture() {
   fix.set_position_in_group(position_in_group);
   fix.set_position_on_stage(position_on_stage);
   fix.set_moving_head_type(moving_head_type);
+  fix.set_modifier_pan(modifier_pan);
+  fix.set_modifier_tilt(modifier_tilt);
 
   auto *new_item = new QTreeWidgetItem(type_item);
   new_item->setFlags(
