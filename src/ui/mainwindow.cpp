@@ -91,7 +91,7 @@ void MainWindow::init() {
   ui->fixture_list->setSelectionMode(QAbstractItemView::SingleSelection);
 
   // Sets the layout for the fixturelist.
-  ui->fixture_list->setColumnCount(6);
+  ui->fixture_list->setColumnCount(8);
 
   ui->fixture_list->invisibleRootItem()->setFlags(Qt::ItemIsEnabled);
 
@@ -104,6 +104,8 @@ void MainWindow::init() {
   headers.append("# in group");
   headers.append("Pos. on stage");
   headers.append("Mov. Head type");
+  headers.append("Modifier pan");
+  headers.append("Modifier tilt");
   ui->fixture_list->setHeaderLabels(headers);
   // Create the Fixtureobjects.
   create_fixtures();
@@ -243,9 +245,15 @@ void MainWindow::add_universe(QString name, QString description) {
   itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
   universe_tree.push_back(*itm);
   (&universe_tree.back())->setText(0, QString::fromStdString(universes[0].get_name()));
-  (&universe_tree.back())->setText(1, QString::fromStdString(universes[0].get_description()));
+  //(&universe_tree.back())->setText(1, QString::fromStdString(universes[0].get_description()));
   ui->fixture_list->addTopLevelItem((&universe_tree.back()));
   //delete itm;
+}
+
+void MainWindow::resize_fixture_list_columns() {
+  for(int i = 0; i < this->ui->fixture_list->columnCount(); i++) {
+    this->ui->fixture_list->resizeColumnToContents(i);
+  }
 }
 
 void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt) {
@@ -281,6 +289,12 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
   if(universes[0].get_fixtures().back().get_moving_head_type() != "Nothing")
     itm->setText(5, QString::fromStdString(universes[0].get_fixtures().back().get_moving_head_type()));
   else itm->setText(5, "");
+  if(universes[0].get_fixtures().back().get_modifier_pan())
+    itm->setText(6, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_modifier_pan()) + "°"));
+  else itm->setText(6, "");
+  if(universes[0].get_fixtures().back().get_modifier_tilt())
+    itm->setText(7, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_modifier_tilt()) + "°"));
+  else itm->setText(7, "");
 
   QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(type, Qt::MatchExactly | Qt::MatchRecursive, 0);
 
@@ -304,7 +318,9 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
   type_item->setExpanded(true);
 
   if (parent->childCount() > 0) parent->setExpanded(true);
-  ui->fixture_list->resizeColumnToContents(0);
+  //ui->fixture_list->resizeColumnToContents(0);
+  this->resize_fixture_list_columns();
+
   //delete itm;
   //delete type_item;
 }
@@ -768,7 +784,8 @@ void MainWindow::on_delete_fixture_button_clicked() {
     }
     if (delete_items) {
       save_fixture_objects_to_xml(false);
-      ui->fixture_list->resizeColumnToContents(0);
+      //ui->fixture_list->resizeColumnToContents(0);
+      this->resize_fixture_list_columns();
       fixtures_changed = true;
     }
   }
@@ -776,7 +793,8 @@ void MainWindow::on_delete_fixture_button_clicked() {
     if(universe_tree.back().child(i)->childCount() == 0)
       universe_tree.back().removeChild(universe_tree.back().child(i));
   }
-  ui->fixture_list->resizeColumnToContents(0);
+  //ui->fixture_list->resizeColumnToContents(0);
+  this->resize_fixture_list_columns();
 }
 
 void MainWindow::on_create_fixture_button_clicked() {
@@ -1470,6 +1488,16 @@ void MainWindow::on_edit_fixture_clicked() {
           connect(create_dialog, SIGNAL(accepted()), this, SLOT(get_edited_fixture()));
           create_dialog->exec();*/
           this->efd = new EditFixtureDialog(this, fixtures, color_palettes);
+          std::string modifier_pan_s = ui->fixture_list->currentItem()->text(6).toStdString();
+          std::string modifier_tilt_s = ui->fixture_list->currentItem()->text(7).toStdString();
+          int modifier_pan = 0;
+          int modifier_tilt = 0;
+          if(modifier_pan_s.size() > 1)
+            modifier_pan = std::stoi(modifier_pan_s.erase(modifier_pan_s.size()-1));
+          if(modifier_tilt_s.size() > 1)
+            modifier_tilt = std::stoi(modifier_tilt_s.erase(modifier_tilt_s.size()-1));
+
+
           this->efd->set_up_dialog_options(universes[0].get_blocked_adress_range(),
                                            ui->fixture_list->currentItem()->text(1).toStdString(),
                                            ui->fixture_list->currentItem()->text(0).toStdString(),
@@ -1477,7 +1505,9 @@ void MainWindow::on_edit_fixture_clicked() {
                                            ui->fixture_list->currentItem()->text(3).toInt(),
                                            ui->fixture_list->currentItem()->parent()->text(0).toStdString(),
                                            ui->fixture_list->currentItem()->text(4).toStdString(),
-                                           ui->fixture_list->currentItem()->text(5).toStdString());
+                                           ui->fixture_list->currentItem()->text(5).toStdString(),
+                                           modifier_pan,
+                                           modifier_tilt);
           connect(this->efd, SIGNAL(accepted()), this, SLOT(get_edited_fixture()));
           this->efd->exec();
         }
@@ -1529,6 +1559,8 @@ void MainWindow::get_edited_fixture() {
     type_item->setText(3, "");
     type_item->setText(4, "");
     type_item->setText(5, "");
+    type_item->setText(6, "");
+    type_item->setText(7, "");
     type_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled);
     std::cout << "debug22 " << type_item->text(0).toStdString()<< std::endl;
 
@@ -1569,6 +1601,12 @@ void MainWindow::get_edited_fixture() {
   if(fix.get_moving_head_type() != "Nothing")
     new_item->setText(5, QString::fromStdString(fix.get_moving_head_type()));
   else new_item->setText(5, "");
+  if(fix.get_modifier_pan())
+    new_item->setText(6, QString::fromStdString(std::to_string(fix.get_modifier_pan()) + "°"));
+  else new_item->setText(6, "");
+  if(fix.get_modifier_tilt())
+    new_item->setText(7, QString::fromStdString(std::to_string(fix.get_modifier_tilt()) + "°"));
+  else new_item->setText(7, "");
 
 
   if(type_item && new_item) {
@@ -1611,7 +1649,8 @@ void MainWindow::get_edited_fixture() {
     if(universe_tree.back().child(i)->childCount() == 0)
       universe_tree.back().removeChild(universe_tree.back().child(i));
   }
-  ui->fixture_list->resizeColumnToContents(0);
+  //ui->fixture_list->resizeColumnToContents(0);
+  this->resize_fixture_list_columns();
 
 
 }

@@ -58,7 +58,7 @@ EditFixtureDialog::~EditFixtureDialog() {
   delete ui;
 }
 
-void EditFixtureDialog::set_up_dialog_options(std::list<int> _blocked_channels, std::string _own_channels, std::string _name, std::string _colors, int pos_in_group, std::string _type, std::string pos_on_stage, std::string moving_head_type)
+void EditFixtureDialog::set_up_dialog_options(std::list<int> _blocked_channels, std::string _own_channels, std::string _name, std::string _colors, int pos_in_group, std::string _type, std::string pos_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt)
 {
   for(int i = 0; i < names_of_fixtures.size(); i++) {
     if(names_of_fixtures[i] == QString::fromStdString(_name))
@@ -108,6 +108,9 @@ void EditFixtureDialog::set_up_dialog_options(std::list<int> _blocked_channels, 
   } else {
     ui->cB_moving_head_type->setCurrentIndex(0);
   }
+
+  ui->sB_modifier_pan->setValue(modifier_pan);
+  ui->sB_modifier_tilt->setValue(modifier_tilt);
 
   for(int c: _blocked_channels)
     Logger::debug("blocked channel: {}", c);

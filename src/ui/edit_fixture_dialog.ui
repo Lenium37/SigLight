@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>420</height>
+    <height>495</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <x>10</x>
      <y>10</y>
      <width>481</width>
-     <height>401</height>
+     <height>476</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
@@ -242,7 +242,7 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>Moving Head type:</string>
+         <string>Modifier pan:</string>
         </property>
        </widget>
       </item>
@@ -267,7 +267,7 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>Moving Head type:</string>
+         <string>Modifier tilt:</string>
         </property>
        </widget>
       </item>

@@ -155,6 +155,12 @@ public:
 
   std::vector<int> get_pan_tilt_channels();
 
+  struct channel_value {
+    int channel;
+    int value;
+  };
+  std::vector<channel_value> get_pan_tilt_channels_with_default_positions();
+
   void set_modifier_pan(int _modifier_pan);
   void set_modifier_tilt(int _modifier_tilt);
   int get_modifier_pan();

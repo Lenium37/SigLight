@@ -387,6 +387,7 @@ private:
     void queue_for_generating_light_show();
     void start_thread_for_generating_queue();
     void init_shortcuts();
+    void resize_fixture_list_columns();
 
     std::vector<int> get_all_pan_tilt_channels();
 };

@@ -212,6 +212,9 @@ class LightshowFixture {
   int get_modifier_pan();
   int get_modifier_tilt();
 
+  float get_degrees_per_pan();
+  float get_degrees_per_tilt();
+
  private:
   int start_channel;
   int number_of_channels;

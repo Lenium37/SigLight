@@ -184,11 +184,17 @@ void FixtureChoosingDialog::update_moving_head_position_status(QString current_f
   || current_fixture == "JBLED P4 (M1)") {
     ui->cB_moving_head_position->setEnabled(true);
     ui->cB_moving_head_type->setEnabled(true);
+    ui->sB_modifier_pan->setEnabled(true);
+    ui->sB_modifier_tilt->setEnabled(true);
   } else {
     ui->cB_moving_head_position->setCurrentIndex(0);
     ui->cB_moving_head_position->setEnabled(false);
     ui->cB_moving_head_type->setCurrentIndex(0);
     ui->cB_moving_head_type->setEnabled(false);
+    ui->sB_modifier_pan->setEnabled(false);
+    ui->sB_modifier_pan->setValue(0);
+    ui->sB_modifier_tilt->setEnabled(false);
+    ui->sB_modifier_tilt->setValue(0);
   }
 
   if(current_fixture == "SGM X-5 (1CH)") {

@@ -88,7 +88,17 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       std::vector<time_value_int> vc_focus;
 
       float time_step = 0.025;
-      int pan_tilt_center = 127;
+      int pan_center = 127;
+      int tilt_center = 127;
+
+      if(fix.get_modifier_pan() && fix.get_degrees_per_pan())
+        pan_center = pan_center + (fix.get_modifier_pan() / fix.get_degrees_per_pan());
+      if(fix.get_modifier_tilt() && fix.get_degrees_per_tilt())
+        tilt_center = tilt_center + (fix.get_modifier_tilt() / fix.get_degrees_per_tilt());
+
+      std::cout << "pan_center: " << pan_center << std::endl;
+      std::cout << "tilt_center: " << tilt_center << std::endl;
+
       float amplitude_tilt = 30;
       float amplitude_pan = 30;
 
@@ -116,34 +126,34 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
         if (fix.get_position_on_stage() == "Left") {
           std::cout << "position on stage: left" << std::endl;
-          pan_steps.push_back({0.0, (int) (pan_tilt_center + amplitude_pan)});
-          pan_steps.push_back({1.0f * time_of_two_beats, (int) (pan_tilt_center + (amplitude_pan * 2 / 3))});
-          pan_steps.push_back({2.0f * time_of_two_beats, pan_tilt_center});
-          pan_steps.push_back({3.0f * time_of_two_beats, (int) (pan_tilt_center - (amplitude_pan * 2 / 3))});
-          pan_steps.push_back({4.0f * time_of_two_beats, (int) (pan_tilt_center - amplitude_pan)});
-          pan_steps.push_back({5.0f * time_of_two_beats, (int) (pan_tilt_center - (amplitude_pan * 2 / 3))});
-          pan_steps.push_back({6.0f * time_of_two_beats, pan_tilt_center});
-          pan_steps.push_back({7.0f * time_of_two_beats, (int) (pan_tilt_center + (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({0.0, (int) (pan_center + amplitude_pan)});
+          pan_steps.push_back({1.0f * time_of_two_beats, (int) (pan_center + (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({2.0f * time_of_two_beats, pan_center});
+          pan_steps.push_back({3.0f * time_of_two_beats, (int) (pan_center - (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({4.0f * time_of_two_beats, (int) (pan_center - amplitude_pan)});
+          pan_steps.push_back({5.0f * time_of_two_beats, (int) (pan_center - (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({6.0f * time_of_two_beats, pan_center});
+          pan_steps.push_back({7.0f * time_of_two_beats, (int) (pan_center + (amplitude_pan * 2 / 3))});
         } else {
           std::cout << "position on stage: right" << std::endl;
-          pan_steps.push_back({0.0, (int) (pan_tilt_center - amplitude_pan)});
-          pan_steps.push_back({1.0f * time_of_two_beats, (int) (pan_tilt_center - (amplitude_pan * 2 / 3))});
-          pan_steps.push_back({2.0f * time_of_two_beats, pan_tilt_center});
-          pan_steps.push_back({3.0f * time_of_two_beats, (int) (pan_tilt_center + (amplitude_pan * 2 / 3))});
-          pan_steps.push_back({4.0f * time_of_two_beats, (int) (pan_tilt_center + amplitude_pan)});
-          pan_steps.push_back({5.0f * time_of_two_beats, (int) (pan_tilt_center + (amplitude_pan * 2 / 3))});
-          pan_steps.push_back({6.0f * time_of_two_beats, pan_tilt_center});
-          pan_steps.push_back({7.0f * time_of_two_beats, (int) (pan_tilt_center - (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({0.0, (int) (pan_center - amplitude_pan)});
+          pan_steps.push_back({1.0f * time_of_two_beats, (int) (pan_center - (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({2.0f * time_of_two_beats, pan_center});
+          pan_steps.push_back({3.0f * time_of_two_beats, (int) (pan_center + (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({4.0f * time_of_two_beats, (int) (pan_center + amplitude_pan)});
+          pan_steps.push_back({5.0f * time_of_two_beats, (int) (pan_center + (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({6.0f * time_of_two_beats, pan_center});
+          pan_steps.push_back({7.0f * time_of_two_beats, (int) (pan_center - (amplitude_pan * 2 / 3))});
         }
 
-        tilt_steps.push_back({0.0, pan_tilt_center});
-        tilt_steps.push_back({1.0f * time_of_two_beats, (int) (pan_tilt_center + (amplitude_tilt * 2 / 3))});
-        tilt_steps.push_back({2.0f * time_of_two_beats, (int) (pan_tilt_center + amplitude_tilt)});
-        tilt_steps.push_back({3.0f * time_of_two_beats, (int) (pan_tilt_center + (amplitude_tilt * 2 / 3))});
-        tilt_steps.push_back({4.0f * time_of_two_beats, pan_tilt_center});
-        tilt_steps.push_back({5.0f * time_of_two_beats, (int) (pan_tilt_center - (amplitude_tilt * 2 / 3))});
-        tilt_steps.push_back({6.0f * time_of_two_beats, (int) (pan_tilt_center - amplitude_tilt)});
-        tilt_steps.push_back({7.0f * time_of_two_beats, (int) (pan_tilt_center - (amplitude_tilt * 2 / 3))});
+        tilt_steps.push_back({0.0, tilt_center});
+        tilt_steps.push_back({1.0f * time_of_two_beats, (int) (tilt_center + (amplitude_tilt * 2 / 3))});
+        tilt_steps.push_back({2.0f * time_of_two_beats, (int) (tilt_center + amplitude_tilt)});
+        tilt_steps.push_back({3.0f * time_of_two_beats, (int) (tilt_center + (amplitude_tilt * 2 / 3))});
+        tilt_steps.push_back({4.0f * time_of_two_beats, tilt_center});
+        tilt_steps.push_back({5.0f * time_of_two_beats, (int) (tilt_center - (amplitude_tilt * 2 / 3))});
+        tilt_steps.push_back({6.0f * time_of_two_beats, (int) (tilt_center - amplitude_tilt)});
+        tilt_steps.push_back({7.0f * time_of_two_beats, (int) (tilt_center - (amplitude_tilt * 2 / 3))});
 
         loop = true;
 
@@ -164,9 +174,9 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         std::vector<time_value_int> segment_changes = lightshow_from_analysis->get_timestamps_colorchanges();
 
         std::cout << "all segment changes:" << std::endl;
-        for(time_value_int f: segment_changes) {
-          std::cout << f.time << "    " << f.value << std::endl;
-        }
+        //for(time_value_int f: segment_changes) {
+          //std::cout << f.time << "    " << f.value << std::endl;
+        //}
         std::vector<float> timestamps_of_drops;
         for(int i = 1; i < segment_changes.size(); i++) {
           //if(segment_changes[i].value > segment_changes[i-1].value + 30 && segment_changes[i].time > segment_changes[i-1].time + time_of_four_bars) {
@@ -177,13 +187,13 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
               timestamps_of_drops.push_back(segment_changes[i].time - 2 * time_of_two_beats);
           }
         }
-        for(float f: timestamps_of_drops)
-          std::cout << f << std::endl;
+        //for(float f: timestamps_of_drops)
+          //std::cout << f << std::endl;
 
 
-        int start_value = pan_tilt_center;
+        int start_value = tilt_center;
         // TODO hier switch case plus oder minus
-        int end_value = pan_tilt_center - amplitude_tilt;
+        int end_value = tilt_center - amplitude_tilt;
         float value_step = (float) (end_value - start_value) * time_step / time_of_two_bars;
         for(float begin_timestamp: timestamps_of_drops) {
           float time = begin_timestamp;
@@ -194,7 +204,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
             vc_tilt.push_back({time, (int) current_value});
             time = time + time_step;
           }
-          vc_tilt.push_back({time + 0.5f, pan_tilt_center});
+          vc_tilt.push_back({time + 0.5f, tilt_center});
 
         }
         fix.add_value_changes_to_channel(vc_pan, fix.get_channel_pan());

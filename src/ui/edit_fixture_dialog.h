@@ -23,7 +23,7 @@ class EditFixtureDialog : public QDialog {
   * @brief set_up_dialog_options Sets the blocked channels.
   * @param blocked_channels Channels that are allready occupied from other fixtures.
   */
-  void set_up_dialog_options(std::list<int> _blocked_channels, std::string _own_channels, std::string _name, std::string _colors, int pos_in_group, std::string _type, std::string pos_on_stage, std::string moving_head_type);
+  void set_up_dialog_options(std::list<int> _blocked_channels, std::string _own_channels, std::string _name, std::string _colors, int pos_in_group, std::string _type, std::string pos_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt);
 
   /**
    * @brief get_fixture_options Gives you the choosen starting Point and type.

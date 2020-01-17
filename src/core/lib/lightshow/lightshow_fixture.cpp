@@ -88,6 +88,8 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_red(9);
     this->set_channel_green(10);
     this->set_channel_blue(11);
+    this->degrees_per_pan = (float) 430 / (float) 256;
+    this->degrees_per_tilt = (float) 300 / (float) 256;
     this->has_global_dimmer = true;
     this->has_pan = true;
     this->has_tilt = true;
@@ -101,7 +103,7 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_zoom(9);
     this->set_channel_colorwheel(14);
     this->degrees_per_pan = (float) 433.6 / (float) 256;
-    this->degrees_per_pan = (float) 280 / (float) 256;
+    this->degrees_per_tilt = (float) 280 / (float) 256;
     this->colorwheel_values.insert(std::pair<std::string, uint8_t>("white", 1));
     this->colorwheel_values.insert(std::pair<std::string, uint8_t>("red", 4));
     this->colorwheel_values.insert(std::pair<std::string, uint8_t>("yellow", 8));
@@ -407,4 +409,10 @@ int LightshowFixture::get_modifier_pan() {
 }
 int LightshowFixture::get_modifier_tilt() {
   return this->modifier_tilt;
+}
+float LightshowFixture::get_degrees_per_pan() {
+  return this->degrees_per_pan;
+}
+float LightshowFixture::get_degrees_per_tilt() {
+  return this->degrees_per_tilt;
 }

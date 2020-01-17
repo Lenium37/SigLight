@@ -201,3 +201,6 @@ void Fixture::set_modifier_pan(int _modifier_pan) {
 void Fixture::set_modifier_tilt(int _modifier_tilt) {
   this->modifier_tilt = _modifier_tilt;
 }
+vector<Fixture::channel_value> Fixture::get_pan_tilt_channels_with_default_positions() {
+  return vector<Fixture::channel_value>();
+}
