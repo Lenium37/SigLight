@@ -13,11 +13,15 @@
 #include <atomic>
 
 
-LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group) {
+LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage, std::string _moving_head_type, int _modifier_pan, int _modifier_tilt) {
   this->name = name;
   this->start_channel = start_channel;
   this->number_of_channels = number_of_channels;
   this->position_inside_group = _position_inside_group;
+  this->position_on_stage = _position_on_stage;
+  this->moving_head_type = _moving_head_type;
+  this->modifier_pan = _modifier_pan;
+  this->modifier_tilt = _modifier_tilt;
   std::istringstream ss(colors);
   std::string color;
   if(!colors.empty()) {
@@ -39,6 +43,8 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
           this->colors.push_back("white");
         else if (color == "Y" || color == "yellow")
           this->colors.push_back("yellow");
+        else if (color == "O" || color == "orange")
+          this->colors.push_back("orange");
       }
     } else {
       if (colors == "R" || colors == "red")
@@ -57,6 +63,8 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
         this->colors.push_back("white");
       else if (colors == "Y" || colors == "yellow")
         this->colors.push_back("yellow");
+      else if (colors == "O" || colors == "orange")
+        this->colors.push_back("orange");
     }
   } else { this->colors.push_back("white"); }
 
@@ -71,6 +79,46 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_green(4);
     this->set_channel_blue(5);
     this->has_global_dimmer = true;
+    this->has_strobe = true;
+  } else if(name == "JBLED A7 (S8)") {
+    this->set_channel_pan(1);
+    this->set_channel_tilt(3);
+    this->set_channel_shutter(6);
+    this->set_channel_dimmer(7);
+    this->set_channel_red(9);
+    this->set_channel_green(10);
+    this->set_channel_blue(11);
+    this->degrees_per_pan = (float) 430 / (float) 256;
+    this->degrees_per_tilt = (float) 300 / (float) 256;
+    this->has_global_dimmer = true;
+    this->has_pan = true;
+    this->has_tilt = true;
+    this->has_shutter = true;
+  } else if(name == "JBLED P4 (M1)") {
+    this->set_channel_pan(1);
+    this->set_channel_tilt(3);
+    this->set_channel_shutter(6);
+    this->set_channel_dimmer(7);
+    this->set_channel_focus(8);
+    this->set_channel_zoom(9);
+    this->set_channel_colorwheel(14);
+    this->degrees_per_pan = (float) 433.6 / (float) 256;
+    this->degrees_per_tilt = (float) 280 / (float) 256;
+    this->colorwheel_values.insert(std::pair<std::string, uint8_t>("white", 1));
+    this->colorwheel_values.insert(std::pair<std::string, uint8_t>("red", 4));
+    this->colorwheel_values.insert(std::pair<std::string, uint8_t>("yellow", 8));
+    this->colorwheel_values.insert(std::pair<std::string, uint8_t>("green", 16));
+    this->colorwheel_values.insert(std::pair<std::string, uint8_t>("orange", 20));
+    this->colorwheel_values.insert(std::pair<std::string, uint8_t>("pink", 32));
+    this->colorwheel_values.insert(std::pair<std::string, uint8_t>("cyan", 36));
+    this->colorwheel_values.insert(std::pair<std::string, uint8_t>("blue", 52));
+    this->has_global_dimmer = true;
+    this->has_pan = true;
+    this->has_tilt = true;
+    this->has_shutter = true;
+    this->has_colorwheel = true;
+    this->has_focus = true;
+    this->has_zoom = true;
   } else if(name == "Stairville LED Flood Panel 150 (3ch)") {
     this->set_channel_red(1);
     this->set_channel_green(2);
@@ -89,6 +137,7 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_blue(8);
     this->set_channel_strobo(10);
     this->has_global_dimmer = true;
+    this->has_strobe = true;
   } else if(name == "Cobalt Plus Spot 5R") {
     this->set_channel_dimmer(16);
     // alle Farben ein Channel
@@ -109,6 +158,7 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_green(4);
     this->set_channel_blue(5);
     this->has_global_dimmer = true;
+    this->has_strobe = true;
   } else if (name == "BAR TRI-LED") {
     this->set_channel_dimmer(2);
     this->set_channel_strobo(3);
@@ -116,7 +166,12 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_green(5);
     this->set_channel_blue(6);
     this->has_global_dimmer = true;
-  } else Logger::error("Fixture with unknown name created. Channels have to be set manually.");
+    this->has_strobe = true;
+  } else if(name == "SGM X-5 (1CH)") {
+    this->set_channel_blinder(1);
+    this->set_blinder_value(249);
+    this->is_blinder = true;
+  } else Logger::error("Fixture with unknown name created. Channels have not been set.");
 }
 
 LightshowFixture::~LightshowFixture() {
@@ -227,7 +282,8 @@ void LightshowFixture::set_type(std::string type) {
   || type == "group_one_after_another_blink"
   || type == "group_two_after_another"
   || type == "group_alternate_odd_even"
-  || type == "group_random_flashes") {
+  || type == "group_random_flashes"
+  || type == "strobe_if_many_onsets") {
     this->type = type;
     Logger::debug("Set type of fixture to {}", type);
   }
@@ -259,4 +315,104 @@ void LightshowFixture::set_position_in_group(int _position) {
 
 int LightshowFixture::get_position_in_group() {
   return this->position_inside_group;
+}
+
+std::uint8_t LightshowFixture::get_channel_shutter() {
+  return this->channel_shutter;
+}
+
+void LightshowFixture::set_channel_shutter(std::uint8_t channel_shutter) {
+  this->channel_shutter = channel_shutter;
+}
+
+std::uint8_t LightshowFixture::get_channel_pan() {
+  return this->channel_pan;
+}
+
+void LightshowFixture::set_channel_pan(std::uint8_t _channel_pan) {
+  this->channel_pan = _channel_pan;
+}
+
+
+std::uint8_t LightshowFixture::get_channel_tilt() {
+  return this->channel_tilt;
+}
+
+void LightshowFixture::set_channel_tilt(std::uint8_t _channel_tilt) {
+  this->channel_tilt = _channel_tilt;
+}
+
+void LightshowFixture::set_position_on_stage(std::string _position) {
+  this->position_on_stage = _position;
+}
+
+std::string LightshowFixture::get_position_on_stage() {
+  return this->position_on_stage;
+}
+
+std::uint8_t LightshowFixture::get_channel_blinder() {
+  return this->channel_blinder;
+}
+
+std::uint8_t LightshowFixture::get_blinder_value() {
+  return this->blinder_value;
+}
+
+void LightshowFixture::set_blinder_value(std::uint8_t _blinder_value) {
+  this->blinder_value = _blinder_value;
+}
+
+void LightshowFixture::set_channel_blinder(std::uint8_t _channel_blinder) {
+  this->channel_blinder = _channel_blinder;
+}
+
+void LightshowFixture::set_channel_colorwheel(std::uint8_t _channel_colorwheel) {
+  this->channel_colorwheel = _channel_colorwheel;
+}
+
+std::uint8_t LightshowFixture::get_channel_colorwheel() {
+  return this->channel_colorwheel;
+}
+
+void LightshowFixture::set_channel_focus(std::uint8_t _channel_focus) {
+  this->channel_focus = _channel_focus;
+}
+
+std::uint8_t LightshowFixture::get_channel_focus() {
+  return this->channel_focus;
+}
+
+void LightshowFixture::set_channel_zoom(std::uint8_t _channel_zoom) {
+  this->channel_zoom = _channel_zoom;
+}
+
+std::uint8_t LightshowFixture::get_channel_zoom() {
+  return this->channel_zoom;
+}
+
+void LightshowFixture::set_moving_head_type(std::string _moving_head_type) {
+  this->moving_head_type = _moving_head_type;
+}
+
+std::string LightshowFixture::get_moving_head_type() {
+  return this->moving_head_type;
+}
+
+std::uint8_t LightshowFixture::get_colorwheel_value(std::string color) {
+  if(this->colorwheel_values.count(color) == 1)
+    return this->colorwheel_values.at(color);
+  else
+    return 0;
+}
+int LightshowFixture::get_modifier_pan() {
+  return this->modifier_pan;
+}
+int LightshowFixture::get_modifier_tilt() {
+  return this->modifier_tilt;
+}
+float LightshowFixture::get_degrees_per_pan() {
+  return this->degrees_per_pan;
+}
+float LightshowFixture::get_degrees_per_tilt() {
+  return this->degrees_per_tilt;
 }

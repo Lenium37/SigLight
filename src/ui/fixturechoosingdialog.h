@@ -31,7 +31,7 @@ public:
    * @param start_channel Start channel of the fixture.
    * @param type Type of the fixture.
    */
-  void get_fixture_options(int & fixture_id, int & start_channel, QString & type, std::string &colors, int &position_in_group);
+  void get_fixture_options(int & fixture_id, int & start_channel, QString & type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type, int &modifier_pan, int &modifier_tilt);
 
   /**
    * @brief setup_for_edit Setup the dialog for choosing an fixture preset to be edited.
@@ -58,11 +58,15 @@ private slots:
     void on_pB_delete_fixture_clicked();
 
     void update_position_in_group_status(QString current_type);
+    void update_moving_head_position_status(QString current_fixture);
 
 private:
   Ui::FixtureChoosingDialog *ui;
   QStringList types;
   QStringList types_of_fixtures;
+  QStringList names_of_fixtures;
+  //QStringList positions_of_fixtures;
+  //QStringList moving_head_types_of_fixtures;
   QStringList colors;
   std::list<int> blocked_channels;
   std::list<int> end_channels;

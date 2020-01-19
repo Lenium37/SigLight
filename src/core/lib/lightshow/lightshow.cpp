@@ -160,7 +160,7 @@ void Lightshow::prepare_analysis_for_song(char *song_path) {
   }
 
   this->analysis.normalize();
-  this->onset_timestamps = this->analysis.get_onset_timestamps();
+  this->onset_timestamps = this->analysis.get_onset_timestamps_energy_difference();
 
 
   // trying to get bpm from onsets
@@ -247,7 +247,7 @@ void Lightshow::prepare_analysis_for_song(char *song_path) {
     ;
   }
 
-  if(this->bpm * 2  - 15 < bpm_from_onsets && this->bpm * 2 + 15 > bpm_from_onsets) {
+  if(bpm_from_onsets < 200 && this->bpm * 2  - 15 < bpm_from_onsets && this->bpm * 2 + 15 > bpm_from_onsets) {
     this->bpm = this->bpm * 2;
     this->all_beats = analysis.get_all_beats(this->bpm, this->first_beat);
 

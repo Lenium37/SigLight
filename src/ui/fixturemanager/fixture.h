@@ -145,8 +145,26 @@ public:
   void set_colors(std::string colors);
 
   void set_position_in_group(int _position);
-
   int get_position_in_group();
+
+  void set_position_on_stage(std::string _position);
+  std::string get_position_on_stage();
+
+  void set_moving_head_type(std::string _moving_head_type);
+  std::string get_moving_head_type();
+
+  std::vector<int> get_pan_tilt_channels();
+
+  struct channel_value {
+    int channel;
+    int value;
+  };
+  std::vector<channel_value> get_pan_tilt_channels_with_default_positions();
+
+  void set_modifier_pan(int _modifier_pan);
+  void set_modifier_tilt(int _modifier_tilt);
+  int get_modifier_pan();
+  int get_modifier_tilt();
 
 private:
   /**
@@ -187,6 +205,13 @@ private:
   std::string colors;
 
   int position_in_group;
+
+  std::string position_on_stage;
+
+  std::string moving_head_type;
+
+  int modifier_pan;
+  int modifier_tilt;
 
 };
 

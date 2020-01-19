@@ -10,6 +10,7 @@
 #include "channel.h"
 #include <string>
 #include "analysis.h"
+#include <map>
 
 /**
  * Represents a DMX Fixture in the context of a Lightshow.
@@ -31,7 +32,7 @@ class LightshowFixture {
    * @param number_of_channels
    * @param type
    */
-  LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group);
+  LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage, std::string _moving_head_type, int _modifier_pan, int _modifier_tilt);
   ~LightshowFixture();
 
   /**
@@ -100,6 +101,15 @@ class LightshowFixture {
    */
   std::uint8_t get_channel_blue();
 
+  std::uint8_t get_channel_shutter();
+  std::uint8_t get_channel_pan();
+  std::uint8_t get_channel_tilt();
+  std::uint8_t get_channel_blinder();
+  std::uint8_t get_blinder_value();
+  std::uint8_t get_channel_colorwheel();
+  std::uint8_t get_channel_focus();
+  std::uint8_t get_channel_zoom();
+
   /**
    * Sets the channel number of the global dimmer.
    * @param channel_dimmer
@@ -129,6 +139,15 @@ class LightshowFixture {
    * @param channel_blue
    */
   void set_channel_blue(std::uint8_t channel_blue);
+
+  void set_channel_shutter(std::uint8_t channel_shutter);
+  void set_channel_pan(std::uint8_t _channel_pan);
+  void set_channel_tilt(std::uint8_t _channel_tilt);
+  void set_channel_blinder(std::uint8_t _channel_blinder);
+  void set_blinder_value(std::uint8_t _blinder_value);
+  void set_channel_colorwheel(std::uint8_t _channel_colowheel);
+  void set_channel_focus(std::uint8_t _channel_focus);
+  void set_channel_zoom(std::uint8_t _channel_zoom);
 
   /**
    * Sets the name of the Fixture.
@@ -167,11 +186,34 @@ class LightshowFixture {
    */
   bool has_global_dimmer = false;
 
+  bool has_shutter = false;
+
+  bool has_pan = false;
+  bool has_tilt = false;
+  bool has_strobe = false;
+  bool is_blinder = false;
+  bool has_colorwheel = false;
+  bool has_focus = false;
+  bool has_zoom = false;
+
   std::vector<std::string> get_colors();
 
   void set_position_in_group(int _position);
-
   int get_position_in_group();
+
+  void set_position_on_stage(std::string _position);
+  std::string get_position_on_stage();
+
+  void set_moving_head_type(std::string _moving_head_type);
+  std::string get_moving_head_type();
+
+  std::uint8_t get_colorwheel_value(std::string color);
+
+  int get_modifier_pan();
+  int get_modifier_tilt();
+
+  float get_degrees_per_pan();
+  float get_degrees_per_tilt();
 
  private:
   int start_channel;
@@ -184,6 +226,14 @@ class LightshowFixture {
   std::uint8_t channel_red;
   std::uint8_t channel_green;
   std::uint8_t channel_blue;
+  std::uint8_t channel_shutter;
+  std::uint8_t channel_pan;
+  std::uint8_t channel_tilt;
+  std::uint8_t channel_blinder;
+  std::uint8_t blinder_value;
+  std::uint8_t channel_colorwheel;
+  std::uint8_t channel_focus;
+  std::uint8_t channel_zoom;
   Channel dimmer = Channel(0);
   Channel strobo = Channel(0);
   Channel red = Channel(0);
@@ -191,6 +241,13 @@ class LightshowFixture {
   Channel blue = Channel(0);
   std::vector<std::string> colors;
   int position_inside_group;
+  std::string position_on_stage;
+  std::string moving_head_type;
+  std::map<const std::string, std::uint8_t> colorwheel_values;
+  int modifier_pan;
+  int modifier_tilt;
+  float degrees_per_pan;
+  float degrees_per_tilt;
 
 };
 

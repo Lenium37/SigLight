@@ -148,7 +148,6 @@ std::string Fixture::get_colors() {
 }
 
 void Fixture::set_colors(std::string colors) {
-  std::cout << "setting fix colors to: " << colors << std::endl;
   this->colors = colors;
 }
 
@@ -161,4 +160,47 @@ void Fixture::set_position_in_group(int _position) {
 
 int Fixture::get_position_in_group() {
   return this->position_in_group;
+}
+
+std::vector<int> Fixture::get_pan_tilt_channels() {
+  std::vector<int> pan_tilt_channels;
+  if(this->name == "JBLED A7 (S8)"
+  || this->name == "JBLED P4 (M1)") {
+    pan_tilt_channels.push_back(1);
+    pan_tilt_channels.push_back(2);
+    pan_tilt_channels.push_back(3);
+    pan_tilt_channels.push_back(4);
+  }
+  return pan_tilt_channels;
+}
+
+void Fixture::set_position_on_stage(std::string _position) {
+  this->position_on_stage = _position;
+}
+
+std::string Fixture::get_position_on_stage() {
+  return this->position_on_stage;
+}
+
+void Fixture::set_moving_head_type(std::string _moving_head_type) {
+  this->moving_head_type = _moving_head_type;
+}
+
+std::string Fixture::get_moving_head_type() {
+  return this->moving_head_type;
+}
+int Fixture::get_modifier_pan() {
+  return this->modifier_pan;
+}
+int Fixture::get_modifier_tilt() {
+  return this->modifier_tilt;
+}
+void Fixture::set_modifier_pan(int _modifier_pan) {
+  this->modifier_pan = _modifier_pan;
+}
+void Fixture::set_modifier_tilt(int _modifier_tilt) {
+  this->modifier_tilt = _modifier_tilt;
+}
+vector<Fixture::channel_value> Fixture::get_pan_tilt_channels_with_default_positions() {
+  return vector<Fixture::channel_value>();
 }

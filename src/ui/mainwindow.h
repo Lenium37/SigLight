@@ -261,7 +261,7 @@ private:
     int lightshow_resolution = 40; // 40 = DMX update every 25ms.    20 = DMX update every 50ms.    10 = DMX update every 100ms.
     LightshowGenerator lightshow_generator;
 
-    QString rtl_path = "";
+    QString sig_light_path = "";
     std::string lightshows_directory_path = "";
     std::string songs_directory_path = "";
 
@@ -269,7 +269,7 @@ private:
     bool ls_generating_thread_is_alive;
     bool is_in_dark_mode;
 
-    std::vector<std::string> color_palettes{"R/C/LG/B/P", "B/LG/C/R/G", "G/Y/R/W/B", "B/LG/P/C/R/G/Y/W", "LG/P/C/R/G/Y/W/B", "P/C/R/G/Y/W/B/LG", "C/R/G/Y/W/B/LG/P", "R/G/Y/W/B/LG/P/C", "G/Y/W/B/LG/P/C/R", "Y/W/B/LG/P/C/R/G", "W/B/LG/P/C/R/G/Y"};
+    std::vector<std::string> color_palettes{"R", "G", "B", "C", "LG", "P", "Y", "O", "W", "R/Y/O", "B/C/W", "G/LG/C", "R/C/LG/B/P", "B/LG/C/R/G", "G/Y/R/W/B", "B/LG/P/C/R/G/Y/W", "LG/P/C/R/G/Y/W/B", "P/C/R/G/Y/W/B/LG", "C/R/G/Y/W/B/LG/P", "R/G/Y/W/B/LG/P/C", "G/Y/W/B/LG/P/C/R", "Y/W/B/LG/P/C/R/G", "W/B/LG/P/C/R/G/Y"};
 
     bool fixtures_changed = false;
     /**
@@ -310,7 +310,7 @@ private:
      * @param start_channel The start channel of the Fixture.
      * @param type Type of the Fixutre.
      */
-    void add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group);
+    void add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt);
 
     /**
      * @brief create_fixtures Creates the preset Fixtures or loads them if the Fixturefile exists.
@@ -329,7 +329,7 @@ private:
      * @param start_channel Set the start channel of a Fixture.
      */
     void create_new_fixture(std::string name, std::string type, std::string description, QStringList channels,
-                            std::string icon_identifyer, std::string colors, int position_in_group, int start_channel = 0);
+                            std::string icon_identifyer, std::string colors, int position_in_group, std::string position_on_stage = "Left", std::string moving_head_type = "Nothing", int modifier_pan = 0, int modifier_tilt = 0, int start_channel = 0);
 
     /**
      * @brief init Initializes some settings of the UI and sets some Presets.
@@ -387,6 +387,9 @@ private:
     void queue_for_generating_light_show();
     void start_thread_for_generating_queue();
     void init_shortcuts();
+    void resize_fixture_list_columns();
+
+    std::vector<int> get_all_pan_tilt_channels();
 };
 
 #endif // MAINWINDOW_H

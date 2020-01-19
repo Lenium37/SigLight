@@ -3,7 +3,10 @@
 //
 
 #include <random>
+#include <math.h>
 #include "lightshow_generator.h"
+
+#define PI 3.14159265
 
 
 LightshowGenerator::LightshowGenerator() {
@@ -29,14 +32,17 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   for (Fixture fix: fixtures) {
     //std::cout << "new fix. name: " << fix.get_name() << ". start address: " << fix.get_start_channel() << ", number of addresses: " << fix.get_channel_count() << std::endl;
     if (fix.get_name() == "Cameo Flat RGB 10"
+    || fix.get_name() == "JBLED A7 (S8)"
+    || fix.get_name() == "JBLED P4 (M1)"
     || fix.get_name() == "Stairville LED Flood Panel 150 (3ch)"
     || fix.get_name() == "Stairville LED Flood Panel 150 (4ch)"
     || fix.get_name() == "Helios 7"
     || fix.get_name() == "Cobalt Plus Spot 5R"
     || fix.get_name() == "Varytec PAD7 seventy"
     || fix.get_name() == "TOURSPOT PRO"
-    || fix.get_name() == "BAR TRI-LED") {
-      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors(), fix.get_position_in_group()));
+    || fix.get_name() == "BAR TRI-LED"
+    || fix.get_name() == "SGM X-5 (1CH)") {
+      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors(), fix.get_position_in_group(), fix.get_position_on_stage(), fix.get_moving_head_type(), fix.get_modifier_pan(), fix.get_modifier_tilt()));
     } else std::cout << "Fixture type unknown." << std::endl;
 
     if(fix.get_type() == "group_one_after_another" && fix.get_position_in_group() > fixtures_in_group_one_after_another)
@@ -61,6 +67,205 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   for (LightshowFixture fix: my_fixtures) {
     std::string fix_type = fix.get_type();
     std::transform(fix_type.begin(), fix_type.end(), fix_type.begin(), ::tolower);
+
+
+    if(fix.has_shutter) {
+      std::vector<time_value_int> v;
+      v.push_back({0.0, 255});
+      v.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(),
+                   0});
+      fix.add_value_changes_to_channel(v, fix.get_channel_shutter());
+    }
+
+    if(fix.has_pan && fix.has_tilt) {
+      int frequency = lightshow_from_analysis->get_resolution();
+      std::vector<time_value_int> tilt_steps;
+      std::vector<time_value_int> pan_steps;
+      std::vector<time_value_int> vc_tilt;
+      std::vector<time_value_int> vc_pan;
+      std::vector<time_value_int> vc_shutter;
+      std::vector<time_value_int> vc_zoom;
+      std::vector<time_value_int> vc_focus;
+
+      float time_step = 0.025;
+      int pan_center = 127;
+      int tilt_center = 127;
+
+      if(fix.get_modifier_pan() && fix.get_degrees_per_pan())
+        pan_center = pan_center + (fix.get_modifier_pan() / fix.get_degrees_per_pan());
+      if(fix.get_modifier_tilt() && fix.get_degrees_per_tilt())
+        tilt_center = tilt_center + (fix.get_modifier_tilt() / fix.get_degrees_per_tilt());
+
+      std::cout << "pan_center: " << pan_center << std::endl;
+      std::cout << "tilt_center: " << tilt_center << std::endl;
+
+      float amplitude_tilt = 30;
+      float amplitude_pan = 30;
+
+      float time_of_one_beat = (float) 60 / (float) lightshow_from_analysis->get_bpm();
+      float time_of_two_beats = 2.0f * time_of_one_beat;
+      float time_of_two_bars = (float) 8 * time_of_one_beat;
+      float time_of_four_bars = (float) 16 * time_of_one_beat;
+
+      float time_per_step_tilt = time_of_two_beats; // seconds
+      float time_per_step_pan = time_of_two_beats; // seconds
+      bool loop = false;
+
+      if(fix.get_moving_head_type() == "Continuous 8") {
+        amplitude_tilt = 30;
+        amplitude_pan = 30;
+        /* weak 8
+        pan_steps.push_back({0.0, pan_tilt_center});
+        pan_steps.push_back({1.0, (int) (pan_tilt_center + amplitude_pan)});
+        pan_steps.push_back({2.0, pan_tilt_center});
+        pan_steps.push_back({3.0, (int) (pan_tilt_center - amplitude_pan)});
+        pan_steps.push_back({4.0, pan_tilt_center});
+        pan_steps.push_back({5.0, (int) (pan_tilt_center + amplitude_pan)});
+        pan_steps.push_back({6.0, pan_tilt_center});
+        pan_steps.push_back({7.0, (int) (pan_tilt_center - amplitude_pan)});*/
+
+        if (fix.get_position_on_stage() == "Left") {
+          std::cout << "position on stage: left" << std::endl;
+          pan_steps.push_back({0.0, (int) (pan_center + amplitude_pan)});
+          pan_steps.push_back({1.0f * time_of_two_beats, (int) (pan_center + (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({2.0f * time_of_two_beats, pan_center});
+          pan_steps.push_back({3.0f * time_of_two_beats, (int) (pan_center - (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({4.0f * time_of_two_beats, (int) (pan_center - amplitude_pan)});
+          pan_steps.push_back({5.0f * time_of_two_beats, (int) (pan_center - (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({6.0f * time_of_two_beats, pan_center});
+          pan_steps.push_back({7.0f * time_of_two_beats, (int) (pan_center + (amplitude_pan * 2 / 3))});
+        } else {
+          std::cout << "position on stage: right" << std::endl;
+          pan_steps.push_back({0.0, (int) (pan_center - amplitude_pan)});
+          pan_steps.push_back({1.0f * time_of_two_beats, (int) (pan_center - (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({2.0f * time_of_two_beats, pan_center});
+          pan_steps.push_back({3.0f * time_of_two_beats, (int) (pan_center + (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({4.0f * time_of_two_beats, (int) (pan_center + amplitude_pan)});
+          pan_steps.push_back({5.0f * time_of_two_beats, (int) (pan_center + (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({6.0f * time_of_two_beats, pan_center});
+          pan_steps.push_back({7.0f * time_of_two_beats, (int) (pan_center - (amplitude_pan * 2 / 3))});
+        }
+
+        tilt_steps.push_back({0.0, tilt_center});
+        tilt_steps.push_back({1.0f * time_of_two_beats, (int) (tilt_center + (amplitude_tilt * 2 / 3))});
+        tilt_steps.push_back({2.0f * time_of_two_beats, (int) (tilt_center + amplitude_tilt)});
+        tilt_steps.push_back({3.0f * time_of_two_beats, (int) (tilt_center + (amplitude_tilt * 2 / 3))});
+        tilt_steps.push_back({4.0f * time_of_two_beats, tilt_center});
+        tilt_steps.push_back({5.0f * time_of_two_beats, (int) (tilt_center - (amplitude_tilt * 2 / 3))});
+        tilt_steps.push_back({6.0f * time_of_two_beats, (int) (tilt_center - amplitude_tilt)});
+        tilt_steps.push_back({7.0f * time_of_two_beats, (int) (tilt_center - (amplitude_tilt * 2 / 3))});
+
+        loop = true;
+
+      } else if(fix.get_moving_head_type() == "Backlight, drop on action") {
+        amplitude_tilt = 100;
+        amplitude_pan = 0;
+        time_per_step_tilt = time_of_one_beat;
+        time_step = 0.025f;
+        vc_tilt.push_back({0.0, 127});
+        vc_tilt.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+        vc_pan.push_back({0.0, 127});
+        vc_pan.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+        vc_zoom.push_back({0.0, 200});
+        vc_zoom.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+        vc_focus.push_back({0.0, 200});
+        vc_focus.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+
+        std::vector<time_value_int> segment_changes = lightshow_from_analysis->get_timestamps_colorchanges();
+
+        std::cout << "all segment changes:" << std::endl;
+        //for(time_value_int f: segment_changes) {
+          //std::cout << f.time << "    " << f.value << std::endl;
+        //}
+        std::vector<float> timestamps_of_drops;
+        for(int i = 1; i < segment_changes.size(); i++) {
+          //if(segment_changes[i].value > segment_changes[i-1].value + 30 && segment_changes[i].time > segment_changes[i-1].time + time_of_four_bars) {
+          if(segment_changes[i].value >= 90) {
+            if(segment_changes[i].time - time_of_two_bars > 0)
+              timestamps_of_drops.push_back(segment_changes[i].time - time_of_two_bars);
+            else if(segment_changes[i].time - 2 * time_of_two_beats > 0)
+              timestamps_of_drops.push_back(segment_changes[i].time - 2 * time_of_two_beats);
+          }
+        }
+        //for(float f: timestamps_of_drops)
+          //std::cout << f << std::endl;
+
+
+        int start_value = tilt_center;
+        // TODO hier switch case plus oder minus
+        int end_value = tilt_center - amplitude_tilt;
+        float value_step = (float) (end_value - start_value) * time_step / time_of_two_bars;
+        for(float begin_timestamp: timestamps_of_drops) {
+          float time = begin_timestamp;
+          float current_value = start_value;
+          while(time <= begin_timestamp + time_of_two_bars) {
+            current_value += value_step;
+
+            vc_tilt.push_back({time, (int) current_value});
+            time = time + time_step;
+          }
+          vc_tilt.push_back({time + 0.5f, tilt_center});
+
+        }
+        fix.add_value_changes_to_channel(vc_pan, fix.get_channel_pan());
+        fix.add_value_changes_to_channel(vc_tilt, fix.get_channel_tilt());
+        fix.add_value_changes_to_channel(vc_zoom, fix.get_channel_zoom());
+        fix.add_value_changes_to_channel(vc_focus, fix.get_channel_focus());
+
+        loop = false;
+
+      } else {
+
+      }
+
+      if(fix.get_moving_head_type() != "Nothing" && loop) {
+        int j = 0;
+        //for(int j = 0; j < 400; j = j + tilt_steps.size() * (time_per_step_tilt * freq)) {
+        if(tilt_steps.size() > 0) {
+          while (j
+              < (lightshow_from_analysis->get_length() - 3) / (tilt_steps.size() * (time_per_step_tilt * frequency))) {
+            for (int i = 0; i < tilt_steps.size(); i++) {
+              float start_time = tilt_steps[i].time + j * tilt_steps.size() * time_per_step_tilt;
+              int start_value = tilt_steps[i].value;
+              int end_value = tilt_steps[0].value;
+              if (i < tilt_steps.size() - 1)
+                end_value = tilt_steps[i + 1].value;
+
+              float value_step = (float) (end_value - start_value) / (time_per_step_tilt * frequency);
+
+              for (int i = 0; i < time_per_step_tilt * frequency; i++) {
+                vc_tilt.push_back({start_time + i * time_step, (int) (start_value + i * value_step)});
+
+              }
+            }
+            j++;
+          }
+        }
+        j = 0;
+        if(pan_steps.size() > 0) {
+          while (j
+              < (lightshow_from_analysis->get_length() - 3) / (pan_steps.size() * (time_per_step_pan * frequency))) {
+            for (int i = 0; i < pan_steps.size(); i++) {
+              float start_time = pan_steps[i].time + j * pan_steps.size() * time_per_step_pan;
+              int start_value = pan_steps[i].value;
+              int end_value = pan_steps[0].value;
+              if (i < pan_steps.size() - 1)
+                end_value = pan_steps[i + 1].value;
+
+              float value_step = (float) (end_value - start_value) / (time_per_step_pan * frequency);
+
+              for (int i = 0; i < time_per_step_pan * frequency; i++) {
+                vc_pan.push_back({start_time + i * time_step, (int) (start_value + i * value_step)});
+
+              }
+            }
+            j++;
+          }
+        }
+        fix.add_value_changes_to_channel(vc_pan, fix.get_channel_pan());
+        fix.add_value_changes_to_channel(vc_tilt, fix.get_channel_tilt());
+      }
+    }
 
     if (fix_type == "bass") {
 
@@ -162,23 +367,44 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       if (fix.has_global_dimmer) {
 
         std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
-        std::cout << "timestamps.size() onset_blink: " << timestamps.size() << std::endl;
-        std::vector<time_value_int> value_changes_onset_blink;
+        std::cout << "timestamps.size() onset_flash: " << timestamps.size() << std::endl;
+        std::vector<time_value_int> value_changes_onset_flash;
 
-        for (int i = 0; i < timestamps.size(); i++) {
-          if (timestamps[i] - 0.050f > 0) {
-            value_changes_onset_blink.push_back({timestamps[i] - 0.050f, 0});
-            value_changes_onset_blink.push_back({timestamps[i] - 0.025f, 100});
+        if(fix.has_shutter) {
+          for (int i = 0; i < timestamps.size(); i++) {
+            if (timestamps[i] - 0.050f > 0) {
+              value_changes_onset_flash.push_back({timestamps[i] - 0.050f, 0});
+            }
+            value_changes_onset_flash.push_back({timestamps[i], 255});
+            if (i < timestamps.size() && timestamps[i] + 0.050f < timestamps[timestamps.size() - 1]) {
+              value_changes_onset_flash.push_back({timestamps[i] + 0.050f, 0});
+            }
           }
-          value_changes_onset_blink.push_back({timestamps[i], 200});
-          if (i < timestamps.size() && timestamps[i] + 0.050f < timestamps[timestamps.size() - 1]) {
-            value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 100});
-            value_changes_onset_blink.push_back({timestamps[i] + 0.050f, 0});
+        } else {
+          for (int i = 0; i < timestamps.size(); i++) {
+            if (timestamps[i] - 0.050f > 0) {
+              value_changes_onset_flash.push_back({timestamps[i] - 0.050f, 0});
+              value_changes_onset_flash.push_back({timestamps[i] - 0.025f, 100});
+            }
+            value_changes_onset_flash.push_back({timestamps[i], 200});
+            if (i < timestamps.size() && timestamps[i] + 0.050f < timestamps[timestamps.size() - 1]) {
+              value_changes_onset_flash.push_back({timestamps[i] + 0.025f, 100});
+              value_changes_onset_flash.push_back({timestamps[i] + 0.050f, 0});
+            }
           }
         }
 
-        //std::cout << value_changes_onset_blink.size() << std::endl;
-        fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
+        //std::cout << value_changes_onset_flash.size() << std::endl;
+
+        if(fix.has_shutter) {
+          std::vector<time_value_int> v;
+          v.push_back({0.0, 200});
+          v.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+          fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
+          fix.add_value_changes_to_channel(value_changes_onset_flash, fix.get_channel_shutter());
+        } else {
+          fix.add_value_changes_to_channel(value_changes_onset_flash, fix.get_channel_dimmer());
+        }
 
         std::vector<std::string> colors = fix.get_colors();
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
@@ -190,26 +416,50 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       if (fix.has_global_dimmer) {
 
         std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
-        std::cout << "timestamps.size() onset_blink_reverse: " << timestamps.size() << std::endl;
-        std::vector<time_value_int> value_changes_onset_blink;
+        std::cout << "timestamps.size() onset_flash_reverse: " << timestamps.size() << std::endl;
+        std::vector<time_value_int> value_changes_onset_flash_reverse;
 
-        value_changes_onset_blink.push_back({0.0, 200});
-        value_changes_onset_blink.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
-        for (int i = 0; i < timestamps.size(); i++) {
-          if (timestamps[i] - 0.050f > 0) {
-            value_changes_onset_blink.push_back({timestamps[i] - 0.050f, 200});
-            value_changes_onset_blink.push_back({timestamps[i] - 0.025f, 100});
+        if(fix.has_shutter) {
+          value_changes_onset_flash_reverse.push_back({0.0, 255});
+          value_changes_onset_flash_reverse.push_back({((float) lightshow_from_analysis->get_length() - 3)
+                                                   / lightshow_from_analysis->get_resolution(), 0});
+          for (int i = 0; i < timestamps.size(); i++) {
+            if (timestamps[i] - 0.050f > 0) {
+              value_changes_onset_flash_reverse.push_back({timestamps[i] - 0.050f, 255});
+            }
+            value_changes_onset_flash_reverse.push_back({timestamps[i], 0});
+            if (i < timestamps.size() && timestamps[i] + 0.050f < timestamps[timestamps.size() - 1]) {
+              value_changes_onset_flash_reverse.push_back({timestamps[i] + 0.050f, 255});
+            }
           }
-          value_changes_onset_blink.push_back({timestamps[i], 0});
-          if (i < timestamps.size() && timestamps[i] + 0.050f < timestamps[timestamps.size() - 1]) {
-            value_changes_onset_blink.push_back({timestamps[i] + 0.025f, 100});
-            value_changes_onset_blink.push_back({timestamps[i] + 0.050f, 200});
+        } else {
+          value_changes_onset_flash_reverse.push_back({0.0, 200});
+          value_changes_onset_flash_reverse.push_back({((float) lightshow_from_analysis->get_length() - 3)
+                                                   / lightshow_from_analysis->get_resolution(), 0});
+          for (int i = 0; i < timestamps.size(); i++) {
+            if (timestamps[i] - 0.050f > 0) {
+              value_changes_onset_flash_reverse.push_back({timestamps[i] - 0.050f, 200});
+              value_changes_onset_flash_reverse.push_back({timestamps[i] - 0.025f, 100});
+            }
+            value_changes_onset_flash_reverse.push_back({timestamps[i], 0});
+            if (i < timestamps.size() && timestamps[i] + 0.050f < timestamps[timestamps.size() - 1]) {
+              value_changes_onset_flash_reverse.push_back({timestamps[i] + 0.025f, 100});
+              value_changes_onset_flash_reverse.push_back({timestamps[i] + 0.050f, 200});
+            }
           }
         }
 
-        std::cout << value_changes_onset_blink.size() << std::endl;
+        //std::cout << value_changes_onset_flash_reverse.size() << std::endl;
 
-        fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
+        if(fix.has_shutter) {
+          std::vector<time_value_int> v;
+          v.push_back({0.0, 200});
+          v.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+          fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
+          fix.add_value_changes_to_channel(value_changes_onset_flash_reverse, fix.get_channel_shutter());
+        } else {
+          fix.add_value_changes_to_channel(value_changes_onset_flash_reverse, fix.get_channel_dimmer());
+        }
 
         std::vector<std::string> colors = fix.get_colors();
         this->generate_color_fades(lightshow_from_analysis, fix, colors);
@@ -755,7 +1005,87 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
       }
       lightshow_from_analysis->add_fixture(fix);
+    } else if (fix_type == "strobe_if_many_onsets") {
+
+      std::vector<float> onset_timestamps = lightshow_from_analysis->get_onset_timestamps();
+      std::vector<float> begin_and_end_of_flashing_timestamps;
+      int onset_counter = 0;
+      float last_time = 0;
+      float begin_timestamp = 0;
+      float time_of_one_eigth = ((float) 60 / (float) lightshow_from_analysis->get_bpm()) / 2;
+      //std::cout << "time_of_one_eigth: " << time_of_one_eigth << std::endl;
+      for (float onset_timestamp: onset_timestamps) {
+        if (onset_counter == 0 && onset_timestamp - last_time < time_of_one_eigth) {
+          begin_timestamp = last_time;
+          onset_counter = 1;
+        }
+
+        if (onset_counter > 0 && onset_timestamp - last_time < time_of_one_eigth) {
+          onset_counter++;
+        }
+
+        if (onset_counter > 0 && onset_timestamp - last_time >= time_of_one_eigth) {
+          if (onset_counter > 12) {
+            begin_and_end_of_flashing_timestamps.push_back(begin_timestamp);
+            begin_and_end_of_flashing_timestamps.push_back(last_time);
+          }
+          onset_counter = 0;
+        }
+        last_time = onset_timestamp;
+      }
+
+      std::vector<time_value_int> value_changes;
+
+      std::cout << "begin_and_end_of_flashing_timestamps.size(): " << begin_and_end_of_flashing_timestamps.size()
+                << std::endl;
+      //std::cout << "old bpm analysis: " << lightshow_from_analysis->get_bpm() << std::endl;
+
+      float begin_flashing = 0;
+      float end_flashing = 0;
+
+      if(fix.is_blinder) {
+        if (begin_and_end_of_flashing_timestamps.size() > 0) {
+          for (int i = 0; i < begin_and_end_of_flashing_timestamps.size() - 1; i = i + 2) {
+            begin_flashing = begin_and_end_of_flashing_timestamps[i];
+            end_flashing = begin_and_end_of_flashing_timestamps[i + 1];
+
+            value_changes.push_back({begin_flashing, fix.get_blinder_value()});
+            value_changes.push_back({end_flashing, 0});
+          }
+          fix.add_value_changes_to_channel(value_changes, fix.get_channel_blinder());
+        }
+      }
+      else {
+        if (fix.has_global_dimmer) {
+          if (fix.has_strobe) {
+
+
+            if (begin_and_end_of_flashing_timestamps.size() > 0) {
+              for (int i = 0; i < begin_and_end_of_flashing_timestamps.size() - 1; i = i + 2) {
+                begin_flashing = begin_and_end_of_flashing_timestamps[i];
+                end_flashing = begin_and_end_of_flashing_timestamps[i + 1];
+
+                value_changes.push_back({begin_flashing, 255});
+                value_changes.push_back({end_flashing, 0});
+              }
+              fix.add_value_changes_to_channel(value_changes, fix.get_channel_strobo());
+            }
+
+            fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
+
+            std::vector<std::string> colors = fix.get_colors();
+            this->generate_color_fades(lightshow_from_analysis, fix, colors);
+
+          } else if (fix.has_shutter) {
+
+          } else {
+
+          }
+        }
+      }
+      lightshow_from_analysis->add_fixture(fix);
     }
+
   }
   return lightshow_from_analysis;
 }
@@ -787,7 +1117,12 @@ void LightshowGenerator::generate_color_fades(std::shared_ptr<Lightshow> lightsh
     Logger::debug("adding color change at: {}", timestamps[i].time);
     color_changes.push_back({ timestamps[i].time, colors[c] });
   }
-  this->set_soft_color_changes(lightshow_from_analysis, fix, color_changes, this->fade_duration);
+  if(fix.has_colorwheel) {
+    //this->set_colorwheel_color_changes(lightshow_from_analysis, fix, color_changes);
+    this->set_hard_color_changes(lightshow_from_analysis, fix, color_changes);
+  } else {
+    this->set_soft_color_changes(lightshow_from_analysis, fix, color_changes, this->fade_duration);
+  }
 }
 
 void LightshowGenerator::set_soft_color_changes(std::shared_ptr<Lightshow> lightshow_from_analysis, LightshowFixture& fix, std::vector<color_change> color_changes, float fade_duration) {
@@ -852,44 +1187,54 @@ void LightshowGenerator::set_soft_color_changes(std::shared_ptr<Lightshow> light
 
 
 void LightshowGenerator::set_hard_color_changes(const std::shared_ptr<Lightshow> lightshow_from_analysis, LightshowFixture &fix, std::vector<color_change> color_changes) {
-  if(color_changes.empty())
+  if (color_changes.empty())
     return;
 
-  std::vector<time_value_int> data_pairs_red;
-  std::vector<time_value_int> data_pairs_green;
-  std::vector<time_value_int> data_pairs_blue;
 
-  int counter = 0;
-  float start_of_color = 0;
-  float end_of_color= 0;
-
-  while(counter < color_changes.size()) {
-    start_of_color = color_changes[counter].timestamp;
-    if(counter == color_changes.size() - 1)
-      end_of_color = ((lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution());
-    else
-      end_of_color = color_changes[counter + 1].timestamp;
-
-    color_values cv = this->color_to_rgb(color_changes[counter].color);
-    if(cv.r > 0) {
-      data_pairs_red.push_back({start_of_color, cv.r});
-      data_pairs_red.push_back({end_of_color, 0});
+  if (fix.has_colorwheel) {
+    std::vector<time_value_int> color_changes_colorwheel;
+    for(color_change cc: color_changes) {
+      color_changes_colorwheel.push_back({cc.timestamp, fix.get_colorwheel_value(cc.color)});
     }
-    if(cv.g > 0) {
-      data_pairs_green.push_back({start_of_color, cv.g});
-      data_pairs_green.push_back({end_of_color, 0});
-    }
-    if(cv.b > 0) {
-      data_pairs_blue.push_back({start_of_color, cv.b});
-      data_pairs_blue.push_back({end_of_color, 0});
+    fix.add_value_changes_to_channel(color_changes_colorwheel, fix.get_channel_colorwheel());
+  } else {
+
+    std::vector<time_value_int> data_pairs_red;
+    std::vector<time_value_int> data_pairs_green;
+    std::vector<time_value_int> data_pairs_blue;
+
+    int counter = 0;
+    float start_of_color = 0;
+    float end_of_color = 0;
+
+    while (counter < color_changes.size()) {
+      start_of_color = color_changes[counter].timestamp;
+      if (counter == color_changes.size() - 1)
+        end_of_color = ((lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution());
+      else
+        end_of_color = color_changes[counter + 1].timestamp;
+
+      color_values cv = this->color_to_rgb(color_changes[counter].color);
+      if (cv.r > 0) {
+        data_pairs_red.push_back({start_of_color, cv.r});
+        data_pairs_red.push_back({end_of_color, 0});
+      }
+      if (cv.g > 0) {
+        data_pairs_green.push_back({start_of_color, cv.g});
+        data_pairs_green.push_back({end_of_color, 0});
+      }
+      if (cv.b > 0) {
+        data_pairs_blue.push_back({start_of_color, cv.b});
+        data_pairs_blue.push_back({end_of_color, 0});
+      }
+
+      counter++;
     }
 
-    counter++;
+    fix.add_value_changes_to_channel(data_pairs_red, fix.get_channel_red());
+    fix.add_value_changes_to_channel(data_pairs_green, fix.get_channel_green());
+    fix.add_value_changes_to_channel(data_pairs_blue, fix.get_channel_blue());
   }
-
-  fix.add_value_changes_to_channel(data_pairs_red, fix.get_channel_red());
-  fix.add_value_changes_to_channel(data_pairs_green, fix.get_channel_green());
-  fix.add_value_changes_to_channel(data_pairs_blue, fix.get_channel_blue());
 }
 
 std::vector<time_value_int> LightshowGenerator::calculate_single_fade(const std::shared_ptr<Lightshow> lightshow_from_analysis, float fade_duration, int c_old, int c_new)
@@ -1009,8 +1354,12 @@ color_values LightshowGenerator::color_to_rgb(string color) {
     cv.b = 255;
   } else if(color == "yellow") {
     cv.r = 255;
-    // cv.g = 255; // looked to green on Cameo, maybe change back if mostly other fixtures are used
-    cv.g = 100;
+    cv.g = 130; // looked to green on Cameo, maybe change back if mostly other fixtures are used
+    //cv.g = 100;
+    cv.b = 0;
+  } else if(color == "orange") {
+    cv.r = 255;
+    cv.g = 80;
     cv.b = 0;
   } else if(color == "cyan") {
     cv.r = 0;
@@ -1085,9 +1434,7 @@ void LightshowGenerator::generate_beat_color_changes(std::shared_ptr<Lightshow> 
     Logger::debug("adding color change at: {}", timestamps_float[i]);
     color_changes.push_back({ timestamps_float[i] / 44100, colors[c] });
   }
-  //this->set_soft_color_changes(lightshow_from_analysis, fix, color_changes, 0.1);
   this->set_hard_color_changes(lightshow_from_analysis, fix, color_changes);
-
 }
 
 LightshowGenerator::~LightshowGenerator() {
@@ -1116,6 +1463,5 @@ void LightshowGenerator::generate_onset_color_changes(std::shared_ptr<Lightshow>
     Logger::debug("adding color change at: {}", timestamps[i]);
     color_changes.push_back({ timestamps[i], colors[c] });
   }
-  //this->set_soft_color_changes(lightshow_from_analysis, fix, color_changes, 0.1);
   this->set_hard_color_changes(lightshow_from_analysis, fix, color_changes);
 }

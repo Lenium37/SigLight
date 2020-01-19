@@ -149,13 +149,147 @@ void Analysis::stft() {
 
 }
 
-std::vector<float> Analysis::get_onset_timestamps() {
+std::vector<float> Analysis::get_onset_timestamps_energy_difference(){
+
+  std::vector<float> onset_timestamps;
+
+  int window_size_onsets = 2048;
+  Gist<float> gist2(window_size_onsets, 44100);
+  float audioFrame[window_size_onsets];
+  float last_value = 0;
+  float last_time = 0;
+  bool onset_found = false;
+  bool already_added_this_onset = false;
+  std::vector<time_value_float> onsets;
+  onsets.resize(signal_length_mono / window_size_onsets / 2);
+  float min_value_onset = 0;
+
+
+  // this works good for hardstyle and some other stuff, semi good for the rest
+  /*float f1_sample = ((float) window_size_onsets / 44100) * 1;
+  float f2_sample = ((float) window_size_onsets / 44100) * 10000;
+  std::cout << "normalized_result.size(): " << normalized_result.size() << std::endl;
+  std::cout << "signal_length_mono: " << signal_length_mono << std::endl;
+  for (int i = 0; i < normalized_result.size(); i++){
+    int this_value = 0;
+    int this_sample = 0;
+    int this_block = 0;
+    float this_freq = 0;
+    for(int y = 0; y < window_size_onsets; y++)
+      audioFrame[y] = 0;
+    for (int n = f1_sample, k = 0; n <= f2_sample ; n++, k++){
+      audioFrame[k] = (float) normalized_result[i][n];
+    }
+    gist2.processAudioFrame (audioFrame, window_size_onsets);
+    float ed = gist2.energyDifference();
+    float x = i;
+    float time = x * window_size_onsets / 44100 / 1.85796852603;
+    onsets.push_back({time, ed});
+  }*/
+
+
+  // ??
+  /*int f1 = 100;
+  int f2 = 200;
+  int co_f1 = f1/(samplerate/window_size_onsets);
+  int co_f2 = f2/(samplerate/window_size_onsets);
+  for(int i = 0; i < co_f1; i++);
+  for(int i = co_f2; i < window_size_onsets; i++);*/
+
+
+
+
+  // works good for rocky stuff and clear electronic bass
+  for(int i = 0; i < signal_length_mono - window_size_onsets; i = i + window_size_onsets / 2) {
+    for(int j = i, k = 0; k < window_size_onsets; j++, k++) {
+      audioFrame[k] = wav_values_mono[j];
+      //std::cout << audioFrame[k] << std::endl;
+    }
+
+
+    gist2.processAudioFrame (audioFrame, window_size_onsets);
+    float ed = gist2.energyDifference();
+    float i_float = i;
+    float time = i_float/44100;
+
+    //if(ed > 0)
+    //std::cout << "ed(" << time << "): " << ed << std::endl;
+
+    onsets.push_back({time, ed});
+  }
+
+  // look for max peak
+  float max_ed_value = 0.0;
+  for(int i = 0; i < onsets.size(); i++) {
+    if(onsets[i].value > max_ed_value)
+      max_ed_value = onsets[i].value;
+  }
+
+  // look for all peaks, then take mean
+  float all_peaks = 0.0;
+  int peak_counter = 0;
+  for(int i = 0; i < onsets.size(); i++) {
+    if(i > 0 && i < onsets.size()-1) {
+      if (onsets[i].value > onsets[i - 1].value && onsets[i].value > onsets[i + 1].value && onsets[i].value > max_ed_value * 0.25) {
+        all_peaks += onsets[i].value;
+        peak_counter++;
+      }
+    }
+  }
+  float mean_of_all_peaks = all_peaks / peak_counter;
+
+  // rocky = 5.5
+  // metal (HSB Voice of the Voiceless, double bass) = 1.7
+  // metal/hard rock (Sabaton 7734) = 4.5
+  // somewhat allgemeingültig = 5
+  //min_value_onset = min_value_onset / onsets.size() * 5;
+
+  //min_value_onset = max_ed_value * 0.315;
+  min_value_onset = (max_ed_value + mean_of_all_peaks + mean_of_all_peaks) / 7.5;
+  std::cout << "mean_of_all_peaks: " << mean_of_all_peaks << std::endl;
+  std::cout << "max_ed_value: " << max_ed_value << std::endl;
+  std::cout << "min_value_onset: " << min_value_onset << std::endl;
+  std::cout << "old min_value_onset: " << max_ed_value * 0.315 << std::endl;
+  float threshold_reset = 0.0f;
+
+  for(time_value_float onset: onsets) {
+    //std::cout << "ed(" << onset.time << "): " << onset.value << std::endl;
+    if(onset.value > min_value_onset)
+      onset_found = true;
+
+    if(onset_found) {
+      if(onset.value < last_value && !already_added_this_onset) {
+        onset_timestamps.emplace_back(last_time);
+        already_added_this_onset = true;
+      }
+    }
+
+    if(onset.value <= threshold_reset) {
+      onset_found = false;
+      already_added_this_onset = false;
+    }
+
+    last_value = onset.value;
+    last_time = onset.time;
+  }
+
+  std::cout << "min_value_onset: " << min_value_onset << std::endl;
+  std::cout << "threshold_reset: " << threshold_reset << std::endl;
+  //for(float ts: onset_timestamps)
+  //std::cout << ts << std::endl;
+
+  return onset_timestamps;
+}
+
+std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, float f_end) {
 
   // BAND PASS FREQUENCIES
-  float f_start = 0;
-  float f_end = 22050;
+  //float f_start = 0;
+  //float f_end = 22050;
+  f_start = 0;
+  f_end = 22050;
 
-  int window_size_onsets = 1024;
+  int window_size_onsets = 2048;
   Gist<float> gist2(window_size_onsets, 44100);
   float audioFrame[window_size_onsets];
   float window_function[window_size_onsets];
@@ -274,20 +408,30 @@ std::vector<float> Analysis::get_onset_timestamps() {
   // ANYTHING BETWEEN ~1.3 AND ~1.9 MIGHT YIELD GOOD RESULTS
   float multiplier = 1.5;
 
+  // ZERO PADDING FOR MOVING AVERAGE
+
+  float delta = 0;
+  for (int f = 0; f < spectral_flux.size(); f++){
+    delta += (spectral_flux[f].value / spectral_flux.size());
+  }
   // SIMPLE MOVING AVERAGE LOOP OVER ALL SPECTRAL FLUX VALUES
+
   for( int i = 0; i < spectral_flux.size(); i++ )
   {
     int start = fmax( 0, i - (fluxes/2) + 1 );
     int end = fmin( spectral_flux.size() - 1, i + (fluxes/2) + 1 );
-    float mean = 0;
+    float mean = delta * 1.5;
+    float mean_current = 0;
 
-    for( int j = start; j <= end; j++ ) {
-      mean += spectral_flux[j].value;
+    for (int j = start; j <= end; j++) {
+      mean_current = spectral_flux[j].value / (end - start);
+      mean = mean + mean_current;
     }
-    mean /= (end - start);
+    //mean /= (float)(end - start);
 
     float this_time = spectral_flux[i+(fluxes/2)].time;
-    threshold_function_values.push_back({this_time, (mean * multiplier) });
+    //mean *= multiplier;
+    threshold_function_values.push_back({this_time, mean});
     fprintf(fp_threshold_function, "%f, %f\n", threshold_function_values[i].time, threshold_function_values[i].value);
   }
   fclose(fp_threshold_function);
@@ -304,6 +448,7 @@ std::vector<float> Analysis::get_onset_timestamps() {
   return onsets;
 
 }
+
 
 
 std::vector<time_value_double> Analysis::get_intensity_function_values() {

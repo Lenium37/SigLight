@@ -250,7 +250,7 @@ void DmxDeviceK8062::write_test(unsigned char *data) {
 
 
 
-int DmxDeviceK8062::turn_off_all_channels() {
+int DmxDeviceK8062::turn_off_all_channels(std::vector<int> pan_tilt_channels) {
   usleep(25000);
   std::vector<std::uint8_t> v;
   for(int i = 0; i < this->max_channel; i++) {

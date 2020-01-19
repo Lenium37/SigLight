@@ -19,24 +19,35 @@ EditFixtureDialog::EditFixtureDialog(QWidget *parent, list<Fixture> &fixtures, s
     QDialog(parent),
     ui(new Ui::EditFixtureDialog) {
   ui->setupUi(this);
-  types << "Ambient" << "Bass" << "Mid" << "High" << "color_change_beats" << "color_change_beats_action" << "color_change_onsets" << "onset_flash" << "onset_flash_reverse" << "onset_blink" << "group_one_after_another" << "group_one_after_another_blink" << "group_two_after_another" << "group_alternate_odd_even" << "group_random_flashes";
+  types << "Ambient" << "Bass" << "Mid" << "High" << "color_change_beats" << "color_change_beats_action" << "color_change_onsets" << "onset_flash" << "onset_flash_reverse" << "onset_blink" << "group_one_after_another" << "group_one_after_another_blink" << "group_two_after_another" << "group_alternate_odd_even" << "group_random_flashes" << "strobe_if_many_onsets";
   for(std::string _colors: color_palettes)
     colors << QString::fromStdString(_colors);
   auto list_size = static_cast<double>(fixtures.size());
   for (int i = 0; i < list_size; i++) {
     ui->fixture_selection->addItem(QString::fromStdString((std::next(fixtures.begin(), i))->get_name()));
     types_of_fixtures << QString::fromStdString(std::next(fixtures.begin(), i)->get_type());
+    names_of_fixtures << QString::fromStdString(std::next(fixtures.begin(), i)->get_name());
     end_channels.push_back(std::next(fixtures.begin(), i)->get_channel_count());
   }
+
+  ui->cB_moving_head_position->addItem("Center");
+  ui->cB_moving_head_position->addItem("Left");
+  ui->cB_moving_head_position->addItem("Right");
+
+  ui->cB_moving_head_type->addItem("Nothing");
+  ui->cB_moving_head_type->addItem("Continuous 8");
+  ui->cB_moving_head_type->addItem("Backlight, drop on action");
 
   ui->fixture_selection->setCurrentRow(0);
   ui->cB_type->addItems(types);
   ui->cB_colors->addItems(colors);
   ui->sB_start_channel->setRange(1, max_channel);
   ui->sB_position_inside_group->setRange(1, 32);
+  ui->sB_modifier_pan->setRange(-360, 360);
+  ui->sB_modifier_tilt->setRange(-180, 180);
   //ui->sB_position_inside_group->setEnabled(false);
   ui->pB_delete_fixture->setVisible(false);
-  this->setWindowTitle("Choose Fixture");
+  this->setWindowTitle("Edit Fixture");
   EditFixtureDialog::is_delete = false;
 
   connect(ui->cB_type, SIGNAL(currentTextChanged(QString)), this, SLOT(update_position_in_group_status(QString)));
@@ -47,57 +58,78 @@ EditFixtureDialog::~EditFixtureDialog() {
   delete ui;
 }
 
-void EditFixtureDialog::set_up_dialog_options(std::list<int> _blocked_channels, std::string _own_channels, std::string _name)
+void EditFixtureDialog::set_up_dialog_options(std::list<int> _blocked_channels, std::string _own_channels, std::string _name, std::string _colors, int pos_in_group, std::string _type, std::string pos_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt)
 {
+  for(int i = 0; i < names_of_fixtures.size(); i++) {
+    if(names_of_fixtures[i] == QString::fromStdString(_name))
+      ui->fixture_selection->setCurrentRow(i);
+  }
 
-  ui->lE_fixture_name->setText(QString::fromStdString(_name));
+  //ui->lE_fixture_name->setText(QString::fromStdString(_name));
+  ui->l_fixture_name->setText(QString::fromStdString(_name));
 
   Logger::debug("_own_channels: {}", _own_channels);
 
-  stringstream ss;
 
-  /* Storing the whole string into string stream */
-  ss << _own_channels;
+  int own_start_channel = QString::fromStdString(_own_channels).split(" ")[0].toInt();
+  int own_end_channel = own_start_channel;
+  if(QString::fromStdString(_own_channels).split(" ").size() > 1)
+    own_end_channel = QString::fromStdString(_own_channels).split(" ")[2].toInt();
 
-  std::vector<int> allowed_channel_range;
-  /* Running loop till the end of the stream */
-  string temp;
-  int found;
-  while (!ss.eof()) {
-    /* extracting word by word from stream */
-    ss >> temp;
-    /* Checking the given word is integer or not */
-    if (stringstream(temp) >> found)
-      allowed_channel_range.push_back(found);
-    /* To save from space at the end of string */
-    temp = "";
+
+  ui->sB_start_channel->setValue(own_start_channel);
+
+  _blocked_channels.remove(own_start_channel);
+  _blocked_channels.remove(own_end_channel);
+
+  int index_colors = ui->cB_colors->findText(QString::fromStdString(_colors));
+  if ( index_colors != -1 ) { // -1 for not found
+    ui->cB_colors->setCurrentIndex(index_colors);
   }
 
-  for(int i: allowed_channel_range)
-    Logger::debug(i);
+  ui->sB_position_inside_group->setValue(pos_in_group);
 
-  if(allowed_channel_range.size() > 0)
-    ui->sB_start_channel->setValue(allowed_channel_range[0]);
-
-  if(allowed_channel_range.size() > 1) {
-    _blocked_channels.remove(allowed_channel_range[0]);
-    _blocked_channels.remove(allowed_channel_range[1]);
+  int index_type = ui->cB_type->findText(QString::fromStdString(_type));
+  if ( index_type != -1 ) { // -1 for not found
+    ui->cB_type->setCurrentIndex(index_type);
   }
+
+  ui->sB_start_channel->setValue(own_start_channel);
+
+
+  int index_pos_on_stage = ui->cB_moving_head_position->findText(QString::fromStdString(pos_on_stage));
+  if ( index_pos_on_stage != -1 ) { // -1 for not found
+    ui->cB_moving_head_position->setCurrentIndex(index_pos_on_stage);
+  }
+
+  int index_moving_head_type = ui->cB_moving_head_type->findText(QString::fromStdString(moving_head_type));
+  if ( index_moving_head_type != -1 ) { // -1 for not found
+    ui->cB_moving_head_type->setCurrentIndex(index_moving_head_type);
+  } else {
+    ui->cB_moving_head_type->setCurrentIndex(0);
+  }
+
+  ui->sB_modifier_pan->setValue(modifier_pan);
+  ui->sB_modifier_tilt->setValue(modifier_tilt);
 
   for(int c: _blocked_channels)
     Logger::debug("blocked channel: {}", c);
 
   this->blocked_channels = _blocked_channels;
-  set_first_allowed_channel(0, true);
+  //set_first_allowed_channel(0, true);
 }
 
-void EditFixtureDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group)
+void EditFixtureDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type, int &modifier_pan, int &modifier_tilt)
 {
   fixture_id = ui->fixture_selection->currentRow();
   start_channel = ui->sB_start_channel->value();
   type = ui->cB_type->currentText();
   position_in_group = ui->sB_position_inside_group->value();
   colors = ui->cB_colors->currentText().toStdString();
+  position_on_stage = ui->cB_moving_head_position->currentText().toStdString();
+  moving_head_type = ui->cB_moving_head_type->currentText().toStdString();
+  modifier_pan = ui->sB_modifier_pan->value();
+  modifier_tilt = ui->sB_modifier_tilt->value();
 }
 
 void EditFixtureDialog::setup_for_edit()
@@ -176,8 +208,10 @@ void EditFixtureDialog::set_first_allowed_channel(int current_Row, bool first_st
 
 void EditFixtureDialog::on_fixture_selection_currentRowChanged(int currentRow)
 {
-  ui->cB_type->setCurrentIndex(ui->cB_type->findText(types_of_fixtures.at(currentRow)));
-  set_first_allowed_channel(currentRow);
+  //ui->cB_type->setCurrentIndex(ui->cB_type->findText(types_of_fixtures.at(currentRow)));
+  //set_first_allowed_channel(currentRow);
+  ui->l_fixture_name->setText(names_of_fixtures.at(currentRow));
+  this->update_moving_head_position_status(names_of_fixtures.at(currentRow));
 }
 
 void EditFixtureDialog::on_pB_delete_fixture_clicked()
@@ -187,7 +221,7 @@ void EditFixtureDialog::on_pB_delete_fixture_clicked()
 }
 
 void EditFixtureDialog::update_position_in_group_status(QString current_type) {
-  std::cout << current_type.toStdString() << std::endl;
+  //std::cout << current_type.toStdString() << std::endl;
   current_type = current_type.toLower();
   if(current_type == "group_one_after_another"
       || current_type == "group_two_after_another"
@@ -198,5 +232,36 @@ void EditFixtureDialog::update_position_in_group_status(QString current_type) {
   else {
     ui->sB_position_inside_group->setEnabled(false);
     ui->sB_position_inside_group->setValue(0);
+  }
+}
+
+void EditFixtureDialog::update_moving_head_position_status(QString current_fixture) {
+  if(current_fixture == "JBLED A7 (S8)"
+  || current_fixture == "JBLED P4 (M1)") {
+    ui->cB_moving_head_position->setEnabled(true);
+    ui->cB_moving_head_type->setEnabled(true);
+    ui->sB_modifier_pan->setEnabled(true);
+    ui->sB_modifier_tilt->setEnabled(true);
+  } else {
+    ui->cB_moving_head_position->setCurrentIndex(0);
+    ui->cB_moving_head_position->setEnabled(false);
+    ui->cB_moving_head_type->setCurrentIndex(0);
+    ui->cB_moving_head_type->setEnabled(false);
+    ui->sB_modifier_pan->setEnabled(false);
+    ui->sB_modifier_pan->setValue(0);
+    ui->sB_modifier_tilt->setEnabled(false);
+    ui->sB_modifier_tilt->setValue(0);
+  }
+
+  if(current_fixture == "SGM X-5 (1CH)") {
+    ui->cB_type->setEnabled(false);
+    int index_white = ui->cB_colors->findText("W");
+    if ( index_white != -1 ) { // -1 for not found
+      ui->cB_colors->setCurrentIndex(index_white);
+    }
+    ui->cB_colors->setEnabled(false);
+  } else {
+    ui->cB_type->setEnabled(true);
+    ui->cB_colors->setEnabled(true);
   }
 }

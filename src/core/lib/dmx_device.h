@@ -22,7 +22,7 @@ class DmxDevice {
   virtual int start_device() = 0;
   virtual int stop_device() = 0;
   void set_device_status(DeviceStatus device_status);
-  virtual int turn_off_all_channels() = 0;
+  virtual int turn_off_all_channels(std::vector<int> pan_tilt_channels) = 0;
   virtual void start_daemon_thread() = 0;
   /**
    * Checks if the device is connected and could be opened using start_device. This method only checks if the device
