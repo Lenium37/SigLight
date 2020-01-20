@@ -216,6 +216,14 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
       } else {
 
+
+        vc_tilt.push_back({0.0, 127});
+        vc_tilt.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 126});
+        vc_pan.push_back({0.0, 127});
+        vc_pan.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 126});
+
+        fix.add_value_changes_to_channel(vc_pan, fix.get_channel_pan());
+        fix.add_value_changes_to_channel(vc_tilt, fix.get_channel_tilt());
       }
 
       if(fix.get_moving_head_type() != "Nothing" && loop) {
@@ -369,6 +377,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         std::vector<float> timestamps = lightshow_from_analysis->get_onset_timestamps();
         std::cout << "timestamps.size() onset_flash: " << timestamps.size() << std::endl;
         std::vector<time_value_int> value_changes_onset_flash;
+        value_changes_onset_flash.push_back({0.0, 0});
 
         if(fix.has_shutter) {
           for (int i = 0; i < timestamps.size(); i++) {

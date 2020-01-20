@@ -245,7 +245,7 @@ std::vector<float> Analysis::get_onset_timestamps_energy_difference(){
   //min_value_onset = min_value_onset / onsets.size() * 5;
 
   //min_value_onset = max_ed_value * 0.315;
-  min_value_onset = (max_ed_value + mean_of_all_peaks + mean_of_all_peaks) / 7.5;
+  min_value_onset = (max_ed_value + mean_of_all_peaks + mean_of_all_peaks) / 9; // 7.5 zu wenig, 10 zu viel
   std::cout << "mean_of_all_peaks: " << mean_of_all_peaks << std::endl;
   std::cout << "max_ed_value: " << max_ed_value << std::endl;
   std::cout << "min_value_onset: " << min_value_onset << std::endl;
@@ -286,8 +286,8 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
   // BAND PASS FREQUENCIES
   //float f_start = 0;
   //float f_end = 22050;
-  f_start = 0;
-  f_end = 22050;
+  //f_start = 0;
+  //f_end = 22050;
 
   int window_size_onsets = 2048;
   Gist<float> gist2(window_size_onsets, 44100);
@@ -296,23 +296,41 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
   int numSamplesMinus1 = window_size_onsets - 1;
   std::vector<float> onsets;
   std::vector<time_value_float> spectral_flux;
+  std::vector<fluxes> spectral_fluxes;
+  std::vector<fluxes> thresholds;
   std::vector<float> magnitude_spectrum;
   std::vector<float> last_magnitude_spectrum;
   std::vector<time_value_float> threshold_function_values;
+  float max_ed, max_sd, max_sdhwr, max_csd, max_hfc, max_l2nh, max_l1nh, max_l2h, max_l1h = -9999999;
+
 
   // PREPARE CSV FILES WITH HEADERS FOR ALGORITHM COMPARISON
-  FILE *fp_spectral_flux = std::fopen("spectral_flux.csv", "w");
+  /*FILE *fp_spectral_flux = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/spectral_flux.csv",
+                                      "w");
   fprintf(fp_spectral_flux, "time, ed, sd, sdhwr, csd, hfc, l2nohwr, l1nohwr, l2hwr, l1hwr\n");
 
-  FILE* fp_threshold_function = std::fopen("threshold.csv", "w");
+  FILE *fp_thresholds = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/thresholds.csv", "w");
+  fprintf(fp_thresholds, "time, ed, sd, sdhwr, csd, hfc, l2nohwr, l1nohwr, l2hwr, l1hwr\n");
+
+  FILE *fp_threshold_function = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/threshold.csv",
+                                           "w");
   fprintf(fp_threshold_function, "time, value\n");
 
-  FILE *fp_onsets = std::fopen("onsets.csv", "w");
+  FILE *fp_onsets = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/onsets.csv", "w");
   fprintf(fp_onsets, "time, dummyvalue\n");
+
+  FILE *fp_average_flux = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/average_flux.csv",
+                                     "w");
+  fprintf(fp_average_flux, "time, average\n");
+
+  FILE *fp_average_threshold = std::fopen(
+      "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/average_threshold.csv", "w");
+  fprintf(fp_average_threshold, "time, average\n");*/
 
   // GENERATE HAMMING WINDOW FOR AUDIOFRAME (TIME-DOMAIN SMOOTHING)
   for (int i = 0; i < window_size_onsets; i++) {
-    window_function[i] = (float)(0.5 * (float)(1.0 - cos(2.0 * (float)M_PI * ((float)i / (float)numSamplesMinus1))));
+    window_function[i] = (float) (0.5 *
+        (float) (1.0 - cos(2.0 * (float) M_PI * ((float) i / (float) numSamplesMinus1))));
   }
 
   // LOOP OVER COMPLETE SIGNAL WITH WINDOW_SIZE_ONSETS AND A HOPSIZE OF 50%
@@ -329,16 +347,16 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
     // ALSO DELETE COEFFICIENTS FOR FREQUENCIES OUT OF RANGE OF [F_START, F_END]
     magnitude_spectrum = gist2.getMagnitudeSpectrum();
 
-    for (int k = 0; k < magnitude_spectrum.size(); k++){
-      float f_current = (44100/window_size_onsets) * k;
-      if (f_current <= f_start || f_current >= f_end){
+    for (int k = 0; k < magnitude_spectrum.size(); k++) {
+      float f_current = (44100 / window_size_onsets) * k;
+      if (f_current <= f_start || f_current >= f_end) {
         magnitude_spectrum[k] = 0.0;
       }
     }
 
     // HACK TO ALSO SAVE LAST MAGNITUDE SPECTRUM TEMPORARY, WE NEED THIS TO GET THE DELTA FOR SPECTRAL FLUX
     if (i == 0) {
-      for (int k = 0; k <= magnitude_spectrum.size(); k++){
+      for (int k = 0; k <= magnitude_spectrum.size(); k++) {
         last_magnitude_spectrum.push_back(magnitude_spectrum[k]);
       }
     }
@@ -353,7 +371,6 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
     float i_float = i;
     float time = i_float / 44100;
 
-
     // CALCULATE SPECTRAL FLUXES INCLUDED BY ESSENTIA
     float flux_l2_no_hwr = 0.0;
     float flux_l1_no_hwr = 0.0;
@@ -364,7 +381,7 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
 
       float flux_value_l2_no_hwr = (magnitude_spectrum[m] - last_magnitude_spectrum[m]) *
           (magnitude_spectrum[m] - last_magnitude_spectrum[m]);
-      flux_l2_no_hwr += flux_value_l2_no_hwr;
+      flux_l2_no_hwr += flux_value_l2_no_hwr * flux_value_l2_no_hwr;
 
       float flux_value_l1_no_hwr = abs((magnitude_spectrum[m] - last_magnitude_spectrum[m]));
       flux_l1_no_hwr += flux_value_l1_no_hwr;
@@ -381,11 +398,40 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
     flux_l2_no_hwr = sqrt(flux_l2_no_hwr);
     flux_l2_hwr = sqrt(flux_l2_hwr);
 
-    // PRINT ALL THE SPECTRAL FLUXES TO A CSV FILE FOR COMPARISON
-    fprintf(fp_spectral_flux, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", time, ed, sd, sdhwr, csd, hfc, flux_l2_no_hwr, flux_l1_no_hwr, flux_l2_hwr, flux_l1_hwr);
+
 
     // CHOOSE A SPECTRAL FLUX TO USE FOR ONSET DETECTION (SEE LINE 251 FOR THEIR NAMES)
-    spectral_flux.push_back({time, flux_l2_hwr});
+    spectral_flux.push_back({time, csd});
+    if (ed > max_ed) {
+      max_ed = ed;
+    }
+    if (sd > max_sd) {
+      max_sd = sd;
+    }
+    if (sdhwr > max_sdhwr) {
+      max_sdhwr = sdhwr;
+    }
+    if (csd > max_csd) {
+      max_csd = csd;
+    }
+    if (hfc > max_hfc) {
+      max_hfc = hfc;
+    }
+    if (flux_l2_no_hwr > max_l2nh) {
+      max_l2nh = flux_l2_no_hwr;
+    }
+    if (flux_l1_no_hwr > max_l1nh) {
+      max_l1nh = flux_l1_no_hwr;
+    }
+    if (flux_l2_hwr > max_l2h) {
+      max_l2h = flux_l2_hwr;
+    }
+    if (flux_l1_hwr > max_l1h) {
+      max_l1h = flux_l1_hwr;
+    }
+    spectral_fluxes.push_back(
+        {time, ed, sd, sdhwr, csd, hfc, flux_l2_no_hwr, flux_l1_no_hwr, flux_l2_hwr, flux_l1_hwr}
+    );
 
     // SAVE CURRENT SPECTRAL FLUX AS LAST TEMPORAL FLUX FOR COMPARISON
     last_magnitude_spectrum.clear();
@@ -394,33 +440,48 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
     for (int k = 0; k < magnitude_spectrum.size(); k++) {
       last_magnitude_spectrum.push_back(magnitude_spectrum[k]);
     }
-
-
   }
+
+  for (int j = 0; j < spectral_fluxes.size(); j++) {
+    spectral_fluxes[j].ed /= max_ed;
+    spectral_fluxes[j].sd /= max_sd;
+    spectral_fluxes[j].sdhwr /= max_sdhwr;
+    spectral_fluxes[j].csd /= max_csd;
+    spectral_fluxes[j].hfc /= max_hfc;
+    spectral_fluxes[j].l2nh /= max_l2nh;
+    spectral_fluxes[j].l1nh /= max_l1nh;
+    spectral_fluxes[j].l2h /= max_l2h;
+    spectral_fluxes[j].l1h /= max_l1h;
+    //fprintf(fp_spectral_flux, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", spectral_fluxes[j].time, spectral_fluxes[j].ed, spectral_fluxes[j].sd, spectral_fluxes[j].sdhwr, spectral_fluxes[j].csd, spectral_fluxes[j].hfc,
+      //      spectral_fluxes[j].l2nh, spectral_fluxes[j].l1nh, spectral_fluxes[j].l2h, spectral_fluxes[j].l1h);
+  }
+
+  //fclose(fp_spectral_flux);
+
+  // PRINT ALL THE SPECTRAL FLUXES TO A CSV FILE FOR COMPARISON
+
 
   // GENERATE MOVING AVERAGE OF THE CHOSEN SPECTRAL FLUX - THIS IS USED FOR THRESHOLDING AKA FINDING REAL ONSETS!
 
   // CALCULATE HOW MANY FLUXES WILL BE USED FOR MOVING AVERAGE (LEFT/RIGHT)
-  int fluxes = 0.5/(44100/window_size_onsets*0.001);
+  int fluxes = 0.5 / (44100 / window_size_onsets * 0.001);
 
   // SET A MULTIPLIER TO MOVE UP THE THRESHOLD FUNCTION VALUES AND FIND REAL ONSETS
   // THIS VALUE CAN BE TWEAKED!!! (1.5 IS THE VALUE USED IN THE ONSET DETECTION TUTORIAL)
   // ANYTHING BETWEEN ~1.3 AND ~1.9 MIGHT YIELD GOOD RESULTS
-  float multiplier = 1.5;
+  float multiplier = 1;
 
   // ZERO PADDING FOR MOVING AVERAGE
 
   float delta = 0;
-  for (int f = 0; f < spectral_flux.size(); f++){
+  for (int f = 0; f < spectral_flux.size(); f++) {
     delta += (spectral_flux[f].value / spectral_flux.size());
   }
   // SIMPLE MOVING AVERAGE LOOP OVER ALL SPECTRAL FLUX VALUES
-
-  for( int i = 0; i < spectral_flux.size(); i++ )
-  {
-    int start = fmax( 0, i - (fluxes/2) + 1 );
-    int end = fmin( spectral_flux.size() - 1, i + (fluxes/2) + 1 );
-    float mean = delta * 1.5;
+  for (int i = 0; i < spectral_flux.size() - (fluxes/2); i++) {
+    int start = fmax(0, i - (fluxes / 2) + 1);
+    int end = fmin(spectral_flux.size() - 1, i + (fluxes / 2) + 1);
+    float mean = delta * multiplier;
     float mean_current = 0;
 
     for (int j = start; j <= end; j++) {
@@ -429,21 +490,187 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
     }
     //mean /= (float)(end - start);
 
-    float this_time = spectral_flux[i+(fluxes/2)].time;
+    float this_time = spectral_flux[i + (fluxes / 2)].time;
     //mean *= multiplier;
     threshold_function_values.push_back({this_time, mean});
-    fprintf(fp_threshold_function, "%f, %f\n", threshold_function_values[i].time, threshold_function_values[i].value);
+    //fprintf(fp_threshold_function, "%f, %f\n", threshold_function_values[i].time,
+      //      threshold_function_values[i].value);
   }
-  fclose(fp_threshold_function);
+  //fclose(fp_threshold_function);
+
+  // GRAPH STUFF //
+  // GO THROUGH ALL FLUXES AND GENERATE ALL THRESHOLDS FOR GRAPH COMPARISON
+
+  float multiplier_ed = 1;
+  float multiplier_sd = 1;
+  float multiplier_sdhwr = 1;
+  float multiplier_hfc = 1;
+  float multiplier_csd = 1;
+  float multiplier_l2nh = 1;
+  float multiplier_l1nh = 1;
+  float multiplier_l2h = 1;
+  float multiplier_l1h = 1;
+
+  float delta_ed = 0;
+  float delta_sd = 0;
+  float delta_sdhwr = 0;
+  float delta_csd = 0;
+  float delta_hfc = 0;
+  float delta_l2nh = 0;
+  float delta_l1nh = 0;
+  float delta_l2h = 0;
+  float delta_l1h = 0;
+
+  for (int g = 0; g < spectral_fluxes.size(); g++) {
+    delta_ed += (spectral_fluxes[g].ed / spectral_fluxes.size());
+    delta_sd += (spectral_fluxes[g].sd / spectral_fluxes.size());
+    delta_sdhwr += (spectral_fluxes[g].sdhwr / spectral_fluxes.size());
+    delta_csd += (spectral_fluxes[g].csd / spectral_fluxes.size());
+    delta_hfc += (spectral_fluxes[g].hfc / spectral_fluxes.size());
+    delta_l2nh += (spectral_fluxes[g].l2nh / spectral_fluxes.size());
+    delta_l1nh += (spectral_fluxes[g].l1nh / spectral_fluxes.size());
+    delta_l2h += (spectral_fluxes[g].l2h / spectral_fluxes.size());
+    delta_l1h += (spectral_fluxes[g].l1h / spectral_fluxes.size());
+  }
+  for (int i = 0; i < spectral_fluxes.size() - (fluxes/2); i++) {
+    int start = fmax(0, i - (fluxes / 2) + 1);
+    int end = fmin(spectral_fluxes.size() - 1, i + (fluxes / 2) + 1);
+    float mean_ed = delta_ed * multiplier_ed;
+    float mean_sd = delta_sd * multiplier_sd;
+    float mean_sdhwr = delta_sdhwr * multiplier_sdhwr;
+    float mean_csd = delta_csd * multiplier_csd;
+    float mean_hfc = delta_hfc * multiplier_hfc;
+    float mean_l2nh = delta_l2nh * multiplier_l2nh;
+    float mean_l1nh = delta_l1nh * multiplier_l1nh;
+    float mean_l2h = delta_l2h * multiplier_l2h;
+    float mean_l1h = delta_l1h * multiplier_l1h;
+
+    float mean_current_ed = 0;
+    float mean_current_sd = 0;
+    float mean_current_sdhwr = 0;
+    float mean_current_csd = 0;
+    float mean_current_hfc = 0;
+    float mean_current_l2nh = 0;
+    float mean_current_l1nh = 0;
+    float mean_current_l2h = 0;
+    float mean_current_l1h = 0;
+
+
+    for (int j = start; j <= end; j++) {
+      mean_current_ed = spectral_fluxes[j].ed / (end - start);
+      mean_current_sd = spectral_fluxes[j].sd / (end - start);
+      mean_current_sdhwr = spectral_fluxes[j].sdhwr / (end - start);
+      mean_current_csd = spectral_fluxes[j].csd / (end - start);
+      mean_current_hfc = spectral_fluxes[j].hfc / (end - start);
+      mean_current_l2nh = spectral_fluxes[j].l2nh / (end - start);
+      mean_current_l1nh = spectral_fluxes[j].l1nh / (end - start);
+      mean_current_l2h = spectral_fluxes[j].l2h / (end - start);
+      mean_current_l1h = spectral_fluxes[j].l1h / (end - start);
+      mean_ed = mean_ed + mean_current_ed;
+      mean_sd = mean_sd + mean_current_sd;
+      mean_sdhwr = mean_sdhwr + mean_current_sdhwr;
+      mean_csd = mean_csd + mean_current_csd;
+      mean_hfc = mean_hfc + mean_current_hfc;
+      mean_l2nh = mean_l2nh + mean_current_l2nh;
+      mean_l1nh = mean_l1nh + mean_current_l1nh;
+      mean_l2h = mean_l2h + mean_current_l2h;
+      mean_l1h = mean_l1h + mean_current_l1h;
+    }
+    //mean /= (float)(end - start);
+
+    float this_time = spectral_fluxes[i + (fluxes / 2)].time;
+    //mean *= multiplier;
+    thresholds.push_back(
+        {this_time, mean_ed, mean_sd, mean_sdhwr, mean_csd, mean_hfc, mean_l2nh, mean_l1nh, mean_l2h,
+         mean_l1h});
+    //fprintf(fp_thresholds, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", thresholds[i].time, thresholds[i].ed,
+      //      thresholds[i].sd, thresholds[i].sdhwr, thresholds[i].csd, thresholds[i].hfc, thresholds[i].l2nh,
+        //    thresholds[i].l1nh, thresholds[i].l2h, thresholds[i].l1h);
+
+  }
+  //fclose(fp_thresholds);
+
+
+  // DAS ULTIMATIVE MITTEL AUS NEUN ONSET DETECTION ALGORITHMS MIT GEWICHTUNGSMÖGLICHKEIT ZUM TUNEN
+
+  float w1 = 4.0 / 9.0; // energy difference
+  float w2 = 0.0 / 9.0; // spectral difference
+  float w3 = 1.0 / 9.0; // spectral difference hwr
+  float w4 = 0.0 / 9.0; // complex spectral difference
+  float w5 = 0.0 / 9.0; // high frequency content
+  float w6 = 1.0 / 9.0; // l2 no hwr
+  float w7 = 0.0 / 9.0; // l1 no hwr
+  float w8 = 2.0 / 9.0; // l2 hwr
+  float w9 = 1.0 / 9.0; // l1 hwr
+
+  std::vector<time_value_float> average_flux, average_threshold;
+
+  for (int i = 0; i < spectral_fluxes.size() - (fluxes/2); i++) {
+    average_flux.push_back({spectral_fluxes[i].time, (
+        (spectral_fluxes[i].ed * w1) +
+            (spectral_fluxes[i].sd * w2) +
+            (spectral_fluxes[i].sdhwr * w3) +
+            (spectral_fluxes[i].csd * w4) +
+            (spectral_fluxes[i].hfc * w5) +
+            (spectral_fluxes[i].l2nh * w6) +
+            (spectral_fluxes[i].l1nh * w7) +
+            (spectral_fluxes[i].l2h * w8) +
+            (spectral_fluxes[i].l1h * w9)
+    )});
+    //fprintf(fp_average_flux, "%f, %f\n", average_flux[i].time, average_flux[i].value);
+    float current_threshold = (
+        (thresholds[i].ed * w1) +
+            (thresholds[i].sd * w2) +
+            (thresholds[i].sdhwr * w3) +
+            (thresholds[i].csd * w4) +
+            (thresholds[i].hfc * w5) +
+            (thresholds[i].l2nh * w6) +
+            (thresholds[i].l1nh * w7) +
+            (thresholds[i].l2h * w8) +
+            (thresholds[i].l1h * w9)
+    ) * 0.5;
+    average_threshold.push_back({thresholds[i].time, current_threshold});
+
+    //fprintf(fp_average_threshold, "%f, %f\n", average_threshold[i].time, average_threshold[i].value);
+
+  }
+
+
+
 
   // ADD FLUX TIMES TO ONSETS IF THEYRE ABOVE THRESHOLD AND IF THEY'RE A PEAK (GREATER THAN LAST AND NEXT VALUE)
+  /*
   for (int i = 1; i < spectral_flux.size() - 2; i++) {
-    if (spectral_flux[i].value > threshold_function_values[i].value && spectral_flux[i].value > spectral_flux[i+1].value && spectral_flux[i].value > spectral_flux[i-1].value) {
-      onsets.push_back({spectral_flux[i].time});
-      fprintf(fp_onsets, "%f, %d\n", spectral_flux[i].time, 1);
-    }
+      if (spectral_flux[i].value > threshold_function_values[i].value &&
+          spectral_flux[i].value > spectral_flux[i + 1].value &&
+          spectral_flux[i].value > spectral_flux[i - 1].value) {
+          onsets.push_back({spectral_flux[i].time});
+          fprintf(fp_onsets, "%f, %d\n", spectral_flux[i].time, 1);
+      }
   }
   fclose(fp_onsets);
+   */
+
+  // ADD FLUX TIMES TO ONSETS IF THEYRE ABOVE THRESHOLD AND IF THEY'RE A PEAK (GREATER THAN LAST AND NEXT VALUE) AND IF THERE HAS NOT BEEN ANOTHER ONSET IN THE LAST 20 MILLISECONDS
+  for (int i = 1; i < spectral_flux.size() - 2; i++) {
+    if (average_flux[i].value > average_threshold[i].value &&
+        average_flux[i].value > average_flux[i + 1].value &&
+        average_flux[i].value > average_flux[i - 1].value) {
+
+      if (!onsets.empty() && (average_flux[i].time - onsets.back() >= 0.025)){
+        onsets.push_back({average_flux[i].time});
+        //fprintf(fp_onsets, "%f, %d\n", average_flux[i].time, 1);
+      } else if (onsets.empty()){
+        onsets.push_back({average_flux[i].time});
+        //fprintf(fp_onsets, "%f, %d\n", average_flux[i].time, 1);
+      } else {
+
+      }
+
+
+    }
+  }
+  //fclose(fp_onsets);
 
   return onsets;
 

@@ -37,6 +37,19 @@ struct complex_result {
   std::vector<double> imag;
 };
 
+struct fluxes {
+  float time;
+  float ed;
+  float sd;
+  float sdhwr;
+  float csd;
+  float hfc;
+  float l2nh;
+  float l1nh;
+  float l2h;
+  float l1h;
+};
+
 class Analysis {
  public:
   Analysis();
