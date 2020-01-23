@@ -28,6 +28,7 @@ class Lightshow {
 
   std::string get_sound_src();
   std::vector<LightshowFixture> get_fixtures();
+  std::vector<LightshowFixture> &get_fixtures_reference();
 
   void set_sound_src(std::string sound_src);
   void add_fixture(LightshowFixture fixture);

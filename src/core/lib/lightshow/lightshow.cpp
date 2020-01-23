@@ -31,6 +31,10 @@ std::vector<LightshowFixture> Lightshow::get_fixtures() {
   return this->fixtures;
 }
 
+std::vector<LightshowFixture> &Lightshow::get_fixtures_reference() {
+  return this->fixtures;
+}
+
 void Lightshow::set_sound_src(std::string sound_src) {
   this->sound_src = sound_src;
 }

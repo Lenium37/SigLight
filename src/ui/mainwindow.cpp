@@ -897,8 +897,26 @@ void MainWindow::queue_for_generating_light_show(){
 
 void MainWindow::generate_lightshow(Song *song) {
   //Logger::info("K8062 connected: {}", dmx_device_k8062.is_connected());
-  std::shared_ptr<Lightshow>
-      generated_lightshow = this->lightshow_generator.generate(this->lightshow_resolution, song, universes[0].get_fixtures());
+  std::shared_ptr<Lightshow> generated_lightshow = std::make_shared<Lightshow>();
+
+  for (Fixture fix: universes[0].get_fixtures()) {
+    //std::cout << "new fix. name: " << fix.get_name() << ". start address: " << fix.get_start_channel() << ", number of addresses: " << fix.get_channel_count() << std::endl;
+    if (fix.get_name() == "Cameo Flat RGB 10"
+        || fix.get_name() == "JBLED A7 (S8)"
+        || fix.get_name() == "JBLED P4 (M1)"
+        || fix.get_name() == "Stairville LED Flood Panel 150 (3ch)"
+        || fix.get_name() == "Stairville LED Flood Panel 150 (4ch)"
+        || fix.get_name() == "Helios 7"
+        || fix.get_name() == "Cobalt Plus Spot 5R"
+        || fix.get_name() == "Varytec PAD7 seventy"
+        || fix.get_name() == "TOURSPOT PRO"
+        || fix.get_name() == "BAR TRI-LED"
+        || fix.get_name() == "SGM X-5 (1CH)") {
+      generated_lightshow->add_fixture(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors(), fix.get_position_in_group(), fix.get_position_on_stage(), fix.get_moving_head_type(), fix.get_modifier_pan(), fix.get_modifier_tilt()));
+    } else std::cout << "Fixture type unknown." << std::endl;
+  }
+
+  this->lightshow_generator.generate(this->lightshow_resolution, song, generated_lightshow);
 
   lightShowRegistry.register_lightshow_file(song, generated_lightshow, this->lightshows_directory_path);
   if(player->playlist_index_for(song) != -1)
@@ -906,8 +924,26 @@ void MainWindow::generate_lightshow(Song *song) {
 }
 
 void MainWindow::regenerate_lightshow(Song *song) {
-  //Logger::info("K8062 connected: {}", dmx_device_k8062.is_connected());
-  std::shared_ptr<Lightshow> regenerated_lightshow = this->lightshow_generator.generate(this->lightshow_resolution, song, universes[0].get_fixtures());
+  std::shared_ptr<Lightshow> regenerated_lightshow = std::make_shared<Lightshow>();
+
+  for (Fixture fix: universes[0].get_fixtures()) {
+    //std::cout << "new fix. name: " << fix.get_name() << ". start address: " << fix.get_start_channel() << ", number of addresses: " << fix.get_channel_count() << std::endl;
+    if (fix.get_name() == "Cameo Flat RGB 10"
+        || fix.get_name() == "JBLED A7 (S8)"
+        || fix.get_name() == "JBLED P4 (M1)"
+        || fix.get_name() == "Stairville LED Flood Panel 150 (3ch)"
+        || fix.get_name() == "Stairville LED Flood Panel 150 (4ch)"
+        || fix.get_name() == "Helios 7"
+        || fix.get_name() == "Cobalt Plus Spot 5R"
+        || fix.get_name() == "Varytec PAD7 seventy"
+        || fix.get_name() == "TOURSPOT PRO"
+        || fix.get_name() == "BAR TRI-LED"
+        || fix.get_name() == "SGM X-5 (1CH)") {
+      regenerated_lightshow->add_fixture(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors(), fix.get_position_in_group(), fix.get_position_on_stage(), fix.get_moving_head_type(), fix.get_modifier_pan(), fix.get_modifier_tilt()));
+    } else std::cout << "Fixture type unknown." << std::endl;
+  }
+
+  this->lightshow_generator.generate(this->lightshow_resolution, song, regenerated_lightshow);
 
   Logger::debug("lightshow length: {}", regenerated_lightshow->get_length());
 
