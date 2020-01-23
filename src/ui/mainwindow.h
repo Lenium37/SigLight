@@ -32,6 +32,7 @@
 #include <dmx_device_eurolite_pro.h>
 #include "lightshow_generator.h"
 #include "edit_fixture_dialog.h"
+#include "change_fixtures.h"
 
 using namespace std;
 
@@ -43,6 +44,7 @@ struct ls_generating_parameter
 {
     bool is_regenerate;
     Song *song;
+    std::list<Fixture> fixtures;
 };
 
 
@@ -242,6 +244,7 @@ private:
     CreateFixtureDialog * create_dialog;
     FixtureChoosingDialog * fcd;
     EditFixtureDialog * efd;
+    ChangeFixtures * change_fixtures_dialog;
     QComboBox* combobox_edit_chosen_song;
     QStandardItemModel* combobox_model;
     bool default_is_active;

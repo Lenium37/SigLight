@@ -854,10 +854,34 @@ void MainWindow::on_action_add_song_to_player_triggered() {
     file_dialog.setFileMode(QFileDialog::ExistingFiles);
     //file_dialog.setDirectory(QStandardPaths::standardLocations(QStandardPaths::MusicLocation).value(0, QDir::homePath()));
     if (file_dialog.exec() == QDialog::Accepted) {
+      //for(QUrl url: file_dialog.selectedUrls().toVector().toStdVector()) {
+        //std::cout << "new song: " << url.fileName().toStdString() << std::endl;
+      //}
+
         std::vector<Song*> temp = player->add_to_playlist(file_dialog.selectedUrls().toVector().toStdVector()) ;
 
         for(Song *song : temp){
-            lightshows_to_generate_for.push_back({false, song});
+          QMessageBox msgBox;
+          msgBox.setWindowIcon(QIcon(":/icons_svg/svg/rtl_icon.svg"));
+          msgBox.setWindowTitle("Choose Fixtures");
+          msgBox.setText(QString::fromStdString("Use default fixture setup or change it for " + song->get_song_name() + "?"));
+          //QMessageBox::StandardButton *button = new QMessageBox::StandardButton(QMessageBox::Close);
+          msgBox.addButton(tr("Default"), QMessageBox::YesRole);
+          msgBox.addButton(tr("Change"), QMessageBox::NoRole);
+
+          msgBox.exec();
+
+          if (msgBox.clickedButton()->text() == "Change") {
+            std::cout << "change" << std::endl;
+            change_fixtures_dialog = new ChangeFixtures();
+            change_fixtures_dialog->exec();
+          } else {
+            std::cout << "default" << std::endl;
+            lightshows_to_generate_for.push_back({false, song, universes[0].get_fixtures()});
+          }
+          //if(msgBox.close())
+            //player->delete_song_from_playlist(player->playlist_index_for(song));
+
         }
 
         this->start_thread_for_generating_queue();
