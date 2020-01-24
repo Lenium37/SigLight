@@ -11,6 +11,7 @@
 #include <QtWidgets/QTreeWidgetItem>
 #include <fixturemanager/universe.h>
 #include <song.h>
+#include <QtCore/QUrl>
 #include "edit_fixture_dialog.h"
 
 namespace Ui {
@@ -21,13 +22,13 @@ class ChangeFixtures : public QMainWindow {
  Q_OBJECT
 
  public:
-  explicit ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string> _color_palettes, std::list<Fixture> _fixture_presets, Song *_song, QWidget *parent = nullptr);
+  explicit ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string> _color_palettes, std::list<Fixture> _fixture_presets, QUrl _song_url, QWidget *parent = nullptr);
   ~ChangeFixtures() override;
 
   void setup_dialog();
 
  signals:
-  void changed_fixtures_ready(Song *song, std::list<Fixture> fixtures);
+  void changed_fixtures_ready(QUrl song_url, std::list<Fixture> fixtures);
 
 
  private:
@@ -36,7 +37,7 @@ class ChangeFixtures : public QMainWindow {
   EditFixtureDialog *efd;
   std::list<Fixture> fixtures;
   std::list<Fixture> fixture_presets;
-  Song *song;
+  QUrl song_url;
   std::vector<std::string> color_palettes;
   Universe universes[5];
   list<QTreeWidgetItem> universe_tree;

@@ -858,13 +858,13 @@ void MainWindow::on_action_add_song_to_player_triggered() {
         //std::cout << "new song: " << url.fileName().toStdString() << std::endl;
       //}
 
-        std::vector<Song*> temp = player->add_to_playlist(file_dialog.selectedUrls().toVector().toStdVector()) ;
+        //std::vector<Song*> songs = player->add_to_playlist(file_dialog.selectedUrls().toVector().toStdVector()) ;
 
-        for(Song *song : temp){
+        for(QUrl url : file_dialog.selectedUrls().toVector().toStdVector()) {
           QMessageBox msgBox;
           msgBox.setWindowIcon(QIcon(":/icons_svg/svg/rtl_icon.svg"));
           //msgBox.setWindowTitle("Choose Fixtures");
-          msgBox.setText(QString::fromStdString("Use default fixture setup or change it for " + song->get_song_name() + "?"));
+          msgBox.setText(QString::fromStdString("Use default fixture setup or change it for " + url.fileName().toStdString() + "?"));
           //QMessageBox::StandardButton *button = new QMessageBox::StandardButton(QMessageBox::Close);
           msgBox.addButton(tr("Default"), QMessageBox::YesRole);
           msgBox.addButton(tr("Change"), QMessageBox::NoRole);
@@ -873,9 +873,9 @@ void MainWindow::on_action_add_song_to_player_triggered() {
 
           if (msgBox.clickedButton()->text() == "Change") {
             std::cout << "change" << std::endl;
-            change_fixtures_dialog = new ChangeFixtures(this->universes[0].get_fixtures(), this->color_palettes, this->fixtures, song, this);
+            change_fixtures_dialog = new ChangeFixtures(this->universes[0].get_fixtures(), this->color_palettes, this->fixtures, url, this);
             change_fixtures_dialog->setWindowModality(Qt::ApplicationModal);
-            if(connect(this->change_fixtures_dialog, SIGNAL(changed_fixtures_ready(Song*, std::list<Fixture>)), this, SLOT(changed_fixtures_for_lightshow_ready(Song*, std::list<Fixture>)))) {
+            if(connect(this->change_fixtures_dialog, SIGNAL(changed_fixtures_ready(QUrl, std::list<Fixture>)), this, SLOT(changed_fixtures_for_lightshow_ready(QUrl, std::list<Fixture>)))) {
               std::cout << "connection worked" << std::endl;
             } else {
               std::cout << "connection did not work" << std::endl;
@@ -883,6 +883,7 @@ void MainWindow::on_action_add_song_to_player_triggered() {
             change_fixtures_dialog->show();
           } else {
             std::cout << "default" << std::endl;
+            Song * song = player->add_to_playlist(url);
             lightshows_to_generate_for.push_back({false, song, universes[0].get_fixtures()});
           }
           //if(msgBox.close())
@@ -2044,8 +2045,9 @@ std::vector<int> MainWindow::get_all_pan_tilt_channels() {
   return all_pan_tilt_channels;
 }
 
-void MainWindow::changed_fixtures_for_lightshow_ready(Song *song, std::list<Fixture> _fixtures) {
+void MainWindow::changed_fixtures_for_lightshow_ready(QUrl url, std::list<Fixture> _fixtures) {
   //std::cout << "SIGNAL KOMMT AN!!!" << std::endl;
+  Song * song = player->add_to_playlist(url);
   lightshows_to_generate_for.push_back({false, song, _fixtures});
   this->start_thread_for_generating_queue();
   this->change_fixtures_dialog->deleteLater();

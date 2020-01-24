@@ -87,7 +87,7 @@ public:
     void lightshow_for_song_is_ready(Song *song);
 
 private slots:
-    void changed_fixtures_for_lightshow_ready(Song *song, std::list<Fixture> _fixtures);
+    void changed_fixtures_for_lightshow_ready(QUrl url, std::list<Fixture> _fixtures);
 
     /**
      * @brief on_delete_fixture_button_clicked Slot that deletes a Fixture.

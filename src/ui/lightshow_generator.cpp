@@ -28,48 +28,36 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   int fixtures_in_group_alternate_odd_even_blink = 0;
   int fixtures_in_group_random_flashes = 0;
 
-  //std::vector<LightshowFixture> my_fixtures;
-  /*for (Fixture fix: fixtures) {
-    //std::cout << "new fix. name: " << fix.get_name() << ". start address: " << fix.get_start_channel() << ", number of addresses: " << fix.get_channel_count() << std::endl;
-    if (fix.get_name() == "Cameo Flat RGB 10"
-    || fix.get_name() == "JBLED A7 (S8)"
-    || fix.get_name() == "JBLED P4 (M1)"
-    || fix.get_name() == "Stairville LED Flood Panel 150 (3ch)"
-    || fix.get_name() == "Stairville LED Flood Panel 150 (4ch)"
-    || fix.get_name() == "Helios 7"
-    || fix.get_name() == "Cobalt Plus Spot 5R"
-    || fix.get_name() == "Varytec PAD7 seventy"
-    || fix.get_name() == "TOURSPOT PRO"
-    || fix.get_name() == "BAR TRI-LED"
-    || fix.get_name() == "SGM X-5 (1CH)") {
-      my_fixtures.push_back(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors(), fix.get_position_in_group(), fix.get_position_on_stage(), fix.get_moving_head_type(), fix.get_modifier_pan(), fix.get_modifier_tilt()));
-    } else std::cout << "Fixture type unknown." << std::endl;
-
-  }*/
-
 
   //for (LightshowFixture fix: lightshow->get_fixtures_reference()) {
   for(int i = 0; i < lightshow->get_fixtures().size(); i++) {
+    LightshowFixture &fix = lightshow->get_fixtures_reference()[i];
+    std::string fix_type = fix.get_type();
+    if (fix_type == "group_one_after_another" && fix.get_position_in_group() > fixtures_in_group_one_after_another)
+      fixtures_in_group_one_after_another = fix.get_position_in_group();
+    else if (fix_type == "group_one_after_another_blink"
+        && fix.get_position_in_group() > fixtures_in_group_one_after_another_blink)
+      fixtures_in_group_one_after_another_blink = fix.get_position_in_group();
+    else if (fix_type == "group_two_after_another" && fix.get_position_in_group() > fixtures_in_group_two_after_another)
+      fixtures_in_group_two_after_another = fix.get_position_in_group();
+    else if (fix_type == "group_two_after_another_blink"
+        && fix.get_position_in_group() > fixtures_in_group_two_after_another_blink)
+      fixtures_in_group_two_after_another_blink = fix.get_position_in_group();
+    else if (fix_type == "group_alternate_odd_even"
+        && fix.get_position_in_group() > fixtures_in_group_alternate_odd_even)
+      fixtures_in_group_alternate_odd_even = fix.get_position_in_group();
+    else if (fix_type == "group_alternate_odd_even_blink"
+        && fix.get_position_in_group() > fixtures_in_group_alternate_odd_even_blink)
+      fixtures_in_group_alternate_odd_even_blink = fix.get_position_in_group();
+    else if (fix_type == "group_random_flashes" && fix.get_position_in_group() > fixtures_in_group_random_flashes)
+      fixtures_in_group_random_flashes = fix.get_position_in_group();
+  }
+
+  for(int i = 0; i < lightshow->get_fixtures().size(); i++) {
     LightshowFixture & fix = lightshow->get_fixtures_reference()[i];
     std::string fix_type = fix.get_type();
-    if(fix_type == "group_one_after_another" && fix.get_position_in_group() > fixtures_in_group_one_after_another)
-      fixtures_in_group_one_after_another = fix.get_position_in_group();
-    else if(fix_type == "group_one_after_another_blink" && fix.get_position_in_group() > fixtures_in_group_one_after_another_blink)
-      fixtures_in_group_one_after_another_blink = fix.get_position_in_group();
-    else if(fix_type == "group_two_after_another" && fix.get_position_in_group() > fixtures_in_group_two_after_another)
-      fixtures_in_group_two_after_another = fix.get_position_in_group();
-    else if(fix_type == "group_two_after_another_blink" && fix.get_position_in_group() > fixtures_in_group_two_after_another_blink)
-      fixtures_in_group_two_after_another_blink = fix.get_position_in_group();
-    else if(fix_type == "group_alternate_odd_even" && fix.get_position_in_group() > fixtures_in_group_alternate_odd_even)
-      fixtures_in_group_alternate_odd_even = fix.get_position_in_group();
-    else if(fix_type == "group_alternate_odd_even_blink" && fix.get_position_in_group() > fixtures_in_group_alternate_odd_even_blink)
-      fixtures_in_group_alternate_odd_even_blink = fix.get_position_in_group();
-    else if(fix_type == "group_random_flashes" && fix.get_position_in_group() > fixtures_in_group_random_flashes)
-      fixtures_in_group_random_flashes = fix.get_position_in_group();
-
 
     std::transform(fix_type.begin(), fix_type.end(), fix_type.begin(), ::tolower);
-
 
     if(fix.has_shutter) {
       std::vector<time_value_int> v;
@@ -671,6 +659,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         std::vector<time_value_int> value_changes;
 
         std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
+        std::cout << "fixtures_in_group_one_after_another_blink: " << fixtures_in_group_one_after_another_blink << std::endl;
         std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
         if(fix.get_position_in_group() > 0) {
           for (int i = 0; i < timestamps.size(); i++) {
