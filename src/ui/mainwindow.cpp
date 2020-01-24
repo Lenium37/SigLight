@@ -1504,7 +1504,7 @@ QString MainWindow::get_home() {
 bool MainWindow::has_fixture_changed() {
   bool redo_lightshow = false;
 
-  if (fixtures_changed && player->get_playlist_length() > 0) {
+  /*if (fixtures_changed && player->get_playlist_length() > 0) {
     QMessageBox::StandardButton fixture_changed_button = QMessageBox::question(this, "Redo Lightshow?",
                                                    tr("The Fixtures have changed.\nDo You want to create the Lightshow again?"),
                                                    QMessageBox::No | QMessageBox::Yes);
@@ -1523,12 +1523,12 @@ bool MainWindow::has_fixture_changed() {
       start_thread_for_generating_queue();
 
     }
-  }
+  }*/
   return redo_lightshow;
 }
 
 void MainWindow::on_action_regenerate_lightshows_triggered() {
-  Logger::info("renewing {} lightshows", player->get_playlist_length());
+  /*Logger::info("renewing {} lightshows", player->get_playlist_length());
   for (int i = 0; i < player->get_playlist_length(); i++) {
     Song *song = player->get_playlist_media_at(i)->get_song();
     Logger::info("renewing lightshow for song {}", song->get_song_name());
@@ -1536,7 +1536,7 @@ void MainWindow::on_action_regenerate_lightshows_triggered() {
     lightshows_to_generate_for.push_back({true, song});
   }
   this->playlist_view->reset_every_lightshow_status();
-  start_thread_for_generating_queue();
+  start_thread_for_generating_queue();*/
 }
 
 void MainWindow::on_edit_fixture_clicked() {
