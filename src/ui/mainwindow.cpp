@@ -110,7 +110,7 @@ void MainWindow::init() {
   // Create the Fixtureobjects.
   create_fixtures();
   // Adds the first Univers.
-  add_universe("Universe1", "USB-DMX-Interface");
+  add_universe("Universe1");
   load_fixture_objects_from_xml(false);
   this->setWindowTitle("SigLight");
   this->check_which_dmx_device_is_connected();
@@ -238,10 +238,10 @@ MainWindow::~MainWindow() {
  * @param name name of the univers.
  * @param description Description wich kind of univers this is.
  */
-void MainWindow::add_universe(QString name, QString description) {
+void MainWindow::add_universe(QString name) {
   auto *itm = new QTreeWidgetItem();
   itm->setIcon(0, QIcon(":icons_svg/svg/group.svg"));
-  universes[0] = *new Universe(name.toUtf8().constData(), description.toUtf8().constData());
+  universes[0] = *new Universe(name.toUtf8().constData());
   itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
   universe_tree.push_back(*itm);
   (&universe_tree.back())->setText(0, QString::fromStdString(universes[0].get_name()));
@@ -863,7 +863,7 @@ void MainWindow::on_action_add_song_to_player_triggered() {
         for(Song *song : temp){
           QMessageBox msgBox;
           msgBox.setWindowIcon(QIcon(":/icons_svg/svg/rtl_icon.svg"));
-          msgBox.setWindowTitle("Choose Fixtures");
+          //msgBox.setWindowTitle("Choose Fixtures");
           msgBox.setText(QString::fromStdString("Use default fixture setup or change it for " + song->get_song_name() + "?"));
           //QMessageBox::StandardButton *button = new QMessageBox::StandardButton(QMessageBox::Close);
           msgBox.addButton(tr("Default"), QMessageBox::YesRole);
@@ -873,8 +873,14 @@ void MainWindow::on_action_add_song_to_player_triggered() {
 
           if (msgBox.clickedButton()->text() == "Change") {
             std::cout << "change" << std::endl;
-            change_fixtures_dialog = new ChangeFixtures();
-            change_fixtures_dialog->exec();
+            change_fixtures_dialog = new ChangeFixtures(this->universes[0].get_fixtures(), this->color_palettes, this->fixtures, song, this);
+            change_fixtures_dialog->setWindowModality(Qt::ApplicationModal);
+            if(connect(this->change_fixtures_dialog, SIGNAL(changed_fixtures_ready(Song*, std::list<Fixture>)), this, SLOT(changed_fixtures_for_lightshow_ready(Song*, std::list<Fixture>)))) {
+              std::cout << "connection worked" << std::endl;
+            } else {
+              std::cout << "connection did not work" << std::endl;
+            }
+            change_fixtures_dialog->show();
           } else {
             std::cout << "default" << std::endl;
             lightshows_to_generate_for.push_back({false, song, universes[0].get_fixtures()});
@@ -908,9 +914,9 @@ void MainWindow::queue_for_generating_light_show(){
 
     for(ls_generating_parameter lightshow_parameter : lightshows_to_generate_for){
         if(!lightshow_parameter.is_regenerate)
-            generate_lightshow(lightshow_parameter.song);
+            generate_lightshow(lightshow_parameter.song, lightshow_parameter.fixtures);
         else
-            regenerate_lightshow(lightshow_parameter.song);
+            regenerate_lightshow(lightshow_parameter.song, lightshow_parameter.fixtures);
     }
     ls_generating_thread_is_alive = false;
     lightshows_to_generate_for.clear();
@@ -919,11 +925,11 @@ void MainWindow::queue_for_generating_light_show(){
 }
 
 
-void MainWindow::generate_lightshow(Song *song) {
+void MainWindow::generate_lightshow(Song *song, std::list<Fixture> _fixtures) {
   //Logger::info("K8062 connected: {}", dmx_device_k8062.is_connected());
   std::shared_ptr<Lightshow> generated_lightshow = std::make_shared<Lightshow>();
 
-  for (Fixture fix: universes[0].get_fixtures()) {
+  for (Fixture fix: _fixtures) {
     //std::cout << "new fix. name: " << fix.get_name() << ". start address: " << fix.get_start_channel() << ", number of addresses: " << fix.get_channel_count() << std::endl;
     if (fix.get_name() == "Cameo Flat RGB 10"
         || fix.get_name() == "JBLED A7 (S8)"
@@ -947,10 +953,10 @@ void MainWindow::generate_lightshow(Song *song) {
     emit lightshow_for_song_is_ready(song);
 }
 
-void MainWindow::regenerate_lightshow(Song *song) {
+void MainWindow::regenerate_lightshow(Song *song, std::list<Fixture> _fixtures) {
   std::shared_ptr<Lightshow> regenerated_lightshow = std::make_shared<Lightshow>();
 
-  for (Fixture fix: universes[0].get_fixtures()) {
+  for (Fixture fix: _fixtures) {
     //std::cout << "new fix. name: " << fix.get_name() << ". start address: " << fix.get_start_channel() << ", number of addresses: " << fix.get_channel_count() << std::endl;
     if (fix.get_name() == "Cameo Flat RGB 10"
         || fix.get_name() == "JBLED A7 (S8)"
@@ -2036,4 +2042,11 @@ std::vector<int> MainWindow::get_all_pan_tilt_channels() {
     all_pan_tilt_channels.insert(all_pan_tilt_channels.end(), fixture_pan_tilt_channels.begin(), fixture_pan_tilt_channels.end());
   }
   return all_pan_tilt_channels;
+}
+
+void MainWindow::changed_fixtures_for_lightshow_ready(Song *song, std::list<Fixture> _fixtures) {
+  //std::cout << "SIGNAL KOMMT AN!!!" << std::endl;
+  lightshows_to_generate_for.push_back({false, song, _fixtures});
+  this->start_thread_for_generating_queue();
+  this->change_fixtures_dialog->deleteLater();
 }

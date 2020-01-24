@@ -1,20 +1,15 @@
 #include "universe.h"
 
 Universe::Universe() {
-  Universe("Universe", "USB DMX-Interface");
+  Universe("Universe");
 }
 
-Universe::Universe(string _name, string _desription) {
+Universe::Universe(string _name) {
     name = _name;
-    description = _desription;
 }
 
 string Universe::get_name() {
     return name;
-}
-
-string Universe::get_description() {
-    return description;
 }
 
 Fixture Universe::add_fixture(Fixture new_fixture) {

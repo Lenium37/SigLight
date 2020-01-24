@@ -21,7 +21,7 @@ public:
    * @param description Description of the Universe.
    * Constructor of the Universe if the name and description are known.
    */
-  Universe(string name, string description);
+  Universe(string name);
 
   /**
    * Default destructor of Universe.
@@ -33,12 +33,6 @@ public:
    * @return The name of the Universe.
    */
   string get_name();
-
-  /**
-   * @brief get_description
-   * @return Description of the Universe.
-   */
-  string get_description();
 
   /**
    * @brief add_fixture Adds an fixture to the Universe.
@@ -131,13 +125,6 @@ private:
    * @brief name Name of the Universe.
    */
   string name;
-
-  /**
-   * @brief description Description of the Universe.
-   * This could be an indicator where the Universe is connected.
-   * Via USB Interface or GPIO.
-   */
-  string description;
 };
 
 #endif // UNIVERS_H

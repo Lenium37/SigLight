@@ -87,6 +87,8 @@ public:
     void lightshow_for_song_is_ready(Song *song);
 
 private slots:
+    void changed_fixtures_for_lightshow_ready(Song *song, std::list<Fixture> _fixtures);
+
     /**
      * @brief on_delete_fixture_button_clicked Slot that deletes a Fixture.
      * The Fixture will be deleted in the visual and the logic part.
@@ -304,7 +306,7 @@ private:
      *
      * Creats a Universe to handle Fixtures.
      */
-    void add_universe(QString name, QString description);
+    void add_universe(QString name);
 
     /**
      * @brief add_fixture Add Fixture to the View and Universe.
@@ -385,8 +387,8 @@ private:
      */
     bool has_fixture_changed();
 
-    void generate_lightshow(Song *song);
-    void regenerate_lightshow(Song *song);
+    void generate_lightshow(Song *song, std::list<Fixture> _fixtures);
+    void regenerate_lightshow(Song *song, std::list<Fixture> _fixtures);
     void queue_for_generating_light_show();
     void start_thread_for_generating_queue();
     void init_shortcuts();
