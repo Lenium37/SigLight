@@ -13,7 +13,7 @@
 #include <atomic>
 
 
-LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage, std::string _moving_head_type, int _modifier_pan, int _modifier_tilt) {
+LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage, std::string _moving_head_type, int _modifier_pan, int _modifier_tilt, std::string _timestamps_type) {
   this->name = name;
   this->start_channel = start_channel;
   this->number_of_channels = number_of_channels;
@@ -23,6 +23,7 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
   this->modifier_pan = _modifier_pan;
   this->modifier_tilt = _modifier_tilt;
   this->colors_string = colors;
+  this->timestamps_type = _timestamps_type;
   std::istringstream ss(colors);
   std::string color;
   if(!colors.empty()) {
@@ -422,4 +423,12 @@ float LightshowFixture::get_degrees_per_tilt() {
 
 std::string LightshowFixture::get_colors_string() {
   return this->colors_string;
+}
+
+void LightshowFixture::set_timestamps_type(std::string _timestamps_type) {
+  this->timestamps_type = _timestamps_type;
+}
+
+std::string LightshowFixture::get_timestamps_type() {
+  return this->timestamps_type;
 }

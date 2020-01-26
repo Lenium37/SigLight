@@ -167,6 +167,8 @@ public:
   void set_modifier_tilt(int _modifier_tilt);
   int get_modifier_pan();
   int get_modifier_tilt();
+  void set_timestamps_type(std::string _timestamps_type);
+  std::string get_timestamps_type();
 
 private:
   /**
@@ -215,6 +217,7 @@ private:
   int modifier_pan;
   int modifier_tilt;
   int channel_count;
+  std::string timestamps_type;
 
 };
 

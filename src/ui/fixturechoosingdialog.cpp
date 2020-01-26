@@ -30,6 +30,27 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
       end_channels.push_back(std::next(fixtures.begin(), i)->get_channel_count());
     }
 
+    ui->cB_timestamps->addItem("None");
+    ui->cB_timestamps->addItem("Onsets");
+    //ui->cB_timestamps->addItem("Onsets bass");
+    //ui->cB_timestamps->addItem("Onsets snare");
+    ui->cB_timestamps->addItem("Beats 1/2/3/4");
+    ui->cB_timestamps->addItem("Beats 2/4");
+    ui->cB_timestamps->addItem("Beats 1/3");
+    ui->cB_timestamps->addItem("Beats 1");
+    ui->cB_timestamps->addItem("Beats 2");
+    ui->cB_timestamps->addItem("Beats 3");
+    ui->cB_timestamps->addItem("Beats 4");
+    ui->cB_timestamps->addItem("Beats 1 every other bar");
+    ui->cB_timestamps->addItem("Beats 1/2/3/4 action");
+    ui->cB_timestamps->addItem("Beats 2/4 action");
+    ui->cB_timestamps->addItem("Beats 1/3 action");
+    ui->cB_timestamps->addItem("Beats 1 action");
+    ui->cB_timestamps->addItem("Beats 2 action");
+    ui->cB_timestamps->addItem("Beats 3 action");
+    ui->cB_timestamps->addItem("Beats 4 action");
+    ui->cB_timestamps->addItem("Beats 1 every other bar action");
+
     ui->cB_moving_head_position->addItem("Center");
     ui->cB_moving_head_position->addItem("Left");
     ui->cB_moving_head_position->addItem("Right");
@@ -64,7 +85,7 @@ void FixtureChoosingDialog::set_up_dialog_options(std::list<int> blocked_channel
     set_first_allowed_channel(0, true);
 }
 
-void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type, int &modifier_pan, int &modifier_tilt)
+void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type, int &modifier_pan, int &modifier_tilt, std::string &timestamps_type)
 {
     fixture_id = ui->fixture_selection->currentRow();
     start_channel = ui->sB_start_channel->value();
@@ -75,6 +96,7 @@ void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_chan
     moving_head_type = ui->cB_moving_head_type->currentText().toStdString();
     modifier_pan = ui->sB_modifier_pan->value();
     modifier_tilt = ui->sB_modifier_tilt->value();
+    timestamps_type = ui->cB_timestamps->currentText().toStdString();
 }
 
 void FixtureChoosingDialog::setup_for_edit()
@@ -178,6 +200,21 @@ void FixtureChoosingDialog::update_position_in_group_status(QString current_type
   else {
     ui->sB_position_inside_group->setEnabled(false);
     ui->sB_position_inside_group->setValue(0);
+  }
+
+  if(current_type == "color_change"
+  || current_type == "flash"
+  || current_type == "flash_reverse"
+  || current_type == "blink"
+  || current_type == "group_one_after_another"
+  || current_type == "group_one_after_another_back_and_forth"
+  || current_type == "group_two_after_another"
+  || current_type == "group_alternate_odd_even"
+  || current_type == "group_random_flashes") {
+    ui->cB_timestamps->setEnabled(true);
+  } else {
+    ui->cB_timestamps->setEnabled(false);
+    ui->cB_timestamps->setCurrentIndex(0);
   }
 }
 

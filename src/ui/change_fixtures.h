@@ -48,7 +48,7 @@ class ChangeFixtures : public QMainWindow {
   int user_bpm;
 
   void add_universe(QString name);
-  void add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt);
+  void add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt, std::string timestamps_type);
   void resize_fixture_list_columns();
 
  private slots:

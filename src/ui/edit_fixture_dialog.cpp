@@ -30,6 +30,27 @@ EditFixtureDialog::EditFixtureDialog(QWidget *parent, list<Fixture> &fixtures, s
     end_channels.push_back(std::next(fixtures.begin(), i)->get_channel_count());
   }
 
+  ui->cB_timestamps->addItem("None");
+  ui->cB_timestamps->addItem("Onsets");
+  //ui->cB_timestamps->addItem("Onsets bass");
+  //ui->cB_timestamps->addItem("Onsets snare");
+  ui->cB_timestamps->addItem("Beats 1/2/3/4");
+  ui->cB_timestamps->addItem("Beats 2/4");
+  ui->cB_timestamps->addItem("Beats 1/3");
+  ui->cB_timestamps->addItem("Beats 1");
+  ui->cB_timestamps->addItem("Beats 2");
+  ui->cB_timestamps->addItem("Beats 3");
+  ui->cB_timestamps->addItem("Beats 4");
+  ui->cB_timestamps->addItem("Beats 1 every other bar");
+  ui->cB_timestamps->addItem("Beats 1/2/3/4 action");
+  ui->cB_timestamps->addItem("Beats 2/4 action");
+  ui->cB_timestamps->addItem("Beats 1/3 action");
+  ui->cB_timestamps->addItem("Beats 1 action");
+  ui->cB_timestamps->addItem("Beats 2 action");
+  ui->cB_timestamps->addItem("Beats 3 action");
+  ui->cB_timestamps->addItem("Beats 4 action");
+  ui->cB_timestamps->addItem("Beats 1 every other bar action");
+
   ui->cB_moving_head_position->addItem("Center");
   ui->cB_moving_head_position->addItem("Left");
   ui->cB_moving_head_position->addItem("Right");
@@ -58,7 +79,7 @@ EditFixtureDialog::~EditFixtureDialog() {
   delete ui;
 }
 
-void EditFixtureDialog::set_up_dialog_options(std::list<int> _blocked_channels, std::string _own_channels, std::string _name, std::string _colors, int pos_in_group, std::string _type, std::string pos_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt)
+void EditFixtureDialog::set_up_dialog_options(std::list<int> _blocked_channels, std::string _own_channels, std::string _name, std::string _colors, int pos_in_group, std::string _type, std::string pos_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt, std::string timestamps_type)
 {
   for(int i = 0; i < names_of_fixtures.size(); i++) {
     if(names_of_fixtures[i] == QString::fromStdString(_name))
@@ -85,6 +106,11 @@ void EditFixtureDialog::set_up_dialog_options(std::list<int> _blocked_channels, 
   int index_colors = ui->cB_colors->findText(QString::fromStdString(_colors));
   if ( index_colors != -1 ) { // -1 for not found
     ui->cB_colors->setCurrentIndex(index_colors);
+  }
+
+  int index_timestamps = ui->cB_timestamps->findText(QString::fromStdString(timestamps_type));
+  if ( index_timestamps != -1 ) { // -1 for not found
+    ui->cB_timestamps->setCurrentIndex(index_timestamps);
   }
 
   ui->sB_position_inside_group->setValue(pos_in_group);
@@ -119,7 +145,7 @@ void EditFixtureDialog::set_up_dialog_options(std::list<int> _blocked_channels, 
   //set_first_allowed_channel(0, true);
 }
 
-void EditFixtureDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type, int &modifier_pan, int &modifier_tilt)
+void EditFixtureDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type, int &modifier_pan, int &modifier_tilt, std::string &timestamps_type)
 {
   fixture_id = ui->fixture_selection->currentRow();
   start_channel = ui->sB_start_channel->value();
@@ -130,6 +156,7 @@ void EditFixtureDialog::get_fixture_options(int &fixture_id, int &start_channel,
   moving_head_type = ui->cB_moving_head_type->currentText().toStdString();
   modifier_pan = ui->sB_modifier_pan->value();
   modifier_tilt = ui->sB_modifier_tilt->value();
+  timestamps_type = ui->cB_timestamps->currentText().toStdString();
 }
 
 void EditFixtureDialog::setup_for_edit()

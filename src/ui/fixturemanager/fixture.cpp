@@ -212,3 +212,11 @@ vector<Fixture::channel_value> Fixture::get_pan_tilt_channels_with_default_posit
 void Fixture::set_channel_count(int _channel_count) {
   this->channel_count = _channel_count;
 }
+
+void Fixture::set_timestamps_type(std::string _timestamps_type) {
+  this->timestamps_type = _timestamps_type;
+}
+
+std::string Fixture::get_timestamps_type() {
+  return this->timestamps_type;
+}

@@ -54,6 +54,7 @@ void LightShowRegistry::write_lightshow(const std::string &lightshow_filename, s
     fixture_element->SetAttribute("position_on_stage", fixture.get_position_on_stage().c_str());
     fixture_element->SetAttribute("modifier_pan", fixture.get_modifier_pan());
     fixture_element->SetAttribute("modifier_tilt", fixture.get_modifier_tilt());
+    fixture_element->SetAttribute("timestamps_type", fixture.get_timestamps_type().c_str());
     std::string colors;
     for(std::string c: fixture.get_colors()) {
       colors.append(c);
@@ -135,7 +136,7 @@ std::shared_ptr<Lightshow> LightShowRegistry::read_lightshow(const std::string f
     tinyxml2::XMLElement *fixture_element = lightshow_element->FirstChildElement("fixture");
     while (fixture_element != nullptr) {
       std::string colors = fixture_element->Attribute("colors");
-      LightshowFixture fixture(fixture_element->Attribute("name"), std::stoi(fixture_element->Attribute("start_channel")), std::stoi(fixture_element->Attribute("number_of_channels")), fixture_element->Attribute("type"), colors, std::stoi(fixture_element->Attribute("position_inside_group")), fixture_element->Attribute("position_on_stage"), fixture_element->Attribute("moving_head_type"), std::stoi(fixture_element->Attribute("modifier_pan")), std::stoi(fixture_element->Attribute("modifier_tilt")));
+      LightshowFixture fixture(fixture_element->Attribute("name"), std::stoi(fixture_element->Attribute("start_channel")), std::stoi(fixture_element->Attribute("number_of_channels")), fixture_element->Attribute("type"), colors, std::stoi(fixture_element->Attribute("position_inside_group")), fixture_element->Attribute("position_on_stage"), fixture_element->Attribute("moving_head_type"), std::stoi(fixture_element->Attribute("modifier_pan")), std::stoi(fixture_element->Attribute("modifier_tilt")), fixture_element->Attribute("timestamps_type"));
 
       tinyxml2::XMLElement *channel_element = fixture_element->FirstChildElement("channel");
       while(channel_element != nullptr) {
