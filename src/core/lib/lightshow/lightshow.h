@@ -41,7 +41,7 @@ class Lightshow {
 
   std::vector<std::vector<std::uint8_t>> read_channel_values();
 
-  void prepare_analysis_for_song(char *song_path);
+  void prepare_analysis_for_song(char *song_path, bool need_bass, bool need_mid, bool need_high, bool need_onsets, int user_bpm);
 
   std::vector<LightshowFixture> get_fixtures_bass();
   std::vector<LightshowFixture> get_fixtures_middle();
@@ -107,7 +107,7 @@ class Lightshow {
                          std::uint8_t lower_border,
                          std::uint8_t upper_border,
                          std::uint8_t value);
-  void get_bpm_and_beats(bool &finished);
+  void get_bpm_and_beats(bool &finished, int user_bpm);
   double first_beat = 0;
 };
 

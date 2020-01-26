@@ -28,7 +28,7 @@ class ChangeFixtures : public QMainWindow {
   void setup_dialog();
 
  signals:
-  void changed_fixtures_ready(QUrl song_url, std::list<Fixture> fixtures);
+  void changed_fixtures_ready(QUrl song_url, std::list<Fixture> fixtures, int user_bpm);
 
 
  private:
@@ -41,6 +41,7 @@ class ChangeFixtures : public QMainWindow {
   std::vector<std::string> color_palettes;
   Universe universes[5];
   list<QTreeWidgetItem> universe_tree;
+  int user_bpm;
 
   void add_universe(QString name);
   void add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt);

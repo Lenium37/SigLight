@@ -13,12 +13,33 @@ LightshowGenerator::LightshowGenerator() {
 
 }
 
-std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *song, std::shared_ptr<Lightshow> lightshow) {
-  //std::shared_ptr<Lightshow> lightshow = std::make_shared<Lightshow>();
-  lightshow->set_resolution(resolution);
+std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *song, std::shared_ptr<Lightshow> lightshow, int user_bpm) {
 
+  bool need_bass = false;
+  bool need_mid = false;
+  bool need_high = false;
+  bool need_onsets = false;
+  //int user_bpm = 0;
+
+  for(int i = 0; i < lightshow->get_fixtures().size(); i++) {
+    std::string fix_type = lightshow->get_fixtures()[i].get_type();
+    if(fix_type == "bass" || fix_type == "color_change_beats_action")
+      need_bass = true;
+
+    if(fix_type == "mid" || fix_type == "color_change_beats_action")
+      need_mid = true;
+
+    if(fix_type == "high")
+      need_high = true;
+
+    if(fix_type == "onset_flash" || fix_type == "onset_flash_reverse" || fix_type == "color_change_onsets" || fix_type == "onset_blink" || fix_type == "group_one_after_another" || fix_type == "group_one_after_another_blink" || fix_type == "group_one_after_another_back_and_forth" || fix_type == "group_one_after_another_back_and_forth_blink" || fix_type == "group_two_after_another" || fix_type == "group_alternate_odd_even" || fix_type == "group_random_flashes" || fix_type == "strobe_if_many_onsets") {
+      need_onsets = true;
+    }
+  }
+
+  lightshow->set_resolution(resolution);
   lightshow->set_sound_src(song->get_file_path());
-  lightshow->prepare_analysis_for_song((char*)song->get_file_path().c_str());
+  lightshow->prepare_analysis_for_song((char*)song->get_file_path().c_str(), need_bass, need_mid, need_high, need_onsets, user_bpm);
 
   int fixtures_in_group_one_after_another = 0;
   int fixtures_in_group_one_after_another_back_and_forth = 0;
@@ -131,7 +152,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
           pan_steps.push_back({6.0f * time_of_two_beats, pan_center});
           pan_steps.push_back({7.0f * time_of_two_beats, (int) (pan_center + (amplitude_pan * 2 / 3))});
         } else {
-          std::cout << "position on stage: right" << std::endl;
+          std::cout << "position on stage: right/center" << std::endl;
           pan_steps.push_back({0.0, (int) (pan_center - amplitude_pan)});
           pan_steps.push_back({1.0f * time_of_two_beats, (int) (pan_center - (amplitude_pan * 2 / 3))});
           pan_steps.push_back({2.0f * time_of_two_beats, pan_center});
@@ -1206,13 +1227,12 @@ void LightshowGenerator::generate_beat_color_changes(std::shared_ptr<Lightshow> 
   std::vector<color_change> color_changes;
   std::vector<double> timestamps = lightshow_from_analysis->get_all_beats();
 
-  std::vector<time_value_int> bass_values = lightshow_from_analysis->get_value_changes_bass();
-  std::vector<time_value_int> mid_values = lightshow_from_analysis->get_value_changes_middle();
-
   std::cout << "Number of beats in this lightshow: " << timestamps.size() << std::endl;
   std::vector<float> timestamps_float;
 
   if(only_change_color_if_action) {
+    std::vector<time_value_int> bass_values = lightshow_from_analysis->get_value_changes_bass();
+    std::vector<time_value_int> mid_values = lightshow_from_analysis->get_value_changes_middle();
     for (double timestamp: timestamps) {
       for (time_value_int tvi_bass: bass_values) {
         if (tvi_bass.time >= (float) timestamp / 44100 - 0.02 && tvi_bass.time <= (float) timestamp / 44100 + 0.02) {

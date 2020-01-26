@@ -14,6 +14,7 @@ ChangeFixtures::ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string>
     this->fixture_presets = _fixture_presets;
     this->color_palettes = _color_palettes;
     this->song_url = _song_url;
+    this->user_bpm = 0;
 
     this->setWindowIcon(QIcon(":/icons_svg/svg/rtl_icon.svg"));
     std::string window_title = "Change Fixtures for " + _song_url.fileName().toStdString();
@@ -369,5 +370,5 @@ void ChangeFixtures::get_fixture_for_universe() {
 }
 
 void ChangeFixtures::on_use_changed_fixtures_clicked() {
-  emit changed_fixtures_ready(song_url, this->universes[0].get_fixtures());
+  emit changed_fixtures_ready(song_url, this->universes[0].get_fixtures(), this->user_bpm);
 }

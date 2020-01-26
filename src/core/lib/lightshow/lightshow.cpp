@@ -129,8 +129,13 @@ bool compare_by_timestamp(const time_value_float &a, const time_value_float &b)
   return a.time < b.time;
 }
 
-void Lightshow::get_bpm_and_beats(bool &finished) {
-  this->bpm = analysis.get_bpm(); //dauert lang
+void Lightshow::get_bpm_and_beats(bool &finished, int user_bpm) {
+  if(user_bpm == 0) {
+    this->bpm = analysis.get_bpm(); //dauert lang
+  } else {
+    this->bpm = user_bpm;
+  }
+
   Logger::debug("5");
   if(this->bpm == -1) {
     Logger::error("song too short to get bpm or do segmentation analysis");
@@ -150,101 +155,123 @@ void Lightshow::get_bpm_and_beats(bool &finished) {
   finished = true;
 }
 
-void Lightshow::prepare_analysis_for_song(char *song_path) {
+void Lightshow::prepare_analysis_for_song(char *song_path, bool need_bass, bool need_mid, bool need_high, bool need_onsets, int user_bpm) {
   this->analysis.set_resolution(this->resolution);
   this->analysis.read_wav(song_path);
   this->analysis.stft(); //dauert lang
 
+  std::cout << "need_bass: " << need_bass << std::endl;
+  std::cout << "need_mid: " << need_mid << std::endl;
+  std::cout << "need_high: " << need_high << std::endl;
+  std::cout << "need_onsets: " << need_onsets << std::endl;
+  std::cout << "user_bpm: " << user_bpm << std::endl;
+
   bool bpm_analysis_finished = false;
   try {
-    std::thread t(&Lightshow::get_bpm_and_beats, this, std::ref(bpm_analysis_finished));
+    std::thread t(&Lightshow::get_bpm_and_beats, this, std::ref(bpm_analysis_finished), user_bpm);
     t.detach();
   } catch (const std::bad_alloc &e) {
     Logger::error("Allocation failed during bpm thread creation: {}", e.what());
   }
 
   this->analysis.normalize();
-  this->onset_timestamps = this->analysis.get_onset_timestamps_energy_difference();
-  //this->onset_timestamps = this->analysis.get_onset_timestamps_frequencies(1, 60);
 
+  float bpm_from_onsets = 0;
+  if(need_onsets) {
+    this->onset_timestamps = this->analysis.get_onset_timestamps_energy_difference();
+    //this->onset_timestamps = this->analysis.get_onset_timestamps_frequencies(1, 60);
 
-  // trying to get bpm from onsets
-  std::map<float, int> onset_distance_occurrences;
-  float timestamp_difference = 0;
-  if(this->onset_timestamps.size() > 0) {
-    for (int i = 0; i < this->onset_timestamps.size() - 1; i++) {
-      timestamp_difference = onset_timestamps[i + 1] - onset_timestamps[i];
-      timestamp_difference = roundf(timestamp_difference * 1000) / 1000;
-      if (timestamp_difference >= 0.2 && timestamp_difference <= 0.75) {
-        if (onset_distance_occurrences.find(timestamp_difference) == onset_distance_occurrences.end())
-          onset_distance_occurrences.insert({timestamp_difference, 1});
-        else
-          onset_distance_occurrences.find(timestamp_difference)->second++;
+    // trying to get bpm from onsets
+    std::map<float, int> onset_distance_occurrences;
+    float timestamp_difference = 0;
+    if (this->onset_timestamps.size() > 0) {
+      for (int i = 0; i < this->onset_timestamps.size() - 1; i++) {
+        timestamp_difference = onset_timestamps[i + 1] - onset_timestamps[i];
+        timestamp_difference = roundf(timestamp_difference * 1000) / 1000;
+        if (timestamp_difference >= 0.2 && timestamp_difference <= 0.75) {
+          if (onset_distance_occurrences.find(timestamp_difference) == onset_distance_occurrences.end())
+            onset_distance_occurrences.insert({timestamp_difference, 1});
+          else
+            onset_distance_occurrences.find(timestamp_difference)->second++;
+        }
       }
     }
-  }
-  auto most_occured_onset_difference = std::max_element(onset_distance_occurrences.begin(), onset_distance_occurrences.end(), [](const std::pair<float, int>& p1, const std::pair<float, int>& p2) { return p1.second < p2.second; });
-  std::cout << "most occured onset difference: " << most_occured_onset_difference->first  << " (" << most_occured_onset_difference->second << " times)" << std::endl;
+    auto most_occured_onset_difference = std::max_element(onset_distance_occurrences.begin(),
+                                                          onset_distance_occurrences.end(),
+                                                          [](const std::pair<float, int> &p1,
+                                                             const std::pair<float, int> &p2) {
+                                                            return p1.second < p2.second;
+                                                          });
+    std::cout << "most occured onset difference: " << most_occured_onset_difference->first << " ("
+              << most_occured_onset_difference->second << " times)" << std::endl;
 
-  for(std::pair<float, int> difference_occurence: onset_distance_occurrences) {
-    if (onset_distance_occurrences.find(roundf(difference_occurence.first * 2 * 1000) / 1000) != onset_distance_occurrences.end()) {
-      onset_distance_occurrences.erase(difference_occurence.first);
-      //onset_distance_occurrences.find(roundf(difference_occurence.first * 2 * 1000) / 1000)->second *= 2;
+    for (std::pair<float, int> difference_occurence: onset_distance_occurrences) {
+      if (onset_distance_occurrences.find(roundf(difference_occurence.first * 2 * 1000) / 1000)
+          != onset_distance_occurrences.end()) {
+        onset_distance_occurrences.erase(difference_occurence.first);
+        //onset_distance_occurrences.find(roundf(difference_occurence.first * 2 * 1000) / 1000)->second *= 2;
+      }
     }
-  }
-  float time_of_one_beat = 0;
-  int number_of_beats = 0;
-  for(std::pair<float, int> difference_occurence: onset_distance_occurrences) {
-    if(difference_occurence.second > 50) {
-      time_of_one_beat += difference_occurence.first * difference_occurence.second;
-      number_of_beats += difference_occurence.second;
+    float time_of_one_beat = 0;
+    int number_of_beats = 0;
+    for (std::pair<float, int> difference_occurence: onset_distance_occurrences) {
+      if (difference_occurence.second > 50) {
+        time_of_one_beat += difference_occurence.first * difference_occurence.second;
+        number_of_beats += difference_occurence.second;
+      }
+      std::cout << "time difference: " << difference_occurence.first << " (" << difference_occurence.second << " times)"
+                << std::endl;
     }
-    std::cout << "time difference: " << difference_occurence.first  << " (" << difference_occurence.second << " times)" << std::endl;
+    time_of_one_beat /= (float) number_of_beats;
+    bpm_from_onsets = 60 / time_of_one_beat;
+    //std::cout << "bpm from onsets: " << bpm_from_onsets << std::endl;
+    bpm_from_onsets = roundf(bpm_from_onsets);
+    std::cout << "bpm from onsets: " << bpm_from_onsets << std::endl;
   }
-  time_of_one_beat /= (float) number_of_beats;
-  float bpm_from_onsets = 60/time_of_one_beat;
-  //std::cout << "bpm from onsets: " << bpm_from_onsets << std::endl;
-  bpm_from_onsets = roundf(bpm_from_onsets);
-  std::cout << "bpm from onsets: " << bpm_from_onsets << std::endl;
-
 
 
   this->set_length((this->analysis.get_length_of_song() + 1) * this->resolution + 3);
   //this->value_changes_bass = this->analysis.peaks_per_band(10, 45);
 
-  this->value_changes_bass = this->analysis.peaks_per_band(20, 50);
+  if(need_bass) {
+    this->value_changes_bass = this->analysis.peaks_per_band(20, 50);
 
-  BoxFIR box1(3);
-  std::vector<int> v1;
-  for (int i = 0; i < this->value_changes_bass.size(); i++) {
-    v1.push_back(this->value_changes_bass[i].value);
-  }
-  box1.filter(v1);
-  for (int i = 0; i < this->value_changes_bass.size(); i++) {
-    this->value_changes_bass[i].value = v1[i];
-  }
-
-  this->value_changes_middle = this->analysis.peaks_per_band(100, 600);
-  BoxFIR box2(12);
-  std::vector<int> v2;
-  for (int i = 0; i < this->value_changes_middle.size(); i++) {
-    v2.push_back(this->value_changes_middle[i].value);
-  }
-  box2.filter(v2);
-  for (int i = 0; i < this->value_changes_middle.size(); i++) {
-    this->value_changes_middle[i].value = v2[i];
+    BoxFIR box1(3);
+    std::vector<int> v1;
+    for (int i = 0; i < this->value_changes_bass.size(); i++) {
+      v1.push_back(this->value_changes_bass[i].value);
+    }
+    box1.filter(v1);
+    for (int i = 0; i < this->value_changes_bass.size(); i++) {
+      this->value_changes_bass[i].value = v1[i];
+    }
   }
 
-  this->value_changes_high = this->analysis.peaks_per_band(600, 2000);
-
-  BoxFIR box3(8);
-  std::vector<int> v3;
-  for (int i = 0; i < this->value_changes_high.size(); i++) {
-    v3.push_back(this->value_changes_high[i].value);
+  if(need_mid) {
+    this->value_changes_middle = this->analysis.peaks_per_band(100, 600);
+    BoxFIR box2(12);
+    std::vector<int> v2;
+    for (int i = 0; i < this->value_changes_middle.size(); i++) {
+      v2.push_back(this->value_changes_middle[i].value);
+    }
+    box2.filter(v2);
+    for (int i = 0; i < this->value_changes_middle.size(); i++) {
+      this->value_changes_middle[i].value = v2[i];
+    }
   }
-  box3.filter(v3);
-  for (int i = 0; i < this->value_changes_high.size(); i++) {
-    this->value_changes_high[i].value = v3[i];
+
+  if(need_high) {
+    this->value_changes_high = this->analysis.peaks_per_band(600, 2000);
+
+    BoxFIR box3(8);
+    std::vector<int> v3;
+    for (int i = 0; i < this->value_changes_high.size(); i++) {
+      v3.push_back(this->value_changes_high[i].value);
+    }
+    box3.filter(v3);
+    for (int i = 0; i < this->value_changes_high.size(); i++) {
+      this->value_changes_high[i].value = v3[i];
+    }
   }
 
   while(!bpm_analysis_finished) {
@@ -252,7 +279,7 @@ void Lightshow::prepare_analysis_for_song(char *song_path) {
     ;
   }
 
-  if(bpm_from_onsets < 200 && this->bpm * 2  - 15 < bpm_from_onsets && this->bpm * 2 + 15 > bpm_from_onsets) {
+  if(user_bpm == 0 && bpm_from_onsets < 200 && this->bpm * 2  - 15 < bpm_from_onsets && this->bpm * 2 + 15 > bpm_from_onsets) {
     this->bpm = this->bpm * 2;
     this->all_beats = analysis.get_all_beats(this->bpm, this->first_beat);
 

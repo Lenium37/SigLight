@@ -45,6 +45,7 @@ struct ls_generating_parameter
     bool is_regenerate;
     Song *song;
     std::list<Fixture> fixtures;
+    int user_bpm;
 };
 
 
@@ -87,7 +88,7 @@ public:
     void lightshow_for_song_is_ready(Song *song);
 
 private slots:
-    void changed_fixtures_for_lightshow_ready(QUrl url, std::list<Fixture> _fixtures);
+    void changed_fixtures_for_lightshow_ready(QUrl url, std::list<Fixture> _fixtures, int user_bpm);
 
     /**
      * @brief on_delete_fixture_button_clicked Slot that deletes a Fixture.
@@ -387,8 +388,8 @@ private:
      */
     bool has_fixture_changed();
 
-    void generate_lightshow(Song *song, std::list<Fixture> _fixtures);
-    void regenerate_lightshow(Song *song, std::list<Fixture> _fixtures);
+    void generate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm);
+    void regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm);
     void queue_for_generating_light_show();
     void start_thread_for_generating_queue();
     void init_shortcuts();
