@@ -10,6 +10,7 @@ ChangeFixtures::ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string>
   QMainWindow(parent),
   ui(new Ui::ChangeFixtures) {
     ui->setupUi(this);
+    this->song = nullptr;
     this->fixtures = _fixtures;
     this->fixture_presets = _fixture_presets;
     this->color_palettes = _color_palettes;
@@ -318,7 +319,7 @@ void ChangeFixtures::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int 
                                                                     Qt::MatchExactly | Qt::MatchRecursive,
                                                                     0);*/
   itm->setText(2, QString::fromStdString(universes[0].get_fixtures().back().get_colors()));
-  itm->setText(3, QString::fromStdString(timestamps_type));
+  itm->setText(3, QString::fromStdString(universes[0].get_fixtures().back().get_timestamps_type()));
   itm->setText(4, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_position_in_group())));
   itm->setText(5, QString::fromStdString(universes[0].get_fixtures().back().get_position_on_stage()));
   if(universes[0].get_fixtures().back().get_moving_head_type() != "Nothing")
@@ -384,6 +385,10 @@ void ChangeFixtures::get_fixture_for_universe() {
 }
 
 void ChangeFixtures::on_use_changed_fixtures_clicked() {
+  std::cout << this->song << std::endl;
+  if(this->song)
+    std::cout << this->song->get_song_name() << std::endl;
+
   if(this->song)
     emit changed_fixtures_of_existing_lightshow(this->song, this->universes[0].get_fixtures(), ui->sB_user_bpm->value());
   else

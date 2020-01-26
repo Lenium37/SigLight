@@ -170,17 +170,13 @@ std::shared_ptr<Lightshow> LightShowRegistry::read_lightshow(const std::string f
         lightshow->add_fixture_high(fixture);
       } else if(fixture.get_type() == "ambient") {
         lightshow->add_fixture_ambient(fixture);
-      } else if(fixture.get_type() == "color_change_beats") {
+      } else if(fixture.get_type() == "color_change") {
         lightshow->add_fixture_ambient(fixture);
-      } else if(fixture.get_type() == "color_change_beats_action") {
+      } else if(fixture.get_type() == "flash") {
         lightshow->add_fixture_ambient(fixture);
-      } else if(fixture.get_type() == "color_change_onsets") {
+      } else if(fixture.get_type() == "flash_reverse") {
         lightshow->add_fixture_ambient(fixture);
-      } else if(fixture.get_type() == "onset_flash") {
-        lightshow->add_fixture_ambient(fixture);
-      } else if(fixture.get_type() == "onset_flash_reverse") {
-        lightshow->add_fixture_ambient(fixture);
-      } else if(fixture.get_type() == "onset_blink") {
+      } else if(fixture.get_type() == "blink") {
         lightshow->add_fixture_ambient(fixture);
       } else if(fixture.get_type() == "group_one_after_another") {
         lightshow->add_fixture_ambient(fixture);
