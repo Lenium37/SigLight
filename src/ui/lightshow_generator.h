@@ -36,6 +36,7 @@ class LightshowGenerator {
   void set_color_for_fixed_time(LightshowFixture& fix, std::string& color, float begin, float end);
   void set_color_of_fixture_during_song(std::shared_ptr<Lightshow> lightshow_from_analysis, LightshowFixture& fix, std::initializer_list<std::string> a_args);
   color_values color_to_rgb(std::string color);
+  void generate_blink_fade_outs(std::vector<time_value_int> &value_changes, float current_timestamp, float next_timestamp, float lightshow_length);
   //std::vector<LightshowFixture> fixtures;
 };
 

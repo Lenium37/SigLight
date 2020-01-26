@@ -479,140 +479,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         for (int i = 0; i < timestamps.size(); i++) {
             value_changes.push_back({timestamps[i], 200});
             if(i < timestamps.size() - 1) {
-
-              // TODO make nicer with loop(s)
-              if(timestamps[i + 1] - timestamps[i] > 0.5 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.5f) {
-                value_changes.push_back({timestamps[i] + 0.025f, 198});
-                value_changes.push_back({timestamps[i] + 0.05f, 195});
-                value_changes.push_back({timestamps[i] + 0.075f, 190});
-                value_changes.push_back({timestamps[i] + 0.1f, 185});
-                value_changes.push_back({timestamps[i] + 0.125f, 178});
-                value_changes.push_back({timestamps[i] + 0.15f, 170});
-                value_changes.push_back({timestamps[i] + 0.175f, 160});
-                value_changes.push_back({timestamps[i] + 0.2f, 150});
-                value_changes.push_back({timestamps[i] + 0.225f, 133});
-                value_changes.push_back({timestamps[i] + 0.25f, 125});
-                value_changes.push_back({timestamps[i] + 0.275f, 113});
-                value_changes.push_back({timestamps[i] + 0.3f, 100});
-                value_changes.push_back({timestamps[i] + 0.325f, 88});
-                value_changes.push_back({timestamps[i] + 0.35f, 75});
-                value_changes.push_back({timestamps[i] + 0.375f, 63});
-                value_changes.push_back({timestamps[i] + 0.4f, 50});
-                value_changes.push_back({timestamps[i] + 0.425f, 38});
-                value_changes.push_back({timestamps[i] + 0.45f, 25});
-                value_changes.push_back({timestamps[i] + 0.475f, 13});
-                value_changes.push_back({timestamps[i] + 0.5f, 0});
-              } else if(timestamps[i + 1] - timestamps[i] > 0.45 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.45f) {
-                value_changes.push_back({timestamps[i] + 0.025f, 198});
-                value_changes.push_back({timestamps[i] + 0.05f, 195});
-                value_changes.push_back({timestamps[i] + 0.075f, 190});
-                value_changes.push_back({timestamps[i] + 0.1f, 185});
-                value_changes.push_back({timestamps[i] + 0.125f, 178});
-                value_changes.push_back({timestamps[i] + 0.15f, 170});
-                value_changes.push_back({timestamps[i] + 0.175f, 160});
-                value_changes.push_back({timestamps[i] + 0.2f, 150});
-                value_changes.push_back({timestamps[i] + 0.225f, 133});
-                value_changes.push_back({timestamps[i] + 0.25f, 125});
-                value_changes.push_back({timestamps[i] + 0.275f, 113});
-                value_changes.push_back({timestamps[i] + 0.3f, 100});
-                value_changes.push_back({timestamps[i] + 0.325f, 88});
-                value_changes.push_back({timestamps[i] + 0.35f, 75});
-                value_changes.push_back({timestamps[i] + 0.375f, 63});
-                value_changes.push_back({timestamps[i] + 0.4f, 50});
-                value_changes.push_back({timestamps[i] + 0.425f, 38});
-                value_changes.push_back({timestamps[i] + 0.45f, 25});
-                value_changes.push_back({timestamps[i + 1], 0});
-              } else if(timestamps[i + 1] - timestamps[i] > 0.4 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.4f) {
-                value_changes.push_back({timestamps[i] + 0.025f, 198});
-                value_changes.push_back({timestamps[i] + 0.05f, 195});
-                value_changes.push_back({timestamps[i] + 0.075f, 190});
-                value_changes.push_back({timestamps[i] + 0.1f, 185});
-                value_changes.push_back({timestamps[i] + 0.125f, 178});
-                value_changes.push_back({timestamps[i] + 0.15f, 170});
-                value_changes.push_back({timestamps[i] + 0.175f, 160});
-                value_changes.push_back({timestamps[i] + 0.2f, 150});
-                value_changes.push_back({timestamps[i] + 0.225f, 133});
-                value_changes.push_back({timestamps[i] + 0.25f, 125});
-                value_changes.push_back({timestamps[i] + 0.275f, 113});
-                value_changes.push_back({timestamps[i] + 0.3f, 100});
-                value_changes.push_back({timestamps[i] + 0.325f, 88});
-                value_changes.push_back({timestamps[i] + 0.35f, 75});
-                value_changes.push_back({timestamps[i] + 0.375f, 63});
-                value_changes.push_back({timestamps[i] + 0.4f, 50});
-                value_changes.push_back({timestamps[i + 1], 0});
-              } else if(timestamps[i + 1] - timestamps[i] > 0.35 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.35f) {
-                value_changes.push_back({timestamps[i] + 0.025f, 198});
-                value_changes.push_back({timestamps[i] + 0.05f, 195});
-                value_changes.push_back({timestamps[i] + 0.075f, 190});
-                value_changes.push_back({timestamps[i] + 0.1f, 185});
-                value_changes.push_back({timestamps[i] + 0.125f, 178});
-                value_changes.push_back({timestamps[i] + 0.15f, 170});
-                value_changes.push_back({timestamps[i] + 0.175f, 160});
-                value_changes.push_back({timestamps[i] + 0.2f, 150});
-                value_changes.push_back({timestamps[i] + 0.225f, 133});
-                value_changes.push_back({timestamps[i] + 0.25f, 125});
-                value_changes.push_back({timestamps[i] + 0.275f, 113});
-                value_changes.push_back({timestamps[i] + 0.3f, 100});
-                value_changes.push_back({timestamps[i] + 0.325f, 88});
-                value_changes.push_back({timestamps[i] + 0.35f, 75});
-                value_changes.push_back({timestamps[i + 1], 0});
-              } else if(timestamps[i + 1] - timestamps[i] > 0.3 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.3f) {
-                value_changes.push_back({timestamps[i] + 0.025f, 198});
-                value_changes.push_back({timestamps[i] + 0.05f, 195});
-                value_changes.push_back({timestamps[i] + 0.075f, 190});
-                value_changes.push_back({timestamps[i] + 0.1f, 185});
-                value_changes.push_back({timestamps[i] + 0.125f, 178});
-                value_changes.push_back({timestamps[i] + 0.15f, 170});
-                value_changes.push_back({timestamps[i] + 0.175f, 160});
-                value_changes.push_back({timestamps[i] + 0.2f, 150});
-                value_changes.push_back({timestamps[i] + 0.225f, 133});
-                value_changes.push_back({timestamps[i] + 0.25f, 125});
-                value_changes.push_back({timestamps[i] + 0.275f, 113});
-                value_changes.push_back({timestamps[i] + 0.3f, 100});
-                value_changes.push_back({timestamps[i + 1], 0});
-              } else if(timestamps[i + 1] - timestamps[i] > 0.25 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.25f) {
-                value_changes.push_back({timestamps[i] + 0.025f, 198});
-                value_changes.push_back({timestamps[i] + 0.05f, 195});
-                value_changes.push_back({timestamps[i] + 0.075f, 190});
-                value_changes.push_back({timestamps[i] + 0.1f, 185});
-                value_changes.push_back({timestamps[i] + 0.125f, 178});
-                value_changes.push_back({timestamps[i] + 0.15f, 170});
-                value_changes.push_back({timestamps[i] + 0.175f, 160});
-                value_changes.push_back({timestamps[i] + 0.2f, 150});
-                value_changes.push_back({timestamps[i] + 0.225f, 133});
-                value_changes.push_back({timestamps[i] + 0.25f, 125});
-                value_changes.push_back({timestamps[i + 1], 0});
-              } else if(timestamps[i + 1] - timestamps[i] > 0.2 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.2f) {
-                value_changes.push_back({timestamps[i] + 0.025f, 198});
-                value_changes.push_back({timestamps[i] + 0.05f, 195});
-                value_changes.push_back({timestamps[i] + 0.075f, 190});
-                value_changes.push_back({timestamps[i] + 0.1f, 185});
-                value_changes.push_back({timestamps[i] + 0.125f, 178});
-                value_changes.push_back({timestamps[i] + 0.15f, 170});
-                value_changes.push_back({timestamps[i] + 0.175f, 160});
-                value_changes.push_back({timestamps[i] + 0.2f, 150});
-                value_changes.push_back({timestamps[i + 1], 0});
-              } else if(timestamps[i + 1] - timestamps[i] > 0.15 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.15f) {
-                value_changes.push_back({timestamps[i] + 0.025f, 198});
-                value_changes.push_back({timestamps[i] + 0.05f, 195});
-                value_changes.push_back({timestamps[i] + 0.075f, 190});
-                value_changes.push_back({timestamps[i] + 0.1f, 185});
-                value_changes.push_back({timestamps[i] + 0.125f, 178});
-                value_changes.push_back({timestamps[i] + 0.15f, 170});
-                value_changes.push_back({timestamps[i + 1], 0});
-              } else if(timestamps[i + 1] - timestamps[i] > 0.1 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.1f) {
-                value_changes.push_back({timestamps[i] + 0.025f, 198});
-                value_changes.push_back({timestamps[i] + 0.05f, 195});
-                value_changes.push_back({timestamps[i] + 0.075f, 190});
-                value_changes.push_back({timestamps[i] + 0.1f, 185});
-                value_changes.push_back({timestamps[i + 1], 0});
-              } else if(timestamps[i + 1] - timestamps[i] > 0.05 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.05f) {
-                value_changes.push_back({timestamps[i] + 0.025f, 198});
-                value_changes.push_back({timestamps[i] + 0.05f, 195});
-                value_changes.push_back({timestamps[i + 1], 0});
-              }
-              else
-                value_changes.push_back({timestamps[i + 1], 0});
+              this->generate_blink_fade_outs(value_changes, timestamps[i], timestamps[i+1], ((float) lightshow->get_length() - 3) / lightshow->get_resolution());
             }
             else {
               value_changes.push_back({((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0});
@@ -694,6 +561,45 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
       }
       //lightshow->add_fixture(fix);
+    } else if (fix_type == "group_one_after_another_back_and_forth_blink") {
+      if (fix.has_global_dimmer) {
+
+        std::vector<float> timestamps = lightshow->get_onset_timestamps();
+        std::vector<time_value_int> value_changes_onset_blink;
+
+        std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
+        std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
+        if(fix.get_position_in_group() > 0) {
+          uint8_t counter = 1;
+          bool left_to_right = true;
+          for (int i = 0; i < timestamps.size(); i++) {
+            if(counter == fix.get_position_in_group()) {
+              value_changes_onset_blink.push_back({timestamps[i], 200});
+              if(i < timestamps.size() - 1)
+                value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+              else
+                value_changes_onset_blink.push_back({((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0});
+            }
+
+            if(left_to_right)
+              counter++;
+            else
+              counter--;
+
+            if(counter == fixtures_in_group_one_after_another_back_and_forth)
+              left_to_right = false;
+            else if(counter == 1)
+              left_to_right = true;
+          }
+
+          fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
+        }
+        std::vector<std::string> colors = fix.get_colors();
+        this->generate_color_fades(lightshow, fix, colors);
+      } else {
+
+      }
+      //lightshow->add_fixture(fix);
     } else if (fix_type == "group_one_after_another_blink") {
       if (fix.has_global_dimmer) {
 
@@ -709,139 +615,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
               value_changes.push_back({timestamps[i], 200});
               if(i < timestamps.size() - 1) {
 
-                // TODO make nicer with loop(s)
-                if(timestamps[i + 1] - timestamps[i] > 0.5 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.5f) {
-                  value_changes.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes.push_back({timestamps[i] + 0.075f, 190});
-                  value_changes.push_back({timestamps[i] + 0.1f, 185});
-                  value_changes.push_back({timestamps[i] + 0.125f, 178});
-                  value_changes.push_back({timestamps[i] + 0.15f, 170});
-                  value_changes.push_back({timestamps[i] + 0.175f, 160});
-                  value_changes.push_back({timestamps[i] + 0.2f, 150});
-                  value_changes.push_back({timestamps[i] + 0.225f, 133});
-                  value_changes.push_back({timestamps[i] + 0.25f, 125});
-                  value_changes.push_back({timestamps[i] + 0.275f, 113});
-                  value_changes.push_back({timestamps[i] + 0.3f, 100});
-                  value_changes.push_back({timestamps[i] + 0.325f, 88});
-                  value_changes.push_back({timestamps[i] + 0.35f, 75});
-                  value_changes.push_back({timestamps[i] + 0.375f, 63});
-                  value_changes.push_back({timestamps[i] + 0.4f, 50});
-                  value_changes.push_back({timestamps[i] + 0.425f, 38});
-                  value_changes.push_back({timestamps[i] + 0.45f, 25});
-                  value_changes.push_back({timestamps[i] + 0.475f, 13});
-                  value_changes.push_back({timestamps[i] + 0.5f, 0});
-                } else if(timestamps[i + 1] - timestamps[i] > 0.45 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.45f) {
-                  value_changes.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes.push_back({timestamps[i] + 0.075f, 190});
-                  value_changes.push_back({timestamps[i] + 0.1f, 185});
-                  value_changes.push_back({timestamps[i] + 0.125f, 178});
-                  value_changes.push_back({timestamps[i] + 0.15f, 170});
-                  value_changes.push_back({timestamps[i] + 0.175f, 160});
-                  value_changes.push_back({timestamps[i] + 0.2f, 150});
-                  value_changes.push_back({timestamps[i] + 0.225f, 133});
-                  value_changes.push_back({timestamps[i] + 0.25f, 125});
-                  value_changes.push_back({timestamps[i] + 0.275f, 113});
-                  value_changes.push_back({timestamps[i] + 0.3f, 100});
-                  value_changes.push_back({timestamps[i] + 0.325f, 88});
-                  value_changes.push_back({timestamps[i] + 0.35f, 75});
-                  value_changes.push_back({timestamps[i] + 0.375f, 63});
-                  value_changes.push_back({timestamps[i] + 0.4f, 50});
-                  value_changes.push_back({timestamps[i] + 0.425f, 38});
-                  value_changes.push_back({timestamps[i] + 0.45f, 25});
-                  value_changes.push_back({timestamps[i + 1], 0});
-                } else if(timestamps[i + 1] - timestamps[i] > 0.4 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.4f) {
-                  value_changes.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes.push_back({timestamps[i] + 0.075f, 190});
-                  value_changes.push_back({timestamps[i] + 0.1f, 185});
-                  value_changes.push_back({timestamps[i] + 0.125f, 178});
-                  value_changes.push_back({timestamps[i] + 0.15f, 170});
-                  value_changes.push_back({timestamps[i] + 0.175f, 160});
-                  value_changes.push_back({timestamps[i] + 0.2f, 150});
-                  value_changes.push_back({timestamps[i] + 0.225f, 133});
-                  value_changes.push_back({timestamps[i] + 0.25f, 125});
-                  value_changes.push_back({timestamps[i] + 0.275f, 113});
-                  value_changes.push_back({timestamps[i] + 0.3f, 100});
-                  value_changes.push_back({timestamps[i] + 0.325f, 88});
-                  value_changes.push_back({timestamps[i] + 0.35f, 75});
-                  value_changes.push_back({timestamps[i] + 0.375f, 63});
-                  value_changes.push_back({timestamps[i] + 0.4f, 50});
-                  value_changes.push_back({timestamps[i + 1], 0});
-                } else if(timestamps[i + 1] - timestamps[i] > 0.35 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.35f) {
-                  value_changes.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes.push_back({timestamps[i] + 0.075f, 190});
-                  value_changes.push_back({timestamps[i] + 0.1f, 185});
-                  value_changes.push_back({timestamps[i] + 0.125f, 178});
-                  value_changes.push_back({timestamps[i] + 0.15f, 170});
-                  value_changes.push_back({timestamps[i] + 0.175f, 160});
-                  value_changes.push_back({timestamps[i] + 0.2f, 150});
-                  value_changes.push_back({timestamps[i] + 0.225f, 133});
-                  value_changes.push_back({timestamps[i] + 0.25f, 125});
-                  value_changes.push_back({timestamps[i] + 0.275f, 113});
-                  value_changes.push_back({timestamps[i] + 0.3f, 100});
-                  value_changes.push_back({timestamps[i] + 0.325f, 88});
-                  value_changes.push_back({timestamps[i] + 0.35f, 75});
-                  value_changes.push_back({timestamps[i + 1], 0});
-                } else if(timestamps[i + 1] - timestamps[i] > 0.3 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.3f) {
-                  value_changes.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes.push_back({timestamps[i] + 0.075f, 190});
-                  value_changes.push_back({timestamps[i] + 0.1f, 185});
-                  value_changes.push_back({timestamps[i] + 0.125f, 178});
-                  value_changes.push_back({timestamps[i] + 0.15f, 170});
-                  value_changes.push_back({timestamps[i] + 0.175f, 160});
-                  value_changes.push_back({timestamps[i] + 0.2f, 150});
-                  value_changes.push_back({timestamps[i] + 0.225f, 133});
-                  value_changes.push_back({timestamps[i] + 0.25f, 125});
-                  value_changes.push_back({timestamps[i] + 0.275f, 113});
-                  value_changes.push_back({timestamps[i] + 0.3f, 100});
-                  value_changes.push_back({timestamps[i + 1], 0});
-                } else if(timestamps[i + 1] - timestamps[i] > 0.25 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.25f) {
-                  value_changes.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes.push_back({timestamps[i] + 0.075f, 190});
-                  value_changes.push_back({timestamps[i] + 0.1f, 185});
-                  value_changes.push_back({timestamps[i] + 0.125f, 178});
-                  value_changes.push_back({timestamps[i] + 0.15f, 170});
-                  value_changes.push_back({timestamps[i] + 0.175f, 160});
-                  value_changes.push_back({timestamps[i] + 0.2f, 150});
-                  value_changes.push_back({timestamps[i] + 0.225f, 133});
-                  value_changes.push_back({timestamps[i] + 0.25f, 125});
-                  value_changes.push_back({timestamps[i + 1], 0});
-                } else if(timestamps[i + 1] - timestamps[i] > 0.2 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.2f) {
-                  value_changes.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes.push_back({timestamps[i] + 0.075f, 190});
-                  value_changes.push_back({timestamps[i] + 0.1f, 185});
-                  value_changes.push_back({timestamps[i] + 0.125f, 178});
-                  value_changes.push_back({timestamps[i] + 0.15f, 170});
-                  value_changes.push_back({timestamps[i] + 0.175f, 160});
-                  value_changes.push_back({timestamps[i] + 0.2f, 150});
-                  value_changes.push_back({timestamps[i + 1], 0});
-                } else if(timestamps[i + 1] - timestamps[i] > 0.15 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.15f) {
-                  value_changes.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes.push_back({timestamps[i] + 0.075f, 190});
-                  value_changes.push_back({timestamps[i] + 0.1f, 185});
-                  value_changes.push_back({timestamps[i] + 0.125f, 178});
-                  value_changes.push_back({timestamps[i] + 0.15f, 170});
-                  value_changes.push_back({timestamps[i + 1], 0});
-                } else if(timestamps[i + 1] - timestamps[i] > 0.1 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.1f) {
-                  value_changes.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes.push_back({timestamps[i] + 0.075f, 190});
-                  value_changes.push_back({timestamps[i] + 0.1f, 185});
-                  value_changes.push_back({timestamps[i + 1], 0});
-                } else if(timestamps[i + 1] - timestamps[i] > 0.05 && ((float) lightshow->get_length() - 3) / lightshow->get_resolution() > timestamps[i] + 0.05f) {
-                  value_changes.push_back({timestamps[i] + 0.025f, 198});
-                  value_changes.push_back({timestamps[i] + 0.05f, 195});
-                  value_changes.push_back({timestamps[i + 1], 0});
-                }
-                else
-                  value_changes.push_back({timestamps[i + 1], 0});
+                this->generate_blink_fade_outs(value_changes, timestamps[i], timestamps[i+1], ((float) lightshow->get_length() - 3) / lightshow->get_resolution());
+
               }
               else {
                 value_changes.push_back({((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0});
@@ -1506,4 +1281,140 @@ void LightshowGenerator::generate_onset_color_changes(std::shared_ptr<Lightshow>
     color_changes.push_back({ timestamps[i], colors[c] });
   }
   this->set_hard_color_changes(lightshow_from_analysis, fix, color_changes);
+}
+
+void LightshowGenerator::generate_blink_fade_outs(std::vector<time_value_int> &value_changes, float current_timestamp, float next_timestamp, float lightshow_length) {
+  // TODO make nicer with loop(s)
+  if(next_timestamp - current_timestamp > 0.5 && lightshow_length > current_timestamp + 0.5f) {
+    value_changes.push_back({current_timestamp + 0.025f, 198});
+    value_changes.push_back({current_timestamp + 0.05f, 195});
+    value_changes.push_back({current_timestamp + 0.075f, 190});
+    value_changes.push_back({current_timestamp + 0.1f, 185});
+    value_changes.push_back({current_timestamp + 0.125f, 178});
+    value_changes.push_back({current_timestamp + 0.15f, 170});
+    value_changes.push_back({current_timestamp + 0.175f, 160});
+    value_changes.push_back({current_timestamp + 0.2f, 150});
+    value_changes.push_back({current_timestamp + 0.225f, 133});
+    value_changes.push_back({current_timestamp + 0.25f, 125});
+    value_changes.push_back({current_timestamp + 0.275f, 113});
+    value_changes.push_back({current_timestamp + 0.3f, 100});
+    value_changes.push_back({current_timestamp + 0.325f, 88});
+    value_changes.push_back({current_timestamp + 0.35f, 75});
+    value_changes.push_back({current_timestamp + 0.375f, 63});
+    value_changes.push_back({current_timestamp + 0.4f, 50});
+    value_changes.push_back({current_timestamp + 0.425f, 38});
+    value_changes.push_back({current_timestamp + 0.45f, 25});
+    value_changes.push_back({current_timestamp + 0.475f, 13});
+    value_changes.push_back({current_timestamp + 0.5f, 0});
+  } else if(next_timestamp - current_timestamp > 0.45 && lightshow_length > current_timestamp + 0.45f) {
+    value_changes.push_back({current_timestamp + 0.025f, 198});
+    value_changes.push_back({current_timestamp + 0.05f, 195});
+    value_changes.push_back({current_timestamp + 0.075f, 190});
+    value_changes.push_back({current_timestamp + 0.1f, 185});
+    value_changes.push_back({current_timestamp + 0.125f, 178});
+    value_changes.push_back({current_timestamp + 0.15f, 170});
+    value_changes.push_back({current_timestamp + 0.175f, 160});
+    value_changes.push_back({current_timestamp + 0.2f, 150});
+    value_changes.push_back({current_timestamp + 0.225f, 133});
+    value_changes.push_back({current_timestamp + 0.25f, 125});
+    value_changes.push_back({current_timestamp + 0.275f, 113});
+    value_changes.push_back({current_timestamp + 0.3f, 100});
+    value_changes.push_back({current_timestamp + 0.325f, 88});
+    value_changes.push_back({current_timestamp + 0.35f, 75});
+    value_changes.push_back({current_timestamp + 0.375f, 63});
+    value_changes.push_back({current_timestamp + 0.4f, 50});
+    value_changes.push_back({current_timestamp + 0.425f, 38});
+    value_changes.push_back({current_timestamp + 0.45f, 25});
+    value_changes.push_back({next_timestamp, 0});
+  } else if(next_timestamp - current_timestamp > 0.4 && lightshow_length > current_timestamp + 0.4f) {
+    value_changes.push_back({current_timestamp + 0.025f, 198});
+    value_changes.push_back({current_timestamp + 0.05f, 195});
+    value_changes.push_back({current_timestamp + 0.075f, 190});
+    value_changes.push_back({current_timestamp + 0.1f, 185});
+    value_changes.push_back({current_timestamp + 0.125f, 178});
+    value_changes.push_back({current_timestamp + 0.15f, 170});
+    value_changes.push_back({current_timestamp + 0.175f, 160});
+    value_changes.push_back({current_timestamp + 0.2f, 150});
+    value_changes.push_back({current_timestamp + 0.225f, 133});
+    value_changes.push_back({current_timestamp + 0.25f, 125});
+    value_changes.push_back({current_timestamp + 0.275f, 113});
+    value_changes.push_back({current_timestamp + 0.3f, 100});
+    value_changes.push_back({current_timestamp + 0.325f, 88});
+    value_changes.push_back({current_timestamp + 0.35f, 75});
+    value_changes.push_back({current_timestamp + 0.375f, 63});
+    value_changes.push_back({current_timestamp + 0.4f, 50});
+    value_changes.push_back({next_timestamp, 0});
+  } else if(next_timestamp - current_timestamp > 0.35 && lightshow_length > current_timestamp + 0.35f) {
+    value_changes.push_back({current_timestamp + 0.025f, 198});
+    value_changes.push_back({current_timestamp + 0.05f, 195});
+    value_changes.push_back({current_timestamp + 0.075f, 190});
+    value_changes.push_back({current_timestamp + 0.1f, 185});
+    value_changes.push_back({current_timestamp + 0.125f, 178});
+    value_changes.push_back({current_timestamp + 0.15f, 170});
+    value_changes.push_back({current_timestamp + 0.175f, 160});
+    value_changes.push_back({current_timestamp + 0.2f, 150});
+    value_changes.push_back({current_timestamp + 0.225f, 133});
+    value_changes.push_back({current_timestamp + 0.25f, 125});
+    value_changes.push_back({current_timestamp + 0.275f, 113});
+    value_changes.push_back({current_timestamp + 0.3f, 100});
+    value_changes.push_back({current_timestamp + 0.325f, 88});
+    value_changes.push_back({current_timestamp + 0.35f, 75});
+    value_changes.push_back({next_timestamp, 0});
+  } else if(next_timestamp - current_timestamp > 0.3 && lightshow_length > current_timestamp + 0.3f) {
+    value_changes.push_back({current_timestamp + 0.025f, 198});
+    value_changes.push_back({current_timestamp + 0.05f, 195});
+    value_changes.push_back({current_timestamp + 0.075f, 190});
+    value_changes.push_back({current_timestamp + 0.1f, 185});
+    value_changes.push_back({current_timestamp + 0.125f, 178});
+    value_changes.push_back({current_timestamp + 0.15f, 170});
+    value_changes.push_back({current_timestamp + 0.175f, 160});
+    value_changes.push_back({current_timestamp + 0.2f, 150});
+    value_changes.push_back({current_timestamp + 0.225f, 133});
+    value_changes.push_back({current_timestamp + 0.25f, 125});
+    value_changes.push_back({current_timestamp + 0.275f, 113});
+    value_changes.push_back({current_timestamp + 0.3f, 100});
+    value_changes.push_back({next_timestamp, 0});
+  } else if(next_timestamp - current_timestamp > 0.25 && lightshow_length > current_timestamp + 0.25f) {
+    value_changes.push_back({current_timestamp + 0.025f, 198});
+    value_changes.push_back({current_timestamp + 0.05f, 195});
+    value_changes.push_back({current_timestamp + 0.075f, 190});
+    value_changes.push_back({current_timestamp + 0.1f, 185});
+    value_changes.push_back({current_timestamp + 0.125f, 178});
+    value_changes.push_back({current_timestamp + 0.15f, 170});
+    value_changes.push_back({current_timestamp + 0.175f, 160});
+    value_changes.push_back({current_timestamp + 0.2f, 150});
+    value_changes.push_back({current_timestamp + 0.225f, 133});
+    value_changes.push_back({current_timestamp + 0.25f, 125});
+    value_changes.push_back({next_timestamp, 0});
+  } else if(next_timestamp - current_timestamp > 0.2 && lightshow_length > current_timestamp + 0.2f) {
+    value_changes.push_back({current_timestamp + 0.025f, 198});
+    value_changes.push_back({current_timestamp + 0.05f, 195});
+    value_changes.push_back({current_timestamp + 0.075f, 190});
+    value_changes.push_back({current_timestamp + 0.1f, 185});
+    value_changes.push_back({current_timestamp + 0.125f, 178});
+    value_changes.push_back({current_timestamp + 0.15f, 170});
+    value_changes.push_back({current_timestamp + 0.175f, 160});
+    value_changes.push_back({current_timestamp + 0.2f, 150});
+    value_changes.push_back({next_timestamp, 0});
+  } else if(next_timestamp - current_timestamp > 0.15 && lightshow_length > current_timestamp + 0.15f) {
+    value_changes.push_back({current_timestamp + 0.025f, 198});
+    value_changes.push_back({current_timestamp + 0.05f, 195});
+    value_changes.push_back({current_timestamp + 0.075f, 190});
+    value_changes.push_back({current_timestamp + 0.1f, 185});
+    value_changes.push_back({current_timestamp + 0.125f, 178});
+    value_changes.push_back({current_timestamp + 0.15f, 170});
+    value_changes.push_back({next_timestamp, 0});
+  } else if(next_timestamp - current_timestamp > 0.1 && lightshow_length > current_timestamp + 0.1f) {
+    value_changes.push_back({current_timestamp + 0.025f, 198});
+    value_changes.push_back({current_timestamp + 0.05f, 195});
+    value_changes.push_back({current_timestamp + 0.075f, 190});
+    value_changes.push_back({current_timestamp + 0.1f, 185});
+    value_changes.push_back({next_timestamp, 0});
+  } else if(next_timestamp - current_timestamp > 0.05 && lightshow_length > current_timestamp + 0.05f) {
+    value_changes.push_back({current_timestamp + 0.025f, 198});
+    value_changes.push_back({current_timestamp + 0.05f, 195});
+    value_changes.push_back({next_timestamp, 0});
+  }
+  else
+    value_changes.push_back({next_timestamp, 0});
 }
