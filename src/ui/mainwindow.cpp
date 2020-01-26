@@ -24,6 +24,7 @@ bool lightshow_paused = true;
 
 #if defined(_WIN32) || defined(WIN32)
 #include <mingw.thread.h>
+#include <QtWidgets/QMenu>
 #else
 #include <thread>
 #endif
@@ -221,6 +222,8 @@ void MainWindow::init_connects() {
                                                 const QModelIndex &, int, int)), this, SLOT(rowsInserted(
                                                                                                 const QModelIndex &, int, int)));
   connect(key_f11, SIGNAL(activated()), this, SLOT(slot_shortcut_f11()));
+
+  connect(this->playlist_view, SIGNAL(activated(QPersistentModelIndex)), this, SLOT(right_click_on_playlist_item(QPersistentModelIndex)));
 }
 
 void MainWindow::init_shortcuts() {
@@ -2044,9 +2047,86 @@ std::vector<int> MainWindow::get_all_pan_tilt_channels() {
 }
 
 void MainWindow::changed_fixtures_for_lightshow_ready(QUrl url, std::list<Fixture> _fixtures, int user_bpm) {
-  //std::cout << "SIGNAL KOMMT AN!!!" << std::endl;
+  std::cout << "URL: " << url.toString().toStdString() << std::endl;
   Song * song = player->add_to_playlist(url);
   lightshows_to_generate_for.push_back({false, song, _fixtures, user_bpm});
   this->start_thread_for_generating_queue();
+  this->change_fixtures_dialog->deleteLater();
+}
+
+void MainWindow::right_click_on_playlist_item(QPersistentModelIndex index) {
+  if(index.row() >= 0 && index.row() < this->player->get_playlist_length()) {
+
+    std::cout << this->player->get_playlist_media_at(index.row())->get_song()->get_song_name() << std::endl;
+
+    QMenu contextMenu(tr(std::to_string(index.row()).c_str()), this);
+    contextMenu.setObjectName(QString::fromStdString(std::to_string(index.row())));
+
+    QAction action1("Change Fixtures", &contextMenu);
+    connect(&action1, &QAction::triggered, this, &MainWindow::change_fixtures_of_existing_song);
+    contextMenu.addAction(&action1);
+
+    QAction action2("Regenerate lightshow", &contextMenu);
+    //connect(&action2, SIGNAL(triggered()), this, SLOT(removeDataPoint()));
+    action2.setEnabled(false);
+    contextMenu.addAction(&action2);
+
+    QAction action3("Remove song from playlist", &contextMenu);
+    //connect(&action3, SIGNAL(triggered()), this, SLOT(removeDataPoint()));
+    action3.setEnabled(false);
+    contextMenu.addAction(&action3);
+
+    contextMenu.exec(QCursor::pos());
+
+  }
+}
+
+void MainWindow::change_fixtures_of_existing_song() {
+  std::cout << QObject::sender()->parent()->objectName().toStdString() << std::endl;
+
+  int index_of_song = QObject::sender()->parent()->objectName().toInt();
+
+  Song *song = player->get_playlist_media_at(index_of_song)->get_song();
+
+  QUrl url(QString::fromStdString(song->get_file_path()));
+
+  std::shared_ptr<Lightshow> lightshow = this->lightShowRegistry.get_lightshow(song);
+  std::list<Fixture> _fixtures;
+  for(int i = 0; i < lightshow->get_fixtures().size(); i++) {
+    LightshowFixture l_fix = lightshow->get_fixtures()[i];
+    Fixture fix;
+    fix.set_name(l_fix.get_name());
+    fix.set_type(l_fix.get_type());
+    fix.set_colors(l_fix.get_colors_string());
+    fix.set_channel_count(l_fix.get_number_of_channels());
+    fix.set_start_channel(l_fix.get_start_channel());
+    fix.set_icon("lamp");
+    fix.set_position_in_group(l_fix.get_position_in_group());
+    fix.set_position_on_stage(l_fix.get_position_on_stage());
+    fix.set_modifier_pan(l_fix.get_modifier_pan());
+    fix.set_modifier_tilt(l_fix.get_modifier_tilt());
+    fix.set_moving_head_type(l_fix.get_moving_head_type());
+    _fixtures.push_back(fix);
+  }
+
+  change_fixtures_dialog = new ChangeFixtures(_fixtures, this->color_palettes, this->fixtures, url, lightshow->get_bpm(), this);
+  change_fixtures_dialog->set_song(song);
+  change_fixtures_dialog->setWindowModality(Qt::ApplicationModal);
+  if(connect(this->change_fixtures_dialog, SIGNAL(changed_fixtures_of_existing_lightshow(Song*, std::list<Fixture>, int)), this, SLOT(changed_fixtures_for_existing_lightshow_ready(Song*, std::list<Fixture>, int)))) {
+    std::cout << "connection worked" << std::endl;
+  } else {
+    std::cout << "connection did not work" << std::endl;
+  }
+  change_fixtures_dialog->show();
+
+
+  //lightshows_to_generate_for.push_back({true, song});
+}
+
+void MainWindow::changed_fixtures_for_existing_lightshow_ready(Song* song, std::list<Fixture> _fixtures, int user_bpm) {
+  std::cout << "URL: " << song->get_file_path() << std::endl;
+  lightshows_to_generate_for.push_back({true, song, _fixtures, user_bpm});
+  this->start_thread_for_generating_queue();
+  this->playlist_view->reset_lightshow_status(this->player->playlist_index_for(song));
   this->change_fixtures_dialog->deleteLater();
 }

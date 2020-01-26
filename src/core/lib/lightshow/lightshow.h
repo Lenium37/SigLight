@@ -75,6 +75,7 @@ class Lightshow {
   std::vector<double> get_all_beats();
   std::vector<float> get_onset_timestamps();
   int get_bpm();
+  void set_bpm(int _bpm);
 
  private:
   std::string sound_src;

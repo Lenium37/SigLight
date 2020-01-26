@@ -22,6 +22,7 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
   this->moving_head_type = _moving_head_type;
   this->modifier_pan = _modifier_pan;
   this->modifier_tilt = _modifier_tilt;
+  this->colors_string = colors;
   std::istringstream ss(colors);
   std::string color;
   if(!colors.empty()) {
@@ -417,4 +418,8 @@ float LightshowFixture::get_degrees_per_pan() {
 }
 float LightshowFixture::get_degrees_per_tilt() {
   return this->degrees_per_tilt;
+}
+
+std::string LightshowFixture::get_colors_string() {
+  return this->colors_string;
 }

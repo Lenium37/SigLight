@@ -197,6 +197,7 @@ class LightshowFixture {
   bool has_zoom = false;
 
   std::vector<std::string> get_colors();
+  std::string get_colors_string();
 
   void set_position_in_group(int _position);
   int get_position_in_group();
@@ -240,6 +241,7 @@ class LightshowFixture {
   Channel green = Channel(0);
   Channel blue = Channel(0);
   std::vector<std::string> colors;
+  std::string colors_string;
   int position_inside_group;
   std::string position_on_stage;
   std::string moving_head_type;

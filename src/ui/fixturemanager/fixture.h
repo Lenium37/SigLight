@@ -61,6 +61,8 @@ public:
    */
   int get_channel_count();
 
+  void set_channel_count(int _channel_count);
+
   /**
    * @brief get_start_channel Get the starting channel.
    * @return Startring channel.
@@ -212,6 +214,7 @@ private:
 
   int modifier_pan;
   int modifier_tilt;
+  int channel_count;
 
 };
 

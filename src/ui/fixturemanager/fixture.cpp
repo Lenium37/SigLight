@@ -24,6 +24,7 @@ Fixture::Fixture(string _type, string _name, string _description, int _start_cha
       channels.push_back(Channel_gui(_channels.at(i)));
   }
   this->colors = colors;
+  this->channel_count = _channels.size();
 }
 
 string Fixture::get_description_view() {
@@ -63,7 +64,10 @@ string Fixture::get_type()
 }
 
 int Fixture::get_channel_count() {
+  if(Fixture::channels.size() > 0)
     return Fixture::channels.size();
+  else
+    return this->channel_count;
 }
 
 int Fixture::get_start_channel() {
@@ -203,4 +207,8 @@ void Fixture::set_modifier_tilt(int _modifier_tilt) {
 }
 vector<Fixture::channel_value> Fixture::get_pan_tilt_channels_with_default_positions() {
   return vector<Fixture::channel_value>();
+}
+
+void Fixture::set_channel_count(int _channel_count) {
+  this->channel_count = _channel_count;
 }

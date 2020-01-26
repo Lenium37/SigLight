@@ -40,6 +40,7 @@ void LightShowRegistry::write_lightshow(const std::string &lightshow_filename, s
   lightshow_element->SetAttribute("src", lightshow->get_sound_src().c_str());
   lightshow_element->SetAttribute("length", lightshow->get_length());
   lightshow_element->SetAttribute("res", lightshow->get_resolution());
+  lightshow_element->SetAttribute("bpm", lightshow->get_bpm());
   lightshow_xml.InsertFirstChild(lightshow_element);
 
   for(auto fixture : lightshow->get_fixtures()){
@@ -126,6 +127,7 @@ std::shared_ptr<Lightshow> LightShowRegistry::read_lightshow(const std::string f
   lightshow->set_sound_src(lightshow_element->Attribute("src"));
   lightshow->set_length(std::stoi(lightshow_element->Attribute("length")));
   lightshow->set_resolution(std::stoi(lightshow_element->Attribute("res")));
+  lightshow->set_bpm(std::stoi(lightshow_element->Attribute("bpm")));
 
 
   if (lightshow_element == nullptr){ Logger::error("Fehler beim Laden einer Lightshow XML"); }

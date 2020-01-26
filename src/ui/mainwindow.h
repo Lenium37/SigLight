@@ -83,12 +83,15 @@ public:
      * is used by other interfaces.
      */
     Universe universes[5];
+    void change_fixtures_of_existing_song();
 
     signals:
     void lightshow_for_song_is_ready(Song *song);
 
 private slots:
     void changed_fixtures_for_lightshow_ready(QUrl url, std::list<Fixture> _fixtures, int user_bpm);
+    void changed_fixtures_for_existing_lightshow_ready(Song* song, std::list<Fixture> _fixtures, int user_bpm);
+    void right_click_on_playlist_item(QPersistentModelIndex index);
 
     /**
      * @brief on_delete_fixture_button_clicked Slot that deletes a Fixture.

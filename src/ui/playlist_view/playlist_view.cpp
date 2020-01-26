@@ -1,3 +1,5 @@
+#include <QtWidgets/QPushButton>
+#include <iostream>
 #include "playlist_view.h"
 
  #include "logger.h"
@@ -16,6 +18,7 @@ Playlist_view::Playlist_view(QWidget *parent)
     this->viewport()->setAcceptDrops(true);
     this->setDragDropMode(QAbstractItemView::InternalMove);
     this->setStyle(new PlaylistViewStyle());
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
 
     /*setColumnWidth(0, 10);
     setColumnWidth(1, STANDARD_COLUMN_WIDTH);
@@ -82,6 +85,10 @@ void Playlist_view::reset_every_lightshow_status() {
     playlist_view_model->item(i, 4)->setData(QIcon(":/icons_svg/svg/uncheck.svg"), Qt::DecorationRole);
 }
 
+void Playlist_view::reset_lightshow_status(int index) {
+  playlist_view_model->item(index, 4)->setData(QIcon(":/icons_svg/svg/uncheck.svg"), Qt::DecorationRole);
+}
+
 int Playlist_view::delete_current_selected_song()
 {
     Logger::trace("Playlist_view::delete_current_selected_song");
@@ -135,4 +142,16 @@ void Playlist_view::slot_rows_have_been_moved(const QModelIndex &topLeft)
 void Playlist_view::slot_song_lightshow_state_has_changed(int index_in_playlist)
 {
     playlist_view_model->item(index_in_playlist, 4)->setData(QIcon(":/icons_svg/svg/apply.svg"), Qt::DecorationRole);
+}
+
+void Playlist_view::mouseReleaseEvent(QMouseEvent *event) {
+  QPoint pos = event->pos();
+  QPersistentModelIndex index = indexAt(pos);
+
+  if (event->button() == Qt::RightButton) {
+    emit activated(index);
+  }
+  else {
+    QAbstractItemView::mousePressEvent(event);
+  }
 }

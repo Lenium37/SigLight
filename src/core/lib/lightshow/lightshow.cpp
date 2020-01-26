@@ -130,14 +130,17 @@ bool compare_by_timestamp(const time_value_float &a, const time_value_float &b)
 }
 
 void Lightshow::get_bpm_and_beats(bool &finished, int user_bpm) {
+  int bpm_result = -1;
   if(user_bpm == 0) {
-    this->bpm = analysis.get_bpm(); //dauert lang
+    bpm_result = analysis.get_bpm(); //dauert lang
+    this->bpm = bpm_result;
   } else {
     this->bpm = user_bpm;
+    bpm_result = user_bpm;
   }
 
   Logger::debug("5");
-  if(this->bpm == -1) {
+  if(bpm_result == -1) {
     Logger::error("song too short to get bpm or do segmentation analysis");
     this->timestamps_colorchanges.push_back({0.0, 0});
   } else {
@@ -435,4 +438,8 @@ std::vector<float> Lightshow::get_onset_timestamps() {
 
 int Lightshow::get_bpm() {
   return this->bpm;
+}
+
+void Lightshow::set_bpm(int _bpm) {
+  this->bpm = _bpm;
 }

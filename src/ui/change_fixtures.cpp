@@ -373,6 +373,16 @@ void ChangeFixtures::get_fixture_for_universe() {
 }
 
 void ChangeFixtures::on_use_changed_fixtures_clicked() {
+  if(this->song)
+    emit changed_fixtures_of_existing_lightshow(this->song, this->universes[0].get_fixtures(), ui->sB_user_bpm->value());
+  else
+    emit changed_fixtures_ready(song_url, this->universes[0].get_fixtures(), ui->sB_user_bpm->value());
+}
 
-  emit changed_fixtures_ready(song_url, this->universes[0].get_fixtures(), ui->sB_user_bpm->value());
+void ChangeFixtures::set_song(Song* _song) {
+  this->song = _song;
+}
+
+Song* ChangeFixtures::get_song() {
+  return this->song;
 }

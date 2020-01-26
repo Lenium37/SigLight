@@ -26,8 +26,11 @@ class ChangeFixtures : public QMainWindow {
   ~ChangeFixtures() override;
 
   void setup_dialog();
+  void set_song(Song* _song);
+  Song* get_song();
 
  signals:
+  void changed_fixtures_of_existing_lightshow(Song* song, std::list<Fixture> fixtures, int user_bpm);
   void changed_fixtures_ready(QUrl song_url, std::list<Fixture> fixtures, int user_bpm);
 
 
@@ -38,6 +41,7 @@ class ChangeFixtures : public QMainWindow {
   std::list<Fixture> fixtures;
   std::list<Fixture> fixture_presets;
   QUrl song_url;
+  Song *song;
   std::vector<std::string> color_palettes;
   Universe universes[5];
   list<QTreeWidgetItem> universe_tree;
