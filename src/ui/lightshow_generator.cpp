@@ -22,6 +22,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
   int fixtures_in_group_one_after_another = 0;
   int fixtures_in_group_one_after_another_back_and_forth = 0;
+  int fixtures_in_group_one_after_another_back_and_forth_blink = 0;
   int fixtures_in_group_one_after_another_blink = 0;
   int fixtures_in_group_two_after_another = 0;
   int fixtures_in_group_two_after_another_blink = 0;
@@ -38,6 +39,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       fixtures_in_group_one_after_another = fix.get_position_in_group();
     else if(fix_type == "group_one_after_another_back_and_forth" && fix.get_position_in_group() > fixtures_in_group_one_after_another_back_and_forth)
       fixtures_in_group_one_after_another_back_and_forth = fix.get_position_in_group();
+    else if(fix_type == "group_one_after_another_back_and_forth_blink" && fix.get_position_in_group() > fixtures_in_group_one_after_another_back_and_forth_blink)
+      fixtures_in_group_one_after_another_back_and_forth_blink = fix.get_position_in_group();
     else if (fix_type == "group_one_after_another_blink"
         && fix.get_position_in_group() > fixtures_in_group_one_after_another_blink)
       fixtures_in_group_one_after_another_blink = fix.get_position_in_group();
@@ -565,7 +568,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       if (fix.has_global_dimmer) {
 
         std::vector<float> timestamps = lightshow->get_onset_timestamps();
-        std::vector<time_value_int> value_changes_onset_blink;
+        std::vector<time_value_int> value_changes;
 
         std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
         std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
@@ -574,11 +577,11 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
           bool left_to_right = true;
           for (int i = 0; i < timestamps.size(); i++) {
             if(counter == fix.get_position_in_group()) {
-              value_changes_onset_blink.push_back({timestamps[i], 200});
+              value_changes.push_back({timestamps[i], 200});
               if(i < timestamps.size() - 1)
-                value_changes_onset_blink.push_back({timestamps[i + 1], 0});
+                this->generate_blink_fade_outs(value_changes, timestamps[i], timestamps[i+1], ((float) lightshow->get_length() - 3) / lightshow->get_resolution());
               else
-                value_changes_onset_blink.push_back({((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0});
+                value_changes.push_back({((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0});
             }
 
             if(left_to_right)
@@ -586,13 +589,13 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
             else
               counter--;
 
-            if(counter == fixtures_in_group_one_after_another_back_and_forth)
+            if(counter == fixtures_in_group_one_after_another_back_and_forth_blink)
               left_to_right = false;
             else if(counter == 1)
               left_to_right = true;
           }
 
-          fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
+          fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
         }
         std::vector<std::string> colors = fix.get_colors();
         this->generate_color_fades(lightshow, fix, colors);

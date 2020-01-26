@@ -281,6 +281,7 @@ void LightshowFixture::set_type(std::string type) {
   || type == "group_one_after_another"
   || type == "group_one_after_another_back_and_forth"
   || type == "group_one_after_another_blink"
+  || type == "group_one_after_another_back_and_forth_blink"
   || type == "group_two_after_another"
   || type == "group_alternate_odd_even"
   || type == "group_random_flashes"
