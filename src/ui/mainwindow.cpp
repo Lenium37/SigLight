@@ -873,7 +873,7 @@ void MainWindow::on_action_add_song_to_player_triggered() {
 
           if (msgBox.clickedButton()->text() == "Change") {
             std::cout << "change" << std::endl;
-            change_fixtures_dialog = new ChangeFixtures(this->universes[0].get_fixtures(), this->color_palettes, this->fixtures, url, this);
+            change_fixtures_dialog = new ChangeFixtures(this->universes[0].get_fixtures(), this->color_palettes, this->fixtures, url, 0, this);
             change_fixtures_dialog->setWindowModality(Qt::ApplicationModal);
             if(connect(this->change_fixtures_dialog, SIGNAL(changed_fixtures_ready(QUrl, std::list<Fixture>, int)), this, SLOT(changed_fixtures_for_lightshow_ready(QUrl, std::list<Fixture>, int)))) {
               std::cout << "connection worked" << std::endl;

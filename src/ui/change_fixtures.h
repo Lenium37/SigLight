@@ -22,7 +22,7 @@ class ChangeFixtures : public QMainWindow {
  Q_OBJECT
 
  public:
-  explicit ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string> _color_palettes, std::list<Fixture> _fixture_presets, QUrl _song_url, QWidget *parent = nullptr);
+  explicit ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string> _color_palettes, std::list<Fixture> _fixture_presets, QUrl _song_url, int _user_bpm, QWidget *parent = nullptr);
   ~ChangeFixtures() override;
 
   void setup_dialog();
