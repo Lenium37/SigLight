@@ -57,6 +57,7 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
 
     ui->cB_moving_head_type->addItem("Nothing");
     ui->cB_moving_head_type->addItem("Continuous 8");
+  ui->cB_moving_head_type->addItem("Continuous Circle");
     ui->cB_moving_head_type->addItem("Backlight, drop on action");
 
     ui->fixture_selection->setCurrentRow(0);
@@ -207,7 +208,9 @@ void FixtureChoosingDialog::update_position_in_group_status(QString current_type
   || current_type == "flash_reverse"
   || current_type == "blink"
   || current_type == "group_one_after_another"
+  || current_type == "group_one_after_another_blink"
   || current_type == "group_one_after_another_back_and_forth"
+  || current_type == "group_one_after_another_back_and_forth_blink"
   || current_type == "group_two_after_another"
   || current_type == "group_alternate_odd_even"
   || current_type == "group_random_flashes") {
@@ -220,7 +223,8 @@ void FixtureChoosingDialog::update_position_in_group_status(QString current_type
 
 void FixtureChoosingDialog::update_moving_head_position_status(QString current_fixture) {
   if(current_fixture == "JBLED A7 (S8)"
-  || current_fixture == "JBLED P4 (M1)") {
+  || current_fixture == "JBLED P4 (M1)"
+  || current_fixture == "JBLED Sparx 7 (M3)") {
     ui->cB_moving_head_position->setEnabled(true);
     ui->cB_moving_head_type->setEnabled(true);
     ui->sB_modifier_pan->setEnabled(true);

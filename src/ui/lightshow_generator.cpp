@@ -95,11 +95,44 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       timestamps = lightshow->get_onset_timestamps();
     else if(timestamps_type.find("beats") != string::npos) { // contains beats
       std::vector<double> timestamps_double = lightshow->get_all_beats();
-      if(timestamps_type == "beats 1/2/3/4") {
+      if(timestamps_type == "beats 1/2/3/4" || timestamps_type == "beats 1/2/3/4 action") {
         for(int i = 0; i < timestamps_double.size(); i++)
           timestamps.push_back((float)timestamps_double[i] / 44100);
-      } else if(timestamps_type == "beats 2/4") {
-
+      } else if(timestamps_type == "beats 2/4" || timestamps_type == "beats 2/4 action") {
+        for(int i = 0; i < timestamps_double.size(); i++) {
+          if((i + 1) % 2 == 0)
+            timestamps.push_back((float)timestamps_double[i] / 44100);
+        }
+      } else if(timestamps_type == "beats 1/3" || timestamps_type == "beats 1/3 action") {
+        for(int i = 0; i < timestamps_double.size(); i++) {
+          if((i + 1) % 2 == 1)
+            timestamps.push_back((float)timestamps_double[i] / 44100);
+        }
+      } else if(timestamps_type == "beats 1" || timestamps_type == "beats 1 action") {
+        for(int i = 0; i < timestamps_double.size(); i++) {
+          if(i % 4 == 0)
+            timestamps.push_back((float)timestamps_double[i] / 44100);
+        }
+      } else if(timestamps_type == "beats 2" || timestamps_type == "beats 2 action") {
+        for(int i = 0; i < timestamps_double.size(); i++) {
+          if((i - 1) % 4 == 0)
+            timestamps.push_back((float)timestamps_double[i] / 44100);
+        }
+      } else if(timestamps_type == "beats 3" || timestamps_type == "beats 3 action") {
+        for(int i = 0; i < timestamps_double.size(); i++) {
+          if((i - 2) % 4 == 0)
+            timestamps.push_back((float)timestamps_double[i] / 44100);
+        }
+      } else if(timestamps_type == "beats 4" || timestamps_type == "beats 4 action") {
+        for(int i = 0; i < timestamps_double.size(); i++) {
+          if((i - 3) % 4 == 0)
+            timestamps.push_back((float)timestamps_double[i] / 44100);
+        }
+      } else if(timestamps_type == "beats 1 every other bar" || timestamps_type == "beats 1 every other bar action") {
+        for(int i = 0; i < timestamps_double.size(); i++) {
+          if(i % 8 == 0)
+            timestamps.push_back((float)timestamps_double[i] / 44100);
+        }
       }
     }
 
@@ -146,8 +179,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       bool loop = false;
 
       if(fix.get_moving_head_type() == "Continuous 8") {
-        amplitude_tilt = 30;
-        amplitude_pan = 30;
+        amplitude_tilt = 45 / fix.get_degrees_per_tilt();
+        amplitude_pan = 90 / fix.get_degrees_per_pan();
         /* weak 8
         pan_steps.push_back({0.0, pan_tilt_center});
         pan_steps.push_back({1.0, (int) (pan_tilt_center + amplitude_pan)});
@@ -157,6 +190,44 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         pan_steps.push_back({5.0, (int) (pan_tilt_center + amplitude_pan)});
         pan_steps.push_back({6.0, pan_tilt_center});
         pan_steps.push_back({7.0, (int) (pan_tilt_center - amplitude_pan)});*/
+
+        if (fix.get_position_on_stage() == "Left") {
+          std::cout << "position on stage: left" << std::endl;
+          pan_steps.push_back({0.0, (int) (pan_center + amplitude_pan)});
+          pan_steps.push_back({1.0f * time_of_two_beats, (int) (pan_center + (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({2.0f * time_of_two_beats, pan_center});
+          pan_steps.push_back({3.0f * time_of_two_beats, (int) (pan_center - (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({4.0f * time_of_two_beats, (int) (pan_center - amplitude_pan)});
+          pan_steps.push_back({5.0f * time_of_two_beats, (int) (pan_center - (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({6.0f * time_of_two_beats, pan_center});
+          pan_steps.push_back({7.0f * time_of_two_beats, (int) (pan_center + (amplitude_pan * 2 / 3))});
+        } else {
+          std::cout << "position on stage: right/center" << std::endl;
+          pan_steps.push_back({0.0, (int) (pan_center - amplitude_pan)});
+          pan_steps.push_back({1.0f * time_of_two_beats, (int) (pan_center - (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({2.0f * time_of_two_beats, pan_center});
+          pan_steps.push_back({3.0f * time_of_two_beats, (int) (pan_center + (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({4.0f * time_of_two_beats, (int) (pan_center + amplitude_pan)});
+          pan_steps.push_back({5.0f * time_of_two_beats, (int) (pan_center + (amplitude_pan * 2 / 3))});
+          pan_steps.push_back({6.0f * time_of_two_beats, pan_center});
+          pan_steps.push_back({7.0f * time_of_two_beats, (int) (pan_center - (amplitude_pan * 2 / 3))});
+        }
+
+        tilt_steps.push_back({0.0, tilt_center});
+        tilt_steps.push_back({1.0f * time_of_two_beats, (int) (tilt_center + (amplitude_tilt * 2 / 3))});
+        tilt_steps.push_back({2.0f * time_of_two_beats, (int) (tilt_center + amplitude_tilt)});
+        tilt_steps.push_back({3.0f * time_of_two_beats, (int) (tilt_center + (amplitude_tilt * 2 / 3))});
+        tilt_steps.push_back({4.0f * time_of_two_beats, tilt_center});
+        tilt_steps.push_back({5.0f * time_of_two_beats, (int) (tilt_center - (amplitude_tilt * 2 / 3))});
+        tilt_steps.push_back({6.0f * time_of_two_beats, (int) (tilt_center - amplitude_tilt)});
+        tilt_steps.push_back({7.0f * time_of_two_beats, (int) (tilt_center - (amplitude_tilt * 2 / 3))});
+
+        loop = true;
+
+      }if(fix.get_moving_head_type() == "Continuous Circle") {
+        time_per_step_tilt = time_of_one_beat;
+        amplitude_tilt = 45 / fix.get_degrees_per_tilt();
+        amplitude_pan = 90 / fix.get_degrees_per_pan();
 
         if (fix.get_position_on_stage() == "Left") {
           std::cout << "position on stage: left" << std::endl;

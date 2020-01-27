@@ -121,6 +121,22 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->has_colorwheel = true;
     this->has_focus = true;
     this->has_zoom = true;
+  } else if(name == "JBLED Sparx 7 (M3)") {
+    this->set_channel_pan(1);
+    this->set_channel_tilt(3);
+    this->set_channel_shutter(6);
+    this->set_channel_dimmer(7);
+    this->set_channel_zoom(8);
+    this->set_channel_red(21);
+    this->set_channel_green(22);
+    this->set_channel_blue(23);
+    this->degrees_per_pan = (float) 433.6 / (float) 256;
+    this->degrees_per_tilt = (float) 333.3 / (float) 256;
+    this->has_global_dimmer = true;
+    this->has_pan = true;
+    this->has_tilt = true;
+    this->has_shutter = true;
+    this->has_zoom = true;
   } else if(name == "Stairville LED Flood Panel 150 (3ch)") {
     this->set_channel_red(1);
     this->set_channel_green(2);

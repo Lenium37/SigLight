@@ -371,7 +371,7 @@ void MainWindow::create_fixtures() {
              << "Blackout move~0~255";
 
     create_new_fixture("JBLED A7 (S8)",
-                       "color_change_onsets",
+                       "color_change",
                        "DMX-Funktionen: Pan, Tilt, Colour Fade, Master Dimmer, RGB, Shutter",
                        channels,
                        "lamp",
@@ -400,7 +400,38 @@ void MainWindow::create_fixtures() {
              << "Blackout move~0~255";
 
     create_new_fixture("JBLED P4 (M1)",
-                       "color_change_onsets",
+                       "color_change",
+                       "DMX-Funktionen: Pan, Tilt, Colour Fade, Master Dimmer, Color wheel, Shutter",
+                       channels,
+                       "lamp",
+                       color_palettes[0],
+                       0);
+    channels.clear();
+
+    channels << "Pan (X) 433,6°~0~255" << "Pan (X) fein~0~255" << "Tilt (Y) 333,3°~0~255" << "Tilt (Y) fein~0~255"
+             << "Control channel~0~255"
+             << "Shutter zu~0~15|Shutter auf~255~255"
+             << "Dimmer (0-100%)~0~255"
+             << "Zoom 0-100% (far - near)~0~255"
+             << "Segment selection~0~255"
+             << "Pattern mode~0~255"
+             << "Pattern~0~255"
+             << "Pattern speed~0~255"
+             << "Color gradient~0~255"
+             << "Sparkle~0~255"
+             << "Sparkle speed~0~255"
+             << "CTC 3200K~0~255"
+             << "Color wheel emulation white~0~1|red~4~5|yellow~8~9|magenta~12~13|green~16~17|orange~20~21|pink~32~33|cyan~36~37|blue~52~53"
+             << "Pan/Tilt speed real time~0~3|movement delayed (fast-slow)~4~255"
+             << "Effektgeschwindigkeit real time~0~3|Effekte delayed (fast-slow)~4~255"
+             << "Blackout move~0~255"
+             << "Red~0~255"
+             << "Green~0~255"
+             << "Blue~0~255"
+             << "White~0~255";
+
+    create_new_fixture("JBLED Sparx 7 (M3)",
+                       "color_change",
                        "DMX-Funktionen: Pan, Tilt, Colour Fade, Master Dimmer, Color wheel, Shutter",
                        channels,
                        "lamp",
@@ -940,6 +971,7 @@ void MainWindow::generate_lightshow(Song *song, std::list<Fixture> _fixtures, in
     if (fix.get_name() == "Cameo Flat RGB 10"
         || fix.get_name() == "JBLED A7 (S8)"
         || fix.get_name() == "JBLED P4 (M1)"
+        || fix.get_name() == "JBLED Sparx 7 (M3)"
         || fix.get_name() == "Stairville LED Flood Panel 150 (3ch)"
         || fix.get_name() == "Stairville LED Flood Panel 150 (4ch)"
         || fix.get_name() == "Helios 7"
@@ -967,6 +999,7 @@ void MainWindow::regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, 
     if (fix.get_name() == "Cameo Flat RGB 10"
         || fix.get_name() == "JBLED A7 (S8)"
         || fix.get_name() == "JBLED P4 (M1)"
+        || fix.get_name() == "JBLED Sparx 7 (M3)"
         || fix.get_name() == "Stairville LED Flood Panel 150 (3ch)"
         || fix.get_name() == "Stairville LED Flood Panel 150 (4ch)"
         || fix.get_name() == "Helios 7"
