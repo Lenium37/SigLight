@@ -181,6 +181,16 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       if(fix.get_moving_head_type() == "Continuous 8") {
         amplitude_tilt = 45 / fix.get_degrees_per_tilt();
         amplitude_pan = 90 / fix.get_degrees_per_pan();
+
+        if(tilt_center + amplitude_tilt > 255)
+          amplitude_tilt = 255 - tilt_center;
+        else if(tilt_center - amplitude_tilt < 0)
+          amplitude_tilt = tilt_center;
+        if(pan_center + amplitude_pan > 255)
+          amplitude_pan = 255 - pan_center;
+        else if(pan_center - amplitude_pan < 0)
+          amplitude_pan = pan_center;
+
         /* weak 8
         pan_steps.push_back({0.0, pan_tilt_center});
         pan_steps.push_back({1.0, (int) (pan_tilt_center + amplitude_pan)});
@@ -224,10 +234,19 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
         loop = true;
 
-      }if(fix.get_moving_head_type() == "Continuous Circle") {
+      } if(fix.get_moving_head_type() == "Continuous Circle") {
         time_per_step_tilt = time_of_one_beat;
         amplitude_tilt = 45 / fix.get_degrees_per_tilt();
         amplitude_pan = 90 / fix.get_degrees_per_pan();
+
+        if(tilt_center + amplitude_tilt > 255)
+          amplitude_tilt = 255 - tilt_center;
+        else if(tilt_center - amplitude_tilt < 0)
+          amplitude_tilt = tilt_center;
+        if(pan_center + amplitude_pan > 255)
+          amplitude_pan = 255 - pan_center;
+        else if(pan_center - amplitude_pan < 0)
+          amplitude_pan = pan_center;
 
         if (fix.get_position_on_stage() == "Left") {
           std::cout << "position on stage: left" << std::endl;
@@ -262,9 +281,52 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
         loop = true;
 
+      } if(fix.get_moving_head_type() == "Continuous Line") {
+        amplitude_tilt = 45 / fix.get_degrees_per_tilt();
+        amplitude_pan = 0;
+
+        if(tilt_center + amplitude_tilt > 255)
+          amplitude_tilt = 255 - tilt_center;
+        else if(tilt_center - amplitude_tilt < 0)
+          amplitude_tilt = tilt_center;
+        if(pan_center + amplitude_pan > 255)
+          amplitude_pan = 255 - pan_center;
+        else if(pan_center - amplitude_pan < 0)
+          amplitude_pan = pan_center;
+
+        pan_steps.push_back({0.0, pan_center});
+        pan_steps.push_back({1.0f * time_of_two_beats, pan_center});
+        pan_steps.push_back({2.0f * time_of_two_beats, pan_center});
+        pan_steps.push_back({3.0f * time_of_two_beats, pan_center});
+        pan_steps.push_back({4.0f * time_of_two_beats, pan_center});
+        pan_steps.push_back({5.0f * time_of_two_beats, pan_center});
+        pan_steps.push_back({6.0f * time_of_two_beats, pan_center});
+        pan_steps.push_back({7.0f * time_of_two_beats, pan_center});
+
+        tilt_steps.push_back({0.0, tilt_center});
+        tilt_steps.push_back({1.0f * time_of_two_beats, (int) (tilt_center + (amplitude_tilt / 2))});
+        tilt_steps.push_back({2.0f * time_of_two_beats, (int) (tilt_center + amplitude_tilt)});
+        tilt_steps.push_back({3.0f * time_of_two_beats, (int) (tilt_center + (amplitude_tilt / 2))});
+        tilt_steps.push_back({4.0f * time_of_two_beats, tilt_center});
+        tilt_steps.push_back({5.0f * time_of_two_beats, (int) (tilt_center - (amplitude_tilt / 2))});
+        tilt_steps.push_back({6.0f * time_of_two_beats, (int) (tilt_center - amplitude_tilt)});
+        tilt_steps.push_back({7.0f * time_of_two_beats, (int) (tilt_center - (amplitude_tilt / 2))});
+
+        loop = true;
+
       } else if(fix.get_moving_head_type() == "Backlight, drop on action") {
         amplitude_tilt = 100;
         amplitude_pan = 0;
+
+        if(tilt_center + amplitude_tilt > 255)
+          amplitude_tilt = 255 - tilt_center;
+        else if(tilt_center - amplitude_tilt < 0)
+          amplitude_tilt = tilt_center;
+        if(pan_center + amplitude_pan > 255)
+          amplitude_pan = 255 - pan_center;
+        else if(pan_center - amplitude_pan < 0)
+          amplitude_pan = pan_center;
+
         time_per_step_tilt = time_of_one_beat;
         time_step = 0.025f;
         vc_tilt.push_back({0.0, 127});

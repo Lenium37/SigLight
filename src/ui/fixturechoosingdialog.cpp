@@ -57,7 +57,8 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
 
     ui->cB_moving_head_type->addItem("Nothing");
     ui->cB_moving_head_type->addItem("Continuous 8");
-  ui->cB_moving_head_type->addItem("Continuous Circle");
+    ui->cB_moving_head_type->addItem("Continuous Circle");
+    ui->cB_moving_head_type->addItem("Continuous Line");
     ui->cB_moving_head_type->addItem("Backlight, drop on action");
 
     ui->fixture_selection->setCurrentRow(0);
