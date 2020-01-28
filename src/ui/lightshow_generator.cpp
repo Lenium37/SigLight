@@ -154,8 +154,13 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         tilt_steps.push_back({5.0f * time_of_two_beats, (int) (tilt_center - (amplitude_tilt * 2 / 3))});
         tilt_steps.push_back({6.0f * time_of_two_beats, (int) (tilt_center - amplitude_tilt)});
         tilt_steps.push_back({7.0f * time_of_two_beats, (int) (tilt_center - (amplitude_tilt * 2 / 3))});
+        if (fix.has_zoom){
+            vc_zoom.push_back({0.0, 200});
+            vc_zoom.push_back({((float) lightshow_from_analysis->get_length() - 3) / lightshow_from_analysis->get_resolution(), 0});
+            fix.add_value_changes_to_channel(vc_zoom, fix.get_channel_zoom());
+        }
 
-        loop = true;
+          loop = true;
 
       } else if(fix.get_moving_head_type() == "Backlight, drop on action") {
         amplitude_tilt = 100;

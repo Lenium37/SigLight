@@ -23,7 +23,7 @@ class LightshowGenerator {
  public:
   LightshowGenerator();
 	~LightshowGenerator();
-  std::shared_ptr<Lightshow> generate(int resolution, Song *song, std::list<Fixture> fixtures);
+  std::shared_ptr<Lightshow> generate(int rresolution, Song *song, std::list<Fixture> fixtures);
  private:
   float fade_duration = 1;
   std::shared_ptr<AnalysisResult> analysis_result;

@@ -160,6 +160,7 @@ void Lightshow::prepare_analysis_for_song(char *song_path) {
   }
 
   this->analysis.normalize();
+  // FREQUENZWEICHE
   this->onset_timestamps = this->analysis.get_onset_timestamps_energy_difference();
 
 
@@ -258,6 +259,9 @@ void Lightshow::prepare_analysis_for_song(char *song_path) {
     std::vector<time_value_int> intensity_changes = analysis.get_intensity_changes(segment_intensities, 15);
     this->timestamps_colorchanges = intensity_changes;
   }
+
+    this->analysis.get_segments();
+
 }
 
 std::vector<LightshowFixture> Lightshow::get_fixtures_bass() {

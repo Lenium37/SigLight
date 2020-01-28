@@ -37,6 +37,19 @@ struct complex_result {
   std::vector<double> imag;
 };
 
+struct fluxes {
+    float time;
+    float ed;
+    float sd;
+    float sdhwr;
+    float csd;
+    float hfc;
+    float l2nh;
+    float l1nh;
+    float l2h;
+    float l1h;
+};
+
 class Analysis {
  public:
   Analysis();
@@ -50,7 +63,7 @@ class Analysis {
   std::vector<time_value_double> get_intensity_function_values();
   std::vector<time_value_int> get_intensity_average_for_next_segment(std::vector<double> beats, int beats_per_minute, double first_good_beat);
   std::vector<time_value_int> get_intensity_changes(std::vector<time_value_int> intensities, int threshold);
-
+  std::vector<time_value_float> get_segments();
   // Metal threshold = 0.804
   // Film threshold 0.292
   // Avicii threshold = 0.815

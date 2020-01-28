@@ -85,6 +85,7 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_tilt(3);
     this->set_channel_shutter(6);
     this->set_channel_dimmer(7);
+    this->set_channel_zoom(8);
     this->set_channel_red(9);
     this->set_channel_green(10);
     this->set_channel_blue(11);
@@ -94,6 +95,7 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->has_pan = true;
     this->has_tilt = true;
     this->has_shutter = true;
+    this->has_zoom = true;
   } else if(name == "JBLED P4 (M1)") {
     this->set_channel_pan(1);
     this->set_channel_tilt(3);

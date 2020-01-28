@@ -149,306 +149,533 @@ void Analysis::stft() {
 
 }
 
-std::vector<float> Analysis::get_onset_timestamps_energy_difference(){
+std::vector<float> Analysis::get_onset_timestamps_energy_difference() {
 
-  std::vector<float> onset_timestamps;
+    std::vector<float> onset_timestamps;
 
-  int window_size_onsets = 2048;
-  Gist<float> gist2(window_size_onsets, 44100);
-  float audioFrame[window_size_onsets];
-  float last_value = 0;
-  float last_time = 0;
-  bool onset_found = false;
-  bool already_added_this_onset = false;
-  std::vector<time_value_float> onsets;
-  onsets.resize(signal_length_mono / window_size_onsets / 2);
-  float min_value_onset = 0;
-
-
-  // this works good for hardstyle and some other stuff, semi good for the rest
-  /*float f1_sample = ((float) window_size_onsets / 44100) * 1;
-  float f2_sample = ((float) window_size_onsets / 44100) * 10000;
-  std::cout << "normalized_result.size(): " << normalized_result.size() << std::endl;
-  std::cout << "signal_length_mono: " << signal_length_mono << std::endl;
-  for (int i = 0; i < normalized_result.size(); i++){
-    int this_value = 0;
-    int this_sample = 0;
-    int this_block = 0;
-    float this_freq = 0;
-    for(int y = 0; y < window_size_onsets; y++)
-      audioFrame[y] = 0;
-    for (int n = f1_sample, k = 0; n <= f2_sample ; n++, k++){
-      audioFrame[k] = (float) normalized_result[i][n];
-    }
-    gist2.processAudioFrame (audioFrame, window_size_onsets);
-    float ed = gist2.energyDifference();
-    float x = i;
-    float time = x * window_size_onsets / 44100 / 1.85796852603;
-    onsets.push_back({time, ed});
-  }*/
+    int window_size_onsets = 2048;
+    Gist<float> gist2(window_size_onsets, 44100);
+    float audioFrame[window_size_onsets];
+    float last_value = 0;
+    float last_time = 0;
+    bool onset_found = false;
+    bool already_added_this_onset = false;
+    std::vector<time_value_float> onsets;
+    onsets.resize(signal_length_mono / window_size_onsets / 2);
+    float min_value_onset = 0;
 
 
-  // ??
-  /*int f1 = 100;
-  int f2 = 200;
-  int co_f1 = f1/(samplerate/window_size_onsets);
-  int co_f2 = f2/(samplerate/window_size_onsets);
-  for(int i = 0; i < co_f1; i++);
-  for(int i = co_f2; i < window_size_onsets; i++);*/
-
-
-
-
-  // works good for rocky stuff and clear electronic bass
-  for(int i = 0; i < signal_length_mono - window_size_onsets; i = i + window_size_onsets / 2) {
-    for(int j = i, k = 0; k < window_size_onsets; j++, k++) {
-      audioFrame[k] = wav_values_mono[j];
-      //std::cout << audioFrame[k] << std::endl;
-    }
-
-
-    gist2.processAudioFrame (audioFrame, window_size_onsets);
-    float ed = gist2.energyDifference();
-    float i_float = i;
-    float time = i_float/44100;
-
-    //if(ed > 0)
-    //std::cout << "ed(" << time << "): " << ed << std::endl;
-
-    onsets.push_back({time, ed});
-  }
-
-  // look for max peak
-  float max_ed_value = 0.0;
-  for(int i = 0; i < onsets.size(); i++) {
-    if(onsets[i].value > max_ed_value)
-      max_ed_value = onsets[i].value;
-  }
-
-  // look for all peaks, then take mean
-  float all_peaks = 0.0;
-  int peak_counter = 0;
-  for(int i = 0; i < onsets.size(); i++) {
-    if(i > 0 && i < onsets.size()-1) {
-      if (onsets[i].value > onsets[i - 1].value && onsets[i].value > onsets[i + 1].value && onsets[i].value > max_ed_value * 0.25) {
-        all_peaks += onsets[i].value;
-        peak_counter++;
+    // this works good for hardstyle and some other stuff, semi good for the rest
+    /*float f1_sample = ((float) window_size_onsets / 44100) * 1;
+    float f2_sample = ((float) window_size_onsets / 44100) * 10000;
+    std::cout << "normalized_result.size(): " << normalized_result.size() << std::endl;
+    std::cout << "signal_length_mono: " << signal_length_mono << std::endl;
+    for (int i = 0; i < normalized_result.size(); i++){
+      int this_value = 0;
+      int this_sample = 0;
+      int this_block = 0;
+      float this_freq = 0;
+      for(int y = 0; y < window_size_onsets; y++)
+        audioFrame[y] = 0;
+      for (int n = f1_sample, k = 0; n <= f2_sample ; n++, k++){
+        audioFrame[k] = (float) normalized_result[i][n];
       }
+      gist2.processAudioFrame (audioFrame, window_size_onsets);
+      float ed = gist2.energyDifference();
+      float x = i;
+      float time = x * window_size_onsets / 44100 / 1.85796852603;
+      onsets.push_back({time, ed});
+    }*/
+
+
+    // ??
+    /*int f1 = 100;
+    int f2 = 200;
+    int co_f1 = f1/(samplerate/window_size_onsets);
+    int co_f2 = f2/(samplerate/window_size_onsets);
+    for(int i = 0; i < co_f1; i++);
+    for(int i = co_f2; i < window_size_onsets; i++);*/
+
+
+
+
+    // works good for rocky stuff and clear electronic bass
+    for (int i = 0; i < signal_length_mono - window_size_onsets; i = i + window_size_onsets / 2) {
+        for (int j = i, k = 0; k < window_size_onsets; j++, k++) {
+            audioFrame[k] = wav_values_mono[j];
+            //std::cout << audioFrame[k] << std::endl;
+        }
+
+
+        gist2.processAudioFrame(audioFrame, window_size_onsets);
+        float ed = gist2.energyDifference();
+        float i_float = i;
+        float time = i_float / 44100;
+
+        //if(ed > 0)
+        //std::cout << "ed(" << time << "): " << ed << std::endl;
+
+        onsets.push_back({time, ed});
     }
-  }
-  float mean_of_all_peaks = all_peaks / peak_counter;
 
-  // rocky = 5.5
-  // metal (HSB Voice of the Voiceless, double bass) = 1.7
-  // metal/hard rock (Sabaton 7734) = 4.5
-  // somewhat allgemeingültig = 5
-  //min_value_onset = min_value_onset / onsets.size() * 5;
-
-  //min_value_onset = max_ed_value * 0.315;
-  min_value_onset = (max_ed_value + mean_of_all_peaks + mean_of_all_peaks) / 7.5;
-  std::cout << "mean_of_all_peaks: " << mean_of_all_peaks << std::endl;
-  std::cout << "max_ed_value: " << max_ed_value << std::endl;
-  std::cout << "min_value_onset: " << min_value_onset << std::endl;
-  std::cout << "old min_value_onset: " << max_ed_value * 0.315 << std::endl;
-  float threshold_reset = 0.0f;
-
-  for(time_value_float onset: onsets) {
-    //std::cout << "ed(" << onset.time << "): " << onset.value << std::endl;
-    if(onset.value > min_value_onset)
-      onset_found = true;
-
-    if(onset_found) {
-      if(onset.value < last_value && !already_added_this_onset) {
-        onset_timestamps.emplace_back(last_time);
-        already_added_this_onset = true;
-      }
+    // look for max peak
+    float max_ed_value = 0.0;
+    for (int i = 0; i < onsets.size(); i++) {
+        if (onsets[i].value > max_ed_value)
+            max_ed_value = onsets[i].value;
     }
 
-    if(onset.value <= threshold_reset) {
-      onset_found = false;
-      already_added_this_onset = false;
+    // look for all peaks, then take mean
+    float all_peaks = 0.0;
+    int peak_counter = 0;
+    for (int i = 0; i < onsets.size(); i++) {
+        if (i > 0 && i < onsets.size() - 1) {
+            if (onsets[i].value > onsets[i - 1].value && onsets[i].value > onsets[i + 1].value &&
+                onsets[i].value > max_ed_value * 0.25) {
+                all_peaks += onsets[i].value;
+                peak_counter++;
+            }
+        }
+    }
+    float mean_of_all_peaks = all_peaks / peak_counter;
+
+    // rocky = 5.5
+    // metal (HSB Voice of the Voiceless, double bass) = 1.7
+    // metal/hard rock (Sabaton 7734) = 4.5
+    // somewhat allgemeingültig = 5
+    //min_value_onset = min_value_onset / onsets.size() * 5;
+
+    //min_value_onset = max_ed_value * 0.315;
+    min_value_onset = (max_ed_value + mean_of_all_peaks + mean_of_all_peaks) / 7.5;
+    std::cout << "mean_of_all_peaks: " << mean_of_all_peaks << std::endl;
+    std::cout << "max_ed_value: " << max_ed_value << std::endl;
+    std::cout << "min_value_onset: " << min_value_onset << std::endl;
+    std::cout << "old min_value_onset: " << max_ed_value * 0.315 << std::endl;
+    float threshold_reset = 0.0f;
+
+    for (time_value_float onset: onsets) {
+        //std::cout << "ed(" << onset.time << "): " << onset.value << std::endl;
+        if (onset.value > min_value_onset)
+            onset_found = true;
+
+        if (onset_found) {
+            if (onset.value < last_value && !already_added_this_onset) {
+                onset_timestamps.emplace_back(last_time);
+                already_added_this_onset = true;
+            }
+        }
+
+        if (onset.value <= threshold_reset) {
+            onset_found = false;
+            already_added_this_onset = false;
+        }
+
+        last_value = onset.value;
+        last_time = onset.time;
     }
 
-    last_value = onset.value;
-    last_time = onset.time;
-  }
+    std::cout << "min_value_onset: " << min_value_onset << std::endl;
+    std::cout << "threshold_reset: " << threshold_reset << std::endl;
+    //for(float ts: onset_timestamps)
+    //std::cout << ts << std::endl;
 
-  std::cout << "min_value_onset: " << min_value_onset << std::endl;
-  std::cout << "threshold_reset: " << threshold_reset << std::endl;
-  //for(float ts: onset_timestamps)
-  //std::cout << ts << std::endl;
-
-  return onset_timestamps;
+    return onset_timestamps;
 }
 
 std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, float f_end) {
 
-  // BAND PASS FREQUENCIES
-  //float f_start = 0;
-  //float f_end = 22050;
-  f_start = 0;
-  f_end = 22050;
+    // BAND PASS FREQUENCIES
+    //float f_start = 0;
+    //float f_end = 22050;
+    //f_start = 0;
+    //f_end = 22050;
 
-  int window_size_onsets = 2048;
-  Gist<float> gist2(window_size_onsets, 44100);
-  float audioFrame[window_size_onsets];
-  float window_function[window_size_onsets];
-  int numSamplesMinus1 = window_size_onsets - 1;
-  std::vector<float> onsets;
-  std::vector<time_value_float> spectral_flux;
-  std::vector<float> magnitude_spectrum;
-  std::vector<float> last_magnitude_spectrum;
-  std::vector<time_value_float> threshold_function_values;
+    int window_size_onsets = 2048;
+    Gist<float> gist2(window_size_onsets, 44100);
+    float audioFrame[window_size_onsets];
+    float window_function[window_size_onsets];
+    int numSamplesMinus1 = window_size_onsets - 1;
+    std::vector<float> onsets;
+    std::vector<time_value_float> spectral_flux;
+    std::vector<fluxes> spectral_fluxes;
+    std::vector<fluxes> thresholds;
+    std::vector<float> magnitude_spectrum;
+    std::vector<float> last_magnitude_spectrum;
+    std::vector<time_value_float> threshold_function_values;
+    float max_ed, max_sd, max_sdhwr, max_csd, max_hfc, max_l2nh, max_l1nh, max_l2h, max_l1h = -9999999;
 
-  // PREPARE CSV FILES WITH HEADERS FOR ALGORITHM COMPARISON
-  FILE *fp_spectral_flux = std::fopen("spectral_flux.csv", "w");
-  fprintf(fp_spectral_flux, "time, ed, sd, sdhwr, csd, hfc, l2nohwr, l1nohwr, l2hwr, l1hwr\n");
 
-  FILE* fp_threshold_function = std::fopen("threshold.csv", "w");
-  fprintf(fp_threshold_function, "time, value\n");
+    // PREPARE CSV FILES WITH HEADERS FOR ALGORITHM COMPARISON
+    FILE *fp_spectral_flux = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/spectral_flux.csv",
+                                        "w");
+    fprintf(fp_spectral_flux, "time, ed, sd, sdhwr, csd, hfc, l2nohwr, l1nohwr, l2hwr, l1hwr\n");
 
-  FILE *fp_onsets = std::fopen("onsets.csv", "w");
-  fprintf(fp_onsets, "time, dummyvalue\n");
+    FILE *fp_thresholds = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/thresholds.csv", "w");
+    fprintf(fp_thresholds, "time, ed, sd, sdhwr, csd, hfc, l2nohwr, l1nohwr, l2hwr, l1hwr\n");
 
-  // GENERATE HAMMING WINDOW FOR AUDIOFRAME (TIME-DOMAIN SMOOTHING)
-  for (int i = 0; i < window_size_onsets; i++) {
-    window_function[i] = (float)(0.5 * (float)(1.0 - cos(2.0 * (float)M_PI * ((float)i / (float)numSamplesMinus1))));
-  }
+    FILE *fp_threshold_function = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/threshold.csv",
+                                             "w");
+    fprintf(fp_threshold_function, "time, value\n");
 
-  // LOOP OVER COMPLETE SIGNAL WITH WINDOW_SIZE_ONSETS AND A HOPSIZE OF 50%
-  for (int i = 0; i < signal_length_mono - window_size_onsets; i = i + window_size_onsets / 2) {
+    FILE *fp_onsets = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/onsets.csv", "w");
+    fprintf(fp_onsets, "time, dummyvalue\n");
 
-    // PREPARE FRAME AND MULTIPLY WITH HAMMING WINDOW FOR ONSET DETECTION
-    for (int j = i, k = 0; k < window_size_onsets; j++, k++) {
-      audioFrame[k] = wav_values_mono[j] * window_function[k];
-    }
-    // GIST PROCESS FOR FFT, MAGNITUDE SPECTRUM ETC. - THIS IS NECESSARY
-    gist2.processAudioFrame(audioFrame, window_size_onsets);
+    FILE *fp_average_flux = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/average_flux.csv",
+                                       "w");
+    fprintf(fp_average_flux, "time, average\n");
 
-    // GET GIST MAGNITUDE SPECTRUM (SEEMS TO BE DFT COEFFICIENTS RMS)
-    // ALSO DELETE COEFFICIENTS FOR FREQUENCIES OUT OF RANGE OF [F_START, F_END]
-    magnitude_spectrum = gist2.getMagnitudeSpectrum();
+    FILE *fp_average_threshold = std::fopen(
+            "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/average_threshold.csv", "w");
+    fprintf(fp_average_threshold, "time, average\n");
 
-    for (int k = 0; k < magnitude_spectrum.size(); k++){
-      float f_current = (44100/window_size_onsets) * k;
-      if (f_current <= f_start || f_current >= f_end){
-        magnitude_spectrum[k] = 0.0;
-      }
+    // GENERATE HAMMING WINDOW FOR AUDIOFRAME (TIME-DOMAIN SMOOTHING)
+    for (int i = 0; i < window_size_onsets; i++) {
+        window_function[i] = (float) (0.5 *
+                                      (float) (1.0 - cos(2.0 * (float) M_PI * ((float) i / (float) numSamplesMinus1))));
     }
 
-    // HACK TO ALSO SAVE LAST MAGNITUDE SPECTRUM TEMPORARY, WE NEED THIS TO GET THE DELTA FOR SPECTRAL FLUX
-    if (i == 0) {
-      for (int k = 0; k <= magnitude_spectrum.size(); k++){
-        last_magnitude_spectrum.push_back(magnitude_spectrum[k]);
-      }
+    // LOOP OVER COMPLETE SIGNAL WITH WINDOW_SIZE_ONSETS AND A HOPSIZE OF 50%
+    for (int i = 0; i < signal_length_mono - window_size_onsets; i = i + window_size_onsets / 2) {
+
+        // PREPARE FRAME AND MULTIPLY WITH HAMMING WINDOW FOR ONSET DETECTION
+        for (int j = i, k = 0; k < window_size_onsets; j++, k++) {
+            audioFrame[k] = wav_values_mono[j] * window_function[k];
+        }
+        // GIST PROCESS FOR FFT, MAGNITUDE SPECTRUM ETC. - THIS IS NECESSARY
+        gist2.processAudioFrame(audioFrame, window_size_onsets);
+
+        // GET GIST MAGNITUDE SPECTRUM (SEEMS TO BE DFT COEFFICIENTS RMS)
+        // ALSO DELETE COEFFICIENTS FOR FREQUENCIES OUT OF RANGE OF [F_START, F_END]
+        magnitude_spectrum = gist2.getMagnitudeSpectrum();
+
+        for (int k = 0; k < magnitude_spectrum.size(); k++) {
+            float f_current = (44100 / window_size_onsets) * k;
+            if (f_current <= f_start || f_current >= f_end) {
+                magnitude_spectrum[k] = 0.0;
+            }
+        }
+
+        // HACK TO ALSO SAVE LAST MAGNITUDE SPECTRUM TEMPORARY, WE NEED THIS TO GET THE DELTA FOR SPECTRAL FLUX
+        if (i == 0) {
+            for (int k = 0; k <= magnitude_spectrum.size(); k++) {
+                last_magnitude_spectrum.push_back(magnitude_spectrum[k]);
+            }
+        }
+
+        // CALCULATE SPECTRAL FLUXES INCLUDED BY GIST
+        float ed = gist2.energyDifference();
+        float sd = gist2.spectralDifference();
+        float sdhwr = gist2.spectralDifferenceHWR();
+        float csd = gist2.complexSpectralDifference();
+        float hfc = gist2.highFrequencyContent();
+
+        float i_float = i;
+        float time = i_float / 44100;
+
+        // CALCULATE SPECTRAL FLUXES INCLUDED BY ESSENTIA
+        float flux_l2_no_hwr = 0.0;
+        float flux_l1_no_hwr = 0.0;
+        float flux_l2_hwr = 0.0;
+        float flux_l1_hwr = 0.0;
+
+        for (int m = 0; m < magnitude_spectrum.size(); m++) {
+
+            float flux_value_l2_no_hwr = (magnitude_spectrum[m] - last_magnitude_spectrum[m]) *
+                                         (magnitude_spectrum[m] - last_magnitude_spectrum[m]);
+            flux_l2_no_hwr += flux_value_l2_no_hwr * flux_value_l2_no_hwr;
+
+            float flux_value_l1_no_hwr = abs((magnitude_spectrum[m] - last_magnitude_spectrum[m]));
+            flux_l1_no_hwr += flux_value_l1_no_hwr;
+
+            float flux_value_l2_hwr = (magnitude_spectrum[m] - last_magnitude_spectrum[m]) *
+                                      (magnitude_spectrum[m] - last_magnitude_spectrum[m]);
+            flux_l2_hwr += flux_value_l2_hwr < 0 ? 0 : flux_value_l2_hwr * flux_value_l2_hwr;
+
+            float flux_value_l1_hwr = (magnitude_spectrum[m] - last_magnitude_spectrum[m]);
+            //std::cout << flux_value_l1_hwr << std::endl;
+            flux_l1_hwr += flux_value_l1_hwr < 0 ? 0 : flux_value_l1_hwr;
+
+        }
+        flux_l2_no_hwr = sqrt(flux_l2_no_hwr);
+        flux_l2_hwr = sqrt(flux_l2_hwr);
+
+
+
+        // CHOOSE A SPECTRAL FLUX TO USE FOR ONSET DETECTION (SEE LINE 251 FOR THEIR NAMES)
+        spectral_flux.push_back({time, csd});
+        if (ed > max_ed) {
+            max_ed = ed;
+        }
+        if (sd > max_sd) {
+            max_sd = sd;
+        }
+        if (sdhwr > max_sdhwr) {
+            max_sdhwr = sdhwr;
+        }
+        if (csd > max_csd) {
+            max_csd = csd;
+        }
+        if (hfc > max_hfc) {
+            max_hfc = hfc;
+        }
+        if (flux_l2_no_hwr > max_l2nh) {
+            max_l2nh = flux_l2_no_hwr;
+        }
+        if (flux_l1_no_hwr > max_l1nh) {
+            max_l1nh = flux_l1_no_hwr;
+        }
+        if (flux_l2_hwr > max_l2h) {
+            max_l2h = flux_l2_hwr;
+        }
+        if (flux_l1_hwr > max_l1h) {
+            max_l1h = flux_l1_hwr;
+        }
+        spectral_fluxes.push_back(
+                {time, ed, sd, sdhwr, csd, hfc, flux_l2_no_hwr, flux_l1_no_hwr, flux_l2_hwr, flux_l1_hwr}
+        );
+
+        // SAVE CURRENT SPECTRAL FLUX AS LAST TEMPORAL FLUX FOR COMPARISON
+        last_magnitude_spectrum.clear();
+
+        // COPY THIS MAGNITUDE_SPECTRUM AS OLD MAGNITUDE SPECTRUM
+        for (int k = 0; k < magnitude_spectrum.size(); k++) {
+            last_magnitude_spectrum.push_back(magnitude_spectrum[k]);
+        }
     }
 
-    // CALCULATE SPECTRAL FLUXES INCLUDED BY GIST
-    float ed = gist2.energyDifference();
-    float sd = gist2.spectralDifference();
-    float sdhwr = gist2.spectralDifferenceHWR();
-    float csd = gist2.complexSpectralDifference();
-    float hfc = gist2.highFrequencyContent();
-
-    float i_float = i;
-    float time = i_float / 44100;
-
-
-    // CALCULATE SPECTRAL FLUXES INCLUDED BY ESSENTIA
-    float flux_l2_no_hwr = 0.0;
-    float flux_l1_no_hwr = 0.0;
-    float flux_l2_hwr = 0.0;
-    float flux_l1_hwr = 0.0;
-
-    for (int m = 0; m < magnitude_spectrum.size(); m++) {
-
-      float flux_value_l2_no_hwr = (magnitude_spectrum[m] - last_magnitude_spectrum[m]) *
-          (magnitude_spectrum[m] - last_magnitude_spectrum[m]);
-      flux_l2_no_hwr += flux_value_l2_no_hwr;
-
-      float flux_value_l1_no_hwr = abs((magnitude_spectrum[m] - last_magnitude_spectrum[m]));
-      flux_l1_no_hwr += flux_value_l1_no_hwr;
-
-      float flux_value_l2_hwr = (magnitude_spectrum[m] - last_magnitude_spectrum[m]) *
-          (magnitude_spectrum[m] - last_magnitude_spectrum[m]);
-      flux_l2_hwr += flux_value_l2_hwr < 0 ? 0 : flux_value_l2_hwr * flux_value_l2_hwr;
-
-      float flux_value_l1_hwr = (magnitude_spectrum[m] - last_magnitude_spectrum[m]);
-      //std::cout << flux_value_l1_hwr << std::endl;
-      flux_l1_hwr += flux_value_l1_hwr < 0 ? 0 : flux_value_l1_hwr;
-
+    for (int j = 0; j < spectral_fluxes.size(); j++) {
+        spectral_fluxes[j].ed /= max_ed;
+        spectral_fluxes[j].sd /= max_sd;
+        spectral_fluxes[j].sdhwr /= max_sdhwr;
+        spectral_fluxes[j].csd /= max_csd;
+        spectral_fluxes[j].hfc /= max_hfc;
+        spectral_fluxes[j].l2nh /= max_l2nh;
+        spectral_fluxes[j].l1nh /= max_l1nh;
+        spectral_fluxes[j].l2h /= max_l2h;
+        spectral_fluxes[j].l1h /= max_l1h;
+        fprintf(fp_spectral_flux, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", spectral_fluxes[j].time, spectral_fluxes[j].ed, spectral_fluxes[j].sd, spectral_fluxes[j].sdhwr, spectral_fluxes[j].csd, spectral_fluxes[j].hfc,
+                spectral_fluxes[j].l2nh, spectral_fluxes[j].l1nh, spectral_fluxes[j].l2h, spectral_fluxes[j].l1h);
     }
-    flux_l2_no_hwr = sqrt(flux_l2_no_hwr);
-    flux_l2_hwr = sqrt(flux_l2_hwr);
+
+    fclose(fp_spectral_flux);
 
     // PRINT ALL THE SPECTRAL FLUXES TO A CSV FILE FOR COMPARISON
-    fprintf(fp_spectral_flux, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", time, ed, sd, sdhwr, csd, hfc, flux_l2_no_hwr, flux_l1_no_hwr, flux_l2_hwr, flux_l1_hwr);
 
-    // CHOOSE A SPECTRAL FLUX TO USE FOR ONSET DETECTION (SEE LINE 251 FOR THEIR NAMES)
-    spectral_flux.push_back({time, flux_l2_hwr});
 
-    // SAVE CURRENT SPECTRAL FLUX AS LAST TEMPORAL FLUX FOR COMPARISON
-    last_magnitude_spectrum.clear();
+    // GENERATE MOVING AVERAGE OF THE CHOSEN SPECTRAL FLUX - THIS IS USED FOR THRESHOLDING AKA FINDING REAL ONSETS!
 
-    // COPY THIS MAGNITUDE_SPECTRUM AS OLD MAGNITUDE SPECTRUM
-    for (int k = 0; k < magnitude_spectrum.size(); k++) {
-      last_magnitude_spectrum.push_back(magnitude_spectrum[k]);
+    // CALCULATE HOW MANY FLUXES WILL BE USED FOR MOVING AVERAGE (LEFT/RIGHT)
+    int fluxes = 0.5 / (44100 / window_size_onsets * 0.001);
+
+    // SET A MULTIPLIER TO MOVE UP THE THRESHOLD FUNCTION VALUES AND FIND REAL ONSETS
+    // THIS VALUE CAN BE TWEAKED!!! (1.5 IS THE VALUE USED IN THE ONSET DETECTION TUTORIAL)
+    // ANYTHING BETWEEN ~1.3 AND ~1.9 MIGHT YIELD GOOD RESULTS
+    float multiplier = 1;
+
+    // ZERO PADDING FOR MOVING AVERAGE
+
+    float delta = 0;
+    for (int f = 0; f < spectral_flux.size(); f++) {
+        delta += (spectral_flux[f].value / spectral_flux.size());
+    }
+    // SIMPLE MOVING AVERAGE LOOP OVER ALL SPECTRAL FLUX VALUES
+    for (int i = 0; i < spectral_flux.size() - (fluxes/2); i++) {
+        int start = fmax(0, i - (fluxes / 2) + 1);
+        int end = fmin(spectral_flux.size() - 1, i + (fluxes / 2) + 1);
+        float mean = delta * multiplier;
+        float mean_current = 0;
+
+        for (int j = start; j <= end; j++) {
+            mean_current = spectral_flux[j].value / (end - start);
+            mean = mean + mean_current;
+        }
+        //mean /= (float)(end - start);
+
+        float this_time = spectral_flux[i + (fluxes / 2)].time;
+        //mean *= multiplier;
+        threshold_function_values.push_back({this_time, mean});
+        fprintf(fp_threshold_function, "%f, %f\n", threshold_function_values[i].time,
+                threshold_function_values[i].value);
+    }
+    fclose(fp_threshold_function);
+
+    // GRAPH STUFF //
+    // GO THROUGH ALL FLUXES AND GENERATE ALL THRESHOLDS FOR GRAPH COMPARISON
+
+    float multiplier_ed = 1;
+    float multiplier_sd = 1;
+    float multiplier_sdhwr = 1;
+    float multiplier_hfc = 1;
+    float multiplier_csd = 1;
+    float multiplier_l2nh = 1;
+    float multiplier_l1nh = 1;
+    float multiplier_l2h = 1;
+    float multiplier_l1h = 1;
+
+    float delta_ed = 0;
+    float delta_sd = 0;
+    float delta_sdhwr = 0;
+    float delta_csd = 0;
+    float delta_hfc = 0;
+    float delta_l2nh = 0;
+    float delta_l1nh = 0;
+    float delta_l2h = 0;
+    float delta_l1h = 0;
+
+    for (int g = 0; g < spectral_fluxes.size(); g++) {
+        delta_ed += (spectral_fluxes[g].ed / spectral_fluxes.size());
+        delta_sd += (spectral_fluxes[g].sd / spectral_fluxes.size());
+        delta_sdhwr += (spectral_fluxes[g].sdhwr / spectral_fluxes.size());
+        delta_csd += (spectral_fluxes[g].csd / spectral_fluxes.size());
+        delta_hfc += (spectral_fluxes[g].hfc / spectral_fluxes.size());
+        delta_l2nh += (spectral_fluxes[g].l2nh / spectral_fluxes.size());
+        delta_l1nh += (spectral_fluxes[g].l1nh / spectral_fluxes.size());
+        delta_l2h += (spectral_fluxes[g].l2h / spectral_fluxes.size());
+        delta_l1h += (spectral_fluxes[g].l1h / spectral_fluxes.size());
+    }
+    for (int i = 0; i < spectral_fluxes.size() - (fluxes/2); i++) {
+        int start = fmax(0, i - (fluxes / 2) + 1);
+        int end = fmin(spectral_fluxes.size() - 1, i + (fluxes / 2) + 1);
+        float mean_ed = delta_ed * multiplier_ed;
+        float mean_sd = delta_sd * multiplier_sd;
+        float mean_sdhwr = delta_sdhwr * multiplier_sdhwr;
+        float mean_csd = delta_csd * multiplier_csd;
+        float mean_hfc = delta_hfc * multiplier_hfc;
+        float mean_l2nh = delta_l2nh * multiplier_l2nh;
+        float mean_l1nh = delta_l1nh * multiplier_l1nh;
+        float mean_l2h = delta_l2h * multiplier_l2h;
+        float mean_l1h = delta_l1h * multiplier_l1h;
+
+        float mean_current_ed = 0;
+        float mean_current_sd = 0;
+        float mean_current_sdhwr = 0;
+        float mean_current_csd = 0;
+        float mean_current_hfc = 0;
+        float mean_current_l2nh = 0;
+        float mean_current_l1nh = 0;
+        float mean_current_l2h = 0;
+        float mean_current_l1h = 0;
+
+
+        for (int j = start; j <= end; j++) {
+            mean_current_ed = spectral_fluxes[j].ed / (end - start);
+            mean_current_sd = spectral_fluxes[j].sd / (end - start);
+            mean_current_sdhwr = spectral_fluxes[j].sdhwr / (end - start);
+            mean_current_csd = spectral_fluxes[j].csd / (end - start);
+            mean_current_hfc = spectral_fluxes[j].hfc / (end - start);
+            mean_current_l2nh = spectral_fluxes[j].l2nh / (end - start);
+            mean_current_l1nh = spectral_fluxes[j].l1nh / (end - start);
+            mean_current_l2h = spectral_fluxes[j].l2h / (end - start);
+            mean_current_l1h = spectral_fluxes[j].l1h / (end - start);
+            mean_ed = mean_ed + mean_current_ed;
+            mean_sd = mean_sd + mean_current_sd;
+            mean_sdhwr = mean_sdhwr + mean_current_sdhwr;
+            mean_csd = mean_csd + mean_current_csd;
+            mean_hfc = mean_hfc + mean_current_hfc;
+            mean_l2nh = mean_l2nh + mean_current_l2nh;
+            mean_l1nh = mean_l1nh + mean_current_l1nh;
+            mean_l2h = mean_l2h + mean_current_l2h;
+            mean_l1h = mean_l1h + mean_current_l1h;
+        }
+        //mean /= (float)(end - start);
+
+        float this_time = spectral_fluxes[i + (fluxes / 2)].time;
+        //mean *= multiplier;
+        thresholds.push_back(
+                {this_time, mean_ed, mean_sd, mean_sdhwr, mean_csd, mean_hfc, mean_l2nh, mean_l1nh, mean_l2h,
+                 mean_l1h});
+        fprintf(fp_thresholds, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", thresholds[i].time, thresholds[i].ed,
+                thresholds[i].sd, thresholds[i].sdhwr, thresholds[i].csd, thresholds[i].hfc, thresholds[i].l2nh,
+                thresholds[i].l1nh, thresholds[i].l2h, thresholds[i].l1h);
+
+    }
+    fclose(fp_thresholds);
+
+
+    // DAS ULTIMATIVE MITTEL AUS NEUN ONSET DETECTION ALGORITHMS MIT GEWICHTUNGSMÖGLICHKEIT ZUM TUNEN
+
+    float w1 = 4.0 / 9.0; // energy difference
+    float w2 = 0.0 / 9.0; // spectral difference
+    float w3 = 1.0 / 9.0; // spectral difference hwr
+    float w4 = 0.0 / 9.0; // complex spectral difference
+    float w5 = 0.0 / 9.0; // high frequency content
+    float w6 = 1.0 / 9.0; // l2 no hwr
+    float w7 = 0.0 / 9.0; // l1 no hwr
+    float w8 = 2.0 / 9.0; // l2 hwr
+    float w9 = 1.0 / 9.0; // l1 hwr
+
+    std::vector<time_value_float> average_flux, average_threshold;
+
+    for (int i = 0; i < spectral_fluxes.size() - (fluxes/2); i++) {
+        average_flux.push_back({spectral_fluxes[i].time, (
+                (spectral_fluxes[i].ed * w1) +
+                (spectral_fluxes[i].sd * w2) +
+                (spectral_fluxes[i].sdhwr * w3) +
+                (spectral_fluxes[i].csd * w4) +
+                (spectral_fluxes[i].hfc * w5) +
+                (spectral_fluxes[i].l2nh * w6) +
+                (spectral_fluxes[i].l1nh * w7) +
+                (spectral_fluxes[i].l2h * w8) +
+                (spectral_fluxes[i].l1h * w9)
+        )});
+        fprintf(fp_average_flux, "%f, %f\n", average_flux[i].time, average_flux[i].value);
+        float current_threshold = (
+                (thresholds[i].ed * w1) +
+                (thresholds[i].sd * w2) +
+                (thresholds[i].sdhwr * w3) +
+                (thresholds[i].csd * w4) +
+                (thresholds[i].hfc * w5) +
+                (thresholds[i].l2nh * w6) +
+                (thresholds[i].l1nh * w7) +
+                (thresholds[i].l2h * w8) +
+                (thresholds[i].l1h * w9)
+        ) * 0.5;
+        average_threshold.push_back({thresholds[i].time, current_threshold});
+
+        fprintf(fp_average_threshold, "%f, %f\n", average_threshold[i].time, average_threshold[i].value);
+
     }
 
 
-  }
 
-  // GENERATE MOVING AVERAGE OF THE CHOSEN SPECTRAL FLUX - THIS IS USED FOR THRESHOLDING AKA FINDING REAL ONSETS!
 
-  // CALCULATE HOW MANY FLUXES WILL BE USED FOR MOVING AVERAGE (LEFT/RIGHT)
-  int fluxes = 0.5/(44100/window_size_onsets*0.001);
-
-  // SET A MULTIPLIER TO MOVE UP THE THRESHOLD FUNCTION VALUES AND FIND REAL ONSETS
-  // THIS VALUE CAN BE TWEAKED!!! (1.5 IS THE VALUE USED IN THE ONSET DETECTION TUTORIAL)
-  // ANYTHING BETWEEN ~1.3 AND ~1.9 MIGHT YIELD GOOD RESULTS
-  float multiplier = 1.5;
-
-  // ZERO PADDING FOR MOVING AVERAGE
-
-  float delta = 0;
-  for (int f = 0; f < spectral_flux.size(); f++){
-    delta += (spectral_flux[f].value / spectral_flux.size());
-  }
-  // SIMPLE MOVING AVERAGE LOOP OVER ALL SPECTRAL FLUX VALUES
-
-  for( int i = 0; i < spectral_flux.size(); i++ )
-  {
-    int start = fmax( 0, i - (fluxes/2) + 1 );
-    int end = fmin( spectral_flux.size() - 1, i + (fluxes/2) + 1 );
-    float mean = delta * 1.5;
-    float mean_current = 0;
-
-    for (int j = start; j <= end; j++) {
-      mean_current = spectral_flux[j].value / (end - start);
-      mean = mean + mean_current;
+    // ADD FLUX TIMES TO ONSETS IF THEYRE ABOVE THRESHOLD AND IF THEY'RE A PEAK (GREATER THAN LAST AND NEXT VALUE)
+    /*
+    for (int i = 1; i < spectral_flux.size() - 2; i++) {
+        if (spectral_flux[i].value > threshold_function_values[i].value &&
+            spectral_flux[i].value > spectral_flux[i + 1].value &&
+            spectral_flux[i].value > spectral_flux[i - 1].value) {
+            onsets.push_back({spectral_flux[i].time});
+            fprintf(fp_onsets, "%f, %d\n", spectral_flux[i].time, 1);
+        }
     }
-    //mean /= (float)(end - start);
+    fclose(fp_onsets);
+     */
 
-    float this_time = spectral_flux[i+(fluxes/2)].time;
-    //mean *= multiplier;
-    threshold_function_values.push_back({this_time, mean});
-    fprintf(fp_threshold_function, "%f, %f\n", threshold_function_values[i].time, threshold_function_values[i].value);
-  }
-  fclose(fp_threshold_function);
+    // ADD FLUX TIMES TO ONSETS IF THEYRE ABOVE THRESHOLD AND IF THEY'RE A PEAK (GREATER THAN LAST AND NEXT VALUE) AND IF THERE HAS NOT BEEN ANOTHER ONSET IN THE LAST 20 MILLISECONDS
+    for (int i = 1; i < spectral_flux.size() - 2; i++) {
+        if (average_flux[i].value > average_threshold[i].value &&
+            average_flux[i].value > average_flux[i + 1].value &&
+            average_flux[i].value > average_flux[i - 1].value) {
 
-  // ADD FLUX TIMES TO ONSETS IF THEYRE ABOVE THRESHOLD AND IF THEY'RE A PEAK (GREATER THAN LAST AND NEXT VALUE)
-  for (int i = 1; i < spectral_flux.size() - 2; i++) {
-    if (spectral_flux[i].value > threshold_function_values[i].value && spectral_flux[i].value > spectral_flux[i+1].value && spectral_flux[i].value > spectral_flux[i-1].value) {
-      onsets.push_back({spectral_flux[i].time});
-      fprintf(fp_onsets, "%f, %d\n", spectral_flux[i].time, 1);
+            if (!onsets.empty() && (average_flux[i].time - onsets.back() >= 0.025)){
+                onsets.push_back({average_flux[i].time});
+                fprintf(fp_onsets, "%f, %d\n", average_flux[i].time, 1);
+            } else if (onsets.empty()){
+                onsets.push_back({average_flux[i].time});
+                fprintf(fp_onsets, "%f, %d\n", average_flux[i].time, 1);
+            } else {
+
+            }
+
+
+        }
     }
-  }
-  fclose(fp_onsets);
+    fclose(fp_onsets);
 
-  return onsets;
+    return onsets;
 
 }
-
 
 
 std::vector<time_value_double> Analysis::get_intensity_function_values() {
@@ -781,6 +1008,64 @@ std::vector<time_value_int> Analysis::get_intensity_changes(std::vector<time_val
         }
     }
     return intensity_changes;
+}
+std::vector<time_value_float> Analysis::get_segments(){
+
+    std::vector<time_value_float> segments;
+
+
+    // get audio
+    int bin_size = 1024;
+    int hop_size = 512;
+
+    Gist<float> gist2(bin_size, 44100);
+    std::vector<std::vector<float>> stmfcc;
+    std::vector<std::vector<float>> ssm;
+
+    for (int i = 0; i < signal_length_mono - (bin_size); i += hop_size){
+        std::vector<float> bin;
+        for(int j = 0; j < bin_size; j++){
+            bin.push_back(wav_values_mono[i*hop_size + j]);
+        }
+        gist2.processAudioFrame(bin);
+        stmfcc.push_back(gist2.getMelFrequencyCepstralCoefficients());
+    }
+
+    // how to get the times:
+    // time of stmfcc[n] = (((n * hop_size) + (bin_size / 2)) / sample_rate)
+
+    for (int m = 0; m < stmfcc.size(); m++){
+        std::vector<float> similarity;
+        for (int n = 0; n < stmfcc.size(); n++){
+            float cosine_distance =
+                    (stmfcc[m][m] * stmfcc[m][n])
+                    /
+                    (sqrt(stmfcc[m][m] * stmfcc[m][m]) * sqrt(stmfcc[m][n] * stmfcc[m][n]))
+                    ; // HIER LIEGT DER HUND BEGRABEN, irgend ne abstandsformel bitte...
+            similarity.push_back(cosine_distance);
+        }
+        ssm.push_back(similarity);
+    }
+    // make vector containing pixels (songlength/hop_size)X(song_length/hop_size)
+
+    // detect edges somehow. but how? filter kernel like [[0,1],[1,0]] or something?
+    FILE *fp_ssm = std::fopen(
+            "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/ssm.csv", "w");
+
+    for (int m = 0; m < ssm.size(); m++){
+        for (int n = 0; n < ssm.size(); n++){
+            fprintf(fp_ssm, "%f ", ssm[m][n]);
+        }
+        fprintf(fp_ssm, "\n");
+    }
+    fprintf(fp_ssm, "time, average\n");
+
+    fclose(fp_ssm);
+
+
+
+
+    return segments;
 }
 
 float Analysis::get_intensity_mean() {
@@ -1299,6 +1584,7 @@ Analysis::~Analysis() {
 }
 
 void Analysis::set_resolution(int resolution) {
+
     if (resolution == 40)
         this->hop_size = 1102;
     else if (resolution == 20)
