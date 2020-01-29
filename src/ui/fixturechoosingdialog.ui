@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>500</height>
+    <height>550</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <x>10</x>
      <y>10</y>
      <width>481</width>
-     <height>481</height>
+     <height>531</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
@@ -226,6 +226,31 @@
       </item>
       <item>
        <widget class="QComboBox" name="cB_moving_head_type"/>
+      </item>
+      <item alignment="Qt::AlignBottom">
+       <widget class="QLabel" name="l_position_inside_mv_group">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>Position inside of Moving Head group:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="sB_position_inside_mv_group"/>
       </item>
       <item alignment="Qt::AlignBottom">
        <widget class="QLabel" name="l_modifier_pan">

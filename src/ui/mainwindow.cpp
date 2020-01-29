@@ -1708,8 +1708,6 @@ void MainWindow::get_edited_fixture() {
   std::cout << "new type of fixture: " << type.toStdString() << std::endl;
 
 
-
-
   QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(type, Qt::MatchExactly | Qt::MatchRecursive, 0);
   QTreeWidgetItem *type_item;
   if (type_items.size() == 0) {
@@ -1769,6 +1767,7 @@ void MainWindow::get_edited_fixture() {
     new_item->setText(8, QString::fromStdString(std::to_string(fix.get_modifier_tilt()) + "°"));
   else new_item->setText(8, "");
 
+  std::cout << "ui->fixture_list->currentItem()->text(1).split(" ")[0]: " << ui->fixture_list->currentItem()->text(1).split(" ")[0] << std::endl;
   int cur_item = universes[0].get_fixtureid_by_startchannel(ui->fixture_list->currentItem()->text(1).split(" ")[0].toInt());
   std::cout << "debug3" << std::endl;
   // Delete the fixture from the Dataside.

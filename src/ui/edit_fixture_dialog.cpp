@@ -66,9 +66,9 @@ EditFixtureDialog::EditFixtureDialog(QWidget *parent, list<Fixture> &fixtures, s
   ui->cB_colors->addItems(colors);
   ui->sB_start_channel->setRange(1, max_channel);
   ui->sB_position_inside_group->setRange(1, 32);
+  ui->sB_position_inside_mv_group->setRange(1, 32);
   ui->sB_modifier_pan->setRange(-360, 360);
   ui->sB_modifier_tilt->setRange(-180, 180);
-  //ui->sB_position_inside_group->setEnabled(false);
   ui->pB_delete_fixture->setVisible(false);
   this->setWindowTitle("Edit Fixture");
   EditFixtureDialog::is_delete = false;

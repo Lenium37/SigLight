@@ -204,6 +204,7 @@ void ChangeFixtures::get_edited_fixture() {
     type_item->setExpanded(true);
   }
 
+  std::cout << "ui->fixture_list->currentItem()->text(1).split(" ")[0]: " << ui->fixture_list->currentItem()->text(1).split(" ")[0] << std::endl;
   int cur_item = universes[0].get_fixtureid_by_startchannel(ui->fixture_list->currentItem()->text(1).split(" ")[0].toInt());
   // Delete the fixture from the Dataside.
   universes[0].remove_fixture(cur_item);

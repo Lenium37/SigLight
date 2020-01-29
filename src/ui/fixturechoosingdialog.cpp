@@ -66,6 +66,7 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
     ui->cB_colors->addItems(colors);
     ui->sB_start_channel->setRange(1, max_channel);
     ui->sB_position_inside_group->setRange(1, 32);
+    ui->sB_position_inside_mv_group->setRange(1, 32);
     ui->sB_modifier_pan->setRange(-360, 360);
     ui->sB_modifier_tilt->setRange(-180, 180);
     //ui->sB_position_inside_group->setEnabled(false);
@@ -74,6 +75,7 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
     FixtureChoosingDialog::is_delete = false;
 
     connect(ui->cB_type, SIGNAL(currentTextChanged(QString)), this, SLOT(update_position_in_group_status(QString)));
+    connect(ui->cB_moving_head_type, SIGNAL(currentTextChanged(QString)), this, SLOT(update_position_in_mv_group_status(QString)));
     this->update_position_in_group_status(ui->cB_type->currentText());
 }
 
@@ -220,6 +222,10 @@ void FixtureChoosingDialog::update_position_in_group_status(QString current_type
     ui->cB_timestamps->setEnabled(false);
     ui->cB_timestamps->setCurrentIndex(0);
   }
+}
+
+void FixtureChoosingDialog::update_position_in_mv_group_status(QString current_type) {
+  
 }
 
 void FixtureChoosingDialog::update_moving_head_position_status(QString current_fixture) {
