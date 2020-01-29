@@ -59,6 +59,9 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
     ui->cB_moving_head_type->addItem("Continuous 8");
     ui->cB_moving_head_type->addItem("Continuous Circle");
     ui->cB_moving_head_type->addItem("Continuous Line");
+    ui->cB_moving_head_type->addItem("Continuous 8 group");
+    ui->cB_moving_head_type->addItem("Continuous Circle group");
+    ui->cB_moving_head_type->addItem("Continuous Line group");
     ui->cB_moving_head_type->addItem("Backlight, drop on action");
 
     ui->fixture_selection->setCurrentRow(0);
@@ -66,7 +69,7 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
     ui->cB_colors->addItems(colors);
     ui->sB_start_channel->setRange(1, max_channel);
     ui->sB_position_inside_group->setRange(1, 32);
-    ui->sB_position_inside_mv_group->setRange(1, 32);
+    ui->sB_position_inside_mh_group->setRange(1, 32);
     ui->sB_modifier_pan->setRange(-360, 360);
     ui->sB_modifier_tilt->setRange(-180, 180);
     //ui->sB_position_inside_group->setEnabled(false);
@@ -75,8 +78,9 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
     FixtureChoosingDialog::is_delete = false;
 
     connect(ui->cB_type, SIGNAL(currentTextChanged(QString)), this, SLOT(update_position_in_group_status(QString)));
-    connect(ui->cB_moving_head_type, SIGNAL(currentTextChanged(QString)), this, SLOT(update_position_in_mv_group_status(QString)));
     this->update_position_in_group_status(ui->cB_type->currentText());
+    connect(ui->cB_moving_head_type, SIGNAL(currentTextChanged(QString)), this, SLOT(update_position_in_mh_group_status(QString)));
+    this->update_position_in_mh_group_status(ui->cB_moving_head_type->currentText());
 }
 
 FixtureChoosingDialog::~FixtureChoosingDialog() {
@@ -89,7 +93,7 @@ void FixtureChoosingDialog::set_up_dialog_options(std::list<int> blocked_channel
     set_first_allowed_channel(0, true);
 }
 
-void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type, int &modifier_pan, int &modifier_tilt, std::string &timestamps_type)
+void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type, int &modifier_pan, int &modifier_tilt, std::string &timestamps_type, int & position_inside_mh_group)
 {
     fixture_id = ui->fixture_selection->currentRow();
     start_channel = ui->sB_start_channel->value();
@@ -101,6 +105,7 @@ void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_chan
     modifier_pan = ui->sB_modifier_pan->value();
     modifier_tilt = ui->sB_modifier_tilt->value();
     timestamps_type = ui->cB_timestamps->currentText().toStdString();
+    position_inside_mh_group = ui->sB_position_inside_mh_group->value();
 }
 
 void FixtureChoosingDialog::setup_for_edit()
@@ -224,8 +229,13 @@ void FixtureChoosingDialog::update_position_in_group_status(QString current_type
   }
 }
 
-void FixtureChoosingDialog::update_position_in_mv_group_status(QString current_type) {
-  
+void FixtureChoosingDialog::update_position_in_mh_group_status(QString current_type) {
+  if(current_type.toLower().toStdString().find("group") != string::npos) {
+    ui->sB_position_inside_mh_group->setEnabled(true);
+  } else {
+    ui->sB_position_inside_mh_group->setEnabled(false);
+    ui->sB_position_inside_mh_group->setValue(0);
+  }
 }
 
 void FixtureChoosingDialog::update_moving_head_position_status(QString current_fixture) {

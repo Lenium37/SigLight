@@ -260,3 +260,11 @@ std::vector<int> Fixture::get_tilt_channels() {
   }
   return tilt_channels;
 }
+
+int Fixture::get_position_in_mh_group() {
+  return this->position_in_mh_group;
+}
+
+void Fixture::set_position_in_mh_group(int _position) {
+  this->position_in_mh_group = _position;
+}

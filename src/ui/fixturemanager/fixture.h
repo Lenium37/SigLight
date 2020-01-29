@@ -154,6 +154,9 @@ public:
   void set_position_in_group(int _position);
   int get_position_in_group();
 
+  void set_position_in_mh_group(int _position);
+  int get_position_in_mh_group();
+
   void set_position_on_stage(std::string _position);
   std::string get_position_on_stage();
 
@@ -215,6 +218,7 @@ private:
   std::string colors;
 
   int position_in_group;
+  int position_in_mh_group;
 
   std::string position_on_stage;
 

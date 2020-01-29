@@ -228,7 +228,7 @@
        <widget class="QComboBox" name="cB_moving_head_type"/>
       </item>
       <item alignment="Qt::AlignBottom">
-       <widget class="QLabel" name="l_position_inside_mv_group">
+       <widget class="QLabel" name="l_position_inside_mh_group">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -250,7 +250,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="sB_position_inside_mv_group"/>
+       <widget class="QSpinBox" name="sB_position_inside_mh_group"/>
       </item>
       <item alignment="Qt::AlignBottom">
        <widget class="QLabel" name="l_modifier_pan">

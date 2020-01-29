@@ -32,7 +32,7 @@ class LightshowFixture {
    * @param number_of_channels
    * @param type
    */
-  LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage, std::string _moving_head_type, int _modifier_pan, int _modifier_tilt, std::string _timestamps_type);
+  LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage, std::string _moving_head_type, int _modifier_pan, int _modifier_tilt, std::string _timestamps_type, int _position_inside_mh_group);
   ~LightshowFixture();
 
   /**
@@ -208,6 +208,9 @@ class LightshowFixture {
   void set_position_in_group(int _position);
   int get_position_in_group();
 
+  void set_position_in_mh_group(int _position);
+  int get_position_in_mh_group();
+
   void set_position_on_stage(std::string _position);
   std::string get_position_on_stage();
 
@@ -262,6 +265,7 @@ class LightshowFixture {
   float degrees_per_pan;
   float degrees_per_tilt;
   std::string timestamps_type;
+  int position_in_mh_group;
 
 };
 

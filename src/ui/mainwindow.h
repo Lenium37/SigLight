@@ -321,7 +321,7 @@ private:
      * @param start_channel The start channel of the Fixture.
      * @param type Type of the Fixutre.
      */
-    void add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt, std::string timestamps_type);
+    void add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt, std::string timestamps_type, int position_inside_mh_group);
 
     /**
      * @brief create_fixtures Creates the preset Fixtures or loads them if the Fixturefile exists.
@@ -340,7 +340,7 @@ private:
      * @param start_channel Set the start channel of a Fixture.
      */
     void create_new_fixture(std::string name, std::string type, std::string description, QStringList channels,
-                            std::string icon_identifyer, std::string colors, int position_in_group, std::string position_on_stage = "Left", std::string moving_head_type = "Nothing", int modifier_pan = 0, int modifier_tilt = 0, std::string timestamps_type = "onsets", int start_channel = 0);
+                            std::string icon_identifyer, std::string colors, int position_in_group, std::string position_on_stage = "Left", std::string moving_head_type = "Nothing", int modifier_pan = 0, int modifier_tilt = 0, std::string timestamps_type = "onsets", int start_channel = 0, int position_in_mh_group = 0);
 
     /**
      * @brief init Initializes some settings of the UI and sets some Presets.
