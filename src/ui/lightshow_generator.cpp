@@ -206,8 +206,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       float left_right_switch = 0;
 
       if(fix.get_moving_head_type() == "Continuous 8") {
-        amplitude_pan = 90 / fix.get_degrees_per_pan();
-        amplitude_tilt = 45 / fix.get_degrees_per_tilt();
+        amplitude_pan = std::round(90 / fix.get_degrees_per_pan());
+        amplitude_tilt = std::round(45 / fix.get_degrees_per_tilt());
 
         if(tilt_center + amplitude_tilt > 255)
           amplitude_tilt = 255 - tilt_center;
@@ -235,8 +235,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         }
 
       } else if(fix.get_moving_head_type() == "Continuous Circle") {
-        amplitude_pan = 45 / fix.get_degrees_per_pan();
-        amplitude_tilt = 45 / fix.get_degrees_per_tilt();
+        amplitude_pan = std::round(45 / fix.get_degrees_per_pan());
+        amplitude_tilt = std::round(45 / fix.get_degrees_per_tilt());
 
         if(tilt_center + amplitude_tilt > 255)
           amplitude_tilt = 255 - tilt_center;
@@ -258,7 +258,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         while(current_timestamp < ((float) lightshow->get_length() - 3) / lightshow->get_resolution()) {
           value = (int) (cos((2*PI*current_timestamp)/(time_of_one_loop_pan) + left_right_switch) * amplitude_pan) + pan_center;
           vc_pan.push_back({current_timestamp, value});
-          value = (int) abs((sin((2*PI*current_timestamp)/(time_of_one_loop_tilt)) * amplitude_tilt)) + tilt_center + 30;
+          value = (int) (sin((2*PI*current_timestamp)/(time_of_one_loop_tilt) + 3*PI/2) * amplitude_tilt) + tilt_center + 30;
           vc_tilt.push_back({current_timestamp, value});
           current_timestamp += 0.025f;
         }
