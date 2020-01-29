@@ -174,6 +174,7 @@ public:
   void set_timestamps_type(std::string _timestamps_type);
   std::string get_timestamps_type();
   channel_value get_control_channel_with_ignite_value();
+  channel_value get_control_channel_with_turn_off_value();
 
 private:
   /**

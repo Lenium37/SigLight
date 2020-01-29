@@ -226,6 +226,7 @@ private slots:
 
     void on_action_regenerate_lightshows_triggered();
     void on_action_ignite_discharge_lamps_triggered();
+    void on_action_turn_off_discharge_lamps_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -402,6 +403,7 @@ private:
     std::vector<int> get_all_pan_tilt_channels();
     std::vector<std::uint8_t> get_all_pan_tilt_channels_with_default_value();
     std::vector<std::uint8_t> get_control_channels_with_ignite_value();
+    std::vector<std::uint8_t> get_control_channels_with_turn_off_value();
 };
 
 #endif // MAINWINDOW_H

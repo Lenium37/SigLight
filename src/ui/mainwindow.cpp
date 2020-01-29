@@ -1627,6 +1627,10 @@ void MainWindow::on_action_ignite_discharge_lamps_triggered() {
   get_current_dmx_device().set_all_channel_values(this->get_control_channels_with_ignite_value(), true);
 }
 
+void MainWindow::on_action_turn_off_discharge_lamps_triggered() {
+  get_current_dmx_device().set_all_channel_values(this->get_control_channels_with_turn_off_value(), true);
+}
+
 void MainWindow::on_edit_fixture_clicked() {
   // Only delete if an Item was clicked.
   if (!ui->fixture_list->selectedItems().empty()) {
@@ -2170,6 +2174,24 @@ std::vector<std::uint8_t> MainWindow::get_control_channels_with_ignite_value() {
   std::vector<std::uint8_t> channel_values(512, 0);
   for(int i = 0; i < all_control_channels_with_ignite_value.size(); i++) {
     channel_values[all_control_channels_with_ignite_value[i].channel - 1] = all_control_channels_with_ignite_value[i].value;
+  }
+  return channel_values;
+}
+
+std::vector<std::uint8_t> MainWindow::get_control_channels_with_turn_off_value() {
+  std::vector<channel_value> all_control_channels_with_turn_off_value;
+  for(Fixture f: universes[0].get_fixtures()) {
+    channel_value fixture_control_channel_with_turn_off_values = f.get_control_channel_with_turn_off_value();
+    if(fixture_control_channel_with_turn_off_values.channel > 0) {
+      fixture_control_channel_with_turn_off_values.channel =
+          fixture_control_channel_with_turn_off_values.channel + f.get_start_channel() - 1;
+      all_control_channels_with_turn_off_value.push_back({fixture_control_channel_with_turn_off_values.channel, fixture_control_channel_with_turn_off_values.value});
+    }
+  }
+
+  std::vector<std::uint8_t> channel_values(512, 0);
+  for(int i = 0; i < all_control_channels_with_turn_off_value.size(); i++) {
+    channel_values[all_control_channels_with_turn_off_value[i].channel - 1] = all_control_channels_with_turn_off_value[i].value;
   }
   return channel_values;
 }
