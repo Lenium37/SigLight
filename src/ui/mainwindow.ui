@@ -283,6 +283,7 @@
     <addaction name="actionAmbient_Fixtures_always_on"/>
     <addaction name="actionAlways_generate_Lightshows"/>
     <addaction name="action_regenerate_lightshows"/>
+    <addaction name="action_ignite_discharge_lamps"/>
    </widget>
    <widget class="QMenu" name="menuHilfe">
     <property name="title">
@@ -489,6 +490,11 @@
   <action name="action_regenerate_lightshows">
    <property name="text">
     <string>Regenerate Lightshows</string>
+   </property>
+  </action>
+  <action name="action_ignite_discharge_lamps">
+   <property name="text">
+    <string>Ignite discharge lamps</string>
    </property>
   </action>
   <action name="action_remove_song_from_playlist">

@@ -123,7 +123,7 @@ void MainWindow::init() {
     get_current_dmx_device().start_device();
     std::cout << "hi3" << std::endl;
     //get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
-    get_current_dmx_device().set_channel_values(this->get_all_pan_tilt_channels_with_default_value());
+    get_current_dmx_device().set_all_channel_values(this->get_all_pan_tilt_channels_with_default_value(), false);
   }
   std::cout << "hi4" << std::endl;
   this->lightshow_player = new LightshowPlayer(get_current_dmx_device());
@@ -784,7 +784,7 @@ void MainWindow::on_action_stop_triggered() {
   ui->action_switch_play_pause->setIcon(QIcon(":/icons_svg/svg/iconfinder_001_-_play_2949892.svg"));
   lightshow_playing = false;
   //get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
-  get_current_dmx_device().set_channel_values(this->get_all_pan_tilt_channels_with_default_value());
+  get_current_dmx_device().set_all_channel_values(this->get_all_pan_tilt_channels_with_default_value(), false);
   player->stop_song();
   usleep(2 * 625 * this->lightshow_resolution
              + 1); // sleep extra to make sure everything really is turned off! 50ms if resolution is 40
@@ -1052,7 +1052,7 @@ void MainWindow::on_action_next_song_triggered() {
     lightshow_playing = false;
     lightshow_paused = true;
     //get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
-    get_current_dmx_device().set_channel_values(this->get_all_pan_tilt_channels_with_default_value());
+    get_current_dmx_device().set_all_channel_values(this->get_all_pan_tilt_channels_with_default_value(), false);
     get_current_dmx_device().stop_device();
     Logger::debug(player->get_current_song()->get_file_path());
     if (player->is_media_playing())
@@ -1086,7 +1086,7 @@ void MainWindow::on_action_previous_song_triggered() {
     lightshow_playing = false;
     lightshow_paused = true;
     //get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
-    get_current_dmx_device().set_channel_values(this->get_all_pan_tilt_channels_with_default_value());
+    get_current_dmx_device().set_all_channel_values(this->get_all_pan_tilt_channels_with_default_value(), false);
     get_current_dmx_device().stop_device();
     if (player->is_media_playing())
       this->start_to_play_lightshow();
@@ -1594,6 +1594,10 @@ void MainWindow::on_action_regenerate_lightshows_triggered() {
   start_thread_for_generating_queue();*/
 }
 
+void MainWindow::on_action_ignite_discharge_lamps_triggered() {
+  get_current_dmx_device().set_all_channel_values(this->get_control_channels_with_ignite_value(), true);
+}
+
 void MainWindow::on_edit_fixture_clicked() {
   // Only delete if an Item was clicked.
   if (!ui->fixture_list->selectedItems().empty()) {
@@ -1871,7 +1875,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
             usleep(625 * this->lightshow_resolution
                + 1); // sleep extra on close event to make sure everything really is turned off! 25ms if resolution = 40
             //get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
-            get_current_dmx_device().set_channel_values(this->get_all_pan_tilt_channels_with_default_value());
+          get_current_dmx_device().set_all_channel_values(this->get_all_pan_tilt_channels_with_default_value(), false);
             usleep(625 * this->lightshow_resolution
                + 1); // sleep extra on close event to make sure everything really is turned off! 25ms if resolution = 40
             get_current_dmx_device().stop_device();
@@ -2107,7 +2111,6 @@ std::vector<int> MainWindow::get_all_pan_tilt_channels() {
 }
 
 std::vector<std::uint8_t> MainWindow::get_all_pan_tilt_channels_with_default_value() {
-  std::cout << "yo1" << std::endl;
   std::vector<channel_value> all_pan_tilt_channels_with_default_value;
   for(Fixture f: universes[0].get_fixtures()) {
     std::vector<channel_value> fixture_pan_tilt_channels_with_default_values = f.get_pan_tilt_channels_with_default_positions();
@@ -2117,13 +2120,28 @@ std::vector<std::uint8_t> MainWindow::get_all_pan_tilt_channels_with_default_val
     all_pan_tilt_channels_with_default_value.insert(all_pan_tilt_channels_with_default_value.end(), fixture_pan_tilt_channels_with_default_values.begin(), fixture_pan_tilt_channels_with_default_values.end());
   }
 
-  std::cout << "yo2" << std::endl;
   std::vector<std::uint8_t> channel_values(512, 0);
   for(int i = 0; i < all_pan_tilt_channels_with_default_value.size(); i++) {
-    std::cout << all_pan_tilt_channels_with_default_value[i].channel - 1 << "  " << all_pan_tilt_channels_with_default_value[i].value << std::endl;
     channel_values[all_pan_tilt_channels_with_default_value[i].channel - 1] = all_pan_tilt_channels_with_default_value[i].value;
   }
-  std::cout << "yo3" << std::endl;
+  return channel_values;
+}
+
+std::vector<std::uint8_t> MainWindow::get_control_channels_with_ignite_value() {
+  std::vector<channel_value> all_control_channels_with_ignite_value;
+  for(Fixture f: universes[0].get_fixtures()) {
+    channel_value fixture_control_channel_with_ignition_values = f.get_control_channel_with_ignite_value();
+    if(fixture_control_channel_with_ignition_values.channel > 0) {
+      fixture_control_channel_with_ignition_values.channel =
+          fixture_control_channel_with_ignition_values.channel + f.get_start_channel() - 1;
+      all_control_channels_with_ignite_value.push_back({fixture_control_channel_with_ignition_values.channel, fixture_control_channel_with_ignition_values.value});
+    }
+  }
+
+  std::vector<std::uint8_t> channel_values(512, 0);
+  for(int i = 0; i < all_control_channels_with_ignite_value.size(); i++) {
+    channel_values[all_control_channels_with_ignite_value[i].channel - 1] = all_control_channels_with_ignite_value[i].value;
+  }
   return channel_values;
 }
 

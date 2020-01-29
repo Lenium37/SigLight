@@ -28,7 +28,7 @@ class DmxDeviceK8062 : public DmxDevice{
   bool is_connected() const override;
   void write_test(unsigned char *data);
   int turn_off_all_channels(std::vector<int> pan_tilt_channels) override;
-  int set_channel_values(std::vector<std::uint8_t> channels_with_default_values) override;
+  int set_all_channel_values(std::vector<std::uint8_t> channels_with_default_values, bool only_non_zeros) override;
   void start_daemon_thread() override;
 
   int write_data_test(std::vector<std::uint8_t> &channels_to_write, int max_channel, bool &lightshow_playing, bool &lightshow_paused);

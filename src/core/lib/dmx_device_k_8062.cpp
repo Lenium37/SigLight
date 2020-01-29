@@ -262,7 +262,8 @@ int DmxDeviceK8062::turn_off_all_channels(std::vector<int> pan_tilt_channels) {
   return 0;
 }
 
-int DmxDeviceK8062::set_channel_values(std::vector<std::uint8_t> channels_with_default_values) {
+int DmxDeviceK8062::set_all_channel_values(std::vector<std::uint8_t> channels_with_default_values,
+                                           bool only_non_zeros) {
   this->channels_to_write = channels_with_default_values;
   return 0;
 }

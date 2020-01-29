@@ -215,6 +215,12 @@ vector<channel_value> Fixture::get_pan_tilt_channels_with_default_positions() {
   return pan_tilt_channels_with_default_value;
 }
 
+channel_value Fixture::get_control_channel_with_ignite_value() {
+  if(this->name == "JBLED P4 (M1)")
+    return {5, 250};
+  return {0, 0};
+}
+
 void Fixture::set_channel_count(int _channel_count) {
   this->channel_count = _channel_count;
 }
