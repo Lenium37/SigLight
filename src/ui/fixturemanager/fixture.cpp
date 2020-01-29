@@ -206,8 +206,13 @@ void Fixture::set_modifier_pan(int _modifier_pan) {
 void Fixture::set_modifier_tilt(int _modifier_tilt) {
   this->modifier_tilt = _modifier_tilt;
 }
-vector<Fixture::channel_value> Fixture::get_pan_tilt_channels_with_default_positions() {
-  return vector<Fixture::channel_value>();
+vector<channel_value> Fixture::get_pan_tilt_channels_with_default_positions() {
+  std::vector<channel_value> pan_tilt_channels_with_default_value;
+  for(int pan_channel: this->get_pan_channels())
+    pan_tilt_channels_with_default_value.push_back({pan_channel, 127 + this->modifier_pan});
+  for(int tilt_channel: this->get_tilt_channels())
+    pan_tilt_channels_with_default_value.push_back({tilt_channel, 127 + this->modifier_tilt});
+  return pan_tilt_channels_with_default_value;
 }
 
 void Fixture::set_channel_count(int _channel_count) {
@@ -220,4 +225,26 @@ void Fixture::set_timestamps_type(std::string _timestamps_type) {
 
 std::string Fixture::get_timestamps_type() {
   return this->timestamps_type;
+}
+
+std::vector<int> Fixture::get_pan_channels() {
+  std::vector<int> pan_channels;
+  if(this->name == "JBLED A7 (S8)"
+  || this->name == "JBLED P4 (M1)"
+  || this->name == "JBLED Sparx 7 (M3)") {
+    pan_channels.push_back(1);
+    pan_channels.push_back(2);
+  }
+  return pan_channels;
+}
+
+std::vector<int> Fixture::get_tilt_channels() {
+  std::vector<int> tilt_channels;
+  if(this->name == "JBLED A7 (S8)"
+  || this->name == "JBLED P4 (M1)"
+  || this->name == "JBLED Sparx 7 (M3)") {
+    tilt_channels.push_back(3);
+    tilt_channels.push_back(4);
+  }
+  return tilt_channels;
 }

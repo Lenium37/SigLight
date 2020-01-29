@@ -6,6 +6,11 @@
 #include "channel_gui.h"
 #include <vector>
 
+struct channel_value {
+  int channel;
+  int value;
+};
+
 using namespace std;
 
 class Fixture
@@ -156,11 +161,10 @@ public:
   std::string get_moving_head_type();
 
   std::vector<int> get_pan_tilt_channels();
+  std::vector<int> get_pan_channels();
+  std::vector<int> get_tilt_channels();
 
-  struct channel_value {
-    int channel;
-    int value;
-  };
+
   std::vector<channel_value> get_pan_tilt_channels_with_default_positions();
 
   void set_modifier_pan(int _modifier_pan);

@@ -399,6 +399,7 @@ private:
     void resize_fixture_list_columns();
 
     std::vector<int> get_all_pan_tilt_channels();
+    std::vector<std::uint8_t> get_all_pan_tilt_channels_with_default_value();
 };
 
 #endif // MAINWINDOW_H
