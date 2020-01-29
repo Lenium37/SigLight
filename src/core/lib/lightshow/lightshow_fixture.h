@@ -105,6 +105,8 @@ class LightshowFixture {
   std::uint8_t get_channel_pan();
   std::uint8_t get_channel_tilt();
   std::uint8_t get_channel_blinder();
+  std::uint8_t get_channel_flash_duration();
+  std::uint8_t get_channel_flash_rate();
   std::uint8_t get_blinder_value();
   std::uint8_t get_channel_colorwheel();
   std::uint8_t get_channel_focus();
@@ -144,6 +146,8 @@ class LightshowFixture {
   void set_channel_pan(std::uint8_t _channel_pan);
   void set_channel_tilt(std::uint8_t _channel_tilt);
   void set_channel_blinder(std::uint8_t _channel_blinder);
+  void set_channel_flash_duration(std::uint8_t _channel_flash_duration);
+  void set_channel_flash_rate(std::uint8_t _channel_flash_rate);
   void set_blinder_value(std::uint8_t _blinder_value);
   void set_channel_colorwheel(std::uint8_t _channel_colowheel);
   void set_channel_focus(std::uint8_t _channel_focus);
@@ -192,6 +196,8 @@ class LightshowFixture {
   bool has_tilt = false;
   bool has_strobe = false;
   bool is_blinder = false;
+  bool has_flash_duration = false;
+  bool has_flash_rate = false;
   bool has_colorwheel = false;
   bool has_focus = false;
   bool has_zoom = false;
@@ -238,6 +244,8 @@ class LightshowFixture {
   std::uint8_t channel_colorwheel;
   std::uint8_t channel_focus;
   std::uint8_t channel_zoom;
+  std::uint8_t channel_flash_duration;
+  std::uint8_t channel_flash_rate;
   Channel dimmer = Channel(0);
   Channel strobo = Channel(0);
   Channel red = Channel(0);

@@ -543,6 +543,31 @@ void MainWindow::create_fixtures() {
                        "lamp",
                        "W",
                        0);
+    channels.clear();
+
+    channels << "Blinder Blackout~0~5|Flash rate slow-fast~6~249|Continuous blinder effect~250~255"
+              << "Flash duration~0~255"
+              << "Flash rate~0~255";
+    create_new_fixture("SGM X-5 (3CH)",
+                       "strobe_if_many_onsets",
+                       "DMX-Funktionen: Blinder",
+                       channels,
+                       "lamp",
+                       "W",
+                       0);
+    channels.clear();
+
+    channels << "Blinder Blackout~0~5|Flash rate slow-fast~6~249|Continuous blinder effect~250~255"
+             << "Flash duration~0~255"
+             << "Flash rate~0~255"
+             << "Special effects~0~255";
+    create_new_fixture("SGM X-5 (4CH)",
+                       "strobe_if_many_onsets",
+                       "DMX-Funktionen: Blinder",
+                       channels,
+                       "lamp",
+                       "W",
+                       0);
 
 
 
@@ -985,7 +1010,9 @@ void MainWindow::generate_lightshow(Song *song, std::list<Fixture> _fixtures, in
         || fix.get_name() == "Varytec PAD7 seventy"
         || fix.get_name() == "TOURSPOT PRO"
         || fix.get_name() == "BAR TRI-LED"
-        || fix.get_name() == "SGM X-5 (1CH)") {
+        || fix.get_name() == "SGM X-5 (1CH)"
+        || fix.get_name() == "SGM X-5 (3CH)"
+        || fix.get_name() == "SGM X-5 (4CH)") {
       generated_lightshow->add_fixture(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors(), fix.get_position_in_group(), fix.get_position_on_stage(), fix.get_moving_head_type(), fix.get_modifier_pan(), fix.get_modifier_tilt(), fix.get_timestamps_type()));
     } else std::cout << "Fixture type unknown." << std::endl;
   }
@@ -1013,7 +1040,9 @@ void MainWindow::regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, 
         || fix.get_name() == "Varytec PAD7 seventy"
         || fix.get_name() == "TOURSPOT PRO"
         || fix.get_name() == "BAR TRI-LED"
-        || fix.get_name() == "SGM X-5 (1CH)") {
+        || fix.get_name() == "SGM X-5 (1CH)"
+        || fix.get_name() == "SGM X-5 (3CH)"
+        || fix.get_name() == "SGM X-5 (4CH)") {
       regenerated_lightshow->add_fixture(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors(), fix.get_position_in_group(), fix.get_position_on_stage(), fix.get_moving_head_type(), fix.get_modifier_pan(), fix.get_modifier_tilt(), fix.get_timestamps_type()));
     } else std::cout << "Fixture type unknown." << std::endl;
   }

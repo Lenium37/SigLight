@@ -1098,6 +1098,10 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
             value_changes.push_back({end_flashing, 0});
           }
           fix.add_value_changes_to_channel(value_changes, fix.get_channel_blinder());
+          if(fix.has_flash_duration && fix.has_flash_rate) {
+            fix.add_value_changes_to_channel(value_changes, fix.get_channel_flash_duration());
+            fix.add_value_changes_to_channel(value_changes, fix.get_channel_flash_rate());
+          }
         }
       }
       else {

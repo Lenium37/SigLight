@@ -302,7 +302,9 @@ void EditFixtureDialog::update_moving_head_position_status(QString current_fixtu
     ui->sB_modifier_tilt->setValue(0);
   }
 
-  if(current_fixture == "SGM X-5 (1CH)") {
+  if(current_fixture == "SGM X-5 (1CH)"
+      || current_fixture == "SGM X-5 (3CH)"
+      || current_fixture == "SGM X-5 (4CH)") {
     ui->cB_type->setEnabled(false);
     int index_white = ui->cB_colors->findText("W");
     if ( index_white != -1 ) { // -1 for not found

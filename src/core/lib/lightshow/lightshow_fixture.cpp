@@ -189,6 +189,22 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_blinder(1);
     this->set_blinder_value(249);
     this->is_blinder = true;
+  } else if(name == "SGM X-5 (3CH)") {
+    this->set_channel_blinder(1);
+    this->set_channel_flash_duration(2);
+    this->set_channel_flash_rate(3);
+    this->set_blinder_value(249);
+    this->is_blinder = true;
+    this->has_flash_duration = true;
+    this->has_flash_rate = true;
+  } else if(name == "SGM X-5 (4CH)") {
+    this->set_channel_blinder(1);
+    this->set_channel_flash_duration(2);
+    this->set_channel_flash_rate(3);
+    this->set_blinder_value(249);
+    this->is_blinder = true;
+    this->has_flash_duration = true;
+    this->has_flash_rate = true;
   } else Logger::error("Fixture with unknown name created. Channels have not been set.");
 }
 
@@ -445,4 +461,20 @@ void LightshowFixture::set_timestamps_type(std::string _timestamps_type) {
 
 std::string LightshowFixture::get_timestamps_type() {
   return this->timestamps_type;
+}
+
+std::uint8_t LightshowFixture::get_channel_flash_duration() {
+  return this->channel_flash_duration;
+}
+
+std::uint8_t LightshowFixture::get_channel_flash_rate() {
+  return this->channel_flash_rate;
+}
+
+void LightshowFixture::set_channel_flash_duration(std::uint8_t _channel_flash_duration) {
+  this->channel_flash_duration = _channel_flash_duration;
+}
+
+void LightshowFixture::set_channel_flash_rate(std::uint8_t _channel_flash_rate) {
+  this->channel_flash_rate = _channel_flash_rate;
 }
