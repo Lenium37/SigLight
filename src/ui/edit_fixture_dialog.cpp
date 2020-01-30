@@ -58,10 +58,10 @@ EditFixtureDialog::EditFixtureDialog(QWidget *parent, list<Fixture> &fixtures, s
   ui->cB_moving_head_type->addItem("Nothing");
   ui->cB_moving_head_type->addItem("Continuous 8");
   ui->cB_moving_head_type->addItem("Continuous Circle");
-  ui->cB_moving_head_type->addItem("Continuous Line");
+  ui->cB_moving_head_type->addItem("Continuous Line vertical");
   ui->cB_moving_head_type->addItem("Continuous 8 group");
   ui->cB_moving_head_type->addItem("Continuous Circle group");
-  ui->cB_moving_head_type->addItem("Continuous Line group");
+  ui->cB_moving_head_type->addItem("Continuous Line vertical group");
   ui->cB_moving_head_type->addItem("Backlight, drop on action");
 
   ui->fixture_selection->setCurrentRow(0);
