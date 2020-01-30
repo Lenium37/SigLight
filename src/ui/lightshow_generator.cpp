@@ -240,18 +240,18 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
         float group_offset = 0;
         if(fix.get_moving_head_type() == "Continuous 8 group") {
-          group_offset = (float) 2 * (float) fix.get_position_in_mh_group() / fixtures_in_mh_group_continuous_8;
+          group_offset = (float) 2 * (float) (fix.get_position_in_mh_group() - 1) / fixtures_in_mh_group_continuous_8;
         }
 
         while(current_timestamp < ((float) lightshow->get_length() - 3) / lightshow->get_resolution()) {
           value = (int) (cos((2*PI*current_timestamp)/(time_of_one_loop_pan) + left_right_switch + (group_offset * PI)) * amplitude_pan) + pan_center;
           vc_pan.push_back({current_timestamp, value});
-          value = (int) (sin((2*PI*current_timestamp)/(time_of_one_loop_tilt)) * amplitude_tilt + (group_offset * PI)) + tilt_center;
+          value = (int) (sin((2*PI*current_timestamp)/(time_of_one_loop_tilt) + (group_offset * PI)) * amplitude_tilt) + tilt_center;
           vc_tilt.push_back({current_timestamp, value});
           current_timestamp += 0.025f;
         }
 
-      } else if(fix.get_moving_head_type() == "Continuous Circle") {
+      } else if(fix.get_moving_head_type() == "Continuous Circle" || fix.get_moving_head_type() == "Continuous Circle group") {
         amplitude_pan = std::round(45 / fix.get_degrees_per_pan());
         amplitude_tilt = std::round(45 / fix.get_degrees_per_tilt());
 
