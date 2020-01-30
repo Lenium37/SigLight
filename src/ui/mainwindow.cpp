@@ -2229,9 +2229,8 @@ void MainWindow::right_click_on_playlist_item(QPersistentModelIndex index) {
     connect(&action1, &QAction::triggered, this, &MainWindow::change_fixtures_of_existing_song);
     contextMenu.addAction(&action1);
 
-    QAction action2("Regenerate lightshow", &contextMenu);
-    //connect(&action2, SIGNAL(triggered()), this, SLOT(removeDataPoint()));
-    action2.setEnabled(false);
+    QAction action2("Regenerate lightshow with default fixtures", &contextMenu);
+    connect(&action2, &QAction::triggered, this, &MainWindow::regenerate_lightshow_with_default_fixtures);
     contextMenu.addAction(&action2);
 
     QAction action3("Remove song from playlist", &contextMenu);
@@ -2284,7 +2283,6 @@ void MainWindow::change_fixtures_of_existing_song() {
   change_fixtures_dialog->show();
 
 
-  //lightshows_to_generate_for.push_back({true, song});
 }
 
 void MainWindow::changed_fixtures_for_existing_lightshow_ready(Song* song, std::list<Fixture> _fixtures, int user_bpm) {
@@ -2293,4 +2291,18 @@ void MainWindow::changed_fixtures_for_existing_lightshow_ready(Song* song, std::
   this->start_thread_for_generating_queue();
   this->playlist_view->reset_lightshow_status(this->player->playlist_index_for(song));
   this->change_fixtures_dialog->deleteLater();
+}
+
+void MainWindow::regenerate_lightshow_with_default_fixtures() {
+  std::cout << QObject::sender()->parent()->objectName().toStdString() << std::endl;
+
+  int index_of_song = QObject::sender()->parent()->objectName().toInt();
+
+  Song *song = player->get_playlist_media_at(index_of_song)->get_song();
+
+  lightshows_to_generate_for.push_back({true, song, this->universes[0].get_fixtures(), this->lightShowRegistry.get_lightshow(song)->get_bpm()});
+  this->start_thread_for_generating_queue();
+
+  this->playlist_view->reset_lightshow_status(index_of_song);
+
 }

@@ -84,6 +84,7 @@ public:
      */
     Universe universes[5];
     void change_fixtures_of_existing_song();
+    void regenerate_lightshow_with_default_fixtures();
 
     signals:
     void lightshow_for_song_is_ready(Song *song);
