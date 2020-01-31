@@ -163,9 +163,7 @@ void MainWindow::init_status_bar() {
 }
 
 void MainWindow::init_connects() {
-  connect(ui->fixture_list, SIGNAL(selectionChanged(
-                                       const QItemSelection &, const QItemSelection &)), this,
-          SLOT(on_fixture_list_itemSelectionChanged()));
+  connect(ui->fixture_list, SIGNAL(itemSelectionChanged()), this, SLOT(on_fixture_list_itemSelectionChanged()));
 
   connect(playlist_view, &QTableView::doubleClicked, [this](const QModelIndex &index) {
     if (get_current_dmx_device().is_connected()) {
@@ -219,9 +217,12 @@ void MainWindow::init_connects() {
           this, SLOT(ShowContextMenu(
                          const QPoint &)));
   // Handle drop of a Fixture.
-  connect(ui->fixture_list->model(), SIGNAL(rowsInserted(
+  /*connect(ui->fixture_list->model(), SIGNAL(rowsInserted(
                                                 const QModelIndex &, int, int)), this, SLOT(rowsInserted(
                                                                                                 const QModelIndex &, int, int)));
+
+  connect(ui->fixture_list, SIGNAL(dropEvent(QDropEvent *)), this, SLOT(fixture_item_dropped(QDropEvent *)));*/
+
   connect(key_f11, SIGNAL(activated()), this, SLOT(slot_shortcut_f11()));
 
   connect(this->playlist_view, SIGNAL(activated(QPersistentModelIndex)), this, SLOT(right_click_on_playlist_item(QPersistentModelIndex)));
@@ -310,7 +311,7 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
   if (type_items.size() == 0) {
     type_item = new QTreeWidgetItem();
     type_item->setText(0, type);
-    type_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled);
+    type_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     //std::cout << "parent: " << parent->text(0).toStdString() << std::endl;
     //std::cout << "debug22 " << type_item->text(0).toStdString()<< std::endl;
 
@@ -321,7 +322,7 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
   }
   //std::cout << "debug3" << std::endl;
   itm->setFlags(
-      Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
+      Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
   type_item->addChild(itm);
   type_item->setExpanded(true);
 
@@ -1733,7 +1734,7 @@ void MainWindow::get_edited_fixture() {
     type_item->setText(7, "");
     type_item->setText(8, "");
     type_item->setText(9, "");
-    type_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled);
+    type_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 
     ui->fixture_list->topLevelItem(0)->addChild(type_item);
     //parent->addChild(type_item);
@@ -1758,7 +1759,7 @@ void MainWindow::get_edited_fixture() {
 
   auto *new_item = new QTreeWidgetItem(type_item);
   new_item->setFlags(
-      Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
+      Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
 
   new_item->setText(0, QString::fromStdString(fix.get_name()));
   new_item->setText(1, QString::fromStdString(std::to_string(fix.get_start_channel()) + " - " +
@@ -1886,16 +1887,23 @@ void MainWindow::on_actionLade_Fixtures_triggered() {
 
 void MainWindow::rowsInserted(const QModelIndex &parent, int start, int end) {
 
-  if (ui->fixture_list->currentItem() != nullptr && ui->fixture_list->currentItem() != ui->fixture_list->topLevelItem(0)) {
+  /*if (ui->fixture_list->currentItem() != nullptr && ui->fixture_list->currentItem() != ui->fixture_list->topLevelItem(0)) {
     int fixture_id = universes[0].get_fixtureid_by_startchannel(
         universe_tree.begin()->child((parent.row()))->
             child(start)->text(1).split(" ")[0].toInt());
+    std::cout << "rows inserted startchannel: " << universe_tree.begin()->child((parent.row()))->
+        child(start)->text(1).split(" ")[0].toInt() << std::endl;
     Fixture temp = universes[0].get_fixture(fixture_id);
     temp.set_type(universe_tree.begin()->child((parent.row()))->text(0).toStdString());
     universes[0].set_fixture(temp, fixture_id);
     fixtures_changed = true;
     save_fixture_objects_to_xml(false);
-  }
+  }*/
+}
+
+void MainWindow::fixture_item_dropped(QDropEvent* event) {
+  std::cout << "event source object name: " << event->source()->objectName().toStdString() << std::endl;
+  std::cout << "event mime data: " << event->mimeData() << std::endl;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
@@ -2269,6 +2277,7 @@ void MainWindow::change_fixtures_of_existing_song() {
     fix.set_modifier_tilt(l_fix.get_modifier_tilt());
     fix.set_moving_head_type(l_fix.get_moving_head_type());
     fix.set_timestamps_type(l_fix.get_timestamps_type());
+    fix.set_position_in_mh_group(l_fix.get_position_in_mh_group());
     _fixtures.push_back(fix);
   }
 

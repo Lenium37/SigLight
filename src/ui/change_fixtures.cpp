@@ -153,7 +153,7 @@ void ChangeFixtures::get_edited_fixture() {
     type_item->setText(7, "");
     type_item->setText(8, "");
     type_item->setText(9, "");
-    type_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled);
+    type_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     std::cout << "debug22 " << type_item->text(0).toStdString()<< std::endl;
 
     ui->fixture_list->topLevelItem(0)->addChild(type_item);
@@ -181,7 +181,7 @@ void ChangeFixtures::get_edited_fixture() {
 
   auto *new_item = new QTreeWidgetItem(type_item);
   new_item->setFlags(
-      Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
+      Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
 
   new_item->setText(0, QString::fromStdString(fix.get_name()));
   new_item->setText(1, QString::fromStdString(std::to_string(fix.get_start_channel()) + " - " +
@@ -326,19 +326,19 @@ void ChangeFixtures::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int 
   /*QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(QString::fromStdString(_fixture.get_type()),
                                                                     Qt::MatchExactly | Qt::MatchRecursive,
                                                                     0);*/
-  itm->setText(2, QString::fromStdString(universes[0].get_fixtures().back().get_colors()));
-  itm->setText(3, QString::fromStdString(universes[0].get_fixtures().back().get_timestamps_type()));
-  itm->setText(4, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_position_in_group())));
-  itm->setText(5, QString::fromStdString(universes[0].get_fixtures().back().get_position_on_stage()));
-  if(universes[0].get_fixtures().back().get_moving_head_type() != "Nothing")
-    itm->setText(6, QString::fromStdString(universes[0].get_fixtures().back().get_moving_head_type()));
+  itm->setText(2, QString::fromStdString(_fixture.get_colors()));
+  itm->setText(3, QString::fromStdString(timestamps_type));
+  itm->setText(4, QString::fromStdString(std::to_string(position_in_group)));
+  itm->setText(5, QString::fromStdString(position_on_stage));
+  if(moving_head_type != "Nothing")
+    itm->setText(6, QString::fromStdString(moving_head_type));
   else itm->setText(6, "");
-  itm->setText(7, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_position_in_mh_group())));
-  if(universes[0].get_fixtures().back().get_modifier_pan())
-    itm->setText(8, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_modifier_pan()) + "°"));
+  itm->setText(7, QString::fromStdString(std::to_string(position_in_mh_group)));
+  if(modifier_pan)
+    itm->setText(8, QString::fromStdString(std::to_string(modifier_pan) + "°"));
   else itm->setText(8, "");
-  if(universes[0].get_fixtures().back().get_modifier_tilt())
-    itm->setText(9, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_modifier_tilt()) + "°"));
+  if(modifier_tilt)
+    itm->setText(9, QString::fromStdString(std::to_string(modifier_tilt) + "°"));
   else itm->setText(9, "");
 
   QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(type, Qt::MatchExactly | Qt::MatchRecursive, 0);
@@ -347,7 +347,7 @@ void ChangeFixtures::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int 
   if (type_items.size() == 0) {
     type_item = new QTreeWidgetItem();
     type_item->setText(0, type);
-    type_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled);
+    type_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     //std::cout << "parent: " << parent->text(0).toStdString() << std::endl;
     //std::cout << "debug22 " << type_item->text(0).toStdString()<< std::endl;
 
@@ -358,7 +358,7 @@ void ChangeFixtures::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int 
   }
   //std::cout << "debug3" << std::endl;
   itm->setFlags(
-      Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
+      Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
   type_item->addChild(itm);
   type_item->setExpanded(true);
 

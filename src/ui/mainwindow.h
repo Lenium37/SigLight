@@ -203,6 +203,8 @@ private slots:
      */
     void rowsInserted(const QModelIndex &parent, int start, int end);
 
+    void fixture_item_dropped(QDropEvent* event);
+
     void on_actionExit_triggered();
 
     void on_actionFullscreen_triggered();
