@@ -916,11 +916,11 @@ void MainWindow::on_action_add_song_to_player_triggered() {
     QFileDialog file_dialog(this);
     file_dialog.setWindowTitle(tr("Open Files"));
     QStringList supported_name_filters;
-    supported_name_filters << "Audio files (*.wav)"
-                           << "Playlist files (*.m3u)";
-      if(Mp3ToWavConverter::is_avaible()){
-        supported_name_filters << "Audio files (*.mp3)";
-      }
+    if(Mp3ToWavConverter::is_avaible()){
+      supported_name_filters << "Audio files (*.wav *.mp3)";
+    } else {
+      supported_name_filters << "Audio files (*.wav)";
+    }
     file_dialog.setNameFilters(supported_name_filters);
     file_dialog.setAcceptMode(QFileDialog::AcceptOpen);
     file_dialog.setFileMode(QFileDialog::ExistingFiles);
