@@ -101,12 +101,6 @@ private slots:
     void on_delete_fixture_button_clicked();
 
     /**
-     * @brief on_create_fixture_button_clicked Opens a Dialog to create a Fixture.
-     * After the Dialog finishes with accept a Fixture is created and saved to the fixturelist.
-     */
-    void on_create_fixture_button_clicked();
-
-    /**
      * @brief on_add_fixture_button_clicked Adds a Fixture to the View and the Logic.
      */
     void on_add_fixture_button_clicked();
@@ -171,11 +165,6 @@ private slots:
     void get_edited_fixture();
 
     /**
-     * @brief on_actionFixture_Presets_bearbeiten_triggered Will trigger the fixture choosing dialog for editing
-     */
-    void on_actionFixture_Presets_bearbeiten_triggered();
-
-    /**
      * @brief edit_preset opens up the create fixture dialog in preset edit mode.
      */
     void open_edit_preset();
@@ -186,8 +175,6 @@ private slots:
     void edit_preset();
 
     void on_action_activate_grid_triggered();
-
-    void on_actionLade_Presetdatei_triggered();
 
     void on_actionLade_Fixtures_triggered();
 

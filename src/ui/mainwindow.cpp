@@ -870,13 +870,6 @@ void MainWindow::on_delete_fixture_button_clicked() {
   this->resize_fixture_list_columns();
 }
 
-void MainWindow::on_create_fixture_button_clicked() {
-  create_dialog = new CreateFixtureDialog();
-  connect(create_dialog, SIGNAL(accepted()), this, SLOT(get_fixture_from_dialog()));
-  create_dialog->exec();
-
-}
-
 void MainWindow::get_fixture_from_dialog() {
   std::string name;
   std::string type;
@@ -1833,13 +1826,6 @@ void MainWindow::get_edited_fixture() {
   std::cout << "debug3" << std::endl;
 }
 
-void MainWindow::on_actionFixture_Presets_bearbeiten_triggered() {
-  fcd = new FixtureChoosingDialog(this, fixtures, color_palettes);
-  fcd->setup_for_edit();
-  connect(fcd, SIGNAL(accepted()), this, SLOT(open_edit_preset()));
-  fcd->exec();
-}
-
 void MainWindow::open_edit_preset() {
   choosen_preset_index = fcd->edit_preset_choosen();
   if (fcd->delete_fixture_preset()) {
@@ -1866,13 +1852,6 @@ void MainWindow::edit_preset() {
 
 void MainWindow::on_action_activate_grid_triggered() {
   player_edit_view->show_hide_grid();
-}
-
-void MainWindow::on_actionLade_Presetdatei_triggered() {
-  QString filename = QFileDialog::getOpenFileName(this, "Open Presetfile", QDir::homePath(), ("XML: (*.xml)"));
-  fixtures.clear();
-  load_fixture_objects_from_xml(true, &filename);
-  save_fixture_objects_to_xml();
 }
 
 void MainWindow::on_actionLade_Fixtures_triggered() {

@@ -164,17 +164,6 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="create_fixture_button">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset resource="resources/resources.qrc">
-              <normaloff>:/icons_svg/svg/editor.svg</normaloff>:/icons_svg/svg/editor.svg</iconset>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QPushButton" name="edit_fixture">
             <property name="text">
              <string/>
@@ -282,7 +271,6 @@
     <addaction name="action_add_song_to_player"/>
     <addaction name="action_safe_playlist"/>
     <addaction name="action_remove_song_from_playlist"/>
-    <addaction name="actionLade_Presetdatei"/>
     <addaction name="actionLade_Fixtures"/>
     <addaction name="actionExit"/>
    </widget>
@@ -290,7 +278,6 @@
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="actionFixture_Presets_bearbeiten"/>
     <addaction name="actionAmbient_Fixtures_always_on"/>
     <addaction name="actionAlways_generate_Lightshows"/>
     <addaction name="action_regenerate_lightshows"/>
@@ -427,11 +414,6 @@
     <string>Display current playlist</string>
    </property>
   </action>
-  <action name="actionFixture_Presets_bearbeiten">
-   <property name="text">
-    <string>Edit Fixture Presets</string>
-   </property>
-  </action>
   <action name="action_activate_grid">
    <property name="checkable">
     <bool>true</bool>
@@ -445,14 +427,6 @@
    </property>
    <property name="toolTip">
     <string>Toggle grid in Lightshow</string>
-   </property>
-  </action>
-  <action name="actionLade_Presetdatei">
-   <property name="text">
-    <string>Load file with fixturepreset</string>
-   </property>
-   <property name="toolTip">
-    <string>Load file with fixturepreset</string>
    </property>
   </action>
   <action name="actionLade_Fixtures">
