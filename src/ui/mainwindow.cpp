@@ -110,6 +110,7 @@ void MainWindow::init() {
   headers.append("Modifier pan");
   headers.append("Modifier tilt");
   ui->fixture_list->setHeaderLabels(headers);
+  ui->fixture_list->header()->setDefaultAlignment(Qt::AlignCenter);
   // Create the Fixtureobjects.
   create_fixtures();
   // Adds the first Univers.
@@ -323,6 +324,10 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
   //std::cout << "debug3" << std::endl;
   itm->setFlags(
       Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
+
+  for(int i = 1; i<itm->columnCount(); i++)
+    itm->setTextAlignment(i, Qt::AlignCenter);
+
   type_item->addChild(itm);
   type_item->setExpanded(true);
 
@@ -1792,6 +1797,8 @@ void MainWindow::get_edited_fixture() {
   universes[0].add_fixture(fix);
 
   if(type_item && new_item) {
+    for(int i = 1; i < new_item->columnCount(); i++)
+      type_item->setTextAlignment(i, Qt::AlignCenter);
     type_item->addChild(new_item);
     type_item->setExpanded(true);
   }
