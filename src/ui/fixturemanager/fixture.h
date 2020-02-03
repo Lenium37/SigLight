@@ -178,6 +178,12 @@ public:
   std::string get_timestamps_type();
   channel_value get_control_channel_with_ignite_value();
   channel_value get_control_channel_with_turn_off_value();
+  bool get_invert_tilt();
+  int get_amplitude_pan();
+  int get_amplitude_tilt();
+  void set_invert_tilt(bool _invert_tilt);
+  void set_amplitude_pan(int _amplitude_pan);
+  void set_amplitude_tilt(int _amplitude_tilt);
 
 private:
   /**
@@ -228,6 +234,9 @@ private:
   int modifier_tilt;
   int channel_count;
   std::string timestamps_type;
+  bool invert_tilt;
+  int amplitude_pan;
+  int amplitude_tilt;
 
 };
 

@@ -13,7 +13,7 @@
 #include <atomic>
 
 
-LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage, std::string _moving_head_type, int _modifier_pan, int _modifier_tilt, std::string _timestamps_type, int _position_inside_mh_group) {
+LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage, std::string _moving_head_type, int _modifier_pan, int _modifier_tilt, std::string _timestamps_type, int _position_inside_mh_group, bool _invert_tilt, int _amplitude_pan, int _amplitude_tilt) {
   this->name = name;
   this->start_channel = start_channel;
   this->number_of_channels = number_of_channels;
@@ -25,6 +25,9 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
   this->colors_string = colors;
   this->timestamps_type = _timestamps_type;
   this->position_in_mh_group = _position_inside_mh_group;
+  this->invert_tilt = _invert_tilt;
+  this->amplitude_pan = _amplitude_pan;
+  this->amplitude_tilt = _amplitude_tilt;
   std::istringstream ss(colors);
   std::string color;
   if(!colors.empty()) {
@@ -486,4 +489,29 @@ void LightshowFixture::set_position_in_mh_group(int _position) {
 
 int LightshowFixture::get_position_in_mh_group() {
   return this->position_in_mh_group;
+}
+
+
+bool LightshowFixture::get_invert_tilt() {
+  return this->invert_tilt;
+}
+
+void LightshowFixture::set_invert_tilt(bool _invert_tilt) {
+  this->invert_tilt = _invert_tilt;
+}
+
+int LightshowFixture::get_amplitude_pan() {
+  return this->amplitude_pan;
+}
+
+void LightshowFixture::set_amplitude_pan(int _amplitude_pan) {
+  this->amplitude_pan = _amplitude_pan;
+}
+
+int LightshowFixture::get_amplitude_tilt() {
+  return this->amplitude_tilt;
+}
+
+void LightshowFixture::set_amplitude_tilt(int _amplitude_tilt) {
+  this->amplitude_tilt = _amplitude_tilt;
 }

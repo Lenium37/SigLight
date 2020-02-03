@@ -32,7 +32,7 @@ class LightshowFixture {
    * @param number_of_channels
    * @param type
    */
-  LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage, std::string _moving_head_type, int _modifier_pan, int _modifier_tilt, std::string _timestamps_type, int _position_inside_mh_group);
+  LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage, std::string _moving_head_type, int _modifier_pan, int _modifier_tilt, std::string _timestamps_type, int _position_inside_mh_group, bool _invert_tilt, int _amplitude_pan, int _amplitude_tilt);
   ~LightshowFixture();
 
   /**
@@ -227,6 +227,12 @@ class LightshowFixture {
 
   void set_timestamps_type(std::string _timestamps_type);
   std::string get_timestamps_type();
+  bool get_invert_tilt();
+  int get_amplitude_pan();
+  int get_amplitude_tilt();
+  void set_invert_tilt(bool _invert_tilt);
+  void set_amplitude_pan(int _amplitude_pan);
+  void set_amplitude_tilt(int _amplitude_tilt);
 
  private:
   int start_channel;
@@ -266,6 +272,9 @@ class LightshowFixture {
   float degrees_per_tilt;
   std::string timestamps_type;
   int position_in_mh_group;
+  bool invert_tilt;
+  int amplitude_pan;
+  int amplitude_tilt;
 
 };
 

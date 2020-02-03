@@ -92,7 +92,7 @@ void MainWindow::init() {
   ui->fixture_list->setSelectionMode(QAbstractItemView::SingleSelection);
 
   // Sets the layout for the fixturelist.
-  ui->fixture_list->setColumnCount(10);
+  ui->fixture_list->setColumnCount(13);
 
   ui->fixture_list->invisibleRootItem()->setFlags(Qt::ItemIsEnabled);
 
@@ -107,8 +107,11 @@ void MainWindow::init() {
   headers.append("Pos. on stage");
   headers.append("Mov. Head type");
   headers.append("# in MH group");
+  headers.append("Amplitude pan");
+  headers.append("Amplitude tilt");
   headers.append("Modifier pan");
   headers.append("Modifier tilt");
+  headers.append("Invert tilt");
   ui->fixture_list->setHeaderLabels(headers);
   ui->fixture_list->header()->setDefaultAlignment(Qt::AlignCenter);
   // Create the Fixtureobjects.
@@ -262,7 +265,7 @@ void MainWindow::resize_fixture_list_columns() {
   }
 }
 
-void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt, std::string timestamps_type, int position_inside_mh_group) {
+void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt, std::string timestamps_type, int position_inside_mh_group, bool invert_tilt, int amplitude_pan, int amplitude_tilt) {
   auto *itm = new QTreeWidgetItem();
   _fixture.set_start_channel(start_channel);
   _fixture.set_type(type.toStdString());
@@ -278,6 +281,9 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
   _fixture.set_modifier_tilt(modifier_tilt);
   _fixture.set_timestamps_type(timestamps_type);
   _fixture.set_position_in_mh_group(position_inside_mh_group);
+  _fixture.set_invert_tilt(invert_tilt);
+  _fixture.set_amplitude_pan(amplitude_pan);
+  _fixture.set_amplitude_tilt(amplitude_tilt);
 
   universes[0].add_fixture(_fixture);
 
@@ -299,12 +305,21 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
     itm->setText(6, QString::fromStdString(universes[0].get_fixtures().back().get_moving_head_type()));
   else itm->setText(6, "");
   itm->setText(7, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_position_in_mh_group())));
-  if(universes[0].get_fixtures().back().get_modifier_pan())
-    itm->setText(8, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_modifier_pan()) + "°"));
+  if(universes[0].get_fixtures().back().get_amplitude_pan())
+    itm->setText(8, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_amplitude_pan()) + "°"));
   else itm->setText(8, "");
-  if(universes[0].get_fixtures().back().get_modifier_tilt())
-    itm->setText(9, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_modifier_tilt()) + "°"));
+  if(universes[0].get_fixtures().back().get_amplitude_tilt())
+    itm->setText(9, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_amplitude_tilt()) + "°"));
   else itm->setText(9, "");
+  if(universes[0].get_fixtures().back().get_modifier_pan())
+    itm->setText(10, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_modifier_pan()) + "°"));
+  else itm->setText(10, "");
+  if(universes[0].get_fixtures().back().get_modifier_tilt())
+    itm->setText(11, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_modifier_tilt()) + "°"));
+  else itm->setText(11, "");
+  if(universes[0].get_fixtures().back().get_invert_tilt())
+    itm->setText(12, "yes");
+  else itm->setText(12, "");
 
   QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(type, Qt::MatchExactly | Qt::MatchRecursive, 0);
 
@@ -325,7 +340,7 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
   itm->setFlags(
       Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
 
-  for(int i = 1; i<itm->columnCount(); i++)
+  for(int i = 1; i < itm->columnCount(); i++)
     itm->setTextAlignment(i, Qt::AlignCenter);
 
   type_item->addChild(itm);
@@ -345,7 +360,7 @@ void MainWindow::create_fixtures() {
   QFileInfo datei(fixture_objects_file);
 
   // If the file is older than the 28.05.2019 it has to be deleted.
-  if (datei.created().date() < (*(new QDate(2019, 6, 20)))) {
+  if (datei.created().date() < (*(new QDate(2020, 12, 31)))) {
     fixture_objects_file.remove();
   }
   if (fixture_objects_file.exists()) {
@@ -603,7 +618,10 @@ void MainWindow::create_new_fixture(string _name,
                                     int modifier_tilt,
                                     std::string timestamps_type,
                                     int start_channel,
-                                    int position_in_mh_group) {
+                                    int position_in_mh_group,
+                                    bool invert_tilt,
+                                    int amplitude_pan,
+                                    int amplitude_tilt) {
   Fixture temp;
   temp.set_name(_name);
   temp.set_type(_type);
@@ -617,6 +635,10 @@ void MainWindow::create_new_fixture(string _name,
   temp.set_modifier_tilt(modifier_tilt);
   temp.set_timestamps_type(timestamps_type);
   temp.set_position_in_mh_group(position_in_mh_group);
+  temp.set_invert_tilt(invert_tilt);
+  temp.set_amplitude_pan(amplitude_pan);
+  temp.set_amplitude_tilt(amplitude_tilt);
+
   if(!_colors.empty())
     temp.set_colors(_colors);
   else
@@ -625,7 +647,7 @@ void MainWindow::create_new_fixture(string _name,
     fixtures.push_back(temp);
     save_fixture_objects_to_xml();
   } else {
-    add_fixture(&universe_tree.back(), temp, start_channel, QString::fromStdString(temp.get_type()), temp.get_colors(), position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt, timestamps_type, position_in_mh_group);
+    add_fixture(&universe_tree.back(), temp, start_channel, QString::fromStdString(temp.get_type()), temp.get_colors(), position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt, timestamps_type, position_in_mh_group, invert_tilt, amplitude_pan, amplitude_tilt);
   }
 }
 
@@ -692,9 +714,12 @@ void MainWindow::get_fixture_for_universe() {
   int modifier_tilt;
   std::string timestamps_type;
   int position_in_mh_group = 0;
+  bool invert_tilt = false;
+  int amplitude_pan = 0;
+  int amplitude_tilt = 0;
 
-  this->fcd->get_fixture_options(fixture_index, start_channel, type, colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt, timestamps_type, position_in_mh_group);
-  add_fixture((&universe_tree.back()), *(std::next(fixtures.begin(), fixture_index)), start_channel, type, colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt,timestamps_type, position_in_mh_group);
+  this->fcd->get_fixture_options(fixture_index, start_channel, type, colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt, timestamps_type, position_in_mh_group, invert_tilt, amplitude_pan, amplitude_tilt);
+  add_fixture((&universe_tree.back()), *(std::next(fixtures.begin(), fixture_index)), start_channel, type, colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt, timestamps_type, position_in_mh_group, invert_tilt, amplitude_pan, amplitude_tilt);
   save_fixture_objects_to_xml(false);
   fixtures_changed = true;
 }
@@ -1013,7 +1038,7 @@ void MainWindow::generate_lightshow(Song *song, std::list<Fixture> _fixtures, in
         || fix.get_name() == "SGM X-5 (1CH)"
         || fix.get_name() == "SGM X-5 (3CH)"
         || fix.get_name() == "SGM X-5 (4CH)") {
-      generated_lightshow->add_fixture(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors(), fix.get_position_in_group(), fix.get_position_on_stage(), fix.get_moving_head_type(), fix.get_modifier_pan(), fix.get_modifier_tilt(), fix.get_timestamps_type(), fix.get_position_in_mh_group()));
+      generated_lightshow->add_fixture(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors(), fix.get_position_in_group(), fix.get_position_on_stage(), fix.get_moving_head_type(), fix.get_modifier_pan(), fix.get_modifier_tilt(), fix.get_timestamps_type(), fix.get_position_in_mh_group(), fix.get_invert_tilt(), fix.get_amplitude_pan(), fix.get_amplitude_tilt()));
     } else std::cout << "Fixture type unknown." << std::endl;
   }
 
@@ -1043,7 +1068,7 @@ void MainWindow::regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, 
         || fix.get_name() == "SGM X-5 (1CH)"
         || fix.get_name() == "SGM X-5 (3CH)"
         || fix.get_name() == "SGM X-5 (4CH)") {
-      regenerated_lightshow->add_fixture(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors(), fix.get_position_in_group(), fix.get_position_on_stage(), fix.get_moving_head_type(), fix.get_modifier_pan(), fix.get_modifier_tilt(), fix.get_timestamps_type(), fix.get_position_in_mh_group()));
+      regenerated_lightshow->add_fixture(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors(), fix.get_position_in_group(), fix.get_position_on_stage(), fix.get_moving_head_type(), fix.get_modifier_pan(), fix.get_modifier_tilt(), fix.get_timestamps_type(), fix.get_position_in_mh_group(), fix.get_invert_tilt(), fix.get_amplitude_pan(), fix.get_amplitude_tilt()));
     } else std::cout << "Fixture type unknown." << std::endl;
   }
 
@@ -1324,6 +1349,21 @@ void MainWindow::save_fixture_objects_to_xml(bool is_preset) {
       tinyxml2::XMLElement *xml_position_in_mh_group = fixture_objects.NewElement("position_in_mh_group");
       xml_position_in_mh_group->SetText(fixture.get_position_in_mh_group());
       fixture_object->InsertEndChild(xml_position_in_mh_group);
+
+      tinyxml2::XMLElement *xml_invert_tilt = fixture_objects.NewElement("invert_tilt");
+      if(fixture.get_invert_tilt())
+        xml_invert_tilt->SetText("yes");
+      else
+        xml_invert_tilt->SetText("no");
+      fixture_object->InsertEndChild(xml_invert_tilt);
+
+      tinyxml2::XMLElement *xml_amplitude_pan = fixture_objects.NewElement("amplitude_pan");
+      xml_amplitude_pan->SetText(fixture.get_amplitude_pan());
+      fixture_object->InsertEndChild(xml_amplitude_pan);
+
+      tinyxml2::XMLElement *xml_amplitude_tilt = fixture_objects.NewElement("amplitude_tilt");
+      xml_amplitude_tilt->SetText(fixture.get_amplitude_tilt());
+      fixture_object->InsertEndChild(xml_amplitude_tilt);
     }
 
     tinyxml2::XMLElement *xml_position_in_group = fixture_objects.NewElement("position_in_group");
@@ -1388,6 +1428,9 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
   int modifier_tilt = 0;
   std::string timestamps_type;
   int position_in_mh_group = 0;
+  bool invert_tilt = false;
+  int amplitude_pan = 0;
+  int amplitude_tilt = 0;
 
   tinyxml2::XMLDocument fixture_objects;
   tinyxml2::XMLError error;
@@ -1441,6 +1484,17 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
 
           tinyxml2::XMLElement *position_in_mh_group_xml = fixture->FirstChildElement("position_in_mh_group");
           position_in_mh_group = std::atoi(position_in_mh_group_xml->GetText());
+
+          tinyxml2::XMLElement *invert_tilt_xml = fixture->FirstChildElement("invert_tilt");
+          std::string invert_tilt_s = invert_tilt_xml->GetText();
+          if(invert_tilt_s == "yes")
+            invert_tilt = true;
+
+          tinyxml2::XMLElement *amplitude_pan_xml = fixture->FirstChildElement("amplitude_pan");
+          amplitude_pan = std::atoi(amplitude_pan_xml->GetText());
+
+          tinyxml2::XMLElement *amplitude_tilt_xml = fixture->FirstChildElement("amplitude_tilt");
+          amplitude_tilt = std::atoi(amplitude_tilt_xml->GetText());
         }
 
         tinyxml2::XMLElement *position_in_group_xml = fixture->FirstChildElement("position_in_group");
@@ -1471,7 +1525,7 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
           functions.clear();
         }
         fixture = fixture->NextSiblingElement("Fixture");
-        create_new_fixture(fixture_name, fixture_type, fixture_description, channels, fixture_icon, fixture_colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt, timestamps_type, start_channel, position_in_mh_group);
+        create_new_fixture(fixture_name, fixture_type, fixture_description, channels, fixture_icon, fixture_colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt, timestamps_type, start_channel, position_in_mh_group, invert_tilt, amplitude_pan, amplitude_tilt);
         channels.clear();
       }
     }
@@ -1654,16 +1708,30 @@ void MainWindow::on_edit_fixture_clicked() {
           connect(create_dialog, SIGNAL(accepted()), this, SLOT(get_edited_fixture()));
           create_dialog->exec();*/
           this->efd = new EditFixtureDialog(this, fixtures, color_palettes);
-          std::string modifier_pan_s = ui->fixture_list->currentItem()->text(8).toStdString();
-          std::string modifier_tilt_s = ui->fixture_list->currentItem()->text(9).toStdString();
+          std::string modifier_pan_s = ui->fixture_list->currentItem()->text(10).toStdString();
+          std::string modifier_tilt_s = ui->fixture_list->currentItem()->text(11).toStdString();
           std::string timestamps_type = ui->fixture_list->currentItem()->text(3).toStdString();
+          std::string amplitude_pan_s = ui->fixture_list->currentItem()->text(8).toStdString();
+          std::string amplitude_tilt_s = ui->fixture_list->currentItem()->text(9).toStdString();
+          std::string invert_tilt_s = ui->fixture_list->currentItem()->text(12).toStdString();
+
+          int amplitude_pan = 0;
+          int amplitude_tilt = 0;
           int modifier_pan = 0;
           int modifier_tilt = 0;
+          bool invert_tilt = false;
+
+          if(amplitude_pan_s.size() > 1)
+            amplitude_pan = std::stoi(amplitude_pan_s.erase(amplitude_pan_s.size()-1));
+          if(amplitude_tilt_s.size() > 1)
+            amplitude_tilt = std::stoi(amplitude_tilt_s.erase(amplitude_tilt_s.size()-1));
           if(modifier_pan_s.size() > 1)
             modifier_pan = std::stoi(modifier_pan_s.erase(modifier_pan_s.size()-1));
           if(modifier_tilt_s.size() > 1)
             modifier_tilt = std::stoi(modifier_tilt_s.erase(modifier_tilt_s.size()-1));
 
+          if(invert_tilt_s == "yes")
+            invert_tilt = true;
 
           this->efd->set_up_dialog_options(universes[0].get_blocked_adress_range(),
                                            ui->fixture_list->currentItem()->text(1).toStdString(),
@@ -1676,7 +1744,10 @@ void MainWindow::on_edit_fixture_clicked() {
                                            modifier_pan,
                                            modifier_tilt,
                                            timestamps_type,
-                                           ui->fixture_list->currentItem()->text(7).toInt());
+                                           ui->fixture_list->currentItem()->text(7).toInt(),
+                                           invert_tilt,
+                                           amplitude_pan,
+                                           amplitude_tilt);
           connect(this->efd, SIGNAL(accepted()), this, SLOT(get_edited_fixture()));
           this->efd->exec();
         }
@@ -1711,8 +1782,11 @@ void MainWindow::get_edited_fixture() {
   int modifier_tilt;
   std::string timestamps_type;
   int position_in_mh_group = 0;
+  bool invert_tilt = false;
+  int amplitude_pan = 0;
+  int amplitude_tilt = 0;
 
-  this->efd->get_fixture_options(fixture_index, start_channel, type, colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt, timestamps_type, position_in_mh_group);
+  this->efd->get_fixture_options(fixture_index, start_channel, type, colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt, timestamps_type, position_in_mh_group, invert_tilt, amplitude_pan, amplitude_tilt);
 
 
   std::cout << "new type of fixture: " << type.toStdString() << std::endl;
@@ -1732,6 +1806,9 @@ void MainWindow::get_edited_fixture() {
     type_item->setText(7, "");
     type_item->setText(8, "");
     type_item->setText(9, "");
+    type_item->setText(10, "");
+    type_item->setText(11, "");
+    type_item->setText(12, "");
     type_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 
     ui->fixture_list->topLevelItem(0)->addChild(type_item);
@@ -1754,6 +1831,9 @@ void MainWindow::get_edited_fixture() {
   fix.set_modifier_tilt(modifier_tilt);
   fix.set_timestamps_type(timestamps_type);
   fix.set_position_in_mh_group(position_in_mh_group);
+  fix.set_invert_tilt(invert_tilt);
+  fix.set_amplitude_pan(amplitude_pan);
+  fix.set_amplitude_tilt(amplitude_tilt);
 
   auto *new_item = new QTreeWidgetItem(type_item);
   new_item->setFlags(
@@ -1773,12 +1853,20 @@ void MainWindow::get_edited_fixture() {
     new_item->setText(6, QString::fromStdString(fix.get_moving_head_type()));
   else new_item->setText(6, "");
   new_item->setText(7, QString::fromStdString(std::to_string(fix.get_position_in_mh_group())));
-  if(fix.get_modifier_pan())
-    new_item->setText(8, QString::fromStdString(std::to_string(fix.get_modifier_pan()) + "°"));
+  if(fix.get_amplitude_pan())
+    new_item->setText(8, QString::fromStdString(std::to_string(fix.get_amplitude_pan()) + "°"));
   else new_item->setText(8, "");
-  if(fix.get_modifier_tilt())
-    new_item->setText(9, QString::fromStdString(std::to_string(fix.get_modifier_tilt()) + "°"));
+  if(fix.get_amplitude_tilt())
+    new_item->setText(9, QString::fromStdString(std::to_string(fix.get_amplitude_tilt()) + "°"));
   else new_item->setText(9, "");
+  if(fix.get_modifier_pan())
+    new_item->setText(10, QString::fromStdString(std::to_string(fix.get_modifier_pan()) + "°"));
+  else new_item->setText(10, "");
+  if(fix.get_modifier_tilt())
+    new_item->setText(11, QString::fromStdString(std::to_string(fix.get_modifier_tilt()) + "°"));
+  else new_item->setText(11, "");
+  if(fix.get_invert_tilt())
+    new_item->setText(12, "yes");
 
   std::cout << "ui->fixture_list->currentItem()->text(1).split(" ")[0]: " << ui->fixture_list->currentItem()->text(1).split(" ")[0].toStdString() << std::endl;
   int cur_item = universes[0].get_fixtureid_by_startchannel(ui->fixture_list->currentItem()->text(1).split(" ")[0].toInt());
@@ -1797,8 +1885,10 @@ void MainWindow::get_edited_fixture() {
   universes[0].add_fixture(fix);
 
   if(type_item && new_item) {
+
     for(int i = 1; i < new_item->columnCount(); i++)
-      type_item->setTextAlignment(i, Qt::AlignCenter);
+      new_item->setTextAlignment(i, Qt::AlignCenter);
+
     type_item->addChild(new_item);
     type_item->setExpanded(true);
   }
@@ -2264,6 +2354,9 @@ void MainWindow::change_fixtures_of_existing_song() {
     fix.set_moving_head_type(l_fix.get_moving_head_type());
     fix.set_timestamps_type(l_fix.get_timestamps_type());
     fix.set_position_in_mh_group(l_fix.get_position_in_mh_group());
+    fix.set_invert_tilt(l_fix.get_invert_tilt());
+    fix.set_amplitude_pan(l_fix.get_amplitude_pan());
+    fix.set_amplitude_tilt(l_fix.get_amplitude_tilt());
     _fixtures.push_back(fix);
   }
 

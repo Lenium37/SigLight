@@ -72,6 +72,8 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
     ui->sB_position_inside_mh_group->setRange(1, 32);
     ui->sB_modifier_pan->setRange(-360, 360);
     ui->sB_modifier_tilt->setRange(-180, 180);
+    ui->sB_amplitude_pan->setRange(0, 360);
+    ui->sB_amplitude_tilt->setRange(0, 180);
     //ui->sB_position_inside_group->setEnabled(false);
     ui->pB_delete_fixture->setVisible(false);
     this->setWindowTitle("Choose Fixture");
@@ -93,29 +95,32 @@ void FixtureChoosingDialog::set_up_dialog_options(std::list<int> blocked_channel
     set_first_allowed_channel(0, true);
 }
 
-void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type, int &modifier_pan, int &modifier_tilt, std::string &timestamps_type, int & position_inside_mh_group)
+void FixtureChoosingDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type, int &modifier_pan, int &modifier_tilt, std::string &timestamps_type, int & position_inside_mh_group, bool & invert_tilt, int & amplitude_pan, int & amplitude_tilt)
 {
-    fixture_id = ui->fixture_selection->currentRow();
-    start_channel = ui->sB_start_channel->value();
-    type = ui->cB_type->currentText();
-    position_in_group = ui->sB_position_inside_group->value();
-    colors = ui->cB_colors->currentText().toStdString();
-    position_on_stage = ui->cB_moving_head_position->currentText().toStdString();
-    moving_head_type = ui->cB_moving_head_type->currentText().toStdString();
-    modifier_pan = ui->sB_modifier_pan->value();
-    modifier_tilt = ui->sB_modifier_tilt->value();
-    timestamps_type = ui->cB_timestamps->currentText().toStdString();
-    position_inside_mh_group = ui->sB_position_inside_mh_group->value();
+  fixture_id = ui->fixture_selection->currentRow();
+  start_channel = ui->sB_start_channel->value();
+  type = ui->cB_type->currentText();
+  position_in_group = ui->sB_position_inside_group->value();
+  colors = ui->cB_colors->currentText().toStdString();
+  position_on_stage = ui->cB_moving_head_position->currentText().toStdString();
+  moving_head_type = ui->cB_moving_head_type->currentText().toStdString();
+  modifier_pan = ui->sB_modifier_pan->value();
+  modifier_tilt = ui->sB_modifier_tilt->value();
+  timestamps_type = ui->cB_timestamps->currentText().toStdString();
+  position_inside_mh_group = ui->sB_position_inside_mh_group->value();
+  invert_tilt = ui->chB_invert_tilt->isChecked();
+  amplitude_pan = ui->sB_amplitude_pan->value();
+  amplitude_tilt = ui->sB_amplitude_tilt->value();
 }
 
 void FixtureChoosingDialog::setup_for_edit()
 {
-    ui->l_type->setVisible(false);
-    ui->l_start_channel->setVisible(false);
-    ui->cB_type->setVisible(false);
-    ui->sB_start_channel->setVisible(false);
-    ui->pB_delete_fixture->setVisible(true);
-    ui->add_fixture_dialog->setText("Edit");
+  ui->l_type->setVisible(false);
+  ui->l_start_channel->setVisible(false);
+  ui->cB_type->setVisible(false);
+  ui->sB_start_channel->setVisible(false);
+  ui->pB_delete_fixture->setVisible(true);
+  ui->add_fixture_dialog->setText("Edit");
 }
 
 int FixtureChoosingDialog::edit_preset_choosen() {
@@ -184,7 +189,7 @@ void FixtureChoosingDialog::set_first_allowed_channel(int current_Row, bool firs
 
 void FixtureChoosingDialog::on_fixture_selection_currentRowChanged(int currentRow)
 {
-    ui->cB_type->setCurrentIndex(ui->cB_type->findText(types_of_fixtures.at(currentRow)));
+    //ui->cB_type->setCurrentIndex(ui->cB_type->findText(types_of_fixtures.at(currentRow)));
     set_first_allowed_channel(currentRow);
     this->update_moving_head_position_status(names_of_fixtures.at(currentRow));
 }
@@ -244,17 +249,26 @@ void FixtureChoosingDialog::update_moving_head_position_status(QString current_f
   || current_fixture == "JBLED Sparx 7 (M3)") {
     ui->cB_moving_head_position->setEnabled(true);
     ui->cB_moving_head_type->setEnabled(true);
+    ui->sB_amplitude_pan->setEnabled(true);
+    ui->sB_amplitude_tilt->setEnabled(true);
     ui->sB_modifier_pan->setEnabled(true);
     ui->sB_modifier_tilt->setEnabled(true);
+    ui->chB_invert_tilt->setEnabled(true);
   } else {
     ui->cB_moving_head_position->setCurrentIndex(0);
     ui->cB_moving_head_position->setEnabled(false);
     ui->cB_moving_head_type->setCurrentIndex(0);
     ui->cB_moving_head_type->setEnabled(false);
+    ui->sB_amplitude_pan->setEnabled(false);
+    ui->sB_amplitude_pan->setValue(0);
+    ui->sB_amplitude_tilt->setEnabled(false);
+    ui->sB_amplitude_tilt->setValue(0);
     ui->sB_modifier_pan->setEnabled(false);
     ui->sB_modifier_pan->setValue(0);
     ui->sB_modifier_tilt->setEnabled(false);
     ui->sB_modifier_tilt->setValue(0);
+    ui->chB_invert_tilt->setEnabled(false);
+    ui->chB_invert_tilt->setChecked(false);
   }
 
   if(current_fixture == "SGM X-5 (1CH)"

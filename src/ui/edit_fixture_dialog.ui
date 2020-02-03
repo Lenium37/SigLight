@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
-    <height>545</height>
+    <width>600</width>
+    <height>695</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,8 +18,8 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>481</width>
-     <height>526</height>
+     <width>581</width>
+     <height>676</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
@@ -275,6 +275,56 @@
        <widget class="QSpinBox" name="sB_position_inside_mh_group"/>
       </item>
       <item alignment="Qt::AlignBottom">
+       <widget class="QLabel" name="l_amplitude_pan">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>Amplitude pan:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="sB_amplitude_pan"/>
+      </item>
+      <item alignment="Qt::AlignBottom">
+       <widget class="QLabel" name="l_amplitude_tilt">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>Amplitude tilt:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="sB_amplitude_tilt"/>
+      </item>
+      <item alignment="Qt::AlignBottom">
        <widget class="QLabel" name="l_modifier_pan">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -323,6 +373,13 @@
       </item>
       <item>
        <widget class="QSpinBox" name="sB_modifier_tilt"/>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="chB_invert_tilt">
+        <property name="text">
+         <string>Invert tilt</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="pB_delete_fixture">

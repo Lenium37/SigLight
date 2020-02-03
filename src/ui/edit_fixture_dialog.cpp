@@ -72,6 +72,8 @@ EditFixtureDialog::EditFixtureDialog(QWidget *parent, list<Fixture> &fixtures, s
   ui->sB_position_inside_mh_group->setRange(1, 32);
   ui->sB_modifier_pan->setRange(-360, 360);
   ui->sB_modifier_tilt->setRange(-180, 180);
+  ui->sB_amplitude_pan->setRange(0, 360);
+  ui->sB_amplitude_tilt->setRange(0, 180);
   ui->pB_delete_fixture->setVisible(false);
   this->setWindowTitle("Edit Fixture");
   EditFixtureDialog::is_delete = false;
@@ -86,7 +88,7 @@ EditFixtureDialog::~EditFixtureDialog() {
   delete ui;
 }
 
-void EditFixtureDialog::set_up_dialog_options(std::list<int> _blocked_channels, std::string _own_channels, std::string _name, std::string _colors, int pos_in_group, std::string _type, std::string pos_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt, std::string timestamps_type, int position_inside_mh_group)
+void EditFixtureDialog::set_up_dialog_options(std::list<int> _blocked_channels, std::string _own_channels, std::string _name, std::string _colors, int pos_in_group, std::string _type, std::string pos_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt, std::string timestamps_type, int position_inside_mh_group, bool invert_tilt, int amplitude_pan, int amplitude_tilt)
 {
   for(int i = 0; i < names_of_fixtures.size(); i++) {
     if(names_of_fixtures[i] == QString::fromStdString(_name))
@@ -147,6 +149,11 @@ void EditFixtureDialog::set_up_dialog_options(std::list<int> _blocked_channels, 
 
   ui->sB_position_inside_mh_group->setValue(position_inside_mh_group);
 
+  ui->sB_amplitude_pan->setValue(amplitude_pan);
+  ui->sB_amplitude_tilt->setValue(amplitude_tilt);
+
+  ui->chB_invert_tilt->setChecked(invert_tilt);
+
   for(int c: _blocked_channels)
     Logger::debug("blocked channel: {}", c);
 
@@ -154,7 +161,7 @@ void EditFixtureDialog::set_up_dialog_options(std::list<int> _blocked_channels, 
   //set_first_allowed_channel(0, true);
 }
 
-void EditFixtureDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type, int &modifier_pan, int &modifier_tilt, std::string &timestamps_type, int & position_inside_mh_group)
+void EditFixtureDialog::get_fixture_options(int &fixture_id, int &start_channel, QString &type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type, int &modifier_pan, int &modifier_tilt, std::string &timestamps_type, int & position_inside_mh_group, bool & invert_tilt, int & amplitude_pan, int & amplitude_tilt)
 {
   fixture_id = ui->fixture_selection->currentRow();
   start_channel = ui->sB_start_channel->value();
@@ -167,6 +174,9 @@ void EditFixtureDialog::get_fixture_options(int &fixture_id, int &start_channel,
   modifier_tilt = ui->sB_modifier_tilt->value();
   timestamps_type = ui->cB_timestamps->currentText().toStdString();
   position_inside_mh_group = ui->sB_position_inside_mh_group->value();
+  invert_tilt = ui->chB_invert_tilt->isChecked();
+  amplitude_pan = ui->sB_amplitude_pan->value();
+  amplitude_tilt = ui->sB_amplitude_tilt->value();
 }
 
 void EditFixtureDialog::setup_for_edit()
@@ -308,6 +318,9 @@ void EditFixtureDialog::update_moving_head_position_status(QString current_fixtu
     ui->cB_moving_head_type->setEnabled(true);
     ui->sB_modifier_pan->setEnabled(true);
     ui->sB_modifier_tilt->setEnabled(true);
+    ui->sB_amplitude_pan->setEnabled(true);
+    ui->sB_amplitude_tilt->setEnabled(true);
+    ui->chB_invert_tilt->setEnabled(true);
   } else {
     ui->cB_moving_head_position->setCurrentIndex(0);
     ui->cB_moving_head_position->setEnabled(false);
@@ -317,6 +330,12 @@ void EditFixtureDialog::update_moving_head_position_status(QString current_fixtu
     ui->sB_modifier_pan->setValue(0);
     ui->sB_modifier_tilt->setEnabled(false);
     ui->sB_modifier_tilt->setValue(0);
+    ui->sB_amplitude_pan->setEnabled(false);
+    ui->sB_amplitude_pan->setValue(0);
+    ui->sB_amplitude_tilt->setEnabled(false);
+    ui->sB_amplitude_tilt->setValue(0);
+    ui->chB_invert_tilt->setEnabled(false);
+    ui->chB_invert_tilt->setChecked(false);
   }
 
   if(current_fixture == "SGM X-5 (1CH)"

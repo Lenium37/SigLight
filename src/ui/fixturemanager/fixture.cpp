@@ -268,3 +268,27 @@ int Fixture::get_position_in_mh_group() {
 void Fixture::set_position_in_mh_group(int _position) {
   this->position_in_mh_group = _position;
 }
+
+bool Fixture::get_invert_tilt() {
+  return this->invert_tilt;
+}
+
+void Fixture::set_invert_tilt(bool _invert_tilt) {
+  this->invert_tilt = _invert_tilt;
+}
+
+int Fixture::get_amplitude_pan() {
+  return this->amplitude_pan;
+}
+
+void Fixture::set_amplitude_pan(int _amplitude_pan) {
+  this->amplitude_pan = _amplitude_pan;
+}
+
+int Fixture::get_amplitude_tilt() {
+  return this->amplitude_tilt;
+}
+
+void Fixture::set_amplitude_tilt(int _amplitude_tilt) {
+  this->amplitude_tilt = _amplitude_tilt;
+}
