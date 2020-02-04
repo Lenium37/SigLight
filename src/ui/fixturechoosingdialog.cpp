@@ -241,6 +241,20 @@ void FixtureChoosingDialog::update_position_in_mh_group_status(QString current_t
     ui->sB_position_inside_mh_group->setEnabled(false);
     ui->sB_position_inside_mh_group->setValue(0);
   }
+
+  if(current_type.toLower().toStdString().find("continuous 8") != string::npos) {
+    ui->sB_amplitude_pan->setValue(90);
+    ui->sB_amplitude_tilt->setValue(45);
+  } else if(current_type.toLower().toStdString().find("continuous circle") != string::npos) {
+    ui->sB_amplitude_pan->setValue(45);
+    ui->sB_amplitude_tilt->setValue(25);
+  } else if(current_type.toLower().toStdString().find("continuous line vertical") != string::npos) {
+    ui->sB_amplitude_pan->setValue(0);
+    ui->sB_amplitude_tilt->setValue(45);
+  } else if(current_type.toLower().toStdString().find("nothing") != string::npos) {
+    ui->sB_amplitude_pan->setValue(0);
+    ui->sB_amplitude_tilt->setValue(0);
+  }
 }
 
 void FixtureChoosingDialog::update_moving_head_position_status(QString current_fixture) {
