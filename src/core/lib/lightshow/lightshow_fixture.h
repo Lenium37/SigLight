@@ -235,6 +235,8 @@ class LightshowFixture {
   void set_amplitude_tilt(int _amplitude_tilt);
 
  private:
+  bool channel_already_exists(int channel);
+  Channel & get_channel(int channel);
   int start_channel;
   int number_of_channels;
   std::vector<Channel> channels;

@@ -30,14 +30,12 @@ class LightshowGenerator {
   void generate_color_fades_on_segment_changes(std::shared_ptr<Lightshow> lightshow_from_analysis,
                                                LightshowFixture &fix,
                                                std::vector<std::string> &colors);
-  void generate_color_changes(std::shared_ptr<Lightshow> lightshow_from_analysis,
-                              LightshowFixture &fix,
+  void generate_color_changes(LightshowFixture &fix,
                               std::vector<std::string> &colors,
-                              bool only_change_color_if_action,
-                              std::vector<float> timestamps);
-  void generate_onset_color_changes(std::shared_ptr<Lightshow> lightshow_from_analysis, LightshowFixture& fix, std::vector<std::string>& colors);
+                              std::vector<float> timestamps,
+                              float end_of_last_color);
   void set_soft_color_changes(std::shared_ptr<Lightshow> lightshow_from_analysis, LightshowFixture& fix, std::vector<color_change> color_changes, float fade_duration);
-  void set_hard_color_changes(std::shared_ptr<Lightshow> lightshow_from_analysis, LightshowFixture &fix, std::vector<color_change> color_changes);
+  void set_hard_color_changes(LightshowFixture &fix, std::vector<color_change> color_changes, float end_of_last_color);
   std::vector<time_value_int> calculate_single_fade(std::shared_ptr<Lightshow> lightshow_from_analysis, float fade_duration, int c_old, int c_new);
   void set_color_for_fixed_time(LightshowFixture& fix, std::string& color, float begin, float end);
   void set_color_of_fixture_during_song(std::shared_ptr<Lightshow> lightshow_from_analysis, LightshowFixture& fix, std::initializer_list<std::string> a_args);

@@ -436,10 +436,111 @@ std::vector<float> Lightshow::get_onset_timestamps() {
   return this->onset_timestamps;
 }
 
+std::vector<float> Lightshow::get_onset_timestamps_in_segment(float start, float end) {
+  std::vector<float> timestamps;
+
+  for(auto timestamp : this->onset_timestamps) {
+    if(timestamp >= start && timestamp < end)
+      timestamps.push_back(timestamp);
+  }
+
+  return timestamps;
+}
+
 int Lightshow::get_bpm() {
   return this->bpm;
 }
 
 void Lightshow::set_bpm(int _bpm) {
   this->bpm = _bpm;
+}
+
+std::vector<float> Lightshow::get_specific_beats(std::string beat_type, float start, float end) {
+  std::vector<float> timestamps;
+  std::vector<double> timestamps_double;// = this->get_all_beats();
+
+  if(end > 0) {
+    std::cout << "start: " << start << std::endl;
+    std::cout << "end: " << end << std::endl;
+    std::cout << "start * 44100: " << start * 44100 << std::endl;
+    std::cout << "end * 44100: " << end * 44100 << std::endl;
+    for (auto beat : this->get_all_beats()) {
+      //std::cout << "beat: " << beat << std::endl;
+      if ((float) beat >= start * 44100 && (float) beat < end * 44100)
+        timestamps_double.push_back(beat);
+    }
+  } else {
+    timestamps_double = this->get_all_beats();
+  }
+
+
+  if(beat_type == "beats 1/2/3/4" || beat_type == "beats 1/2/3/4 action") {
+    for(int i = 0; i < timestamps_double.size(); i++)
+      timestamps.push_back((float)timestamps_double[i] / 44100);
+  } else if(beat_type == "beats 2/4" || beat_type == "beats 2/4 action") {
+    for(int i = 0; i < timestamps_double.size(); i++) {
+      if((i + 1) % 2 == 0)
+        timestamps.push_back((float)timestamps_double[i] / 44100);
+    }
+  } else if(beat_type == "beats 1/3" || beat_type == "beats 1/3 action") {
+    for(int i = 0; i < timestamps_double.size(); i++) {
+      if((i + 1) % 2 == 1)
+        timestamps.push_back((float)timestamps_double[i] / 44100);
+    }
+  } else if(beat_type == "beats 1" || beat_type == "beats 1 action") {
+    for(int i = 0; i < timestamps_double.size(); i++) {
+      if(i % 4 == 0)
+        timestamps.push_back((float)timestamps_double[i] / 44100);
+    }
+  } else if(beat_type == "beats 2" || beat_type == "beats 2 action") {
+    for(int i = 0; i < timestamps_double.size(); i++) {
+      if((i - 1) % 4 == 0)
+        timestamps.push_back((float)timestamps_double[i] / 44100);
+    }
+  } else if(beat_type == "beats 3" || beat_type == "beats 3 action") {
+    for(int i = 0; i < timestamps_double.size(); i++) {
+      if((i - 2) % 4 == 0)
+        timestamps.push_back((float)timestamps_double[i] / 44100);
+    }
+  } else if(beat_type == "beats 4" || beat_type == "beats 4 action") {
+    for(int i = 0; i < timestamps_double.size(); i++) {
+      if((i - 3) % 4 == 0)
+        timestamps.push_back((float)timestamps_double[i] / 44100);
+    }
+  } else if(beat_type == "beats 1 every other bar" || beat_type == "beats 1 every other bar action") {
+    for(int i = 0; i < timestamps_double.size(); i++) {
+      if(i % 8 == 0)
+        timestamps.push_back((float)timestamps_double[i] / 44100);
+    }
+  }
+
+
+  if(beat_type.find("action") != std::string::npos) {
+    std::cout << "timestamps size: " << timestamps.size() << std::endl;
+    std::vector<time_value_int> bass_values = this->get_value_changes_bass();
+    std::vector<time_value_int> mid_values = this->get_value_changes_middle();
+    std::vector<float> timestamps_action;
+    for (int i = 0; i < timestamps.size(); i++) {
+      for (time_value_int &tvi_bass: bass_values) {
+        if (tvi_bass.time >= (float) timestamps[i] - 0.02 && tvi_bass.time <= (float) timestamps[i] + 0.02) {
+          if (tvi_bass.value > 75)
+            timestamps_action.push_back(timestamps[i]);
+          break;
+        }
+      }
+      for (time_value_int &tvi_mid: mid_values) {
+        if (tvi_mid.time >= (float) timestamps[i] - 0.02 && tvi_mid.time <= (float) timestamps[i] + 0.02) {
+          if (tvi_mid.value > 175)
+            timestamps_action.push_back(timestamps[i]);
+          break;
+        }
+      }
+    }
+    timestamps_action.erase( unique( timestamps_action.begin(), timestamps_action.end() ), timestamps_action.end() );
+    std::cout << "timestamps action size: " << timestamps_action.size() << std::endl;
+    //timestamps.clear();
+    timestamps = timestamps_action;
+  }
+
+  return timestamps;
 }

@@ -1563,7 +1563,11 @@ void MainWindow::ShowContextMenu(const QPoint &pos) {
   QAction remove("Remove", this);
 
   QMenu *type_menu = contextMenu.addMenu("Type");
-  QAction *type_action = type_menu->addAction("Ambient");
+  QAction *type_auto_beats = type_menu->addAction("auto_beats");
+  QAction *type_group_auto_beats = type_menu->addAction("group_auto_beats");
+  QAction *type_auto_onsets = type_menu->addAction("auto_onsets");
+  QAction *type_group_auto_onsets = type_menu->addAction("group_auto_onsets");
+  QAction *type_ambient = type_menu->addAction("Ambient");
   QAction *type_bass = type_menu->addAction("Bass");
   //QAction * type_action = type_menu->addAction("Action");
   QAction *type_middle = type_menu->addAction("Mid");
@@ -1609,7 +1613,7 @@ bool MainWindow::xml_has_no_error(tinyxml2::XMLError error) {
 }
 
 void MainWindow::update_fixture_list() {
-  QStringList types = (QStringList() << "Ambient" << "Bass" << "Mid" << "High" << "color_change" << "flash" << "flash_reverse" << "blink" << "group_one_after_another" << "group_one_after_another_blink" << "group_one_after_another_back_and_forth" << "group_one_after_another_back_and_forth_blink" << "group_two_after_another" << "group_alternate_odd_even" << "group_random_flashes" << "strobe_if_many_onsets");
+  QStringList types = (QStringList() << "auto_beats" << "group_auto_beats" << "auto_onsets" << "group_auto_onsets" << "Ambient" << "Bass" << "Mid" << "High" << "color_change" << "flash" << "flash_reverse" << "blink" << "group_one_after_another" << "group_one_after_another_blink" << "group_one_after_another_back_and_forth" << "group_one_after_another_back_and_forth_blink" << "group_two_after_another" << "group_alternate_odd_even" << "group_random_flashes" << "strobe_if_many_onsets");
 
   for (auto type : types) {
     QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(QString::fromStdString(type.toStdString()),

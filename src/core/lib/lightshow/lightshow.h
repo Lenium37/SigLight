@@ -73,7 +73,9 @@ class Lightshow {
 
   std::vector<time_value_int> get_timestamps_segment_changes();
   std::vector<double> get_all_beats();
+  std::vector<float> get_specific_beats(std::string beat_type, float start = 0, float end = 0);
   std::vector<float> get_onset_timestamps();
+  std::vector<float> get_onset_timestamps_in_segment(float start, float end);
   int get_bpm();
   void set_bpm(int _bpm);
 

@@ -285,21 +285,43 @@ void LightshowFixture::set_channel_blue(std::uint8_t channel_blue) {
 }
 
 void LightshowFixture::add_value_changes_to_channel(std::vector<time_value_int> value_changes, int channel) {
-  Channel ch(channel);
-  ValueChange vc(0.0, 0);
+  if(this->channel_already_exists(channel)) {
+    std::cout << "channel already exists!" << std::endl;
+    Channel ch(channel);
+    ValueChange vc(0.0, 0);
 
-  // loop through all ValueChanges and add them to the channel
-  for (int i = 0; i < value_changes.size(); i++) {
-    vc.set_timestamp(value_changes[i].time);
-    vc.set_value(value_changes[i].value);
-    if(vc.get_value() == -1) { // end of song special
-      vc.set_value(0);
-      ch.add_value_change(vc);
-    } else if (vc.get_value() != ch.get_value_of_last_added_value_change()) // if ValueChange is different than the last one added to the channel, add it to the channel
+    // loop through all ValueChanges and add them to the channel
+    for (int i = 0; i < value_changes.size(); i++) {
+      vc.set_timestamp(value_changes[i].time);
+      vc.set_value(value_changes[i].value);
+      if (vc.get_value() == -1) { // end of song special
+        vc.set_value(0);
         ch.add_value_change(vc);
+      } else if (vc.get_value()
+          != ch.get_value_of_last_added_value_change()) // if ValueChange is different than the last one added to the channel, add it to the channel
+        ch.add_value_change(vc);
+    }
+    if (ch.get_value_of_last_added_value_change() != -1)
+      this->add_channel(ch);
+
+  } else {
+    Channel ch(channel);
+    ValueChange vc(0.0, 0);
+
+    // loop through all ValueChanges and add them to the channel
+    for (int i = 0; i < value_changes.size(); i++) {
+      vc.set_timestamp(value_changes[i].time);
+      vc.set_value(value_changes[i].value);
+      if (vc.get_value() == -1) { // end of song special
+        vc.set_value(0);
+        ch.add_value_change(vc);
+      } else if (vc.get_value()
+          != ch.get_value_of_last_added_value_change()) // if ValueChange is different than the last one added to the channel, add it to the channel
+        ch.add_value_change(vc);
+    }
+    if (ch.get_value_of_last_added_value_change() != -1)
+      this->add_channel(ch);
   }
-  if(ch.get_value_of_last_added_value_change() != -1)
-    this->add_channel(ch);
 }
 
 void LightshowFixture::set_type(std::string type) {
@@ -321,7 +343,11 @@ void LightshowFixture::set_type(std::string type) {
   || type == "group_two_after_another"
   || type == "group_alternate_odd_even"
   || type == "group_random_flashes"
-  || type == "strobe_if_many_onsets") {
+  || type == "strobe_if_many_onsets"
+  || type == "auto_beats"
+  || type == "group_auto_beats"
+  || type == "auto_onsets"
+  || type == "group_auto_onsets") {
     this->type = type;
     Logger::debug("Set type of fixture to {}", type);
   }
@@ -515,3 +541,22 @@ int LightshowFixture::get_amplitude_tilt() {
 void LightshowFixture::set_amplitude_tilt(int _amplitude_tilt) {
   this->amplitude_tilt = _amplitude_tilt;
 }
+
+bool LightshowFixture::channel_already_exists(int channel) {
+  bool channel_already_exists = false;
+
+  for(auto ch : this->get_channels()) {
+    if(ch.get_channel() == channel)
+      channel_already_exists = true;
+  }
+
+  return channel_already_exists;
+}
+
+/*Channel &LightshowFixture::get_channel(int channel) {
+  for(auto ch : this->get_channels()) {
+    if(ch.get_channel() == channel)
+      return ch;
+  }
+  return NULL;
+}*/
