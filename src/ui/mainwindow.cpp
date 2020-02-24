@@ -122,16 +122,26 @@ void MainWindow::init() {
   this->setWindowTitle("SigLight");
   this->check_which_dmx_device_is_connected();
   // claim device interface
-  if(get_current_dmx_device().is_connected()) {
-    get_current_dmx_device().start_device();
-    get_current_dmx_device().set_all_channel_values(this->get_all_pan_tilt_channels_with_default_value(), false);
+  if(this->get_current_dmx_device().is_connected()) {
+    this->get_current_dmx_device().start_device();
+    this->get_current_dmx_device().set_all_channel_values(this->get_all_pan_tilt_channels_with_default_value(), false);
   }
-  this->lightshow_player = new LightshowPlayer(get_current_dmx_device());
+  this->lightshow_player = new LightshowPlayer(this->get_current_dmx_device());
   this->lightshow_resolution = 40;
 
   ls_generating_thread_is_alive = false;
   player->set_songs_directory_path(this->songs_directory_path);
 
+}
+
+void MainWindow::on_action_open_current_dmx_device_triggered() {
+  this->check_which_dmx_device_is_connected();
+  // claim device interface
+  if(get_current_dmx_device().is_connected()) {
+    this->get_current_dmx_device().start_device();
+    this->get_current_dmx_device().set_all_channel_values(this->get_all_pan_tilt_channels_with_default_value(), false);
+  }
+  this->lightshow_player = new LightshowPlayer(this->get_current_dmx_device());
 }
 
 void MainWindow::init_toolbar() {

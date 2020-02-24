@@ -178,6 +178,8 @@ private slots:
 
     void on_actionLade_Fixtures_triggered();
 
+    void on_action_open_current_dmx_device_triggered();
+
     void closeEvent(QCloseEvent *event) override;
 
     void slot_song_title_or_artist_changed_update_combobox(int playlist_index);

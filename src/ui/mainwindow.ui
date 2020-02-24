@@ -272,6 +272,7 @@
     <addaction name="action_safe_playlist"/>
     <addaction name="action_remove_song_from_playlist"/>
     <addaction name="actionLade_Fixtures"/>
+    <addaction name="action_open_current_dmx_device"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuBeabeiten">
@@ -435,6 +436,14 @@
    </property>
    <property name="toolTip">
     <string>Load fixtures</string>
+   </property>
+  </action>
+  <action name="action_open_current_dmx_device">
+   <property name="text">
+    <string>Open current DMX device</string>
+   </property>
+   <property name="toolTip">
+    <string>Open the currently connected DMX device if it wasn't connected at program start or got disconnected while the program was running</string>
    </property>
   </action>
   <action name="actionExit">
