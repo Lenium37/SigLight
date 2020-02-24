@@ -142,7 +142,7 @@ void Lightshow::get_bpm_and_beats(bool &finished, int user_bpm) {
   Logger::debug("5");
   if(bpm_result == -1) {
     Logger::error("song too short to get bpm or do segmentation analysis");
-    this->timestamps_colorchanges.push_back({0.0, 0});
+    this->timestamps_segment_changes.push_back({0.0, 0});
   } else {
     //Logger::info("analysed bpm of: {}", this->bpm);
     this->first_beat = analysis.get_first_beat();
@@ -153,7 +153,7 @@ void Lightshow::get_bpm_and_beats(bool &finished, int user_bpm) {
      * TODO: threshold wert damit nur changes in intensity_changes gepeichert werden, die um threshold % vom letzten change abweichen
      */
     std::vector<time_value_int> intensity_changes = analysis.get_intensity_changes(segment_intensities, 15);
-    this->timestamps_colorchanges = intensity_changes;
+    this->timestamps_segment_changes = intensity_changes;
   }
   finished = true;
 }
@@ -291,7 +291,7 @@ void Lightshow::prepare_analysis_for_song(char *song_path, bool need_bass, bool 
      * TODO: threshold wert damit nur changes in intensity_changes gepeichert werden, die um threshold % vom letzten change abweichen
      */
     std::vector<time_value_int> intensity_changes = analysis.get_intensity_changes(segment_intensities, 15);
-    this->timestamps_colorchanges = intensity_changes;
+    this->timestamps_segment_changes = intensity_changes;
   }
 }
 
@@ -412,8 +412,8 @@ int Lightshow::get_wait_time_special() {
   return this->wait_time_special;
 }
 
-std::vector<time_value_int> Lightshow::get_timestamps_colorchanges() {
-  return this->timestamps_colorchanges;
+std::vector<time_value_int> Lightshow::get_timestamps_segment_changes() {
+  return this->timestamps_segment_changes;
 }
 
 void Lightshow::add_value_change_bass(time_value_int tvi) {

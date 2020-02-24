@@ -147,6 +147,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         }
       }
 
+
       if(timestamps_type.find("action") != string::npos) {
         std::cout << "timestamps size: " << timestamps.size() << std::endl;
         std::vector<time_value_int> bass_values = lightshow->get_value_changes_bass();
@@ -375,7 +376,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         vc_focus.push_back({0.0, 200});
         vc_focus.push_back({((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0});
 
-        std::vector<time_value_int> segment_changes = lightshow->get_timestamps_colorchanges();
+        std::vector<time_value_int> segment_changes = lightshow->get_timestamps_segment_changes();
 
         std::cout << "all segment changes:" << std::endl;
         //for(time_value_int f: segment_changes) {
@@ -444,7 +445,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
         std::vector<std::string> colors = fix.get_colors();
         //std::cout << colors.size() << std::endl;
-        this->generate_color_fades(lightshow, fix, colors);
+        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
 
       } else {
         fix.add_value_changes_to_channel(lightshow->get_value_changes_bass(), fix.get_channel_red());
@@ -456,7 +457,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         fix.add_value_changes_to_channel(lightshow->get_value_changes_middle(), fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
-        this->generate_color_fades(lightshow, fix, colors);
+        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
 
       } else {
         fix.add_value_changes_to_channel(lightshow->get_value_changes_middle(), fix.get_channel_blue());
@@ -468,7 +469,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         fix.add_value_changes_to_channel(lightshow->get_value_changes_high(), fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
-        this->generate_color_fades(lightshow, fix, colors);
+        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
 
       } else {
         fix.add_value_changes_to_channel(lightshow->get_value_changes_high(), fix.get_channel_green());
@@ -483,7 +484,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
-        this->generate_color_fades(lightshow, fix, colors);
+        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
 
       } else {
 
@@ -549,7 +550,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         }
 
         std::vector<std::string> colors = fix.get_colors();
-        this->generate_color_fades(lightshow, fix, colors);
+        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
       } else {
 
       }
@@ -601,7 +602,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         }
 
         std::vector<std::string> colors = fix.get_colors();
-        this->generate_color_fades(lightshow, fix, colors);
+        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
       } else {
 
       }
@@ -624,7 +625,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
-        this->generate_color_fades(lightshow, fix, colors);
+        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
       } else {
 
       }
@@ -650,7 +651,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
           fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
         }
         std::vector<std::string> colors = fix.get_colors();
-        this->generate_color_fades(lightshow, fix, colors);
+        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
       } else {
 
       }
@@ -689,7 +690,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
           fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
         }
         std::vector<std::string> colors = fix.get_colors();
-        this->generate_color_fades(lightshow, fix, colors);
+        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
       } else {
 
       }
@@ -728,7 +729,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
           fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
         }
         std::vector<std::string> colors = fix.get_colors();
-        this->generate_color_fades(lightshow, fix, colors);
+        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
       } else {
 
       }
@@ -761,7 +762,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
           fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
         }
         std::vector<std::string> colors = fix.get_colors();
-        this->generate_color_fades(lightshow, fix, colors);
+        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
       } else {
 
       }
@@ -789,7 +790,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
-        this->generate_color_fades(lightshow, fix, colors);
+        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
       } else {
 
       }
@@ -817,7 +818,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
-        this->generate_color_fades(lightshow, fix, colors);
+        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
       } else {
 
       }
@@ -845,7 +846,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
-        this->generate_color_fades(lightshow, fix, colors);
+        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
       } else {
 
       }
@@ -873,7 +874,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
-        this->generate_color_fades(lightshow, fix, colors);
+        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
       } else {
 
       }
@@ -951,7 +952,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
-        this->generate_color_fades(lightshow, fix, colors);
+        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
       } else {
 
       }
@@ -1029,7 +1030,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
             fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
 
             std::vector<std::string> colors = fix.get_colors();
-            this->generate_color_fades(lightshow, fix, colors);
+            this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
 
           } else if (fix.has_shutter) {
 
@@ -1045,9 +1046,11 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   return lightshow;
 }
 
-void LightshowGenerator::generate_color_fades(std::shared_ptr<Lightshow> lightshow_from_analysis, LightshowFixture& fix, std::vector<std::string>& colors) {
+void LightshowGenerator::generate_color_fades_on_segment_changes(std::shared_ptr<Lightshow> lightshow_from_analysis,
+                                                                 LightshowFixture &fix,
+                                                                 std::vector<std::string> &colors) {
   std::vector<color_change> color_changes;
-  std::vector<time_value_int> timestamps = lightshow_from_analysis->get_timestamps_colorchanges();
+  std::vector<time_value_int> timestamps = lightshow_from_analysis->get_timestamps_segment_changes();
   Logger::debug("Number of color changes in this lightshow: {}", timestamps.size());
   int c = 0;
   color_changes.push_back({ 0, colors[0] });

@@ -27,7 +27,9 @@ class LightshowGenerator {
  private:
   float fade_duration = 1;
   std::shared_ptr<AnalysisResult> analysis_result;
-  void generate_color_fades(std::shared_ptr<Lightshow> lightshow_from_analysis, LightshowFixture& fix, std::vector<std::string>& colors);
+  void generate_color_fades_on_segment_changes(std::shared_ptr<Lightshow> lightshow_from_analysis,
+                                               LightshowFixture &fix,
+                                               std::vector<std::string> &colors);
   void generate_color_changes(std::shared_ptr<Lightshow> lightshow_from_analysis,
                               LightshowFixture &fix,
                               std::vector<std::string> &colors,
