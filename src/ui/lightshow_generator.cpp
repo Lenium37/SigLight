@@ -377,9 +377,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
     }
 
     if(fix_type == "auto_beats") {
-
-      bool dummy_boolean = true;
-
+      this->set_dimmer_values_in_segment(fix, 0, 200, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0);
       auto segments = lightshow->get_timestamps_segment_changes();
       std::cout << "number of segments: " << segments.size() << std::endl;
       float segment_start = 0;
@@ -394,7 +392,33 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         std::cout << "segment_start_seconds: " << segment_start << std::endl;
         std::cout << "segment_end_seconds: " << segment_end << std::endl;
 
-        if(dummy_boolean) { // blink, timestamps onsets
+
+        std::vector<float> onset_timestamps = lightshow->get_onset_timestamps_in_segment(segment_start, segment_end);
+        // duration of segment / duration of one bar * how often an onsets should occur each bar
+        float time_of_one_bar = (float) 4 * ((float) 60 / (float) lightshow->get_bpm());
+        float number_of_needed_onsets_in_segment_for_4 = (segment_end - segment_start) / time_of_one_bar * 3;
+        float number_of_needed_onsets_in_segment_for_2 = (segment_end - segment_start) / time_of_one_bar * 1.75;
+        std::cout << "number_of_needed_onsets_in_segment_for_4: " << number_of_needed_onsets_in_segment_for_4 << std::endl;
+        std::cout << "number of onset timestamps in segment: " << onset_timestamps.size() << std::endl;
+
+        if(onset_timestamps.size() > number_of_needed_onsets_in_segment_for_4)
+          timestamps = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
+        else if(onset_timestamps.size() > number_of_needed_onsets_in_segment_for_2)
+          timestamps = lightshow->get_specific_beats("beats 2/4", segment_start, segment_end);
+        else
+          timestamps = lightshow->get_specific_beats("beats 1", segment_start, segment_end);
+
+        if (fix.has_global_dimmer) {
+          //this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);
+
+          std::vector<std::string> colors = fix.get_colors();
+          this->generate_color_changes(fix, colors, timestamps, segment_end);
+
+        } else {
+
+        }
+
+        /*if(dummy_boolean) { // blink, timestamps onsets
           timestamps = lightshow->get_onset_timestamps_in_segment(segment_start, segment_end);
           std::cout << "number of onset timestamps in segment: " << timestamps.size() << std::endl;
           if (fix.has_global_dimmer) {
@@ -409,31 +433,13 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
                 value_changes.push_back({segment_end, 0});
               }
             }
-
             fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
-
           } else {
 
           }
 
           dummy_boolean = false;
-        } else { // color_change, timestamps beats 1/2/3/4 action
-          timestamps = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
-          if (fix.has_global_dimmer) {
-            std::vector<time_value_int> v;
-            v.push_back({segment_start, 200});
-            v.push_back({segment_end, 0});
-            fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
-
-            std::vector<std::string> colors = fix.get_colors();
-            this->generate_color_changes(fix, colors, timestamps, segment_end);
-
-          } else {
-
-          }
-
-          dummy_boolean = true;
-        }
+        }*/
 
       }
       //std::vector<std::string> colors = fix.get_colors();
@@ -489,12 +495,20 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
           dummy_boolean = false;
         } else { // color_change, timestamps beats 1/2/3/4
-          timestamps = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
+          std::vector<float> onset_timestamps = lightshow->get_onset_timestamps_in_segment(segment_start, segment_end);
+          // duration of segment / duration of one bar * how often an onsets should occur each bar
+          float time_of_one_bar = (float) 4 * ((float) 60 / (float) lightshow->get_bpm());
+          float number_of_needed_onsets_per_bar = 3;
+          float number_of_needed_onsets_in_segment = (segment_end - segment_start) / time_of_one_bar * number_of_needed_onsets_per_bar;
+          std::cout << "number_of_needed_onsets_in_segment: " << number_of_needed_onsets_in_segment << std::endl;
+          std::cout << "number of onset timestamps in segment: " << onset_timestamps.size() << std::endl;
+
+          if(onset_timestamps.size() > number_of_needed_onsets_in_segment)
+            timestamps = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
+          else
+            timestamps = lightshow->get_specific_beats("beats 2/4", segment_start, segment_end);
           if (fix.has_global_dimmer) {
-            std::vector<time_value_int> v;
-            v.push_back({segment_start, 200});
-            v.push_back({segment_end, 0});
-            fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
+            this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);
 
             std::vector<std::string> colors = fix.get_colors();
             this->generate_color_changes(fix, colors, timestamps, segment_end);
@@ -510,6 +524,53 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
     } else if(fix_type == "auto_onsets") {
 
+      bool dummy_boolean = true;
+
+      auto segments = lightshow->get_timestamps_segment_changes();
+      std::cout << "number of segments: " << segments.size() << std::endl;
+      float segment_start = 0;
+      float segment_end = 0;
+      for(int j = 0; j < segments.size(); j++) {
+        segment_start = segments[j].time;
+        if(j < segments.size() - 1)
+          segment_end = segments[j + 1].time;
+        else
+          segment_end = ((float) lightshow->get_length() - 3) / lightshow->get_resolution();
+
+        std::cout << "segment_start_seconds: " << segment_start << std::endl;
+        std::cout << "segment_end_seconds: " << segment_end << std::endl;
+
+        if(dummy_boolean) { // blink, timestamps onsets
+          timestamps = lightshow->get_onset_timestamps_in_segment(segment_start, segment_end);
+          std::cout << "number of onset timestamps in segment: " << timestamps.size() << std::endl;
+          if (fix.has_global_dimmer) {
+            std::vector<time_value_int> value_changes;
+
+            for (int k = 0; k < timestamps.size(); k++) {
+              value_changes.push_back({timestamps[k], 200});
+              if(k < timestamps.size() - 1) {
+                this->generate_blink_fade_outs(value_changes, timestamps[k], timestamps[k+1], segment_end);
+              }
+              else {
+                value_changes.push_back({segment_end, 0});
+              }
+            }
+            fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
+          } else {
+
+          }
+
+          dummy_boolean = false;
+        } else {
+
+
+          dummy_boolean = true;
+        }
+
+      }
+      //std::vector<std::string> colors = fix.get_colors();
+      //this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
+
     } else if(fix_type == "group_auto_onsets") {
 
     } else if (fix_type == "bass") {
@@ -518,13 +579,11 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         fix.add_value_changes_to_channel(lightshow->get_value_changes_bass(), fix.get_channel_dimmer());
 
         std::vector<std::string> colors = fix.get_colors();
-        //std::cout << colors.size() << std::endl;
         this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
 
       } else {
         fix.add_value_changes_to_channel(lightshow->get_value_changes_bass(), fix.get_channel_red());
       }
-      //lightshow->add_fixture_bass(fix);
     } else if (fix_type == "mid") {
 
       if (fix.has_global_dimmer) {
@@ -536,7 +595,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       } else {
         fix.add_value_changes_to_channel(lightshow->get_value_changes_middle(), fix.get_channel_blue());
       }
-      //lightshow->add_fixture_middle(fix);
     } else if (fix_type == "high") {
 
       if (fix.has_global_dimmer) {
@@ -548,14 +606,9 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       } else {
         fix.add_value_changes_to_channel(lightshow->get_value_changes_high(), fix.get_channel_green());
       }
-      //lightshow->add_fixture_high(fix);
     } else if (fix_type == "ambient") {
       if (fix.has_global_dimmer) {
-        std::vector<time_value_int> v;
-        v.push_back({0.0, 200});
-        v.push_back({((float) lightshow->get_length() - 3) / lightshow->get_resolution(),
-                     0});
-        fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
+        this->set_dimmer_values_in_segment(fix, 0.0, 200, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0);
 
         std::vector<std::string> colors = fix.get_colors();
         this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
@@ -563,14 +616,9 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       } else {
 
       }
-      //lightshow->add_fixture(fix);
     } else if (fix_type == "color_change") {
       if (fix.has_global_dimmer) {
-        std::vector<time_value_int> v;
-        v.push_back({0.0, 200});
-        v.push_back({((float) lightshow->get_length() - 3) / lightshow->get_resolution(),
-                     0});
-        fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
+        this->set_dimmer_values_in_segment(fix, 0.0, 200, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0);
 
         std::vector<std::string> colors = fix.get_colors();
         this->generate_color_changes(fix, colors, timestamps, ((float) lightshow->get_length() - 3) / lightshow->get_resolution());
@@ -578,11 +626,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       } else {
 
       }
-      //lightshow->add_fixture(fix);
     } else if (fix_type == "flash") {
       if (fix.has_global_dimmer) {
-
-        //std::vector<float> timestamps = lightshow->get_onset_timestamps();
         std::vector<time_value_int> value_changes_flash;
         value_changes_flash.push_back({0.0, 0});
 
@@ -611,10 +656,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         }
 
         if(fix.has_shutter) {
-          std::vector<time_value_int> v;
-          v.push_back({0.0, 200});
-          v.push_back({((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0});
-          fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
+          this->set_dimmer_values_in_segment(fix, 0.0, 200, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0);
           fix.add_value_changes_to_channel(value_changes_flash, fix.get_channel_shutter());
         } else {
           fix.add_value_changes_to_channel(value_changes_flash, fix.get_channel_dimmer());
@@ -628,8 +670,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
     } else if (fix_type == "flash_reverse") {
       if (fix.has_global_dimmer) {
-
-        //std::vector<float> timestamps = lightshow->get_onset_timestamps();
         std::vector<time_value_int> value_changes_flash_reverse;
 
         if(fix.has_shutter) {
@@ -663,10 +703,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         }
 
         if(fix.has_shutter) {
-          std::vector<time_value_int> v;
-          v.push_back({0.0, 200});
-          v.push_back({((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0});
-          fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
+          this->set_dimmer_values_in_segment(fix, 0.0, 200, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0);
           fix.add_value_changes_to_channel(value_changes_flash_reverse, fix.get_channel_shutter());
         } else {
           fix.add_value_changes_to_channel(value_changes_flash_reverse, fix.get_channel_dimmer());
@@ -677,7 +714,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       } else {
 
       }
-    }else if (fix_type == "blink") {
+    } else if (fix_type == "blink") {
       if (fix.has_global_dimmer) {
 
         //std::vector<float> timestamps = lightshow->get_onset_timestamps();
@@ -726,7 +763,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       } else {
 
       }
-      //lightshow->add_fixture(fix);
     } else if (fix_type == "group_one_after_another_back_and_forth") {
       if (fix.has_global_dimmer) {
 
@@ -765,7 +801,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       } else {
 
       }
-      //lightshow->add_fixture(fix);
     } else if (fix_type == "group_one_after_another_back_and_forth_blink") {
       if (fix.has_global_dimmer) {
 
@@ -804,7 +839,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       } else {
 
       }
-      //lightshow->add_fixture(fix);
     } else if (fix_type == "group_one_after_another_blink") {
       if (fix.has_global_dimmer) {
 
@@ -837,7 +871,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       } else {
 
       }
-      //lightshow->add_fixture(fix);
     } else if (fix_type == "group_two_after_another") {
       if (fix.has_global_dimmer) {
 
@@ -865,7 +898,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       } else {
 
       }
-      //lightshow->add_fixture(fix);
     } else if (fix_type == "group_alternate_odd_even") {
       if (fix.has_global_dimmer) {
 
@@ -893,7 +925,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       } else {
 
       }
-      //lightshow->add_fixture(fix);
     } else if (fix_type == "group_alternate_odd_even") {
       if (fix.has_global_dimmer) {
 
@@ -921,7 +952,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       } else {
 
       }
-      //lightshow->add_fixture(fix);
     } else if (fix_type == "group_alternate_odd_even_blink") {
       if (fix.has_global_dimmer) {
 
@@ -949,7 +979,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       } else {
 
       }
-      //lightshow->add_fixture(fix);
     } else if (fix_type == "group_random_flashes") {
       if (fix.has_global_dimmer) {
 
@@ -1027,7 +1056,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       } else {
 
       }
-      //lightshow->add_fixture(fix);
     } else if (fix_type == "strobe_if_many_onsets") {
 
       std::vector<float> onset_timestamps = lightshow->get_onset_timestamps();
@@ -1110,7 +1138,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
           }
         }
       }
-      //lightshow->add_fixture(fix);
     }
 
   }
@@ -1573,4 +1600,15 @@ void LightshowGenerator::generate_blink_fade_outs(std::vector<time_value_int> &v
   }
   else
     value_changes.push_back({next_timestamp, 0});
+}
+
+void LightshowGenerator::set_dimmer_values_in_segment(LightshowFixture & fix,
+                                                      float segment_start,
+                                                      int start_value,
+                                                      float segment_end,
+                                                      int end_value) {
+  std::vector<time_value_int> v;
+  v.push_back({segment_start, start_value});
+  v.push_back({segment_end, end_value});
+  fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
 }

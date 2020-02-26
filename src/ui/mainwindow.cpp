@@ -138,6 +138,7 @@ void MainWindow::on_action_open_current_dmx_device_triggered() {
   this->check_which_dmx_device_is_connected();
   // claim device interface
   if(get_current_dmx_device().is_connected()) {
+    this->get_current_dmx_device().stop_device();
     this->get_current_dmx_device().start_device();
     this->get_current_dmx_device().set_all_channel_values(this->get_all_pan_tilt_channels_with_default_value(), false);
   }
