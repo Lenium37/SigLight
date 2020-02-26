@@ -71,7 +71,7 @@ class Lightshow {
   int get_wait_time_standard();
   int get_wait_time_special();
 
-  std::vector<time_value_int> get_timestamps_segment_changes();
+  std::vector<time_value_float> get_timestamps_segment_changes();
   std::vector<double> get_all_beats();
   std::vector<float> get_specific_beats(std::string beat_type, float start = 0, float end = 0);
   std::vector<float> get_onset_timestamps();
@@ -93,7 +93,7 @@ class Lightshow {
   std::vector<time_value_int> value_changes_bass;
   std::vector<time_value_int> value_changes_middle;
   std::vector<time_value_int> value_changes_high;
-  std::vector<time_value_int> timestamps_segment_changes;
+  std::vector<time_value_float> timestamps_segment_changes;
   std::vector<float> onset_timestamps;
 
   int resolution = 40; // 40 = DMX update every 25ms.    20 = DMX update every 50ms.    10 = DMX update every 100ms.

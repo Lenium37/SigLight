@@ -315,7 +315,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         vc_focus.push_back({0.0, 200});
         vc_focus.push_back({((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0});
 
-        std::vector<time_value_int> segment_changes = lightshow->get_timestamps_segment_changes();
+        std::vector<time_value_float> segment_changes = lightshow->get_timestamps_segment_changes();
 
         std::cout << "all segment changes:" << std::endl;
         //for(time_value_int f: segment_changes) {
@@ -417,29 +417,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         } else {
 
         }
-
-        /*if(dummy_boolean) { // blink, timestamps onsets
-          timestamps = lightshow->get_onset_timestamps_in_segment(segment_start, segment_end);
-          std::cout << "number of onset timestamps in segment: " << timestamps.size() << std::endl;
-          if (fix.has_global_dimmer) {
-            std::vector<time_value_int> value_changes;
-
-            for (int k = 0; k < timestamps.size(); k++) {
-              value_changes.push_back({timestamps[k], 200});
-              if(k < timestamps.size() - 1) {
-                this->generate_blink_fade_outs(value_changes, timestamps[k], timestamps[k+1], segment_end);
-              }
-              else {
-                value_changes.push_back({segment_end, 0});
-              }
-            }
-            fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
-          } else {
-
-          }
-
-          dummy_boolean = false;
-        }*/
 
       }
       //std::vector<std::string> colors = fix.get_colors();
@@ -1148,7 +1125,7 @@ void LightshowGenerator::generate_color_fades_on_segment_changes(std::shared_ptr
                                                                  LightshowFixture &fix,
                                                                  std::vector<std::string> &colors) {
   std::vector<color_change> color_changes;
-  std::vector<time_value_int> timestamps = lightshow_from_analysis->get_timestamps_segment_changes();
+  std::vector<time_value_float> timestamps = lightshow_from_analysis->get_timestamps_segment_changes();
   Logger::debug("Number of color changes in this lightshow: {}", timestamps.size());
   int c = 0;
   color_changes.push_back({ 0, colors[0] });

@@ -286,7 +286,22 @@ void LightshowFixture::set_channel_blue(std::uint8_t channel_blue) {
 
 void LightshowFixture::add_value_changes_to_channel(std::vector<time_value_int> value_changes, int channel) {
   if(this->channel_already_exists(channel)) {
-    std::cout << "channel already exists!" << std::endl;
+    std::cout << "channel already exists and has " << this->get_channel(channel).get_value_changes().size() << " value changes" << std::endl;
+
+    /*//Channel ch(channel);
+    ValueChange vc(0.0, 0);
+
+    // loop through all ValueChanges and add them to the channel
+    for (int i = 0; i < value_changes.size(); i++) {
+      vc.set_timestamp(value_changes[i].time);
+      vc.set_value(value_changes[i].value);
+      if (vc.get_value() == -1) { // end of song special
+        vc.set_value(0);
+        this->get_channel(channel).add_value_change(vc);
+      } else if (vc.get_value()
+          != this->get_channel(channel).get_value_of_last_added_value_change()) // if ValueChange is different than the last one added to the channel, add it to the channel
+        this->get_channel(channel).add_value_change(vc);
+    }*/
     Channel ch(channel);
     ValueChange vc(0.0, 0);
 
@@ -553,10 +568,12 @@ bool LightshowFixture::channel_already_exists(int channel) {
   return channel_already_exists;
 }
 
-/*Channel &LightshowFixture::get_channel(int channel) {
-  for(auto ch : this->get_channels()) {
+Channel &LightshowFixture::get_channel(int channel) {
+  Channel channel1(0);
+  for(auto &ch : this->get_channels()) {
     if(ch.get_channel() == channel)
       return ch;
   }
-  return NULL;
-}*/
+  std::cerr << "THIS SHOULD NEVER HAPPEN" << std::endl;
+  return channel1;
+}

@@ -789,7 +789,454 @@ std::vector<time_value_double> Analysis::get_intensity_function_values() {
 
     return intensities;
 
-};
+}
+
+std::vector<time_value_float> Analysis::get_segments() {
+
+  bool FILEPRINT = false;
+  auto start = std::chrono::system_clock::now();
+
+  std::vector<time_value_float> segments;
+
+  // BIN AND HOPSIZE BASED ON MEINARD MÜLLERS RECOMMENDATION IN "FUNDAMENTALS OF USIC PROCESSING"
+  int bin_size = 2205; // 0.05 seconds, 20Hz
+  int hop_size = 2205; // no overlap
+
+  Gist<float> gist2(bin_size, samplerate);
+  std::vector<std::vector<float>> window;
+  std::vector<std::vector<float>> ssm;
+  std::vector<float> bin;
+  bin.reserve(bin_size);
+  std::vector<float> coeffs;
+
+  // filter kernel variables
+  int L = 75;
+  int N = (L*2)+1;
+
+  // ##############################
+  // ###### 1. GET AUDIO BIN ######
+  // ##############################
+
+  auto start_audiobin = std::chrono::system_clock::now();
+
+  for (int i = 0; i < (signal_length_mono - bin_size); i += hop_size){
+
+    for(int j = 0; j < bin_size; j++){
+      int index = i + j;
+      //std::cout << "index " << index << ": " << wav_values_mono[index] << std::endl;
+      bin.push_back(wav_values_mono[index]);
+    }
+    gist2.processAudioFrame(bin);
+
+    // ########################################
+    // ###### 2. GET THE FEATURE VECTORS ######
+    // ###### AND PUT THEM INTO WINDOW ########
+    // ########################################
+
+    // USE MAGNITUDE SPECTRUM
+    //coeffs = gist2.getMagnitudeSpectrum();
+
+    // USE MFCC
+    coeffs = gist2.getMelFrequencyCepstralCoefficients();
+
+    window.push_back(coeffs);
+    coeffs.clear();
+    bin.clear();
+  }
+
+  auto end_audiobin = std::chrono::system_clock::now();
+
+
+  // MAYBE WE WILL NEED THIS LATER
+  // HOW TO GET THE TIMES
+  // time of window[n] = (((n * hop_size) + (bin_size / 2)) / sample_rate)
+
+  // #################################
+  // ###### 3. COMPUTE DISTANCE ######
+  // #################################
+
+  // THIS HAS TO BE OPTIMIZED!!!
+  // ONE HALF OF MATRIX DOESNT NEED TO BE CALCULATED BECAUSE [m][n] = [n][m]
+  // EVERYTHING ABOVE OR BELOW L DOESN'T NEED TO BE CALCULATED
+  // ZERO PADDING MUST BE APPLIED!
+
+  std::vector<float> similarity;
+
+  float ssm_max = 0;
+  float ssm_min = 0;
+  float ssm_count = 0;
+  float ssm_middle = 0;
+  float ssm_sum = 0;
+
+  float distance = 0;
+
+  auto start_distance = std::chrono::system_clock::now();
+
+  for (int m = 0; m < window.size(); m++){
+    similarity.clear();
+    for (int n = 0; n < window.size(); n++){
+
+      if (n <= m+L && n >= m-L) {
+
+        // BEFORE CALCULATING DISTANCE, CHECK IF THERE IS A MIRRORED VALUE BECAUSE [m][n] = [n][m]
+        /*
+        if (ssm[n].size() > m && ssm[m].size() > n) {
+            ssm[m][n] = ssm[n][m];
+            continue;
+        }
+        else {
+        }
+         */
+
+        // #################################################################
+        // ###################### 3.1 COSINE DISTANCE ######################
+        // #### d_cos  =  m*n / |m|*|n|  =  m*n / sqrt(m*m) * sqrt(n*n) ####
+        // #################################################################
+
+        float p_mn = 0;
+        for (int j = 0; j < window[m].size(); j++) {
+          p_mn += window[m][j] * window[n][j];
+        }
+        float p_mm = 0;
+        for (int j = 0; j < window[m].size(); j++) {
+          p_mm += window[m][j] * window[m][j];
+        }
+        float p_nn = 0;
+        for (int j = 0; j < window[n].size(); j++) {
+          p_nn += window[n][j] * window[n][j];
+        }
+        float cosine_distance = p_mn / (sqrt(p_mm) * sqrt(p_nn));
+
+
+        // USE COSINE DISTANCE
+        distance = cosine_distance;
+      }
+      else {
+        distance = 0.0;
+      }
+
+      // USE OTHER DISTANCE
+      //float distance = other_distance;
+
+      similarity.push_back(distance);
+
+      // SUM UP DISTANCES
+      ssm_sum += distance;
+
+      // COUNT DISTANCES
+      ssm_count += 1;
+
+      // GET MIN AND MAX DISTANCE
+      if (distance < ssm_min){
+        ssm_min = distance;
+      }
+      else if (distance > ssm_max){
+        ssm_max = distance;
+      }
+      else {}
+
+    }
+
+    // GET MIDDLE OF DISTANCES
+    ssm_middle = ssm_sum / ssm_count;
+
+    // ####################
+    // ## 4. MAKE MATRIX ##
+    // ####################
+
+    ssm.push_back(similarity);
+
+
+  }
+
+
+  auto end_distance = std::chrono::system_clock::now();
+
+
+  // PRINT MIN, MAX AND MIDDLE
+  std::cout << "SSM_MIN: " << ssm_min << " SSM_MAX: " << ssm_max << std::endl;
+  std::cout << "SSM_MIDDLE: " << ssm_middle <<  std::endl;
+
+  // ###############################################
+  // ## 4.1 PUT MATRIX IN A CSV FILE FOR PLOTTING ##
+  // ###############################################
+  auto start_file_ssm = std::chrono::system_clock::now();
+
+  if (FILEPRINT == true) {
+    FILE *fp_ssm = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/ssm.csv", "w");
+
+    for (int m = 0; m < ssm.size(); m++) {
+      for (int n = 0; n < ssm.size(); n++) {
+        fprintf(fp_ssm, "%f,", ssm[m][n]);
+      }
+      fprintf(fp_ssm, "\n");
+    }
+
+    fclose(fp_ssm);
+
+  }
+  auto end_file_ssm = std::chrono::system_clock::now();
+
+
+
+  // ###################################
+  // ## 5. NOVELTY BASED SEGMENTATION ##
+  // ###################################
+
+  // ####################################################
+  // ## 5.1 CREATE RADIAL GAUSSIAN CHECKERBOARD KERNEL ##
+  // ####################################################
+
+  std::vector<std::vector<float>> cb_kernel;
+  std::vector<float> cb_kernel_line;
+  float cb_value;
+  std::vector<std::vector<float>> gaussian_kernel;
+  std::vector<float> gaussian_kernel_line;
+  float gaussian_value;
+  float epsilon = 0.5;
+  std::vector<std::vector<float>> kernel;
+  std::vector<float> kernel_line;
+  float value;
+
+  auto start_kernel = std::chrono::system_clock::now();
+
+  // CREATE CHECKERBOARD KERNEL
+  for (int m = 1; m <= N; m++){
+    for (int n = 1; n <= N; n++){
+      if ((m <= L && n <= L) || (m >= (L+2) && n >= (L+2))){
+        cb_value = 1;
+      }
+      else if (m == (L+1) || n == (L+1)) {
+        cb_value = 0;
+      }
+      else {
+        cb_value = -1;
+      }
+      cb_kernel_line.push_back(cb_value);
+    }
+    cb_kernel.push_back(cb_kernel_line);
+    cb_kernel_line.clear();
+  }
+
+  if (FILEPRINT == true) {
+    FILE *fp_cb_kernel = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/cb_kernel.csv", "w");
+
+    for (int m = 0; m < cb_kernel.size(); m++) {
+      for (int n = 0; n < cb_kernel.size(); n++) {
+        fprintf(fp_cb_kernel, "%f,", cb_kernel[m][n]);
+      }
+      fprintf(fp_cb_kernel, "\n");
+    }
+
+
+    fclose(fp_cb_kernel);
+  }
+
+  // CREATE RADIAL GAUSSIAN KERNEL
+  float increment = 2.0/N;
+  for (float s = (-1.0 + (increment/2)); s < 1.0; s+=increment){
+    for (float t = (-1.0 + (increment/2)); t < 1.0; t+=increment){
+      gaussian_value = exp(-1 * pow(epsilon, 2) * ( pow(s, 2) + pow(t, 2) ));
+      gaussian_kernel_line.push_back(gaussian_value);
+    }
+    gaussian_kernel.push_back(gaussian_kernel_line);
+    gaussian_kernel_line.clear();
+  }
+  if (FILEPRINT == true) {
+    FILE *fp_gaussian_kernel = std::fopen(
+        "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/gaussian_kernel.csv", "w");
+
+    for (int m = 0; m < gaussian_kernel.size(); m++) {
+      for (int n = 0; n < gaussian_kernel.size(); n++) {
+        fprintf(fp_gaussian_kernel, "%f,", gaussian_kernel[m][n]);
+      }
+      fprintf(fp_gaussian_kernel, "\n");
+    }
+
+    fclose(fp_gaussian_kernel);
+  }
+
+  // ADD THEM UP ELEMENTWISE!
+  for (int m = 0; m < N; m++){
+    for (int n = 0; n < N; n++){
+      value = cb_kernel[m][n] * gaussian_kernel[m][n];
+      kernel_line.push_back(value);
+    }
+    kernel.push_back(kernel_line);
+    kernel_line.clear();
+  }
+  if (FILEPRINT == true) {
+    FILE *fp_kernel = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/kernel.csv", "w");
+
+    for (int m = 0; m < kernel.size(); m++) {
+      for (int n = 0; n < kernel.size(); n++) {
+        fprintf(fp_kernel, "%f,", kernel[m][n]);
+      }
+      fprintf(fp_kernel, "\n");
+    }
+
+    fclose(fp_kernel);
+  }
+
+  auto end_kernel = std::chrono::system_clock::now();
+
+  // 1  1  0 -1 -1
+  // 1  1  0 -1 -1
+  // 0  0  0  0  0
+  // -1 -1 0  1  1
+  // -1 -1 0  1  1
+
+
+
+
+
+  // ####################################
+  // ## 5.1 KERNEL MIT SSM VERHEIRATEN ##
+  // ####################################
+
+  // LAUT BUCH: DELTA_KERNEL(n) = SUM(K(k,l)*S(n+k,n+l)
+  // LAUT BUCH MÜSSTE DAS ALLES IRGENDWIE SO GEHEN...
+  std::vector<time_value_float> novelty_function;
+  float novelty_value = 0;
+
+  auto start_filter = std::chrono::system_clock::now();
+
+
+  for (int n = 0; n < (ssm.size()); n++){
+    novelty_value = 0;
+    // [n,n] müsste der punkt sein, um den herum wir uns alles ansehen.... also auf der diagonalen liegen
+    for (int k = 0; k < N; k++){
+      // dann über k....
+      for (int l = 0; l < N; l++){
+        // dann checken wie groß n gerade so ist, evtl. müssen wir gar nicht rechnen, weil zero padding
+
+        if ((n-L) < 0 || ((n-L)+k) >= ssm.size() || ((n-L)+l) >= ssm.size()){
+          novelty_value += 0;
+        } else {
+          float k_val = kernel[k][l];
+          float ssm_val = ssm[(n-L)+k][(n-L)+l];
+          novelty_value += (k_val * ssm_val);
+        }
+
+      }
+    }
+    float novelty_time = n*0.05;
+    novelty_function.push_back({novelty_time, novelty_value});
+  }
+
+  auto end_filter = std::chrono::system_clock::now();
+
+  auto start_file_novelty = std::chrono::system_clock::now();
+  auto end_file_novelty = std::chrono::system_clock::now();
+
+  float novelty_middle = 0;
+  for (int i = 0; i < novelty_function.size(); i++){
+    novelty_middle += novelty_function[i].value;
+  }
+  novelty_middle /= novelty_function.size();
+  novelty_middle *= 1.1;
+  std::cout << "NOVELTY MIDDLE: " << novelty_middle << std::endl;
+
+  std::cout << "--- SEGMENT CHANGES ---" << std::endl;
+  for (int i = 1; i < novelty_function.size()-1; i++){
+    if (novelty_function[i].value >= novelty_middle
+        && novelty_function[i-1].value < novelty_function[i].value
+        && novelty_function[i+1].value < novelty_function[i].value ){
+      segments.push_back({novelty_function[i].time, novelty_function[i].value});
+      std::cout << "time: " << novelty_function[i].time << std::endl;
+    }
+  }
+
+  bool multiple_peaks = false;
+  std::vector<int> indexes_of_multiple_peaks;
+  for (int i = 0; i < segments.size()-1; i++) {
+
+    if((abs(segments[i+1].time - segments[i].time)) < 2.0 && multiple_peaks) {
+      indexes_of_multiple_peaks.push_back(i);
+    }
+
+    if ((abs(segments[i+1].time - segments[i].time)) < 2.0 && !multiple_peaks) {
+      multiple_peaks = true;
+      indexes_of_multiple_peaks.push_back(i);
+    }
+
+    if(((abs(segments[i+1].time - segments[i].time)) >= 2.0 || i == segments.size() - 2) && multiple_peaks) {
+      multiple_peaks = false;
+      float max_value_of_multiple_peaks = 0;
+      int index_of_max_value_of_multiple_peaks = 0;
+      // find out which index has the highest value
+      for(int i = 0; i < indexes_of_multiple_peaks.size(); i++) {
+        if(segments[indexes_of_multiple_peaks[i]].value >= max_value_of_multiple_peaks) {
+          max_value_of_multiple_peaks = segments[indexes_of_multiple_peaks[i]].value;
+          index_of_max_value_of_multiple_peaks = indexes_of_multiple_peaks[i];
+        }
+      }
+      // remove the index of the value we want to keep
+      indexes_of_multiple_peaks.erase(std::remove(indexes_of_multiple_peaks.begin(), indexes_of_multiple_peaks.end(), max_value_of_multiple_peaks), indexes_of_multiple_peaks.end());
+
+      for(int j = indexes_of_multiple_peaks.size() - 1; j >= 0; j--) {
+        std::cout << "to be erased: " << segments[indexes_of_multiple_peaks[j]].time << std::endl;
+        for(int k = 0; k < segments.size(); k++) {
+          if(indexes_of_multiple_peaks[j] == k) {
+            segments.erase(segments.begin() + k);
+          }
+        }
+      }
+      i = 0;
+      indexes_of_multiple_peaks.clear();
+    }
+  }
+
+  std::cout << "--- SEGMENTS JOHANNES STYLE ---" << std::endl;
+  for (auto tvf:segments){
+    std::cout << "time: " << tvf.time << std::endl;
+  }
+
+
+
+
+  if (FILEPRINT == true) {
+    FILE *fp_novelty = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/novelty.csv", "w");
+
+    for (int i = 0; i < novelty_function.size(); i++) {
+      fprintf(fp_novelty, "%f, %f\n", novelty_function[i].time, novelty_function[i].value);
+    }
+    fclose(fp_novelty);
+  }
+
+
+  // #########################
+  // ## 6. CLUSTER SEGMENTS ##
+  // #########################
+
+  // PRINT COMPUTATION TIME
+  auto end = std::chrono::system_clock::now();
+  std::chrono::duration<double> elapsed_seconds = end-start;
+  std::chrono::duration<double> elapsed_seconds_audiobin = end_audiobin-start_audiobin;
+  std::chrono::duration<double> elapsed_seconds_distance = end_distance-start_distance;
+  std::chrono::duration<double> elapsed_seconds_file_ssm = end_file_ssm-start_file_ssm;
+  std::chrono::duration<double> elapsed_seconds_kernel = end_kernel-start_kernel;
+  std::chrono::duration<double> elapsed_seconds_filter = end_filter-start_filter;
+  std::chrono::duration<double> elapsed_seconds_file_novelty = end_file_novelty-start_file_novelty;
+
+
+  std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+
+  std::cout << "finished segmentation at " << std::ctime(&end_time)
+            << "elapsed time: " << elapsed_seconds.count() << "s\n"
+            << "elapsed_seconds_audiobin: " << elapsed_seconds_audiobin.count() << "s\n"
+            << "elapsed_seconds_distance: " << elapsed_seconds_distance.count() << "s\n"
+            << "elapsed_seconds_file_ssm: " << elapsed_seconds_file_ssm.count() << "s\n"
+            << "elapsed_seconds_kernel: " << elapsed_seconds_kernel.count() << "s\n"
+            << "elapsed_seconds_filter: " << elapsed_seconds_filter.count() << "s\n"
+            << "elapsed_seconds_file_novelty: " << elapsed_seconds_file_novelty.count() << "s\n"
+      ;
+
+
+  // RETURN SEGMENTS
+
+  return segments;
+}
 
 std::vector<time_value_int>
 Analysis::get_intensity_average_for_next_segment(std::vector<double> beats, int beats_per_minute,

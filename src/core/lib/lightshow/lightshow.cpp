@@ -148,12 +148,12 @@ void Lightshow::get_bpm_and_beats(bool &finished, int user_bpm) {
     this->first_beat = analysis.get_first_beat();
     this->all_beats = analysis.get_all_beats(this->bpm, this->first_beat);
 
-    std::vector<time_value_int> segment_intensities = analysis.get_intensity_average_for_next_segment(this->all_beats, this->bpm, this->first_beat);
+    //std::vector<time_value_int> segment_intensities = analysis.get_intensity_average_for_next_segment(this->all_beats, this->bpm, this->first_beat);
     /*
      * TODO: threshold wert damit nur changes in intensity_changes gepeichert werden, die um threshold % vom letzten change abweichen
      */
-    std::vector<time_value_int> intensity_changes = analysis.get_intensity_changes(segment_intensities, 15);
-    this->timestamps_segment_changes = intensity_changes;
+    //std::vector<time_value_int> intensity_changes = analysis.get_intensity_changes(segment_intensities, 15);
+    this->timestamps_segment_changes = this->analysis.get_segments();
   }
   finished = true;
 }
@@ -286,12 +286,12 @@ void Lightshow::prepare_analysis_for_song(char *song_path, bool need_bass, bool 
     this->bpm = this->bpm * 2;
     this->all_beats = analysis.get_all_beats(this->bpm, this->first_beat);
 
-    std::vector<time_value_int> segment_intensities = analysis.get_intensity_average_for_next_segment(this->all_beats, this->bpm, this->first_beat);
+    //std::vector<time_value_int> segment_intensities = analysis.get_intensity_average_for_next_segment(this->all_beats, this->bpm, this->first_beat);
     /*
      * TODO: threshold wert damit nur changes in intensity_changes gepeichert werden, die um threshold % vom letzten change abweichen
      */
-    std::vector<time_value_int> intensity_changes = analysis.get_intensity_changes(segment_intensities, 15);
-    this->timestamps_segment_changes = intensity_changes;
+    //std::vector<time_value_int> intensity_changes = analysis.get_intensity_changes(segment_intensities, 15);
+    this->timestamps_segment_changes = this->analysis.get_segments();
   }
 }
 
@@ -412,7 +412,7 @@ int Lightshow::get_wait_time_special() {
   return this->wait_time_special;
 }
 
-std::vector<time_value_int> Lightshow::get_timestamps_segment_changes() {
+std::vector<time_value_float> Lightshow::get_timestamps_segment_changes() {
   return this->timestamps_segment_changes;
 }
 
