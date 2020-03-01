@@ -6,7 +6,7 @@
 #include "change_fixtures.h"
 #include "ui_change_fixtures.h"
 
-ChangeFixtures::ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string> _color_palettes, std::list<Fixture> _fixture_presets, QUrl _song_url, int _user_bpm, QWidget *parent) :
+ChangeFixtures::ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string> _color_palettes, std::list<Fixture> _fixture_presets, QUrl _song_url, int _user_bpm, float onset_value, QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::ChangeFixtures) {
     ui->setupUi(this);
@@ -23,6 +23,11 @@ ChangeFixtures::ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string>
 
     ui->sB_user_bpm->setRange(0, 250);
     ui->sB_user_bpm->setValue(this->user_bpm);
+
+    ui->sB_onset_value->setRange(0, 20);
+    ui->sB_onset_value->setValue(onset_value);
+    ui->sB_onset_value->setDecimals(1);
+    ui->sB_onset_value->setSingleStep(0.1);
 
     ui->fixture_list->setStyleSheet("background-color: rgb(238, 238, 236);");
 
@@ -460,9 +465,9 @@ void ChangeFixtures::on_use_changed_fixtures_clicked() {
     std::cout << this->song->get_song_name() << std::endl;
 
   if(this->song)
-    emit changed_fixtures_of_existing_lightshow(this->song, this->universes[0].get_fixtures(), ui->sB_user_bpm->value());
+    emit changed_fixtures_of_existing_lightshow(this->song, this->universes[0].get_fixtures(), ui->sB_user_bpm->value(), (float) ui->sB_onset_value->value());
   else
-    emit changed_fixtures_ready(song_url, this->universes[0].get_fixtures(), ui->sB_user_bpm->value());
+    emit changed_fixtures_ready(song_url, this->universes[0].get_fixtures(), ui->sB_user_bpm->value(), (float) ui->sB_onset_value->value());
 }
 
 void ChangeFixtures::set_song(Song* _song) {

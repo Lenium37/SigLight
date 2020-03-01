@@ -41,7 +41,7 @@ class Lightshow {
 
   std::vector<std::vector<std::uint8_t>> read_channel_values();
 
-  void prepare_analysis_for_song(char *song_path, bool need_bass, bool need_mid, bool need_high, bool need_onsets, int user_bpm);
+  void prepare_analysis_for_song(char *song_path, bool need_bass, bool need_mid, bool need_high, bool need_onsets, int user_bpm, float onset_value);
 
   std::vector<LightshowFixture> get_fixtures_bass();
   std::vector<LightshowFixture> get_fixtures_middle();
@@ -79,6 +79,9 @@ class Lightshow {
   int get_bpm();
   void set_bpm(int _bpm);
 
+  float get_onset_value();
+  void set_onset_value(float _onset_value);
+
  private:
   std::string sound_src;
   std::vector<LightshowFixture> fixtures;
@@ -112,6 +115,7 @@ class Lightshow {
                          std::uint8_t value);
   void get_bpm_and_beats(bool &finished, int user_bpm);
   double first_beat = 0;
+  float onset_value = 9;
 };
 
 #endif //RASPITOLIGHT_SRC_UI_LIGHTSHOW_LIGHTSHOW_H_

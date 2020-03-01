@@ -980,9 +980,9 @@ void MainWindow::on_action_add_song_to_player_triggered() {
 
           if (msgBox.clickedButton()->text() == "Change") {
             std::cout << "change" << std::endl;
-            change_fixtures_dialog = new ChangeFixtures(this->universes[0].get_fixtures(), this->color_palettes, this->fixtures, url, 0, this);
+            change_fixtures_dialog = new ChangeFixtures(this->universes[0].get_fixtures(), this->color_palettes, this->fixtures, url, 0, 9, this);
             change_fixtures_dialog->setWindowModality(Qt::ApplicationModal);
-            if(connect(this->change_fixtures_dialog, SIGNAL(changed_fixtures_ready(QUrl, std::list<Fixture>, int)), this, SLOT(changed_fixtures_for_lightshow_ready(QUrl, std::list<Fixture>, int)))) {
+            if(connect(this->change_fixtures_dialog, SIGNAL(changed_fixtures_ready(QUrl, std::list<Fixture>, int, float)), this, SLOT(changed_fixtures_for_lightshow_ready(QUrl, std::list<Fixture>, int, float)))) {
               std::cout << "connection worked" << std::endl;
             } else {
               std::cout << "connection did not work" << std::endl;
@@ -991,7 +991,7 @@ void MainWindow::on_action_add_song_to_player_triggered() {
           } else {
             std::cout << "default" << std::endl;
             Song * song = player->add_to_playlist(url);
-            lightshows_to_generate_for.push_back({false, song, universes[0].get_fixtures(), 0});
+            lightshows_to_generate_for.push_back({false, song, universes[0].get_fixtures(), 0, 9});
             this->start_thread_for_generating_queue();
           }
         }
@@ -1018,9 +1018,9 @@ void MainWindow::queue_for_generating_light_show(){
 
     for(ls_generating_parameter lightshow_parameter : lightshows_to_generate_for){
         if(!lightshow_parameter.is_regenerate)
-            generate_lightshow(lightshow_parameter.song, lightshow_parameter.fixtures, lightshow_parameter.user_bpm);
+            generate_lightshow(lightshow_parameter.song, lightshow_parameter.fixtures, lightshow_parameter.user_bpm, lightshow_parameter.onset_value);
         else
-            regenerate_lightshow(lightshow_parameter.song, lightshow_parameter.fixtures, lightshow_parameter.user_bpm);
+            regenerate_lightshow(lightshow_parameter.song, lightshow_parameter.fixtures, lightshow_parameter.user_bpm, lightshow_parameter.onset_value);
     }
     ls_generating_thread_is_alive = false;
     lightshows_to_generate_for.clear();
@@ -1029,7 +1029,7 @@ void MainWindow::queue_for_generating_light_show(){
 }
 
 
-void MainWindow::generate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm) {
+void MainWindow::generate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm, float onset_value) {
   //Logger::info("K8062 connected: {}", dmx_device_k8062.is_connected());
   std::shared_ptr<Lightshow> generated_lightshow = std::make_shared<Lightshow>();
 
@@ -1053,14 +1053,14 @@ void MainWindow::generate_lightshow(Song *song, std::list<Fixture> _fixtures, in
     } else std::cout << "Fixture type unknown." << std::endl;
   }
 
-  this->lightshow_generator.generate(this->lightshow_resolution, song, generated_lightshow, user_bpm);
+  this->lightshow_generator.generate(this->lightshow_resolution, song, generated_lightshow, user_bpm, onset_value);
 
   lightShowRegistry.register_lightshow_file(song, generated_lightshow, this->lightshows_directory_path);
   if(player->playlist_index_for(song) != -1)
     emit lightshow_for_song_is_ready(song);
 }
 
-void MainWindow::regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm) {
+void MainWindow::regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm, float onset_value) {
   std::shared_ptr<Lightshow> regenerated_lightshow = std::make_shared<Lightshow>();
 
   for (Fixture fix: _fixtures) {
@@ -1083,7 +1083,7 @@ void MainWindow::regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, 
     } else std::cout << "Fixture type unknown." << std::endl;
   }
 
-  this->lightshow_generator.generate(this->lightshow_resolution, song, regenerated_lightshow, user_bpm);
+  this->lightshow_generator.generate(this->lightshow_resolution, song, regenerated_lightshow, user_bpm, onset_value);
 
   Logger::debug("lightshow length: {}", regenerated_lightshow->get_length());
 
@@ -2308,10 +2308,10 @@ std::vector<std::uint8_t> MainWindow::get_control_channels_with_turn_off_value()
   return channel_values;
 }
 
-void MainWindow::changed_fixtures_for_lightshow_ready(QUrl url, std::list<Fixture> _fixtures, int user_bpm) {
+void MainWindow::changed_fixtures_for_lightshow_ready(QUrl url, std::list<Fixture> _fixtures, int user_bpm, float onset_value) {
   std::cout << "URL: " << url.toString().toStdString() << std::endl;
   Song * song = player->add_to_playlist(url);
-  lightshows_to_generate_for.push_back({false, song, _fixtures, user_bpm});
+  lightshows_to_generate_for.push_back({false, song, _fixtures, user_bpm, onset_value});
   this->start_thread_for_generating_queue();
   this->change_fixtures_dialog->deleteLater();
 }
@@ -2375,10 +2375,10 @@ void MainWindow::change_fixtures_of_existing_song() {
     _fixtures.push_back(fix);
   }
 
-  change_fixtures_dialog = new ChangeFixtures(_fixtures, this->color_palettes, this->fixtures, url, lightshow->get_bpm(), this);
+  change_fixtures_dialog = new ChangeFixtures(_fixtures, this->color_palettes, this->fixtures, url, lightshow->get_bpm(), lightshow->get_onset_value(), this);
   change_fixtures_dialog->set_song(song);
   change_fixtures_dialog->setWindowModality(Qt::ApplicationModal);
-  if(connect(this->change_fixtures_dialog, SIGNAL(changed_fixtures_of_existing_lightshow(Song*, std::list<Fixture>, int)), this, SLOT(changed_fixtures_for_existing_lightshow_ready(Song*, std::list<Fixture>, int)))) {
+  if(connect(this->change_fixtures_dialog, SIGNAL(changed_fixtures_of_existing_lightshow(Song*, std::list<Fixture>, int, float)), this, SLOT(changed_fixtures_for_existing_lightshow_ready(Song*, std::list<Fixture>, int, float)))) {
     std::cout << "connection worked" << std::endl;
   } else {
     std::cout << "connection did not work" << std::endl;
@@ -2388,9 +2388,10 @@ void MainWindow::change_fixtures_of_existing_song() {
 
 }
 
-void MainWindow::changed_fixtures_for_existing_lightshow_ready(Song* song, std::list<Fixture> _fixtures, int user_bpm) {
+void MainWindow::changed_fixtures_for_existing_lightshow_ready(Song* song, std::list<Fixture> _fixtures, int user_bpm, float onset_value) {
   std::cout << "URL: " << song->get_file_path() << std::endl;
-  lightshows_to_generate_for.push_back({true, song, _fixtures, user_bpm});
+  this->lightShowRegistry.get_lightshow(song)->set_onset_value(onset_value);
+  lightshows_to_generate_for.push_back({true, song, _fixtures, user_bpm, onset_value});
   this->start_thread_for_generating_queue();
   this->playlist_view->reset_lightshow_status(this->player->playlist_index_for(song));
   this->change_fixtures_dialog->deleteLater();
@@ -2403,7 +2404,7 @@ void MainWindow::regenerate_lightshow_with_default_fixtures() {
 
   Song *song = player->get_playlist_media_at(index_of_song)->get_song();
 
-  lightshows_to_generate_for.push_back({true, song, this->universes[0].get_fixtures(), this->lightShowRegistry.get_lightshow(song)->get_bpm()});
+  lightshows_to_generate_for.push_back({true, song, this->universes[0].get_fixtures(), this->lightShowRegistry.get_lightshow(song)->get_bpm(), this->lightShowRegistry.get_lightshow(song)->get_onset_value()});
   this->start_thread_for_generating_queue();
 
   this->playlist_view->reset_lightshow_status(index_of_song);

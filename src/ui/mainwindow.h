@@ -46,6 +46,7 @@ struct ls_generating_parameter
     Song *song;
     std::list<Fixture> fixtures;
     int user_bpm;
+    float onset_value;
 };
 
 
@@ -90,8 +91,8 @@ public:
     void lightshow_for_song_is_ready(Song *song);
 
 private slots:
-    void changed_fixtures_for_lightshow_ready(QUrl url, std::list<Fixture> _fixtures, int user_bpm);
-    void changed_fixtures_for_existing_lightshow_ready(Song* song, std::list<Fixture> _fixtures, int user_bpm);
+    void changed_fixtures_for_lightshow_ready(QUrl url, std::list<Fixture> _fixtures, int user_bpm, float onset_value);
+    void changed_fixtures_for_existing_lightshow_ready(Song* song, std::list<Fixture> _fixtures, int user_bpm, float onset_value);
     void right_click_on_playlist_item(QPersistentModelIndex index);
 
     /**
@@ -385,8 +386,8 @@ private:
      */
     bool has_fixture_changed();
 
-    void generate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm);
-    void regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm);
+    void generate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm, float onset_value);
+    void regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm, float onset_value);
     void queue_for_generating_light_show();
     void start_thread_for_generating_queue();
     void init_shortcuts();

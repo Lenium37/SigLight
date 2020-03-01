@@ -13,13 +13,14 @@ LightshowGenerator::LightshowGenerator() {
 
 }
 
-std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *song, std::shared_ptr<Lightshow> lightshow, int user_bpm) {
+std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *song, std::shared_ptr<Lightshow> lightshow, int user_bpm, float onset_value) {
 
   bool need_bass = false;
   bool need_mid = false;
   bool need_high = false;
   bool need_onsets = false;
-  //int user_bpm = 0;
+
+  lightshow->set_onset_value(onset_value);
 
   for(int i = 0; i < lightshow->get_fixtures().size(); i++) {
     std::string fix_type = lightshow->get_fixtures()[i].get_type();
@@ -40,7 +41,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
   lightshow->set_resolution(resolution);
   lightshow->set_sound_src(song->get_file_path());
-  lightshow->prepare_analysis_for_song((char*)song->get_file_path().c_str(), need_bass, need_mid, need_high, need_onsets, user_bpm);
+  lightshow->prepare_analysis_for_song((char*)song->get_file_path().c_str(), need_bass, need_mid, need_high, need_onsets, user_bpm, onset_value);
 
   int fixtures_in_group_one_after_another = 0;
   int fixtures_in_group_one_after_another_back_and_forth = 0;

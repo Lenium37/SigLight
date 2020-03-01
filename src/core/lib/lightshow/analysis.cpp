@@ -149,7 +149,7 @@ void Analysis::stft() {
 
 }
 
-std::vector<float> Analysis::get_onset_timestamps_energy_difference(){
+std::vector<float> Analysis::get_onset_timestamps_energy_difference(float onset_value){
 
   std::vector<float> onset_timestamps;
 
@@ -238,14 +238,32 @@ std::vector<float> Analysis::get_onset_timestamps_energy_difference(){
   }
   float mean_of_all_peaks = all_peaks / peak_counter;
 
+  // OLD VALUES
   // rocky = 5.5
   // metal (HSB Voice of the Voiceless, double bass) = 1.7
   // metal/hard rock (Sabaton 7734) = 4.5
   // somewhat allgemeingültig = 5
   //min_value_onset = min_value_onset / onsets.size() * 5;
 
+  // NEW VALUES for whole frequency onset detection
+  // 9 average
+  // 11:
+    // Was Ich Liebe: okay, eher zu wenige
+    // Madsen Keiner: zu viele
+    // Callejon Ein Kompliment: zu viele
+    // HSB Voice Of The Voiceless: gut, ein paar mehr wären okay
+  // 12:
+    // HSB Voice Of The Voiceless: gut!
+    // Sabaton 7734: okay, ein paar zu viele
+    // Powerwolf Armati Stigoi: gut, beim leisen Beginn ein paar zu viele
+    // SOAD Prison Song: schlecht, viel zu viele
+    // Architects Doomsday: sehr geil!
+  // -> maybe 11.5-12.0 is fine for double bass songs?
+
+
   //min_value_onset = max_ed_value * 0.315;
-  min_value_onset = (max_ed_value + mean_of_all_peaks + mean_of_all_peaks) / 9; // 7.5 zu wenig, 10 zu viel
+  std::cout << "using onset_value: " << onset_value << std::endl;
+  min_value_onset = (max_ed_value + mean_of_all_peaks + mean_of_all_peaks) / onset_value; // 7.5 zu wenig, 10 zu viel, 9 maybe
   std::cout << "mean_of_all_peaks: " << mean_of_all_peaks << std::endl;
   std::cout << "max_ed_value: " << max_ed_value << std::endl;
   std::cout << "min_value_onset: " << min_value_onset << std::endl;
@@ -1149,44 +1167,47 @@ std::vector<time_value_float> Analysis::get_segments() {
 
   bool multiple_peaks = false;
   std::vector<int> indexes_of_multiple_peaks;
-  for (int i = 0; i < segments.size()-1; i++) {
+  if(!segments.empty()) {
+    for (int i = 0; i < segments.size() - 1; i++) {
 
-    if((abs(segments[i+1].time - segments[i].time)) < 2.0 && multiple_peaks) {
-      indexes_of_multiple_peaks.push_back(i);
-    }
-
-    if ((abs(segments[i+1].time - segments[i].time)) < 2.0 && !multiple_peaks) {
-      multiple_peaks = true;
-      indexes_of_multiple_peaks.push_back(i);
-    }
-
-    if(((abs(segments[i+1].time - segments[i].time)) >= 2.0 || i == segments.size() - 2) && multiple_peaks) {
-      multiple_peaks = false;
-      float max_value_of_multiple_peaks = 0;
-      int index_of_max_value_of_multiple_peaks = 0;
-      // find out which index has the highest value
-      for(int i = 0; i < indexes_of_multiple_peaks.size(); i++) {
-        if(segments[indexes_of_multiple_peaks[i]].value >= max_value_of_multiple_peaks) {
-          max_value_of_multiple_peaks = segments[indexes_of_multiple_peaks[i]].value;
-          index_of_max_value_of_multiple_peaks = indexes_of_multiple_peaks[i];
-        }
+      if ((abs(segments[i + 1].time - segments[i].time)) < 2.0 && multiple_peaks) {
+        indexes_of_multiple_peaks.push_back(i);
       }
-      // remove the index of the value we want to keep
-      indexes_of_multiple_peaks.erase(std::remove(indexes_of_multiple_peaks.begin(), indexes_of_multiple_peaks.end(), max_value_of_multiple_peaks), indexes_of_multiple_peaks.end());
 
-      for(int j = indexes_of_multiple_peaks.size() - 1; j >= 0; j--) {
-        std::cout << "to be erased: " << segments[indexes_of_multiple_peaks[j]].time << std::endl;
-        for(int k = 0; k < segments.size(); k++) {
-          if(indexes_of_multiple_peaks[j] == k) {
-            segments.erase(segments.begin() + k);
+      if ((abs(segments[i + 1].time - segments[i].time)) < 2.0 && !multiple_peaks) {
+        multiple_peaks = true;
+        indexes_of_multiple_peaks.push_back(i);
+      }
+
+      if (((abs(segments[i + 1].time - segments[i].time)) >= 2.0 || i == segments.size() - 2) && multiple_peaks) {
+        multiple_peaks = false;
+        float max_value_of_multiple_peaks = 0;
+        int index_of_max_value_of_multiple_peaks = 0;
+        // find out which index has the highest value
+        for (int i = 0; i < indexes_of_multiple_peaks.size(); i++) {
+          if (segments[indexes_of_multiple_peaks[i]].value >= max_value_of_multiple_peaks) {
+            max_value_of_multiple_peaks = segments[indexes_of_multiple_peaks[i]].value;
+            index_of_max_value_of_multiple_peaks = indexes_of_multiple_peaks[i];
           }
         }
+        // remove the index of the value we want to keep
+        indexes_of_multiple_peaks.erase(std::remove(indexes_of_multiple_peaks.begin(),
+                                                    indexes_of_multiple_peaks.end(),
+                                                    max_value_of_multiple_peaks), indexes_of_multiple_peaks.end());
+
+        for (int j = indexes_of_multiple_peaks.size() - 1; j >= 0; j--) {
+          std::cout << "to be erased: " << segments[indexes_of_multiple_peaks[j]].time << std::endl;
+          for (int k = 0; k < segments.size(); k++) {
+            if (indexes_of_multiple_peaks[j] == k) {
+              segments.erase(segments.begin() + k);
+            }
+          }
+        }
+        i = 0;
+        indexes_of_multiple_peaks.clear();
       }
-      i = 0;
-      indexes_of_multiple_peaks.clear();
     }
   }
-
   std::cout << "--- SEGMENTS JOHANNES STYLE ---" << std::endl;
   for (auto tvf:segments){
     std::cout << "time: " << tvf.time << std::endl;

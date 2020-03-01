@@ -158,7 +158,7 @@ void Lightshow::get_bpm_and_beats(bool &finished, int user_bpm) {
   finished = true;
 }
 
-void Lightshow::prepare_analysis_for_song(char *song_path, bool need_bass, bool need_mid, bool need_high, bool need_onsets, int user_bpm) {
+void Lightshow::prepare_analysis_for_song(char *song_path, bool need_bass, bool need_mid, bool need_high, bool need_onsets, int user_bpm, float onset_value) {
   this->analysis.set_resolution(this->resolution);
   this->analysis.read_wav(song_path);
   this->analysis.stft(); //dauert lang
@@ -181,7 +181,7 @@ void Lightshow::prepare_analysis_for_song(char *song_path, bool need_bass, bool 
 
   float bpm_from_onsets = 0;
   if(need_onsets) {
-    this->onset_timestamps = this->analysis.get_onset_timestamps_energy_difference();
+    this->onset_timestamps = this->analysis.get_onset_timestamps_energy_difference(onset_value);
     //this->onset_timestamps = this->analysis.get_onset_timestamps_frequencies(1, 60);
 
     // trying to get bpm from onsets
@@ -541,4 +541,13 @@ std::vector<float> Lightshow::get_specific_beats(std::string beat_type, float st
   }
 
   return timestamps;
+}
+
+float Lightshow::get_onset_value() {
+  return this->onset_value;
+}
+
+void Lightshow::set_onset_value(float _onset_value) {
+  if(_onset_value >= 0 && _onset_value <= 20)
+    this->onset_value = _onset_value;
 }
