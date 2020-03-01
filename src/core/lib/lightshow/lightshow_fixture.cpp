@@ -286,7 +286,7 @@ void LightshowFixture::set_channel_blue(std::uint8_t channel_blue) {
 
 void LightshowFixture::add_value_changes_to_channel(std::vector<time_value_int> value_changes, int channel) {
   if(this->channel_already_exists(channel)) {
-    std::cout << "channel already exists and has " << this->get_channel(channel).get_value_changes().size() << " value changes" << std::endl;
+    //std::cout << "channel already exists and has " << this->get_channel(channel).get_value_changes().size() << " value changes" << std::endl;
 
     //Channel ch(channel);
     ValueChange vc(0.0, 0);

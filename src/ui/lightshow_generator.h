@@ -42,7 +42,10 @@ class LightshowGenerator {
   void set_color_of_fixture_during_song(std::shared_ptr<Lightshow> lightshow_from_analysis, LightshowFixture& fix, std::initializer_list<std::string> a_args);
   color_values color_to_rgb(std::string color);
   void generate_blink_fade_outs(std::vector<time_value_int> &value_changes, float current_timestamp, float next_timestamp, float lightshow_length);
-  //std::vector<LightshowFixture> fixtures;
+  void generate_flash(LightshowFixture & fix, std::vector<float> & onset_timestamps, float segment_start, float segment_end);
+  void generate_flash_reverse(LightshowFixture & fix, std::vector<float> & onset_timestamps, float segment_start, float segment_end);
+  void generate_blink(LightshowFixture & fix, std::vector<float> timestamps, float segment_end);
+  void generate_blink_back_and_forth(LightshowFixture & fix, std::vector<float> timestamps, int group_counter, float segment_end);
 };
 
 #endif //RASPITOLIGHT_SRC_CORE_LIB_LIGHTSHOW_LIGHT_SHOW_GENERATOR_H_
