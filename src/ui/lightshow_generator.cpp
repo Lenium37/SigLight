@@ -1563,9 +1563,19 @@ void LightshowGenerator::generate_flash(LightshowFixture & fix, std::vector<floa
           value_changes_flash.push_back({onset_timestamps[i] - 0.025f, 100});
         }
         value_changes_flash.push_back({onset_timestamps[i], 200});
-        if (i < onset_timestamps.size() && onset_timestamps[i] + 0.050f < onset_timestamps[onset_timestamps.size() - 1]) {
-          value_changes_flash.push_back({onset_timestamps[i] + 0.025f, 100});
-          value_changes_flash.push_back({onset_timestamps[i] + 0.050f, 0});
+        if(i < onset_timestamps.size() - 1) {
+          if (i < onset_timestamps.size() && onset_timestamps[i] + 0.050f < onset_timestamps[onset_timestamps.size() - 1]) {
+            value_changes_flash.push_back({onset_timestamps[i] + 0.025f, 100});
+            value_changes_flash.push_back({onset_timestamps[i] + 0.050f, 0});
+          }
+        } else {
+          if(onset_timestamps[i] + 0.050f < segment_end) {
+            value_changes_flash.push_back({onset_timestamps[i] + 0.025f, 100});
+            value_changes_flash.push_back({onset_timestamps[i] + 0.050f, 0});
+          }
+          else {
+            value_changes_flash.push_back({onset_timestamps[i] + 0.025f, 0});
+          }
         }
       }
     }
@@ -1660,8 +1670,12 @@ void LightshowGenerator::generate_blink_back_and_forth(LightshowFixture & fix, s
           value_changes.push_back({timestamps[i], 200});
           if(i < timestamps.size() - 1)
             this->generate_blink_fade_outs(value_changes, timestamps[i], timestamps[i+1], segment_end);
-          else
-            value_changes.push_back({segment_end, 0});
+          else {
+            if (segment_end - timestamps[i] > 0.5)
+              this->generate_blink_fade_outs(value_changes, timestamps[i], timestamps[i] + 0.5, segment_end);
+            else
+              this->generate_blink_fade_outs(value_changes, timestamps[i], segment_end, segment_end);
+          }
         }
 
         if(left_to_right)
