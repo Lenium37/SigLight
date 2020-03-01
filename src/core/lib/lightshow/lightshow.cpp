@@ -460,10 +460,8 @@ std::vector<float> Lightshow::get_specific_beats(std::string beat_type, float st
   std::vector<double> timestamps_double;// = this->get_all_beats();
 
   if(end > 0) {
-    std::cout << "start: " << start << std::endl;
-    std::cout << "end: " << end << std::endl;
-    std::cout << "start * 44100: " << start * 44100 << std::endl;
-    std::cout << "end * 44100: " << end * 44100 << std::endl;
+    Logger::debug("start: {}", start);
+    Logger::debug("end: {}", end);
     for (auto beat : this->get_all_beats()) {
       //std::cout << "beat: " << beat << std::endl;
       if ((float) beat >= start * 44100 && (float) beat < end * 44100)

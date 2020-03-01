@@ -379,7 +379,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
     if(fix_type == "auto_beats") {
       this->set_dimmer_values_in_segment(fix, 0, 200, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0);
       auto segments = lightshow->get_timestamps_segment_changes();
-      std::cout << "number of segments: " << segments.size() << std::endl;
+      std::cout << "number of segment changes: " << segments.size() << std::endl;
       float segment_start = 0;
       float segment_end = 0;
       for(int j = 0; j < segments.size(); j++) {

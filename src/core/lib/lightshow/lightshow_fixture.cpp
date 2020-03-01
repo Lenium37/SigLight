@@ -288,7 +288,7 @@ void LightshowFixture::add_value_changes_to_channel(std::vector<time_value_int> 
   if(this->channel_already_exists(channel)) {
     std::cout << "channel already exists and has " << this->get_channel(channel).get_value_changes().size() << " value changes" << std::endl;
 
-    /*//Channel ch(channel);
+    //Channel ch(channel);
     ValueChange vc(0.0, 0);
 
     // loop through all ValueChanges and add them to the channel
@@ -301,24 +301,7 @@ void LightshowFixture::add_value_changes_to_channel(std::vector<time_value_int> 
       } else if (vc.get_value()
           != this->get_channel(channel).get_value_of_last_added_value_change()) // if ValueChange is different than the last one added to the channel, add it to the channel
         this->get_channel(channel).add_value_change(vc);
-    }*/
-    Channel ch(channel);
-    ValueChange vc(0.0, 0);
-
-    // loop through all ValueChanges and add them to the channel
-    for (int i = 0; i < value_changes.size(); i++) {
-      vc.set_timestamp(value_changes[i].time);
-      vc.set_value(value_changes[i].value);
-      if (vc.get_value() == -1) { // end of song special
-        vc.set_value(0);
-        ch.add_value_change(vc);
-      } else if (vc.get_value()
-          != ch.get_value_of_last_added_value_change()) // if ValueChange is different than the last one added to the channel, add it to the channel
-        ch.add_value_change(vc);
     }
-    if (ch.get_value_of_last_added_value_change() != -1)
-      this->add_channel(ch);
-
   } else {
     Channel ch(channel);
     ValueChange vc(0.0, 0);
@@ -560,7 +543,7 @@ void LightshowFixture::set_amplitude_tilt(int _amplitude_tilt) {
 bool LightshowFixture::channel_already_exists(int channel) {
   bool channel_already_exists = false;
 
-  for(auto ch : this->get_channels()) {
+  for(auto const &ch : this->get_channels()) {
     if(ch.get_channel() == channel)
       channel_already_exists = true;
   }
@@ -570,10 +553,11 @@ bool LightshowFixture::channel_already_exists(int channel) {
 
 Channel &LightshowFixture::get_channel(int channel) {
   Channel channel1(0);
-  for(auto &ch : this->get_channels()) {
-    if(ch.get_channel() == channel)
-      return ch;
+  for(int i = 0; i < this->channels.size(); i++) {
+    if(this->channels[i].get_channel() == channel) {
+      return std::ref(this->channels[i]);
+    }
   }
   std::cerr << "THIS SHOULD NEVER HAPPEN" << std::endl;
-  return channel1;
+  return std::ref(channel1);
 }
