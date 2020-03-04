@@ -25,16 +25,17 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   for(int i = 0; i < lightshow->get_fixtures().size(); i++) {
     std::string fix_type = lightshow->get_fixtures()[i].get_type();
     std::string timestamp_type = lightshow->get_fixtures()[i].get_timestamps_type();
-    if(fix_type == "bass" || fix_type.find("auto") != string::npos || timestamp_type.find("action") != string::npos)
+    std::string fix_mh_type = lightshow->get_fixtures()[i].get_moving_head_type();
+    if(fix_type == "bass" || fix_type.find("auto") != string::npos || timestamp_type.find("action") != string::npos || fix_mh_type.find("auto") != string::npos)
       need_bass = true;
 
-    if(fix_type == "mid" || fix_type.find("auto") != string::npos || timestamp_type.find("action") != string::npos)
+    if(fix_type == "mid" || fix_type.find("auto") != string::npos || timestamp_type.find("action") != string::npos || fix_mh_type.find("auto") != string::npos)
       need_mid = true;
 
     if(fix_type == "high")
       need_high = true;
 
-    if(timestamp_type == "Onsets" || fix_type.find("onsets") != string::npos || fix_type.find("auto") != string::npos) { // TODO das letzte wieder entfernen, war nur testweise
+    if(timestamp_type == "Onsets" || fix_type.find("onsets") != string::npos || fix_type.find("auto") != string::npos || fix_mh_type.find("auto") != string::npos) { // TODO das letzte wieder entfernen, war nur testweise
       need_onsets = true;
     }
   }
@@ -58,6 +59,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   int fixtures_in_mh_group_continuous_8 = 0;
   int fixtures_in_mh_group_continuous_circle = 0;
   int fixtures_in_mh_group_continuous_line_vertical = 0;
+  int fixtures_in_mh_group_auto_background = 0;
+  int fixtures_in_mh_group_auto_action = 0;
 
 
   //for (LightshowFixture fix: lightshow->get_fixtures_reference()) {
@@ -98,6 +101,12 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       fixtures_in_mh_group_continuous_circle = fix.get_position_in_mh_group();
     else if(fix_mh_type == "Continuous Line vertical group" && fix.get_position_in_mh_group() > fixtures_in_mh_group_continuous_line_vertical)
       fixtures_in_mh_group_continuous_line_vertical = fix.get_position_in_mh_group();
+    else if(fix_mh_type == "group_auto_background" && fix.get_position_in_mh_group() > fixtures_in_mh_group_auto_background)
+      fixtures_in_mh_group_auto_background = fix.get_position_in_mh_group();
+    else if(fix_mh_type == "group_auto_action" && fix.get_position_in_mh_group() > fixtures_in_mh_group_auto_action)
+      fixtures_in_mh_group_auto_action = fix.get_position_in_mh_group();
+
+
   }
 
   for(int i = 0; i < lightshow->get_fixtures().size(); i++) {
@@ -162,86 +171,61 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
       float left_right_switch = 0;
 
-      if(fix.get_moving_head_type() == "Continuous 8" || fix.get_moving_head_type() == "Continuous 8 group") {
-        //amplitude_pan = (int) std::round(90 / fix.get_degrees_per_pan());
-        //amplitude_tilt = (int) std::round(45 / fix.get_degrees_per_tilt());
-        amplitude_pan = (int) std::round(fix.get_amplitude_pan() / fix.get_degrees_per_pan());
-        amplitude_tilt = (int) std::round(fix.get_amplitude_tilt() / fix.get_degrees_per_tilt());
 
-        if(tilt_center + amplitude_tilt > 255)
-          amplitude_tilt = 255 - tilt_center;
-        else if(tilt_center - amplitude_tilt < 0)
-          amplitude_tilt = tilt_center;
-        if(pan_center + amplitude_pan > 255)
-          amplitude_pan = 255 - pan_center;
-        else if(pan_center - amplitude_pan < 0)
-          amplitude_pan = pan_center;
 
-        time_of_one_loop_pan = time_of_four_bars * 2;
-        time_of_one_loop_tilt = time_of_four_bars * 2;
+      if(fix.get_moving_head_type().find("auto_") != std::string::npos) {
 
-        float current_timestamp = 0.0;
-        uint8_t value = 0;
-        if(fix.get_position_on_stage() == "Left")
-          left_right_switch = PI;
-
-        float group_offset = 0;
-        if(fix.get_moving_head_type() == "Continuous 8 group") {
-          group_offset = (float) 2 * (float) (fix.get_position_in_mh_group() - 1) / fixtures_in_mh_group_continuous_8;
+        // needed for all auto types
+        auto segment_changes = lightshow->get_timestamps_segment_changes();
+        // for now, insert the first segment
+        if (!segment_changes.empty() && segment_changes[0].time > 2)
+          segment_changes.insert(segment_changes.begin(), {0.0, 0});
+        else if(segment_changes.empty()) {
+          segment_changes.push_back({0.0, 0});
         }
+        float segment_start = 0;
+        float segment_end = 0;
 
-        while(current_timestamp < ((float) lightshow->get_length() - 3) / lightshow->get_resolution()) {
-          value = (int) (cos((2*PI*current_timestamp)/(time_of_one_loop_pan) + left_right_switch + (group_offset * PI)) * amplitude_pan) + pan_center;
-          vc_pan.push_back({current_timestamp, value});
-          if(fix.get_invert_tilt())
-            value = (int) (sin((2*PI*current_timestamp)/(time_of_one_loop_tilt) + (group_offset * PI) + PI) * amplitude_tilt) + tilt_center;
+        // looping through all segments
+        for (int j = 0; j < segment_changes.size(); j++) {
+          segment_start = segment_changes[j].time;
+          if (j < segment_changes.size() - 1)
+            segment_end = segment_changes[j + 1].time;
           else
-            value = (int) (sin((2*PI*current_timestamp)/(time_of_one_loop_tilt) + (group_offset * PI)) * amplitude_tilt) + tilt_center;
-          vc_tilt.push_back({current_timestamp, value});
-          current_timestamp += 0.025f;
+            segment_end = ((float) lightshow->get_length() - 3) / lightshow->get_resolution();
+
+          std::cout << "segment_start: " << segment_start << std::endl;
+          std::cout << "segment_end: " << segment_end << std::endl;
+
+          std::vector<float> onset_timestamps = lightshow->get_onset_timestamps_in_segment(segment_start, segment_end);
+          // duration of segment / duration of one bar * how often an onsets should occur each bar
+          float time_of_one_bar = (float) 4 * ((float) 60 / (float) lightshow->get_bpm());
+          float eight_per_bar = (segment_end - segment_start) / time_of_one_bar * 8;
+          float six_per_bar = (segment_end - segment_start) / time_of_one_bar * 6;
+          float four_per_bar = (segment_end - segment_start) / time_of_one_bar * 4;
+          float two_per_bar = (segment_end - segment_start) / time_of_one_bar * 2;
+          float one_per_bar = (segment_end - segment_start) / time_of_one_bar;
+
+          if(fix.get_moving_head_type() == "auto_background" || fix.get_moving_head_type() == "group_auto_background") {
+            if (onset_timestamps.size() >= four_per_bar) {
+              fix.set_amplitude_pan(60);
+              fix.set_amplitude_tilt(40);
+              this->generate_continuous_8(fix, pan_center, tilt_center, time_of_four_bars, time_of_four_bars, segment_start, segment_end, 0);
+            } else {
+              fix.set_amplitude_pan(60);
+              fix.set_amplitude_tilt(40);
+              this->generate_continuous_8(fix, pan_center, tilt_center, time_of_four_bars * 2, time_of_four_bars * 2, segment_start, segment_end, 0);
+            }
+
+          }
+
         }
+
+      } else if(fix.get_moving_head_type() == "Continuous 8" || fix.get_moving_head_type() == "Continuous 8 group") {
+        this->generate_continuous_8(fix, pan_center, tilt_center, time_of_four_bars * 2, time_of_four_bars * 2, 0, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), fixtures_in_mh_group_continuous_8);
 
       } else if(fix.get_moving_head_type() == "Continuous Circle" || fix.get_moving_head_type() == "Continuous Circle group") {
-        //amplitude_pan = (int) std::round(45 / fix.get_degrees_per_pan());
-        //amplitude_tilt = (int) std::round(25 / fix.get_degrees_per_tilt());
-        amplitude_pan = (int) std::round(fix.get_amplitude_pan() / fix.get_degrees_per_pan());
-        amplitude_tilt = (int) std::round(fix.get_amplitude_tilt() / fix.get_degrees_per_tilt());
-
-        if(tilt_center + amplitude_tilt > 255)
-          amplitude_tilt = 255 - tilt_center;
-        else if(tilt_center - amplitude_tilt < 0)
-          amplitude_tilt = tilt_center;
-        if(pan_center + amplitude_pan > 255)
-          amplitude_pan = 255 - pan_center;
-        else if(pan_center - amplitude_pan < 0)
-          amplitude_pan = pan_center;
-
-        //time_of_one_loop_pan = time_of_four_bars * 2;
-        //time_of_one_loop_tilt = time_of_four_bars * 2;
-        time_of_one_loop_pan = time_of_four_bars;
-        time_of_one_loop_tilt = time_of_four_bars;
-
-        float current_timestamp = 0.0;
-        uint8_t value = 0;
-        if(fix.get_position_on_stage() == "Left")
-          left_right_switch = PI;
-
-        float group_offset = 0;
-        if(fix.get_moving_head_type() == "Continuous Circle group") {
-          group_offset = (float) 2 * (float) (fix.get_position_in_mh_group() - 1) / fixtures_in_mh_group_continuous_8;
-        }
-
-        while(current_timestamp < ((float) lightshow->get_length() - 3) / lightshow->get_resolution()) {
-          value = (int) (cos((2*PI*current_timestamp)/(time_of_one_loop_pan) + left_right_switch + (group_offset * PI)) * amplitude_pan) + pan_center;
-          vc_pan.push_back({current_timestamp, value});
-          if(fix.get_invert_tilt())
-            value = (int) (sin((2*PI*current_timestamp)/(time_of_one_loop_tilt) + (group_offset * PI) + PI) * amplitude_tilt) + tilt_center + amplitude_tilt;
-          else
-            value = (int) (sin((2*PI*current_timestamp)/(time_of_one_loop_tilt) + (group_offset * PI)) * amplitude_tilt) + tilt_center + amplitude_tilt;
-          //value = (int) (sin((2*PI*current_timestamp)/(time_of_one_loop_tilt) + (group_offset * PI)) * amplitude_tilt) + tilt_center + amplitude_tilt;
-          vc_tilt.push_back({current_timestamp, value});
-          current_timestamp += 0.025f;
-        }
+        this->generate_continuous_circle(fix, pan_center, tilt_center, time_of_four_bars, time_of_four_bars, 0, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), fixtures_in_mh_group_continuous_circle);
 
       } else if(fix.get_moving_head_type() == "Continuous Line vertical" || fix.get_moving_head_type() == "Continuous Line vertical group") {
         //amplitude_pan = (int) std::round(45 / fix.get_degrees_per_pan());
@@ -1695,4 +1679,91 @@ void LightshowGenerator::generate_blink_back_and_forth(LightshowFixture & fix, s
   } else {
 
   }
+}
+
+void LightshowGenerator::generate_continuous_8(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_pan, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group) {
+  int amplitude_pan = (int) std::round(fix.get_amplitude_pan() / fix.get_degrees_per_pan());
+  int amplitude_tilt = (int) std::round(fix.get_amplitude_tilt() / fix.get_degrees_per_tilt());
+
+  std::vector<time_value_int> vc_pan;
+  std::vector<time_value_int> vc_tilt;
+
+  if(tilt_center + amplitude_tilt > 255)
+    amplitude_tilt = 255 - tilt_center;
+  else if(tilt_center - amplitude_tilt < 0)
+    amplitude_tilt = tilt_center;
+  if(pan_center + amplitude_pan > 255)
+    amplitude_pan = 255 - pan_center;
+  else if(pan_center - amplitude_pan < 0)
+    amplitude_pan = pan_center;
+
+  float left_right_switch = 0;
+
+  float current_timestamp = start_timestamp;
+  uint8_t value = 0;
+  if(fix.get_position_on_stage() == "Left")
+    left_right_switch = PI;
+
+  float group_offset = 0;
+  if((fix.get_moving_head_type() == "Continuous 8 group" || fix.get_moving_head_type() == "group_auto_background") && number_of_fixtures_in_group > 0) {
+    group_offset = (float) 2 * (float) (fix.get_position_in_mh_group() - 1) / number_of_fixtures_in_group;
+  }
+
+  while(current_timestamp < end_timestamp) {
+    value = (int) (cos((2*PI*current_timestamp)/(time_of_one_loop_pan) + left_right_switch + (group_offset * PI)) * amplitude_pan) + pan_center;
+    vc_pan.push_back({current_timestamp, value});
+    if(fix.get_invert_tilt())
+      value = (int) (sin((2*PI*current_timestamp)/(time_of_one_loop_tilt) + (group_offset * PI) + PI) * amplitude_tilt) + tilt_center;
+    else
+      value = (int) (sin((2*PI*current_timestamp)/(time_of_one_loop_tilt) + (group_offset * PI)) * amplitude_tilt) + tilt_center;
+    vc_tilt.push_back({current_timestamp, value});
+    current_timestamp += 0.025f;
+  }
+
+  fix.add_value_changes_to_channel(vc_pan, fix.get_channel_pan());
+  fix.add_value_changes_to_channel(vc_tilt, fix.get_channel_tilt());
+}
+
+void LightshowGenerator::generate_continuous_circle(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_pan, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group) {
+  int amplitude_pan = (int) std::round(fix.get_amplitude_pan() / fix.get_degrees_per_pan());
+  int amplitude_tilt = (int) std::round(fix.get_amplitude_tilt() / fix.get_degrees_per_tilt());
+
+  std::vector<time_value_int> vc_pan;
+  std::vector<time_value_int> vc_tilt;
+
+  if(tilt_center + amplitude_tilt > 255)
+    amplitude_tilt = 255 - tilt_center;
+  else if(tilt_center - amplitude_tilt < 0)
+    amplitude_tilt = tilt_center;
+  if(pan_center + amplitude_pan > 255)
+    amplitude_pan = 255 - pan_center;
+  else if(pan_center - amplitude_pan < 0)
+    amplitude_pan = pan_center;
+
+  float left_right_switch = 0;
+
+  float current_timestamp = start_timestamp;
+  uint8_t value = 0;
+  if(fix.get_position_on_stage() == "Left")
+    left_right_switch = PI;
+
+  float group_offset = 0;
+  if(fix.get_moving_head_type() == "Continuous Circle group") {
+    group_offset = (float) 2 * (float) (fix.get_position_in_mh_group() - 1) / number_of_fixtures_in_group;
+  }
+
+  while(current_timestamp < end_timestamp) {
+    value = (int) (cos((2*PI*current_timestamp)/(time_of_one_loop_pan) + left_right_switch + (group_offset * PI)) * amplitude_pan) + pan_center;
+    vc_pan.push_back({current_timestamp, value});
+    if(fix.get_invert_tilt())
+      value = (int) (sin((2*PI*current_timestamp)/(time_of_one_loop_tilt) + (group_offset * PI) + PI) * amplitude_tilt) + tilt_center + amplitude_tilt;
+    else
+      value = (int) (sin((2*PI*current_timestamp)/(time_of_one_loop_tilt) + (group_offset * PI)) * amplitude_tilt) + tilt_center + amplitude_tilt;
+    //value = (int) (sin((2*PI*current_timestamp)/(time_of_one_loop_tilt) + (group_offset * PI)) * amplitude_tilt) + tilt_center + amplitude_tilt;
+    vc_tilt.push_back({current_timestamp, value});
+    current_timestamp += 0.025f;
+  }
+
+  fix.add_value_changes_to_channel(vc_pan, fix.get_channel_pan());
+  fix.add_value_changes_to_channel(vc_tilt, fix.get_channel_tilt());
 }

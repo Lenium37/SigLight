@@ -46,6 +46,9 @@ class LightshowGenerator {
   void generate_flash_reverse(LightshowFixture & fix, std::vector<float> & onset_timestamps, float segment_start, float segment_end);
   void generate_blink(LightshowFixture & fix, std::vector<float> timestamps, float segment_end);
   void generate_blink_back_and_forth(LightshowFixture & fix, std::vector<float> timestamps, int group_counter, float segment_end);
+
+  void generate_continuous_8(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_pan, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group);
+  void generate_continuous_circle(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_pan, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group);
 };
 
 #endif //RASPITOLIGHT_SRC_CORE_LIB_LIGHTSHOW_LIGHT_SHOW_GENERATOR_H_

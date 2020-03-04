@@ -56,6 +56,10 @@ EditFixtureDialog::EditFixtureDialog(QWidget *parent, list<Fixture> &fixtures, s
   ui->cB_moving_head_position->addItem("Right");
 
   ui->cB_moving_head_type->addItem("Nothing");
+  ui->cB_moving_head_type->addItem("auto_background");
+  ui->cB_moving_head_type->addItem("group_auto_background");
+  ui->cB_moving_head_type->addItem("auto_action");
+  ui->cB_moving_head_type->addItem("group_auto_action");
   ui->cB_moving_head_type->addItem("Continuous 8");
   ui->cB_moving_head_type->addItem("Continuous Circle");
   ui->cB_moving_head_type->addItem("Continuous Line vertical");
@@ -312,8 +316,8 @@ void EditFixtureDialog::update_position_in_mh_group_status(QString current_type)
   }
 
   if(current_type.toLower().toStdString().find("continuous 8") != string::npos) {
-    ui->sB_amplitude_pan->setValue(90);
-    ui->sB_amplitude_tilt->setValue(45);
+    ui->sB_amplitude_pan->setValue(60);
+    ui->sB_amplitude_tilt->setValue(40);
   } else if(current_type.toLower().toStdString().find("continuous circle") != string::npos) {
     ui->sB_amplitude_pan->setValue(45);
     ui->sB_amplitude_tilt->setValue(25);
