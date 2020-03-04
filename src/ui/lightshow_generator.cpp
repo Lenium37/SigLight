@@ -106,7 +106,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
     else if(fix_mh_type == "group_auto_action" && fix.get_position_in_mh_group() > fixtures_in_mh_group_auto_action)
       fixtures_in_mh_group_auto_action = fix.get_position_in_mh_group();
 
-
   }
 
   for(int i = 0; i < lightshow->get_fixtures().size(); i++) {
@@ -214,7 +213,10 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
             } else {
               fix.set_amplitude_pan(60);
               fix.set_amplitude_tilt(40);
-              this->generate_continuous_8(fix, pan_center, tilt_center, time_of_four_bars * 2, time_of_four_bars * 2, segment_start, segment_end, 0);
+              if(fix.get_moving_head_type() == "group_auto_background")
+                this->generate_continuous_8(fix, pan_center, tilt_center, time_of_four_bars * 2, time_of_four_bars * 2, segment_start, segment_end, fixtures_in_mh_group_auto_background);
+              else
+                this->generate_continuous_8(fix, pan_center, tilt_center, time_of_four_bars * 2, time_of_four_bars * 2, segment_start, segment_end, 0);
             }
 
           }
