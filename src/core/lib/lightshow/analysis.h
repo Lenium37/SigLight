@@ -80,6 +80,7 @@ class Analysis {
   std::vector<time_value_double> get_turningpoints(std::vector<time_value_double> data);
   complex_result fft_impulse(std::vector<double> signal);
   int get_bpm();
+  void set_bpm(int _bpm);
   double get_first_beat();
   std::vector<double> get_all_beats(int bpm, double firstBeat);
   void set_resolution(int resolution);

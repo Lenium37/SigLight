@@ -809,16 +809,25 @@ std::vector<time_value_double> Analysis::get_intensity_function_values() {
 
 }
 
-std::vector<time_value_float> Analysis::get_segments() {
+std::vector<time_value_float> Analysis::get_segments(){
 
   bool FILEPRINT = false;
   auto start = std::chrono::system_clock::now();
 
   std::vector<time_value_float> segments;
 
-  // BIN AND HOPSIZE BASED ON MEINARD MÜLLERS RECOMMENDATION IN "FUNDAMENTALS OF USIC PROCESSING"
-  int bin_size = 2205; // 0.05 seconds, 20Hz
-  int hop_size = 2205; // no overlap
+  int bin_size = 22050; // 22050 = 0.5 seconds, 2Hz
+  int hop_size = 22050; // no overlap, don't do overlap, all timestamps will be broken.
+
+  // TODO: HIER MUSS EVTL. NOCH MINIMAL WAS PASSIEREN!
+  // TODO: AUSSERDEM NOCHMAL ALLE SCHLEIFEN DURCHGUCKEN
+  // TODO: MATRIX MUSS AUCH NOCH ETWAS DIFFERENZIERTER WERDEN... VIELLEICHT ANDERE DISTANZ NUTZEN...
+
+  float middle_factor = 0.75;
+  float novelty_factor = 0.5;
+  float deviation_factor = 4;
+  float cut_seconds_end = 10; // HOW MANY SECONDS TO CUT AT THE END
+  float cut_seconds_start = 5;
 
   Gist<float> gist2(bin_size, samplerate);
   std::vector<std::vector<float>> window;
@@ -827,9 +836,28 @@ std::vector<time_value_float> Analysis::get_segments() {
   bin.reserve(bin_size);
   std::vector<float> coeffs;
 
+  std::vector<std::vector<float>> cb_kernel;
+  std::vector<float> cb_kernel_line;
+  float cb_value;
+  std::vector<std::vector<float>> gaussian_kernel;
+  std::vector<float> gaussian_kernel_line;
+  double gaussian_value;
+
   // filter kernel variables
-  int L = 75;
+  std::cout << "bpm: " << this->bpm << std::endl;
+  float kernel_time = (float)32.0 * ( (float) 60.0 / (float) this->bpm );
+  float L_f = (kernel_time / (float) 2.0) / ( (float) bin_size / (float) samplerate );
+  int L = L_f;
+  std::cout << "KERNEL-SIZE L in seconds: " << kernel_time << std::endl;
+  //int L = 10;
   int N = (L*2)+1;
+  double var = 0.5;
+  double epsilon = sqrt(0.5) / ((double)L * var);
+  std::vector<std::vector<float>> kernel;
+  std::vector<float> kernel_line;
+  float value;
+
+
 
   // ##############################
   // ###### 1. GET AUDIO BIN ######
@@ -853,9 +881,14 @@ std::vector<time_value_float> Analysis::get_segments() {
 
     // USE MAGNITUDE SPECTRUM
     //coeffs = gist2.getMagnitudeSpectrum();
+    //std::cout << "COEFFS-SIZE: " << coeffs.size() << std::endl;
 
     // USE MFCC
     coeffs = gist2.getMelFrequencyCepstralCoefficients();
+
+    // USE MFCC
+    //coeffs = gist2.getMelFrequencySpectrum();
+
 
     window.push_back(coeffs);
     coeffs.clear();
@@ -880,11 +913,11 @@ std::vector<time_value_float> Analysis::get_segments() {
 
   std::vector<float> similarity;
 
-  float ssm_max = 0;
-  float ssm_min = 0;
-  float ssm_count = 0;
-  float ssm_middle = 0;
-  float ssm_sum = 0;
+  double ssm_max = -1;
+  double ssm_min = 1;
+  double ssm_count = 0;
+  double ssm_middle = 0;
+  double ssm_sum = 0;
 
   float distance = 0;
 
@@ -894,52 +927,56 @@ std::vector<time_value_float> Analysis::get_segments() {
     similarity.clear();
     for (int n = 0; n < window.size(); n++){
 
-      if (n <= m+L && n >= m-L) {
+      // if (n <= m+L && n >= m-L) {
 
-        // BEFORE CALCULATING DISTANCE, CHECK IF THERE IS A MIRRORED VALUE BECAUSE [m][n] = [n][m]
-        /*
-        if (ssm[n].size() > m && ssm[m].size() > n) {
-            ssm[m][n] = ssm[n][m];
-            continue;
-        }
-        else {
-        }
-         */
-
-        // #################################################################
-        // ###################### 3.1 COSINE DISTANCE ######################
-        // #### d_cos  =  m*n / |m|*|n|  =  m*n / sqrt(m*m) * sqrt(n*n) ####
-        // #################################################################
-
-        float p_mn = 0;
-        for (int j = 0; j < window[m].size(); j++) {
-          p_mn += window[m][j] * window[n][j];
-        }
-        float p_mm = 0;
-        for (int j = 0; j < window[m].size(); j++) {
-          p_mm += window[m][j] * window[m][j];
-        }
-        float p_nn = 0;
-        for (int j = 0; j < window[n].size(); j++) {
-          p_nn += window[n][j] * window[n][j];
-        }
-        float cosine_distance = p_mn / (sqrt(p_mm) * sqrt(p_nn));
-
-
-        // USE COSINE DISTANCE
-        distance = cosine_distance;
+      // BEFORE CALCULATING DISTANCE, CHECK IF THERE IS A MIRRORED VALUE BECAUSE [m][n] = [n][m]
+      /*
+      if (ssm[n].size() > m && ssm[m].size() > n) {
+          ssm[m][n] = ssm[n][m];
+          continue;
       }
       else {
-        distance = 0.0;
       }
+       */
 
+      // #################################################################
+      // ###################### 3.1 COSINE DISTANCE ######################
+      // #### d_cos  =  m*n / |m|*|n|  =  m*n / sqrt(m*m) * sqrt(n*n) ####
+      // #################################################################
+
+      float p_mn = 0;
+      for (int j = 0; j < window[m].size(); j++) {
+        p_mn += window[m][j] * window[n][j];
+      }
+      float p_mm = 0;
+      for (int j = 0; j < window[m].size(); j++) {
+        p_mm += window[m][j] * window[m][j];
+      }
+      float p_nn = 0;
+      for (int j = 0; j < window[n].size(); j++) {
+        p_nn += window[n][j] * window[n][j];
+      }
+      // EXPONENTIAL COSINE DISTANCE  e^(d(x_i, x_j) - 1)
+      // WERTEBEREICH => [0,1] ERSTMAL NICHT MACHEN
+      float cosine_distance = exp( (p_mn / (sqrt(p_mm) * sqrt(p_nn))) - 1 );
+
+
+      // USE COSINE DISTANCE
+      distance = cosine_distance;
+
+      /*
+  }
+  else {
+      distance = 0;
+  }
+  */
       // USE OTHER DISTANCE
       //float distance = other_distance;
 
       similarity.push_back(distance);
 
       // SUM UP DISTANCES
-      ssm_sum += distance;
+      ssm_sum += (double) distance;
 
       // COUNT DISTANCES
       ssm_count += 1;
@@ -954,9 +991,10 @@ std::vector<time_value_float> Analysis::get_segments() {
       else {}
 
     }
+    //std::cout << "SSM_SUM & SSM_COUNT: " << ssm_sum << " //  " << ssm_count << std::endl;
 
     // GET MIDDLE OF DISTANCES
-    ssm_middle = ssm_sum / ssm_count;
+    //ssm_middle = ssm_sum / ssm_count;
 
     // ####################
     // ## 4. MAKE MATRIX ##
@@ -972,8 +1010,8 @@ std::vector<time_value_float> Analysis::get_segments() {
 
 
   // PRINT MIN, MAX AND MIDDLE
-  std::cout << "SSM_MIN: " << ssm_min << " SSM_MAX: " << ssm_max << std::endl;
-  std::cout << "SSM_MIDDLE: " << ssm_middle <<  std::endl;
+  //std::cout << "SSM_MIN: " << ssm_min << " SSM_MAX: " << ssm_max << std::endl;
+  //std::cout << "SSM_MIDDLE: " << ssm_middle <<  std::endl;
 
   // ###############################################
   // ## 4.1 PUT MATRIX IN A CSV FILE FOR PLOTTING ##
@@ -1005,20 +1043,13 @@ std::vector<time_value_float> Analysis::get_segments() {
   // ## 5.1 CREATE RADIAL GAUSSIAN CHECKERBOARD KERNEL ##
   // ####################################################
 
-  std::vector<std::vector<float>> cb_kernel;
-  std::vector<float> cb_kernel_line;
-  float cb_value;
-  std::vector<std::vector<float>> gaussian_kernel;
-  std::vector<float> gaussian_kernel_line;
-  float gaussian_value;
-  float epsilon = 0.5;
-  std::vector<std::vector<float>> kernel;
-  std::vector<float> kernel_line;
-  float value;
+
 
   auto start_kernel = std::chrono::system_clock::now();
 
   // CREATE CHECKERBOARD KERNEL
+  // TODO: CHECKEN WARUM RECHTS NOCH EIN X-WERT MEHR GEPLOTTET WIRD!!!
+
   for (int m = 1; m <= N; m++){
     for (int n = 1; n <= N; n++){
       if ((m <= L && n <= L) || (m >= (L+2) && n >= (L+2))){
@@ -1045,18 +1076,22 @@ std::vector<time_value_float> Analysis::get_segments() {
       }
       fprintf(fp_cb_kernel, "\n");
     }
-
-
     fclose(fp_cb_kernel);
   }
 
   // CREATE RADIAL GAUSSIAN KERNEL
-  float increment = 2.0/N;
-  for (float s = (-1.0 + (increment/2)); s < 1.0; s+=increment){
-    for (float t = (-1.0 + (increment/2)); t < 1.0; t+=increment){
-      gaussian_value = exp(-1 * pow(epsilon, 2) * ( pow(s, 2) + pow(t, 2) ));
-      gaussian_kernel_line.push_back(gaussian_value);
+  // TODO: NUMPY VARIANTE MIT NORMIERTEM KERNEL SAUBER IMPLEMENTIEREN
+  for (double s = -L; s <= L; s+=1.0){
+    for (double t = -L; t <= L; t+=1.0){
+
+      // NORMIERTE KERNEL VALUES!
+      gaussian_value = exp(-1.0 * pow(epsilon, 2.0) * ( pow(s, 2.0) + pow(t, 2.0) ));
+      gaussian_value /=  (4.0 * pow(L,2.0));
+      // MAKE LINE
+      gaussian_kernel_line.push_back((float)gaussian_value);
+
     }
+    // MAKE MATRIX
     gaussian_kernel.push_back(gaussian_kernel_line);
     gaussian_kernel_line.clear();
   }
@@ -1104,10 +1139,6 @@ std::vector<time_value_float> Analysis::get_segments() {
   // -1 -1 0  1  1
   // -1 -1 0  1  1
 
-
-
-
-
   // ####################################
   // ## 5.1 KERNEL MIT SSM VERHEIRATEN ##
   // ####################################
@@ -1119,8 +1150,8 @@ std::vector<time_value_float> Analysis::get_segments() {
 
   auto start_filter = std::chrono::system_clock::now();
 
-
-  for (int n = 0; n < (ssm.size()); n++){
+  float cut = ((float) samplerate / (float) bin_size) * cut_seconds_end;
+  for (int n = 0; n < (ssm.size()) - cut; n++){
     novelty_value = 0;
     // [n,n] müsste der punkt sein, um den herum wir uns alles ansehen.... also auf der diagonalen liegen
     for (int k = 0; k < N; k++){
@@ -1138,48 +1169,140 @@ std::vector<time_value_float> Analysis::get_segments() {
 
       }
     }
-    float novelty_time = n*0.05;
+    float novelty_time = ((float) n * ((float) bin_size / (float) samplerate)) + ( ( (float) bin_size / (float) 2.0 ) / (float) samplerate );
+    //novelty_value /= (4 * L * L);
     novelty_function.push_back({novelty_time, novelty_value});
   }
 
   auto end_filter = std::chrono::system_clock::now();
 
+
+  // CHECK NOVELTY FOR EXTREMA
+  std::vector<time_value_float> extrema;
+
+  bool first_extremum = true;
+
+  for (int i = 1; i < novelty_function.size()-1; i++){
+    /*
+    if (novelty_function[i].value >= novelty_knn_middle
+    && novelty_function[i-1].value < novelty_function[i].value
+    && novelty_function[i+1].value < novelty_function[i].value ){
+        segments.push_back({novelty_function[i].time, novelty_function[i].value});
+        std::cout << "time: " << novelty_function[i].time << std::endl;
+    }
+
+
+    // ALTERNATIVER NOVELTY FUNCTION VALUE ALGO AUS DER DINGENS DISSERTATION
+    // CHECK FOR MAXIMA P AND MINIMA T
+    */
+    if ((novelty_function[i-1].value < novelty_function[i].value
+        && novelty_function[i+1].value < novelty_function[i].value )) {
+      // WE GOT A MAXIMUM
+      if (first_extremum){
+        first_extremum = false;
+      }
+      else {
+        extrema.push_back({novelty_function[i].time, (novelty_function[i].value)});
+      }
+    }
+  }
+
   auto start_file_novelty = std::chrono::system_clock::now();
+  // WHERE IS THIS?
   auto end_file_novelty = std::chrono::system_clock::now();
 
-  float novelty_middle = 0;
-  for (int i = 0; i < novelty_function.size(); i++){
-    novelty_middle += novelty_function[i].value;
+  // DELETE FIRST AND LAST EXTREMUM FROM EXTREMA
+  extrema.pop_back();
+  std::cout << "HERE WE GO!" << std::endl;
+
+
+  // MITTELWERT DER EXTREMA BERECHNEN
+  float extrema_middle = 0;
+  for(auto x:extrema){
+    extrema_middle += x.value;
   }
-  novelty_middle /= novelty_function.size();
-  novelty_middle *= 1.1;
-  std::cout << "NOVELTY MIDDLE: " << novelty_middle << std::endl;
+  std::cout << "extrema_middle: " << extrema_middle << std::endl;
+  std::cout << "extrema.size(): " << extrema.size() << std::endl;
+  if(!extrema.empty())
+    extrema_middle /= (float) extrema.size();
+
+  std::cout << "EXTREMA MIDDLE: " << extrema_middle << std::endl;
+
+  // VARIANZ DER EXTREMA BERECHNEN
+  float extrema_variance = 0;
+
+  for (int i = 0; i < extrema.size(); i++){
+    extrema_variance += pow((extrema[i].value - extrema_middle), 2.0);
+  }
+  if(!extrema.empty())
+    extrema_variance /= (float) extrema.size();
+
+  std::cout << "EXTREMA VARIANCE: " << extrema_variance << std::endl;
+
+  // novelty empirical standard deviation
+  float extrema_deviation = 0;
+  if(extrema_variance > 0)
+    extrema_deviation = sqrt(extrema_variance);
+
+  std::cout << "EXTREMA DEVIATION: " << extrema_deviation << std::endl;
+
+
+  // TODO: WE DON'T NEED THIS ANYMORE!!
+  /*
+  for (int i = 1; i < novelty_function.size()-1; i++){
+
+      if (novelty_function[i].value > novelty_function[i-1].value
+      && novelty_function[i].value > novelty_function[i+1].value
+      && novelty_function[i].value < extrema_deviation * deviation_factor) {
+          novelty_count += 1.0;
+          novelty_knn_middle += novelty_function[i].value;
+      }
+  }
+  */
+  //novelty_knn_middle /= novelty_count;
+  //novelty_knn_middle *= novelty_factor;
+
+  //std::cout << "NOVELTY MIDDLE: " << novelty_middle << std::endl;
+
+  //std::cout << "NOVELTY KNN MIDDLE: " << novelty_knn_middle << std::endl;
 
   std::cout << "--- SEGMENT CHANGES ---" << std::endl;
-  for (int i = 1; i < novelty_function.size()-1; i++){
-    if (novelty_function[i].value >= novelty_middle
-        && novelty_function[i-1].value < novelty_function[i].value
-        && novelty_function[i+1].value < novelty_function[i].value ){
-      segments.push_back({novelty_function[i].time, novelty_function[i].value});
-      std::cout << "time: " << novelty_function[i].time << std::endl;
+
+  // ERSTEN DIREKT REINBALLERN... NEIN!
+
+  // JETZT ÜBER DIE EXTREMA SCHLEIFEN
+  // IGNORE FIRST AND LAST EXTREMUM BECAUSE THEY'RE ALWAYS BIG!
+  for (int i = 0; i < extrema.size(); i++) {
+    // HIER GUCKEN OB VALUE KEIN AUSREISSER IST (~ x > novelty_middle * 4)ugelol.com/fresh
+
+    // TODO: HIER PASSIERT JETZT DIE GANZE MAGIE!!!!
+
+    if( /*extrema[i].value < (extrema_middle + (deviation_factor * extrema_deviation)) && */
+        extrema[i].value >= (extrema_middle * middle_factor)){
+      //if (extrema[i].value >= ((extrema[i - 1].value + extrema[i + 1].value) / 2) + novelty_knn_middle) {
+      // GREATER THAN DEVIATION AND SMALLER THAN VARIANCE? THEN PUSH BACK!!!!
+      segments.push_back({extrema[i].time, extrema[i].value});
+
     }
   }
 
   bool multiple_peaks = false;
   std::vector<int> indexes_of_multiple_peaks;
-  if(!segments.empty()) {
+
+  float bars = ( (float) 2.0 * (float) this->bpm ) / (float) 60.0;
+  if (!segments.empty()) {
     for (int i = 0; i < segments.size() - 1; i++) {
 
-      if ((abs(segments[i + 1].time - segments[i].time)) < 2.0 && multiple_peaks) {
+      if ((abs(segments[i + 1].time - segments[i].time)) < bars && multiple_peaks) {
         indexes_of_multiple_peaks.push_back(i);
       }
 
-      if ((abs(segments[i + 1].time - segments[i].time)) < 2.0 && !multiple_peaks) {
+      if ((abs(segments[i + 1].time - segments[i].time)) < bars && !multiple_peaks) {
         multiple_peaks = true;
         indexes_of_multiple_peaks.push_back(i);
       }
 
-      if (((abs(segments[i + 1].time - segments[i].time)) >= 2.0 || i == segments.size() - 2) && multiple_peaks) {
+      if (((abs(segments[i + 1].time - segments[i].time)) >= bars || i == segments.size() - 2) && multiple_peaks) {
         multiple_peaks = false;
         float max_value_of_multiple_peaks = 0;
         int index_of_max_value_of_multiple_peaks = 0;
@@ -1191,9 +1314,9 @@ std::vector<time_value_float> Analysis::get_segments() {
           }
         }
         // remove the index of the value we want to keep
-        indexes_of_multiple_peaks.erase(std::remove(indexes_of_multiple_peaks.begin(),
-                                                    indexes_of_multiple_peaks.end(),
-                                                    max_value_of_multiple_peaks), indexes_of_multiple_peaks.end());
+        indexes_of_multiple_peaks.erase(
+            std::remove(indexes_of_multiple_peaks.begin(), indexes_of_multiple_peaks.end(),
+                        max_value_of_multiple_peaks), indexes_of_multiple_peaks.end());
 
         for (int j = indexes_of_multiple_peaks.size() - 1; j >= 0; j--) {
           std::cout << "to be erased: " << segments[indexes_of_multiple_peaks[j]].time << std::endl;
@@ -1219,8 +1342,8 @@ std::vector<time_value_float> Analysis::get_segments() {
   if (FILEPRINT == true) {
     FILE *fp_novelty = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/novelty.csv", "w");
 
-    for (int i = 0; i < novelty_function.size(); i++) {
-      fprintf(fp_novelty, "%f, %f\n", novelty_function[i].time, novelty_function[i].value);
+    for (int i = 0; i < extrema.size(); i++) {
+      fprintf(fp_novelty, "%f, %f\n", extrema[i].time, extrema[i].value);
     }
     fclose(fp_novelty);
   }
@@ -1258,6 +1381,8 @@ std::vector<time_value_float> Analysis::get_segments() {
 
   return segments;
 }
+
+
 
 std::vector<time_value_int>
 Analysis::get_intensity_average_for_next_segment(std::vector<double> beats, int beats_per_minute,
@@ -1845,6 +1970,8 @@ int Analysis::get_bpm() {
     fftw_free(ifft_result);
 
     //std::cout << "BPM: " << finalBPM << std::endl;
+    this->bpm = finalBPM;
+    this->bpm = finalBPM;
 
     return finalBPM;
 }
@@ -1961,7 +2088,7 @@ double Analysis::get_first_beat() {
 
 std::vector<double> Analysis::get_all_beats(int beats_per_minute, double firstBeat) {
 
-
+    this->bpm = beats_per_minute;
     std::vector<double> times;
 
     double timeTemp = firstBeat;
@@ -2013,4 +2140,7 @@ int Analysis::get_samplerate() {
 int Analysis::get_spectral_flux() {
 
     return 0;
+}
+void Analysis::set_bpm(int _bpm) {
+  this->bpm = _bpm;
 }
