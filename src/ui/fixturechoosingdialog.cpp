@@ -17,7 +17,7 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
     QDialog(parent),
     ui(new Ui::FixtureChoosingDialog) {
     ui->setupUi(this);
-    types << "auto_beats" << "group_auto_beats" << "auto_onsets" << "group_auto_onsets" << "Ambient" << "Bass" << "Mid" << "High" << "color_change" << "flash" << "flash_reverse" << "blink" << "group_one_after_another" << "group_one_after_another_blink" << "group_one_after_another_back_and_forth" << "group_one_after_another_back_and_forth_blink" << "group_two_after_another" << "group_alternate_odd_even" << "group_random_flashes" << "strobe_if_many_onsets";
+    types << "auto_beats" << "group_auto_beats" << "auto_onsets" << "group_auto_onsets" << "Ambient" << "Bass" << "Mid" << "High" << "color_change" << "flash" << "flash_reverse" << "blink" << "group_one_after_another" << "group_one_after_another_fade" << "group_one_after_another_blink" << "group_one_after_another_back_and_forth" << "group_one_after_another_back_and_forth_blink" << "group_two_after_another" << "group_alternate_odd_even" << "group_random_flashes" << "strobe_if_many_onsets";
     for(std::string _colors: color_palettes)
       colors << QString::fromStdString(_colors);
     auto list_size = static_cast<double>(fixtures.size());
@@ -208,6 +208,7 @@ void FixtureChoosingDialog::update_position_in_group_status(QString current_type
   std::cout << current_type.toStdString() << std::endl;
   current_type = current_type.toLower();
   if(current_type == "group_one_after_another"
+  || current_type == "group_one_after_another_fade"
   || current_type == "group_one_after_another_back_and_forth"
   || current_type == "group_one_after_another_back_and_forth_blink"
   || current_type == "group_two_after_another"
@@ -227,6 +228,7 @@ void FixtureChoosingDialog::update_position_in_group_status(QString current_type
   || current_type == "flash_reverse"
   || current_type == "blink"
   || current_type == "group_one_after_another"
+  || current_type == "group_one_after_another_fade"
   || current_type == "group_one_after_another_blink"
   || current_type == "group_one_after_another_back_and_forth"
   || current_type == "group_one_after_another_back_and_forth_blink"

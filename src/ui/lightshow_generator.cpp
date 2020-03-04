@@ -45,6 +45,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   lightshow->prepare_analysis_for_song((char*)song->get_file_path().c_str(), need_bass, need_mid, need_high, need_onsets, user_bpm, onset_value);
 
   int fixtures_in_group_one_after_another = 0;
+  int fixtures_in_group_one_after_another_fade = 0;
   int fixtures_in_group_one_after_another_back_and_forth = 0;
   int fixtures_in_group_one_after_another_back_and_forth_blink = 0;
   int fixtures_in_group_one_after_another_blink = 0;
@@ -69,6 +70,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
     std::string fix_type = fix.get_type();
     if (fix_type == "group_one_after_another" && fix.get_position_in_group() > fixtures_in_group_one_after_another)
       fixtures_in_group_one_after_another = fix.get_position_in_group();
+    else if (fix_type == "group_one_after_another_fade" && fix.get_position_in_group() > fixtures_in_group_one_after_another_fade)
+      fixtures_in_group_one_after_another_fade = fix.get_position_in_group();
     else if(fix_type == "group_one_after_another_back_and_forth" && fix.get_position_in_group() > fixtures_in_group_one_after_another_back_and_forth)
       fixtures_in_group_one_after_another_back_and_forth = fix.get_position_in_group();
     else if(fix_type == "group_one_after_another_back_and_forth_blink" && fix.get_position_in_group() > fixtures_in_group_one_after_another_back_and_forth_blink)
@@ -678,6 +681,62 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       } else {
 
       }
+    } else if (fix_type == "group_one_after_another_fade") {
+      if (fix.has_global_dimmer) {
+        std::vector<time_value_int> value_changes;
+
+        std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
+        std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
+        std::vector<float> timestamps_for_this_fixture;
+        if(fix.get_position_in_group() > 0) {
+          for (int j = 0; j < timestamps.size(); j++) {
+            if(j % fixtures_in_group_one_after_another_fade + 1 == fix.get_position_in_group()) {
+              timestamps_for_this_fixture.push_back(timestamps[j]);
+              /*value_changes.push_back({timestamps[j], 255});
+              if(j < timestamps.size() - 1)
+                value_changes.push_back({timestamps[j + 1], 0});
+              else
+                value_changes.push_back({((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0});*/
+            }
+          }
+
+          for(int j = 0; j < timestamps_for_this_fixture.size(); j++) {
+            // fade in
+            if(j == 0) {
+              if(timestamps_for_this_fixture[j] - 0.5 > 0)
+                fix.add_value_changes_to_channel(this->generate_single_fade(0, 255, timestamps_for_this_fixture[j] - 0.5, timestamps_for_this_fixture[j], lightshow->get_resolution()), fix.get_channel_dimmer());
+              else if(timestamps_for_this_fixture[j] - 0.3 > 0)
+                fix.add_value_changes_to_channel(this->generate_single_fade(0, 255, timestamps_for_this_fixture[j] - 0.3, timestamps_for_this_fixture[j], lightshow->get_resolution()), fix.get_channel_dimmer());
+              else if(timestamps_for_this_fixture[j] - 0.1 > 0)
+                fix.add_value_changes_to_channel(this->generate_single_fade(0, 255, timestamps_for_this_fixture[j] - 0.1, timestamps_for_this_fixture[j], lightshow->get_resolution()), fix.get_channel_dimmer());
+              else
+                fix.add_value_changes_to_channel(this->generate_single_fade(0, 255, timestamps_for_this_fixture[j] - 0.025, timestamps_for_this_fixture[j], lightshow->get_resolution()), fix.get_channel_dimmer());
+            } else {
+              std::vector<time_value_int> v = this->generate_single_fade(0, 255, (timestamps_for_this_fixture[j - 1] + timestamps_for_this_fixture[j]) / (float) 2, timestamps_for_this_fixture[j], lightshow->get_resolution());
+              fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
+            }
+
+            // fade out
+            if(j < timestamps_for_this_fixture.size() - 1) {
+              std::vector<time_value_int> v = this->generate_single_fade(255, 0, timestamps_for_this_fixture[j], (timestamps_for_this_fixture[j] + timestamps_for_this_fixture[j + 1]) / (float) 2, lightshow->get_resolution());
+                  fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
+            } else {
+              if(timestamps_for_this_fixture[j] + 0.5 < ((float) lightshow->get_length() - 3) / lightshow->get_resolution())
+                fix.add_value_changes_to_channel(this->generate_single_fade(255, 0, timestamps_for_this_fixture[j], timestamps_for_this_fixture[j] + 0.5, lightshow->get_resolution()), fix.get_channel_dimmer());
+              else if(timestamps_for_this_fixture[j] + 0.3 < ((float) lightshow->get_length() - 3) / lightshow->get_resolution())
+                fix.add_value_changes_to_channel(this->generate_single_fade(255, 0, timestamps_for_this_fixture[j], timestamps_for_this_fixture[j] + 0.3, lightshow->get_resolution()), fix.get_channel_dimmer());
+              else if(timestamps_for_this_fixture[j] + 0.1 < ((float) lightshow->get_length() - 3) / lightshow->get_resolution())
+                fix.add_value_changes_to_channel(this->generate_single_fade(255, 0, timestamps_for_this_fixture[j], timestamps_for_this_fixture[j] + 0.1, lightshow->get_resolution()), fix.get_channel_dimmer());
+              else
+                fix.add_value_changes_to_channel(this->generate_single_fade(255, 0, timestamps_for_this_fixture[j], timestamps_for_this_fixture[j] + 0.025, lightshow->get_resolution()), fix.get_channel_dimmer());
+            }
+          }
+
+          fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
+        }
+        std::vector<std::string> colors = fix.get_colors();
+        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
+      }
     } else if (fix_type == "group_one_after_another_back_and_forth") {
       if (fix.has_global_dimmer) {
 
@@ -1129,17 +1188,26 @@ void LightshowGenerator::set_soft_color_changes(std::shared_ptr<Lightshow> light
     color_values values_previous_color = color_to_rgb(previous_color);
     color_values values_new_color = color_to_rgb(color_changes[counter].color);
 
-    for (time_value_int tv : this->calculate_single_fade(lightshow_from_analysis, fade_duration, values_previous_color.r, values_new_color.r)) {
+    for (time_value_int tv : this->calculate_single_color_fade(lightshow_from_analysis,
+                                                               fade_duration,
+                                                               values_previous_color.r,
+                                                               values_new_color.r)) {
         tv.time = tv.time + timestamp_begin_fade;
         data_pairs_red.push_back(tv);
     }
-    for (time_value_int tv : this->calculate_single_fade(lightshow_from_analysis, fade_duration, values_previous_color.g, values_new_color.g)) {
+    for (time_value_int tv : this->calculate_single_color_fade(lightshow_from_analysis,
+                                                               fade_duration,
+                                                               values_previous_color.g,
+                                                               values_new_color.g)) {
         tv.time = tv.time + timestamp_begin_fade;
         if (tv.time < 0)
             tv.time = 0;
         data_pairs_green.push_back(tv);
     }
-    for (time_value_int tv : this->calculate_single_fade(lightshow_from_analysis, fade_duration, values_previous_color.b, values_new_color.b)) {
+    for (time_value_int tv : this->calculate_single_color_fade(lightshow_from_analysis,
+                                                               fade_duration,
+                                                               values_previous_color.b,
+                                                               values_new_color.b)) {
         tv.time = tv.time + timestamp_begin_fade;
         data_pairs_blue.push_back(tv);
     }
@@ -1208,7 +1276,10 @@ void LightshowGenerator::set_hard_color_changes(LightshowFixture &fix, std::vect
   }
 }
 
-std::vector<time_value_int> LightshowGenerator::calculate_single_fade(const std::shared_ptr<Lightshow> lightshow_from_analysis, float fade_duration, int c_old, int c_new)
+std::vector<time_value_int> LightshowGenerator::calculate_single_color_fade(const std::shared_ptr<Lightshow> lightshow_from_analysis,
+                                                                            float fade_duration,
+                                                                            int c_old,
+                                                                            int c_new)
 {
 	std::vector<time_value_int> v;
 	float change_per_step = (c_old - c_new) / ((lightshow_from_analysis->get_resolution() - 5) * fade_duration);
@@ -1768,4 +1839,58 @@ void LightshowGenerator::generate_continuous_circle(LightshowFixture & fix, int 
 
   fix.add_value_changes_to_channel(vc_pan, fix.get_channel_pan());
   fix.add_value_changes_to_channel(vc_tilt, fix.get_channel_tilt());
+}
+std::vector<time_value_int> LightshowGenerator::generate_single_fade(int start_value,
+                                                                     int end_value,
+                                                                     float start_timestamp,
+                                                                     float end_timestamp,
+                                                                     int lightshow_resolution) {
+  std::vector<time_value_int> v;
+  float time_step = 0;
+  if (lightshow_resolution == 40)
+    time_step = 0.025;
+  else if(lightshow_resolution == 20)
+    time_step = 0.05;
+  //std::cout << "lightshow_resolution: " << lightshow_resolution << std::endl;
+  //lightshow_resolution = 40;
+  //time_step = 0.025;
+
+  float fade_duration = end_timestamp - start_timestamp;
+  float change_per_step = (end_value - start_value) / ((lightshow_resolution - 3) * fade_duration);
+
+  int value = 0;
+  float timestamp = start_timestamp;
+  /*std::cout << "fade_duration: " << fade_duration << std::endl;
+  std::cout << "time_step: " << time_step << std::endl;
+  std::cout << "change_per_step: " << change_per_step << std::endl;
+  std::cout << "start_value: " << start_value << std::endl;
+  std::cout << "end_value: " << end_value << std::endl;
+  std::cout << "fade_duration * lightshow_resolution - 2: " << fade_duration * lightshow_resolution - 2 << std::endl;*/
+
+  //for (int i = 0; i < fade_duration * lightshow_resolution; i++) {
+  int i = 0;
+  while(timestamp < end_timestamp) {
+    value = (int) (start_value + i * change_per_step);
+    //if (i >= fade_duration * lightshow_resolution - 2)
+    if(timestamp + time_step >= end_timestamp)
+      value = end_value;
+
+    if(start_value >= end_value) {
+      if (value > start_value)
+        value = start_value;
+      else if (value < end_value)
+        value = end_value;
+    } else {
+      if (value < start_value)
+        value = start_value;
+      else if (value > end_value)
+        value = end_value;
+    }
+    //std::cout << timestamp << ": " << value << std::endl;
+    v.push_back({ timestamp, value });
+    timestamp = timestamp + time_step;
+    i++;
+  }
+
+  return v;
 }
