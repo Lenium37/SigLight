@@ -20,18 +20,21 @@
 #include <ctime>
 #include <file_system_utils.h>
 #include <lightshow/lightshow.h>
+#include <filesystem>
 
 // copy beahaviour of "SONG ADDED"!
 
 int main() {
     int resolution = 40;
-    std::string file_path = "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/assets/Rammstein-Radio.wav";
 
-    std::shared_ptr<Lightshow> lightshow_from_analysis = std::make_shared<Lightshow>();
-    lightshow_from_analysis->set_resolution(resolution);
+    std::string song = "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/assets/Rammstein-Radio.wav";
 
-    lightshow_from_analysis->set_sound_src(file_path);
-    lightshow_from_analysis->prepare_analysis_for_song((char*)file_path.c_str());
+    std::shared_ptr<Lightshow> lightshow = std::make_shared<Lightshow>();
+    lightshow->set_resolution(resolution);
+
+    lightshow->set_sound_src(song);
+    //lightshow->prepare_analysis_for_song((char*)file_path.c_str());
+    lightshow->prepare_analysis_for_song((char*)song.c_str(), false, false, false, false, 0, 0);
 
 
     //system("python /Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/plot.py");
