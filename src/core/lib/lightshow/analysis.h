@@ -37,12 +37,25 @@ struct complex_result {
   std::vector<double> imag;
 };
 
+struct fluxes {
+  float time;
+  float ed;
+  float sd;
+  float sdhwr;
+  float csd;
+  float hfc;
+  float l2nh;
+  float l1nh;
+  float l2h;
+  float l1h;
+};
+
 class Analysis {
  public:
   Analysis();
   ~Analysis();
 
-  std::vector<float> get_onset_timestamps_energy_difference();
+  std::vector<float> get_onset_timestamps_energy_difference(float onset_value);
   std::vector<float> get_onset_timestamps_frequencies(float f_start, float f_end);
   void read_wav(char *filepath);
   void stft();
@@ -50,6 +63,7 @@ class Analysis {
   std::vector<time_value_double> get_intensity_function_values();
   std::vector<time_value_int> get_intensity_average_for_next_segment(std::vector<double> beats, int beats_per_minute, double first_good_beat);
   std::vector<time_value_int> get_intensity_changes(std::vector<time_value_int> intensities, int threshold);
+  std::vector<time_value_float> get_segments();
 
   // Metal threshold = 0.804
   // Film threshold 0.292
@@ -66,6 +80,7 @@ class Analysis {
   std::vector<time_value_double> get_turningpoints(std::vector<time_value_double> data);
   complex_result fft_impulse(std::vector<double> signal);
   int get_bpm();
+  void set_bpm(int _bpm);
   double get_first_beat();
   std::vector<double> get_all_beats(int bpm, double firstBeat);
   void set_resolution(int resolution);

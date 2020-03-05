@@ -32,7 +32,7 @@ class LightshowFixture {
    * @param number_of_channels
    * @param type
    */
-  LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage, std::string _moving_head_type, int _modifier_pan, int _modifier_tilt);
+  LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage, std::string _moving_head_type, int _modifier_pan, int _modifier_tilt, std::string _timestamps_type, int _position_inside_mh_group, bool _invert_tilt, int _amplitude_pan, int _amplitude_tilt);
   ~LightshowFixture();
 
   /**
@@ -105,6 +105,8 @@ class LightshowFixture {
   std::uint8_t get_channel_pan();
   std::uint8_t get_channel_tilt();
   std::uint8_t get_channel_blinder();
+  std::uint8_t get_channel_flash_duration();
+  std::uint8_t get_channel_flash_rate();
   std::uint8_t get_blinder_value();
   std::uint8_t get_channel_colorwheel();
   std::uint8_t get_channel_focus();
@@ -144,6 +146,8 @@ class LightshowFixture {
   void set_channel_pan(std::uint8_t _channel_pan);
   void set_channel_tilt(std::uint8_t _channel_tilt);
   void set_channel_blinder(std::uint8_t _channel_blinder);
+  void set_channel_flash_duration(std::uint8_t _channel_flash_duration);
+  void set_channel_flash_rate(std::uint8_t _channel_flash_rate);
   void set_blinder_value(std::uint8_t _blinder_value);
   void set_channel_colorwheel(std::uint8_t _channel_colowheel);
   void set_channel_focus(std::uint8_t _channel_focus);
@@ -192,14 +196,20 @@ class LightshowFixture {
   bool has_tilt = false;
   bool has_strobe = false;
   bool is_blinder = false;
+  bool has_flash_duration = false;
+  bool has_flash_rate = false;
   bool has_colorwheel = false;
   bool has_focus = false;
   bool has_zoom = false;
 
   std::vector<std::string> get_colors();
+  std::string get_colors_string();
 
   void set_position_in_group(int _position);
   int get_position_in_group();
+
+  void set_position_in_mh_group(int _position);
+  int get_position_in_mh_group();
 
   void set_position_on_stage(std::string _position);
   std::string get_position_on_stage();
@@ -215,7 +225,18 @@ class LightshowFixture {
   float get_degrees_per_pan();
   float get_degrees_per_tilt();
 
+  void set_timestamps_type(std::string _timestamps_type);
+  std::string get_timestamps_type();
+  bool get_invert_tilt();
+  int get_amplitude_pan();
+  int get_amplitude_tilt();
+  void set_invert_tilt(bool _invert_tilt);
+  void set_amplitude_pan(int _amplitude_pan);
+  void set_amplitude_tilt(int _amplitude_tilt);
+
  private:
+  bool channel_already_exists(int channel);
+  Channel & get_channel(int channel);
   int start_channel;
   int number_of_channels;
   std::vector<Channel> channels;
@@ -234,12 +255,15 @@ class LightshowFixture {
   std::uint8_t channel_colorwheel;
   std::uint8_t channel_focus;
   std::uint8_t channel_zoom;
+  std::uint8_t channel_flash_duration;
+  std::uint8_t channel_flash_rate;
   Channel dimmer = Channel(0);
   Channel strobo = Channel(0);
   Channel red = Channel(0);
   Channel green = Channel(0);
   Channel blue = Channel(0);
   std::vector<std::string> colors;
+  std::string colors_string;
   int position_inside_group;
   std::string position_on_stage;
   std::string moving_head_type;
@@ -248,6 +272,11 @@ class LightshowFixture {
   int modifier_tilt;
   float degrees_per_pan;
   float degrees_per_tilt;
+  std::string timestamps_type;
+  int position_in_mh_group;
+  bool invert_tilt;
+  int amplitude_pan;
+  int amplitude_tilt;
 
 };
 

@@ -24,6 +24,7 @@ bool lightshow_paused = true;
 
 #if defined(_WIN32) || defined(WIN32)
 #include <mingw.thread.h>
+#include <QtWidgets/QMenu>
 #else
 #include <thread>
 #endif
@@ -91,7 +92,7 @@ void MainWindow::init() {
   ui->fixture_list->setSelectionMode(QAbstractItemView::SingleSelection);
 
   // Sets the layout for the fixturelist.
-  ui->fixture_list->setColumnCount(8);
+  ui->fixture_list->setColumnCount(13);
 
   ui->fixture_list->invisibleRootItem()->setFlags(Qt::ItemIsEnabled);
 
@@ -101,31 +102,47 @@ void MainWindow::init() {
   headers.append("Fixtures");
   headers.append("Channel");
   headers.append("Colors");
+  headers.append("Timestamps");
   headers.append("# in group");
   headers.append("Pos. on stage");
   headers.append("Mov. Head type");
+  headers.append("# in MH group");
+  headers.append("Amplitude pan");
+  headers.append("Amplitude tilt");
   headers.append("Modifier pan");
   headers.append("Modifier tilt");
+  headers.append("Invert tilt");
   ui->fixture_list->setHeaderLabels(headers);
+  ui->fixture_list->header()->setDefaultAlignment(Qt::AlignCenter);
   // Create the Fixtureobjects.
   create_fixtures();
   // Adds the first Univers.
-  add_universe("Universe1", "USB-DMX-Interface");
+  add_universe("Universe1");
   load_fixture_objects_from_xml(false);
   this->setWindowTitle("SigLight");
   this->check_which_dmx_device_is_connected();
   // claim device interface
-  if(get_current_dmx_device().is_connected()) {
-    get_current_dmx_device().start_device();
-    get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
+  if(this->get_current_dmx_device().is_connected()) {
+    this->get_current_dmx_device().start_device();
+    this->get_current_dmx_device().set_all_channel_values(this->get_all_pan_tilt_channels_with_default_value(), false);
   }
-  this->lightshow_player = new LightshowPlayer(get_current_dmx_device());
-  //this->lightshow_player = new LightshowPlayer(get_current_dmx_device());
+  this->lightshow_player = new LightshowPlayer(this->get_current_dmx_device());
   this->lightshow_resolution = 40;
 
   ls_generating_thread_is_alive = false;
   player->set_songs_directory_path(this->songs_directory_path);
 
+}
+
+void MainWindow::on_action_open_current_dmx_device_triggered() {
+  this->check_which_dmx_device_is_connected();
+  // claim device interface
+  if(get_current_dmx_device().is_connected()) {
+    this->get_current_dmx_device().stop_device();
+    this->get_current_dmx_device().start_device();
+    this->get_current_dmx_device().set_all_channel_values(this->get_all_pan_tilt_channels_with_default_value(), false);
+  }
+  this->lightshow_player = new LightshowPlayer(this->get_current_dmx_device());
 }
 
 void MainWindow::init_toolbar() {
@@ -161,9 +178,7 @@ void MainWindow::init_status_bar() {
 }
 
 void MainWindow::init_connects() {
-  connect(ui->fixture_list, SIGNAL(selectionChanged(
-                                       const QItemSelection &, const QItemSelection &)), this,
-          SLOT(on_fixture_list_itemSelectionChanged()));
+  connect(ui->fixture_list, SIGNAL(itemSelectionChanged()), this, SLOT(on_fixture_list_itemSelectionChanged()));
 
   connect(playlist_view, &QTableView::doubleClicked, [this](const QModelIndex &index) {
     if (get_current_dmx_device().is_connected()) {
@@ -217,10 +232,15 @@ void MainWindow::init_connects() {
           this, SLOT(ShowContextMenu(
                          const QPoint &)));
   // Handle drop of a Fixture.
-  connect(ui->fixture_list->model(), SIGNAL(rowsInserted(
+  /*connect(ui->fixture_list->model(), SIGNAL(rowsInserted(
                                                 const QModelIndex &, int, int)), this, SLOT(rowsInserted(
                                                                                                 const QModelIndex &, int, int)));
+
+  connect(ui->fixture_list, SIGNAL(dropEvent(QDropEvent *)), this, SLOT(fixture_item_dropped(QDropEvent *)));*/
+
   connect(key_f11, SIGNAL(activated()), this, SLOT(slot_shortcut_f11()));
+
+  connect(this->playlist_view, SIGNAL(activated(QPersistentModelIndex)), this, SLOT(right_click_on_playlist_item(QPersistentModelIndex)));
 }
 
 void MainWindow::init_shortcuts() {
@@ -238,10 +258,10 @@ MainWindow::~MainWindow() {
  * @param name name of the univers.
  * @param description Description wich kind of univers this is.
  */
-void MainWindow::add_universe(QString name, QString description) {
+void MainWindow::add_universe(QString name) {
   auto *itm = new QTreeWidgetItem();
   itm->setIcon(0, QIcon(":icons_svg/svg/group.svg"));
-  universes[0] = *new Universe(name.toUtf8().constData(), description.toUtf8().constData());
+  universes[0] = *new Universe(name.toUtf8().constData());
   itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
   universe_tree.push_back(*itm);
   (&universe_tree.back())->setText(0, QString::fromStdString(universes[0].get_name()));
@@ -256,7 +276,7 @@ void MainWindow::resize_fixture_list_columns() {
   }
 }
 
-void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt) {
+void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt, std::string timestamps_type, int position_inside_mh_group, bool invert_tilt, int amplitude_pan, int amplitude_tilt) {
   auto *itm = new QTreeWidgetItem();
   _fixture.set_start_channel(start_channel);
   _fixture.set_type(type.toStdString());
@@ -270,6 +290,11 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
   _fixture.set_moving_head_type(moving_head_type);
   _fixture.set_modifier_pan(modifier_pan);
   _fixture.set_modifier_tilt(modifier_tilt);
+  _fixture.set_timestamps_type(timestamps_type);
+  _fixture.set_position_in_mh_group(position_inside_mh_group);
+  _fixture.set_invert_tilt(invert_tilt);
+  _fixture.set_amplitude_pan(amplitude_pan);
+  _fixture.set_amplitude_tilt(amplitude_tilt);
 
   universes[0].add_fixture(_fixture);
 
@@ -284,17 +309,28 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
                                                                     Qt::MatchExactly | Qt::MatchRecursive,
                                                                     0);*/
   itm->setText(2, QString::fromStdString(universes[0].get_fixtures().back().get_colors()));
-  itm->setText(3, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_position_in_group())));
-  itm->setText(4, QString::fromStdString(universes[0].get_fixtures().back().get_position_on_stage()));
+  itm->setText(3, QString::fromStdString(universes[0].get_fixtures().back().get_timestamps_type()));
+  itm->setText(4, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_position_in_group())));
+  itm->setText(5, QString::fromStdString(universes[0].get_fixtures().back().get_position_on_stage()));
   if(universes[0].get_fixtures().back().get_moving_head_type() != "Nothing")
-    itm->setText(5, QString::fromStdString(universes[0].get_fixtures().back().get_moving_head_type()));
-  else itm->setText(5, "");
-  if(universes[0].get_fixtures().back().get_modifier_pan())
-    itm->setText(6, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_modifier_pan()) + "°"));
+    itm->setText(6, QString::fromStdString(universes[0].get_fixtures().back().get_moving_head_type()));
   else itm->setText(6, "");
+  itm->setText(7, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_position_in_mh_group())));
+  if(universes[0].get_fixtures().back().get_amplitude_pan())
+    itm->setText(8, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_amplitude_pan()) + "°"));
+  else itm->setText(8, "");
+  if(universes[0].get_fixtures().back().get_amplitude_tilt())
+    itm->setText(9, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_amplitude_tilt()) + "°"));
+  else itm->setText(9, "");
+  if(universes[0].get_fixtures().back().get_modifier_pan())
+    itm->setText(10, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_modifier_pan()) + "°"));
+  else itm->setText(10, "");
   if(universes[0].get_fixtures().back().get_modifier_tilt())
-    itm->setText(7, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_modifier_tilt()) + "°"));
-  else itm->setText(7, "");
+    itm->setText(11, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_modifier_tilt()) + "°"));
+  else itm->setText(11, "");
+  if(universes[0].get_fixtures().back().get_invert_tilt())
+    itm->setText(12, "yes");
+  else itm->setText(12, "");
 
   QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(type, Qt::MatchExactly | Qt::MatchRecursive, 0);
 
@@ -302,7 +338,7 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
   if (type_items.size() == 0) {
     type_item = new QTreeWidgetItem();
     type_item->setText(0, type);
-    type_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled);
+    type_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     //std::cout << "parent: " << parent->text(0).toStdString() << std::endl;
     //std::cout << "debug22 " << type_item->text(0).toStdString()<< std::endl;
 
@@ -313,7 +349,11 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
   }
   //std::cout << "debug3" << std::endl;
   itm->setFlags(
-      Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
+      Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
+
+  for(int i = 1; i < itm->columnCount(); i++)
+    itm->setTextAlignment(i, Qt::AlignCenter);
+
   type_item->addChild(itm);
   type_item->setExpanded(true);
 
@@ -331,7 +371,7 @@ void MainWindow::create_fixtures() {
   QFileInfo datei(fixture_objects_file);
 
   // If the file is older than the 28.05.2019 it has to be deleted.
-  if (datei.created().date() < (*(new QDate(2019, 6, 20)))) {
+  if (datei.created().date() < (*(new QDate(2020, 12, 31)))) {
     fixture_objects_file.remove();
   }
   if (fixture_objects_file.exists()) {
@@ -365,7 +405,7 @@ void MainWindow::create_fixtures() {
              << "Blackout move~0~255";
 
     create_new_fixture("JBLED A7 (S8)",
-                       "color_change_onsets",
+                       "color_change",
                        "DMX-Funktionen: Pan, Tilt, Colour Fade, Master Dimmer, RGB, Shutter",
                        channels,
                        "lamp",
@@ -394,7 +434,38 @@ void MainWindow::create_fixtures() {
              << "Blackout move~0~255";
 
     create_new_fixture("JBLED P4 (M1)",
-                       "color_change_onsets",
+                       "color_change",
+                       "DMX-Funktionen: Pan, Tilt, Colour Fade, Master Dimmer, Color wheel, Shutter",
+                       channels,
+                       "lamp",
+                       color_palettes[0],
+                       0);
+    channels.clear();
+
+    channels << "Pan (X) 433,6°~0~255" << "Pan (X) fein~0~255" << "Tilt (Y) 333,3°~0~255" << "Tilt (Y) fein~0~255"
+             << "Control channel~0~255"
+             << "Shutter zu~0~15|Shutter auf~255~255"
+             << "Dimmer (0-100%)~0~255"
+             << "Zoom 0-100% (far - near)~0~255"
+             << "Segment selection~0~255"
+             << "Pattern mode~0~255"
+             << "Pattern~0~255"
+             << "Pattern speed~0~255"
+             << "Color gradient~0~255"
+             << "Sparkle~0~255"
+             << "Sparkle speed~0~255"
+             << "CTC 3200K~0~255"
+             << "Color wheel emulation white~0~1|red~4~5|yellow~8~9|magenta~12~13|green~16~17|orange~20~21|pink~32~33|cyan~36~37|blue~52~53"
+             << "Pan/Tilt speed real time~0~3|movement delayed (fast-slow)~4~255"
+             << "Effektgeschwindigkeit real time~0~3|Effekte delayed (fast-slow)~4~255"
+             << "Blackout move~0~255"
+             << "Red~0~255"
+             << "Green~0~255"
+             << "Blue~0~255"
+             << "White~0~255";
+
+    create_new_fixture("JBLED Sparx 7 (M3)",
+                       "color_change",
                        "DMX-Funktionen: Pan, Tilt, Colour Fade, Master Dimmer, Color wheel, Shutter",
                        channels,
                        "lamp",
@@ -501,6 +572,31 @@ void MainWindow::create_fixtures() {
                        "lamp",
                        "W",
                        0);
+    channels.clear();
+
+    channels << "Blinder Blackout~0~5|Flash rate slow-fast~6~249|Continuous blinder effect~250~255"
+              << "Flash duration~0~255"
+              << "Flash rate~0~255";
+    create_new_fixture("SGM X-5 (3CH)",
+                       "strobe_if_many_onsets",
+                       "DMX-Funktionen: Blinder",
+                       channels,
+                       "lamp",
+                       "W",
+                       0);
+    channels.clear();
+
+    channels << "Blinder Blackout~0~5|Flash rate slow-fast~6~249|Continuous blinder effect~250~255"
+             << "Flash duration~0~255"
+             << "Flash rate~0~255"
+             << "Special effects~0~255";
+    create_new_fixture("SGM X-5 (4CH)",
+                       "strobe_if_many_onsets",
+                       "DMX-Funktionen: Blinder",
+                       channels,
+                       "lamp",
+                       "W",
+                       0);
 
 
 
@@ -531,7 +627,12 @@ void MainWindow::create_new_fixture(string _name,
                                     std::string moving_head_type,
                                     int modifier_pan,
                                     int modifier_tilt,
-                                    int start_channel) {
+                                    std::string timestamps_type,
+                                    int start_channel,
+                                    int position_in_mh_group,
+                                    bool invert_tilt,
+                                    int amplitude_pan,
+                                    int amplitude_tilt) {
   Fixture temp;
   temp.set_name(_name);
   temp.set_type(_type);
@@ -543,6 +644,12 @@ void MainWindow::create_new_fixture(string _name,
   temp.set_moving_head_type(moving_head_type);
   temp.set_modifier_pan(modifier_pan);
   temp.set_modifier_tilt(modifier_tilt);
+  temp.set_timestamps_type(timestamps_type);
+  temp.set_position_in_mh_group(position_in_mh_group);
+  temp.set_invert_tilt(invert_tilt);
+  temp.set_amplitude_pan(amplitude_pan);
+  temp.set_amplitude_tilt(amplitude_tilt);
+
   if(!_colors.empty())
     temp.set_colors(_colors);
   else
@@ -551,7 +658,7 @@ void MainWindow::create_new_fixture(string _name,
     fixtures.push_back(temp);
     save_fixture_objects_to_xml();
   } else {
-    add_fixture(&universe_tree.back(), temp, start_channel, QString::fromStdString(temp.get_type()), temp.get_colors(), position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt);
+    add_fixture(&universe_tree.back(), temp, start_channel, QString::fromStdString(temp.get_type()), temp.get_colors(), position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt, timestamps_type, position_in_mh_group, invert_tilt, amplitude_pan, amplitude_tilt);
   }
 }
 
@@ -616,8 +723,14 @@ void MainWindow::get_fixture_for_universe() {
   std::string moving_head_type;
   int modifier_pan;
   int modifier_tilt;
-  this->fcd->get_fixture_options(fixture_index, start_channel, type, colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt);
-  add_fixture((&universe_tree.back()), *(std::next(fixtures.begin(), fixture_index)), start_channel, type, colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt);
+  std::string timestamps_type;
+  int position_in_mh_group = 0;
+  bool invert_tilt = false;
+  int amplitude_pan = 0;
+  int amplitude_tilt = 0;
+
+  this->fcd->get_fixture_options(fixture_index, start_channel, type, colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt, timestamps_type, position_in_mh_group, invert_tilt, amplitude_pan, amplitude_tilt);
+  add_fixture((&universe_tree.back()), *(std::next(fixtures.begin(), fixture_index)), start_channel, type, colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt, timestamps_type, position_in_mh_group, invert_tilt, amplitude_pan, amplitude_tilt);
   save_fixture_objects_to_xml(false);
   fixtures_changed = true;
 }
@@ -738,7 +851,8 @@ void MainWindow::on_action_switch_play_pause_triggered() {
 void MainWindow::on_action_stop_triggered() {
   ui->action_switch_play_pause->setIcon(QIcon(":/icons_svg/svg/iconfinder_001_-_play_2949892.svg"));
   lightshow_playing = false;
-  get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
+  //get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
+  get_current_dmx_device().set_all_channel_values(this->get_all_pan_tilt_channels_with_default_value(), false);
   player->stop_song();
   usleep(2 * 625 * this->lightshow_resolution
              + 1); // sleep extra to make sure everything really is turned off! 50ms if resolution is 40
@@ -797,13 +911,6 @@ void MainWindow::on_delete_fixture_button_clicked() {
   this->resize_fixture_list_columns();
 }
 
-void MainWindow::on_create_fixture_button_clicked() {
-  create_dialog = new CreateFixtureDialog();
-  connect(create_dialog, SIGNAL(accepted()), this, SLOT(get_fixture_from_dialog()));
-  create_dialog->exec();
-
-}
-
 void MainWindow::get_fixture_from_dialog() {
   std::string name;
   std::string type;
@@ -844,23 +951,50 @@ void MainWindow::on_action_add_song_to_player_triggered() {
     QFileDialog file_dialog(this);
     file_dialog.setWindowTitle(tr("Open Files"));
     QStringList supported_name_filters;
-    supported_name_filters << "Audio files (*.wav)"
-                           << "Playlist files (*.m3u)";
-      if(Mp3ToWavConverter::is_avaible()){
-        supported_name_filters << "Audio files (*.mp3)";
-      }
+    if(Mp3ToWavConverter::is_avaible()){
+      supported_name_filters << "Audio files (*.wav *.mp3)";
+    } else {
+      supported_name_filters << "Audio files (*.wav)";
+    }
     file_dialog.setNameFilters(supported_name_filters);
     file_dialog.setAcceptMode(QFileDialog::AcceptOpen);
     file_dialog.setFileMode(QFileDialog::ExistingFiles);
     //file_dialog.setDirectory(QStandardPaths::standardLocations(QStandardPaths::MusicLocation).value(0, QDir::homePath()));
     if (file_dialog.exec() == QDialog::Accepted) {
-        std::vector<Song*> temp = player->add_to_playlist(file_dialog.selectedUrls().toVector().toStdVector()) ;
+      //for(QUrl url: file_dialog.selectedUrls().toVector().toStdVector()) {
+        //std::cout << "new song: " << url.fileName().toStdString() << std::endl;
+      //}
 
-        for(Song *song : temp){
-            lightshows_to_generate_for.push_back({false, song});
+        //std::vector<Song*> songs = player->add_to_playlist(file_dialog.selectedUrls().toVector().toStdVector()) ;
+
+        for(QUrl url : file_dialog.selectedUrls().toVector().toStdVector()) {
+          QMessageBox msgBox;
+          msgBox.setWindowIcon(QIcon(":/icons_svg/svg/rtl_icon.svg"));
+          //msgBox.setWindowTitle("Choose Fixtures");
+          msgBox.setText(QString::fromStdString("Use default fixture setup or change it for " + url.fileName().toStdString() + "?"));
+          //QMessageBox::StandardButton *button = new QMessageBox::StandardButton(QMessageBox::Close);
+          msgBox.addButton(tr("Default"), QMessageBox::YesRole);
+          msgBox.addButton(tr("Change"), QMessageBox::NoRole);
+
+          msgBox.exec();
+
+          if (msgBox.clickedButton()->text() == "Change") {
+            std::cout << "change" << std::endl;
+            change_fixtures_dialog = new ChangeFixtures(this->universes[0].get_fixtures(), this->color_palettes, this->fixtures, url, 0, 9, this);
+            change_fixtures_dialog->setWindowModality(Qt::ApplicationModal);
+            if(connect(this->change_fixtures_dialog, SIGNAL(changed_fixtures_ready(QUrl, std::list<Fixture>, int, float)), this, SLOT(changed_fixtures_for_lightshow_ready(QUrl, std::list<Fixture>, int, float)))) {
+              std::cout << "connection worked" << std::endl;
+            } else {
+              std::cout << "connection did not work" << std::endl;
+            }
+            change_fixtures_dialog->show();
+          } else {
+            std::cout << "default" << std::endl;
+            Song * song = player->add_to_playlist(url);
+            lightshows_to_generate_for.push_back({false, song, universes[0].get_fixtures(), 0, 9});
+            this->start_thread_for_generating_queue();
+          }
         }
-
-        this->start_thread_for_generating_queue();
       }
   } else {
     throw_error_dialog(ERROR_MESSAGE_NO_FIXTURES);
@@ -884,9 +1018,9 @@ void MainWindow::queue_for_generating_light_show(){
 
     for(ls_generating_parameter lightshow_parameter : lightshows_to_generate_for){
         if(!lightshow_parameter.is_regenerate)
-            generate_lightshow(lightshow_parameter.song);
+            generate_lightshow(lightshow_parameter.song, lightshow_parameter.fixtures, lightshow_parameter.user_bpm, lightshow_parameter.onset_value);
         else
-            regenerate_lightshow(lightshow_parameter.song);
+            regenerate_lightshow(lightshow_parameter.song, lightshow_parameter.fixtures, lightshow_parameter.user_bpm, lightshow_parameter.onset_value);
     }
     ls_generating_thread_is_alive = false;
     lightshows_to_generate_for.clear();
@@ -895,19 +1029,61 @@ void MainWindow::queue_for_generating_light_show(){
 }
 
 
-void MainWindow::generate_lightshow(Song *song) {
+void MainWindow::generate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm, float onset_value) {
   //Logger::info("K8062 connected: {}", dmx_device_k8062.is_connected());
-  std::shared_ptr<Lightshow>
-      generated_lightshow = this->lightshow_generator.generate(this->lightshow_resolution, song, universes[0].get_fixtures());
+  std::shared_ptr<Lightshow> generated_lightshow = std::make_shared<Lightshow>();
+
+  for (Fixture fix: _fixtures) {
+    //std::cout << "new fix. name: " << fix.get_name() << ". start address: " << fix.get_start_channel() << ", number of addresses: " << fix.get_channel_count() << std::endl;
+    if (fix.get_name() == "Cameo Flat RGB 10"
+        || fix.get_name() == "JBLED A7 (S8)"
+        || fix.get_name() == "JBLED P4 (M1)"
+        || fix.get_name() == "JBLED Sparx 7 (M3)"
+        || fix.get_name() == "Stairville LED Flood Panel 150 (3ch)"
+        || fix.get_name() == "Stairville LED Flood Panel 150 (4ch)"
+        || fix.get_name() == "Helios 7"
+        || fix.get_name() == "Cobalt Plus Spot 5R"
+        || fix.get_name() == "Varytec PAD7 seventy"
+        || fix.get_name() == "TOURSPOT PRO"
+        || fix.get_name() == "BAR TRI-LED"
+        || fix.get_name() == "SGM X-5 (1CH)"
+        || fix.get_name() == "SGM X-5 (3CH)"
+        || fix.get_name() == "SGM X-5 (4CH)") {
+      generated_lightshow->add_fixture(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors(), fix.get_position_in_group(), fix.get_position_on_stage(), fix.get_moving_head_type(), fix.get_modifier_pan(), fix.get_modifier_tilt(), fix.get_timestamps_type(), fix.get_position_in_mh_group(), fix.get_invert_tilt(), fix.get_amplitude_pan(), fix.get_amplitude_tilt()));
+    } else std::cout << "Fixture type unknown." << std::endl;
+  }
+
+  this->lightshow_generator.generate(this->lightshow_resolution, song, generated_lightshow, user_bpm, onset_value);
 
   lightShowRegistry.register_lightshow_file(song, generated_lightshow, this->lightshows_directory_path);
   if(player->playlist_index_for(song) != -1)
     emit lightshow_for_song_is_ready(song);
 }
 
-void MainWindow::regenerate_lightshow(Song *song) {
-  //Logger::info("K8062 connected: {}", dmx_device_k8062.is_connected());
-  std::shared_ptr<Lightshow> regenerated_lightshow = this->lightshow_generator.generate(this->lightshow_resolution, song, universes[0].get_fixtures());
+void MainWindow::regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm, float onset_value) {
+  std::shared_ptr<Lightshow> regenerated_lightshow = std::make_shared<Lightshow>();
+
+  for (Fixture fix: _fixtures) {
+    //std::cout << "new fix. name: " << fix.get_name() << ". start address: " << fix.get_start_channel() << ", number of addresses: " << fix.get_channel_count() << std::endl;
+    if (fix.get_name() == "Cameo Flat RGB 10"
+        || fix.get_name() == "JBLED A7 (S8)"
+        || fix.get_name() == "JBLED P4 (M1)"
+        || fix.get_name() == "JBLED Sparx 7 (M3)"
+        || fix.get_name() == "Stairville LED Flood Panel 150 (3ch)"
+        || fix.get_name() == "Stairville LED Flood Panel 150 (4ch)"
+        || fix.get_name() == "Helios 7"
+        || fix.get_name() == "Cobalt Plus Spot 5R"
+        || fix.get_name() == "Varytec PAD7 seventy"
+        || fix.get_name() == "TOURSPOT PRO"
+        || fix.get_name() == "BAR TRI-LED"
+        || fix.get_name() == "SGM X-5 (1CH)"
+        || fix.get_name() == "SGM X-5 (3CH)"
+        || fix.get_name() == "SGM X-5 (4CH)") {
+      regenerated_lightshow->add_fixture(LightshowFixture(fix.get_name(), fix.get_start_channel(), fix.get_channel_count(), fix.get_type(), fix.get_colors(), fix.get_position_in_group(), fix.get_position_on_stage(), fix.get_moving_head_type(), fix.get_modifier_pan(), fix.get_modifier_tilt(), fix.get_timestamps_type(), fix.get_position_in_mh_group(), fix.get_invert_tilt(), fix.get_amplitude_pan(), fix.get_amplitude_tilt()));
+    } else std::cout << "Fixture type unknown." << std::endl;
+  }
+
+  this->lightshow_generator.generate(this->lightshow_resolution, song, regenerated_lightshow, user_bpm, onset_value);
 
   Logger::debug("lightshow length: {}", regenerated_lightshow->get_length());
 
@@ -940,7 +1116,8 @@ void MainWindow::on_action_next_song_triggered() {
   if (get_current_dmx_device().is_connected()) {
     lightshow_playing = false;
     lightshow_paused = true;
-    get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
+    //get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
+    get_current_dmx_device().set_all_channel_values(this->get_all_pan_tilt_channels_with_default_value(), false);
     get_current_dmx_device().stop_device();
     Logger::debug(player->get_current_song()->get_file_path());
     if (player->is_media_playing())
@@ -973,7 +1150,8 @@ void MainWindow::on_action_previous_song_triggered() {
   if (get_current_dmx_device().is_connected()) {
     lightshow_playing = false;
     lightshow_paused = true;
-    get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
+    //get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
+    get_current_dmx_device().set_all_channel_values(this->get_all_pan_tilt_channels_with_default_value(), false);
     get_current_dmx_device().stop_device();
     if (player->is_media_playing())
       this->start_to_play_lightshow();
@@ -1174,6 +1352,29 @@ void MainWindow::save_fixture_objects_to_xml(bool is_preset) {
       tinyxml2::XMLElement *xml_modifier_tilt = fixture_objects.NewElement("modifier_tilt");
       xml_modifier_tilt->SetText(fixture.get_modifier_tilt());
       fixture_object->InsertEndChild(xml_modifier_tilt);
+
+      tinyxml2::XMLElement *xml_timestamps_type = fixture_objects.NewElement("timestamps_type");
+      xml_timestamps_type->SetText(fixture.get_timestamps_type().c_str());
+      fixture_object->InsertEndChild(xml_timestamps_type);
+
+      tinyxml2::XMLElement *xml_position_in_mh_group = fixture_objects.NewElement("position_in_mh_group");
+      xml_position_in_mh_group->SetText(fixture.get_position_in_mh_group());
+      fixture_object->InsertEndChild(xml_position_in_mh_group);
+
+      tinyxml2::XMLElement *xml_invert_tilt = fixture_objects.NewElement("invert_tilt");
+      if(fixture.get_invert_tilt())
+        xml_invert_tilt->SetText("yes");
+      else
+        xml_invert_tilt->SetText("no");
+      fixture_object->InsertEndChild(xml_invert_tilt);
+
+      tinyxml2::XMLElement *xml_amplitude_pan = fixture_objects.NewElement("amplitude_pan");
+      xml_amplitude_pan->SetText(fixture.get_amplitude_pan());
+      fixture_object->InsertEndChild(xml_amplitude_pan);
+
+      tinyxml2::XMLElement *xml_amplitude_tilt = fixture_objects.NewElement("amplitude_tilt");
+      xml_amplitude_tilt->SetText(fixture.get_amplitude_tilt());
+      fixture_object->InsertEndChild(xml_amplitude_tilt);
     }
 
     tinyxml2::XMLElement *xml_position_in_group = fixture_objects.NewElement("position_in_group");
@@ -1236,6 +1437,11 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
   std::string moving_head_type;
   int modifier_pan = 0;
   int modifier_tilt = 0;
+  std::string timestamps_type;
+  int position_in_mh_group = 0;
+  bool invert_tilt = false;
+  int amplitude_pan = 0;
+  int amplitude_tilt = 0;
 
   tinyxml2::XMLDocument fixture_objects;
   tinyxml2::XMLError error;
@@ -1283,6 +1489,23 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
 
           tinyxml2::XMLElement *modifier_tilt_xml = fixture->FirstChildElement("modifier_tilt");
           modifier_tilt = std::atoi(modifier_tilt_xml->GetText());
+
+          tinyxml2::XMLElement *timestamps_type_xml = fixture->FirstChildElement("timestamps_type");
+          timestamps_type = timestamps_type_xml->GetText();
+
+          tinyxml2::XMLElement *position_in_mh_group_xml = fixture->FirstChildElement("position_in_mh_group");
+          position_in_mh_group = std::atoi(position_in_mh_group_xml->GetText());
+
+          tinyxml2::XMLElement *invert_tilt_xml = fixture->FirstChildElement("invert_tilt");
+          std::string invert_tilt_s = invert_tilt_xml->GetText();
+          if(invert_tilt_s == "yes")
+            invert_tilt = true;
+
+          tinyxml2::XMLElement *amplitude_pan_xml = fixture->FirstChildElement("amplitude_pan");
+          amplitude_pan = std::atoi(amplitude_pan_xml->GetText());
+
+          tinyxml2::XMLElement *amplitude_tilt_xml = fixture->FirstChildElement("amplitude_tilt");
+          amplitude_tilt = std::atoi(amplitude_tilt_xml->GetText());
         }
 
         tinyxml2::XMLElement *position_in_group_xml = fixture->FirstChildElement("position_in_group");
@@ -1313,7 +1536,7 @@ void MainWindow::load_fixture_objects_from_xml(bool is_preset, QString *filename
           functions.clear();
         }
         fixture = fixture->NextSiblingElement("Fixture");
-        create_new_fixture(fixture_name, fixture_type, fixture_description, channels, fixture_icon, fixture_colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt, start_channel);
+        create_new_fixture(fixture_name, fixture_type, fixture_description, channels, fixture_icon, fixture_colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt, timestamps_type, start_channel, position_in_mh_group, invert_tilt, amplitude_pan, amplitude_tilt);
         channels.clear();
       }
     }
@@ -1351,19 +1574,23 @@ void MainWindow::ShowContextMenu(const QPoint &pos) {
   QAction remove("Remove", this);
 
   QMenu *type_menu = contextMenu.addMenu("Type");
-  QAction *type_action = type_menu->addAction("Ambient");
+  QAction *type_auto_beats = type_menu->addAction("auto_beats");
+  QAction *type_group_auto_beats = type_menu->addAction("group_auto_beats");
+  QAction *type_auto_onsets = type_menu->addAction("auto_onsets");
+  QAction *type_group_auto_onsets = type_menu->addAction("group_auto_onsets");
+  QAction *type_ambient = type_menu->addAction("Ambient");
   QAction *type_bass = type_menu->addAction("Bass");
   //QAction * type_action = type_menu->addAction("Action");
   QAction *type_middle = type_menu->addAction("Mid");
   QAction *type_high = type_menu->addAction("High");
-  QAction *type_color_change_beats = type_menu->addAction("color_change_beats");
-  QAction *type_color_change_beats_action = type_menu->addAction("color_change_beats_action");
-  QAction *type_color_change_onsets = type_menu->addAction("color_change_onsets");
-  QAction *type_onset_flash = type_menu->addAction("onset_flash");
-  QAction *type_onset_flash_reverse = type_menu->addAction("onset_flash_reverse");
-  QAction *type_onset_blink = type_menu->addAction("onset_blink");
+  QAction *type_color_change = type_menu->addAction("color_change");
+  QAction *type_flash = type_menu->addAction("flash");
+  QAction *type_flash_reverse = type_menu->addAction("flash_reverse");
+  QAction *type_blink = type_menu->addAction("blink");
   QAction *type_group_one_after_another = type_menu->addAction("group_one_after_another");
   QAction *type_group_one_after_another_blink = type_menu->addAction("group_one_after_another_blink");
+  QAction *type_group_one_after_another_back_and_forth = type_menu->addAction("group_one_after_another_back_and_forth");
+  QAction *type_group_one_after_another_back_and_forth_blink = type_menu->addAction("group_one_after_another_back_and_forth_blink");
   QAction *type_group_two_after_another = type_menu->addAction("group_two_after_another");
   QAction *type_group_alternate_odd_even = type_menu->addAction("group_alternate_odd_even");
   QAction *type_group_random_flashes = type_menu->addAction("group_random_flashes");
@@ -1397,7 +1624,7 @@ bool MainWindow::xml_has_no_error(tinyxml2::XMLError error) {
 }
 
 void MainWindow::update_fixture_list() {
-  QStringList types = (QStringList() << "Ambient" << "Bass" << "Mid" << "High" << "color_change_beats" << "color_change_beats_action" << "color_change_onsets" << "onset_flash"<< "onset_flash_reverse" << "onset_blink" << "group_one_after_another" << "group_one_after_another_blink" << "group_two_after_another" << "group_alternate_odd_even" << "group_random_flashes" << "strobe_if_many_onsets");
+  QStringList types = (QStringList() << "auto_beats" << "group_auto_beats" << "auto_onsets" << "group_auto_onsets" << "Ambient" << "Bass" << "Mid" << "High" << "color_change" << "flash" << "flash_reverse" << "blink" << "group_one_after_another" << "group_one_after_another_blink" << "group_one_after_another_back_and_forth" << "group_one_after_another_back_and_forth_blink" << "group_two_after_another" << "group_alternate_odd_even" << "group_random_flashes" << "strobe_if_many_onsets");
 
   for (auto type : types) {
     QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(QString::fromStdString(type.toStdString()),
@@ -1438,7 +1665,7 @@ QString MainWindow::get_home() {
 bool MainWindow::has_fixture_changed() {
   bool redo_lightshow = false;
 
-  if (fixtures_changed && player->get_playlist_length() > 0) {
+  /*if (fixtures_changed && player->get_playlist_length() > 0) {
     QMessageBox::StandardButton fixture_changed_button = QMessageBox::question(this, "Redo Lightshow?",
                                                    tr("The Fixtures have changed.\nDo You want to create the Lightshow again?"),
                                                    QMessageBox::No | QMessageBox::Yes);
@@ -1457,12 +1684,12 @@ bool MainWindow::has_fixture_changed() {
       start_thread_for_generating_queue();
 
     }
-  }
+  }*/
   return redo_lightshow;
 }
 
 void MainWindow::on_action_regenerate_lightshows_triggered() {
-  Logger::info("renewing {} lightshows", player->get_playlist_length());
+  /*Logger::info("renewing {} lightshows", player->get_playlist_length());
   for (int i = 0; i < player->get_playlist_length(); i++) {
     Song *song = player->get_playlist_media_at(i)->get_song();
     Logger::info("renewing lightshow for song {}", song->get_song_name());
@@ -1470,7 +1697,15 @@ void MainWindow::on_action_regenerate_lightshows_triggered() {
     lightshows_to_generate_for.push_back({true, song});
   }
   this->playlist_view->reset_every_lightshow_status();
-  start_thread_for_generating_queue();
+  start_thread_for_generating_queue();*/
+}
+
+void MainWindow::on_action_ignite_discharge_lamps_triggered() {
+  get_current_dmx_device().set_all_channel_values(this->get_control_channels_with_ignite_value(), true);
+}
+
+void MainWindow::on_action_turn_off_discharge_lamps_triggered() {
+  get_current_dmx_device().set_all_channel_values(this->get_control_channels_with_turn_off_value(), true);
 }
 
 void MainWindow::on_edit_fixture_clicked() {
@@ -1488,26 +1723,46 @@ void MainWindow::on_edit_fixture_clicked() {
           connect(create_dialog, SIGNAL(accepted()), this, SLOT(get_edited_fixture()));
           create_dialog->exec();*/
           this->efd = new EditFixtureDialog(this, fixtures, color_palettes);
-          std::string modifier_pan_s = ui->fixture_list->currentItem()->text(6).toStdString();
-          std::string modifier_tilt_s = ui->fixture_list->currentItem()->text(7).toStdString();
+          std::string modifier_pan_s = ui->fixture_list->currentItem()->text(10).toStdString();
+          std::string modifier_tilt_s = ui->fixture_list->currentItem()->text(11).toStdString();
+          std::string timestamps_type = ui->fixture_list->currentItem()->text(3).toStdString();
+          std::string amplitude_pan_s = ui->fixture_list->currentItem()->text(8).toStdString();
+          std::string amplitude_tilt_s = ui->fixture_list->currentItem()->text(9).toStdString();
+          std::string invert_tilt_s = ui->fixture_list->currentItem()->text(12).toStdString();
+
+          int amplitude_pan = 0;
+          int amplitude_tilt = 0;
           int modifier_pan = 0;
           int modifier_tilt = 0;
+          bool invert_tilt = false;
+
+          if(amplitude_pan_s.size() > 1)
+            amplitude_pan = std::stoi(amplitude_pan_s.erase(amplitude_pan_s.size()-1));
+          if(amplitude_tilt_s.size() > 1)
+            amplitude_tilt = std::stoi(amplitude_tilt_s.erase(amplitude_tilt_s.size()-1));
           if(modifier_pan_s.size() > 1)
             modifier_pan = std::stoi(modifier_pan_s.erase(modifier_pan_s.size()-1));
           if(modifier_tilt_s.size() > 1)
             modifier_tilt = std::stoi(modifier_tilt_s.erase(modifier_tilt_s.size()-1));
 
+          if(invert_tilt_s == "yes")
+            invert_tilt = true;
 
           this->efd->set_up_dialog_options(universes[0].get_blocked_adress_range(),
                                            ui->fixture_list->currentItem()->text(1).toStdString(),
                                            ui->fixture_list->currentItem()->text(0).toStdString(),
                                            ui->fixture_list->currentItem()->text(2).toStdString(),
-                                           ui->fixture_list->currentItem()->text(3).toInt(),
+                                           ui->fixture_list->currentItem()->text(4).toInt(),
                                            ui->fixture_list->currentItem()->parent()->text(0).toStdString(),
-                                           ui->fixture_list->currentItem()->text(4).toStdString(),
                                            ui->fixture_list->currentItem()->text(5).toStdString(),
+                                           ui->fixture_list->currentItem()->text(6).toStdString(),
                                            modifier_pan,
-                                           modifier_tilt);
+                                           modifier_tilt,
+                                           timestamps_type,
+                                           ui->fixture_list->currentItem()->text(7).toInt(),
+                                           invert_tilt,
+                                           amplitude_pan,
+                                           amplitude_tilt);
           connect(this->efd, SIGNAL(accepted()), this, SLOT(get_edited_fixture()));
           this->efd->exec();
         }
@@ -1540,13 +1795,16 @@ void MainWindow::get_edited_fixture() {
   std::string moving_head_type;
   int modifier_pan;
   int modifier_tilt;
+  std::string timestamps_type;
+  int position_in_mh_group = 0;
+  bool invert_tilt = false;
+  int amplitude_pan = 0;
+  int amplitude_tilt = 0;
 
-  this->efd->get_fixture_options(fixture_index, start_channel, type, colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt);
+  this->efd->get_fixture_options(fixture_index, start_channel, type, colors, position_in_group, position_on_stage, moving_head_type, modifier_pan, modifier_tilt, timestamps_type, position_in_mh_group, invert_tilt, amplitude_pan, amplitude_tilt);
 
 
   std::cout << "new type of fixture: " << type.toStdString() << std::endl;
-
-
 
 
   QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(type, Qt::MatchExactly | Qt::MatchRecursive, 0);
@@ -1561,16 +1819,18 @@ void MainWindow::get_edited_fixture() {
     type_item->setText(5, "");
     type_item->setText(6, "");
     type_item->setText(7, "");
-    type_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled);
-    std::cout << "debug22 " << type_item->text(0).toStdString()<< std::endl;
+    type_item->setText(8, "");
+    type_item->setText(9, "");
+    type_item->setText(10, "");
+    type_item->setText(11, "");
+    type_item->setText(12, "");
+    type_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 
     ui->fixture_list->topLevelItem(0)->addChild(type_item);
     //parent->addChild(type_item);
-    std::cout << "debug23" << std::endl;
   } else {
     type_item = type_items.back();
   }
-  std::cout << "debug3" << std::endl;
   Fixture fix = *(std::next(fixtures.begin(), fixture_index));
   fix.set_start_channel(start_channel);
   fix.set_type(type.toStdString());
@@ -1584,10 +1844,15 @@ void MainWindow::get_edited_fixture() {
   fix.set_moving_head_type(moving_head_type);
   fix.set_modifier_pan(modifier_pan);
   fix.set_modifier_tilt(modifier_tilt);
+  fix.set_timestamps_type(timestamps_type);
+  fix.set_position_in_mh_group(position_in_mh_group);
+  fix.set_invert_tilt(invert_tilt);
+  fix.set_amplitude_pan(amplitude_pan);
+  fix.set_amplitude_tilt(amplitude_tilt);
 
   auto *new_item = new QTreeWidgetItem(type_item);
   new_item->setFlags(
-      Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
+      Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
 
   new_item->setText(0, QString::fromStdString(fix.get_name()));
   new_item->setText(1, QString::fromStdString(std::to_string(fix.get_start_channel()) + " - " +
@@ -1596,27 +1861,34 @@ void MainWindow::get_edited_fixture() {
                     QIcon(
                         ":icons_svg/svg/" + QString::fromStdString(fix.get_icon()) + ".svg"));
   new_item->setText(2, QString::fromStdString(fix.get_colors()));
-  new_item->setText(3, QString::fromStdString(std::to_string(fix.get_position_in_group())));
-  new_item->setText(4, QString::fromStdString(fix.get_position_on_stage()));
+  new_item->setText(3, QString::fromStdString(fix.get_timestamps_type()));
+  new_item->setText(4, QString::fromStdString(std::to_string(fix.get_position_in_group())));
+  new_item->setText(5, QString::fromStdString(fix.get_position_on_stage()));
   if(fix.get_moving_head_type() != "Nothing")
-    new_item->setText(5, QString::fromStdString(fix.get_moving_head_type()));
-  else new_item->setText(5, "");
-  if(fix.get_modifier_pan())
-    new_item->setText(6, QString::fromStdString(std::to_string(fix.get_modifier_pan()) + "°"));
+    new_item->setText(6, QString::fromStdString(fix.get_moving_head_type()));
   else new_item->setText(6, "");
+  new_item->setText(7, QString::fromStdString(std::to_string(fix.get_position_in_mh_group())));
+  if(fix.get_amplitude_pan())
+    new_item->setText(8, QString::fromStdString(std::to_string(fix.get_amplitude_pan()) + "°"));
+  else new_item->setText(8, "");
+  if(fix.get_amplitude_tilt())
+    new_item->setText(9, QString::fromStdString(std::to_string(fix.get_amplitude_tilt()) + "°"));
+  else new_item->setText(9, "");
+  if(fix.get_modifier_pan())
+    new_item->setText(10, QString::fromStdString(std::to_string(fix.get_modifier_pan()) + "°"));
+  else new_item->setText(10, "");
   if(fix.get_modifier_tilt())
-    new_item->setText(7, QString::fromStdString(std::to_string(fix.get_modifier_tilt()) + "°"));
-  else new_item->setText(7, "");
+    new_item->setText(11, QString::fromStdString(std::to_string(fix.get_modifier_tilt()) + "°"));
+  else new_item->setText(11, "");
+  if(fix.get_invert_tilt())
+    new_item->setText(12, "yes");
 
-
-  if(type_item && new_item) {
-    type_item->addChild(new_item);
-    type_item->setExpanded(true);
-  }
-
+  std::cout << "ui->fixture_list->currentItem()->text(1).split(" ")[0]: " << ui->fixture_list->currentItem()->text(1).split(" ")[0].toStdString() << std::endl;
   int cur_item = universes[0].get_fixtureid_by_startchannel(ui->fixture_list->currentItem()->text(1).split(" ")[0].toInt());
+  std::cout << "debug3" << std::endl;
   // Delete the fixture from the Dataside.
   universes[0].remove_fixture(cur_item);
+  std::cout << "debug3" << std::endl;
 
   QTreeWidgetItem *item = ui->fixture_list->currentItem();
   QTreeWidgetItem *parent = item->parent();
@@ -1627,7 +1899,16 @@ void MainWindow::get_edited_fixture() {
 
   universes[0].add_fixture(fix);
 
+  if(type_item && new_item) {
 
+    for(int i = 1; i < new_item->columnCount(); i++)
+      new_item->setTextAlignment(i, Qt::AlignCenter);
+
+    type_item->addChild(new_item);
+    type_item->setExpanded(true);
+  }
+
+  std::cout << "debug3" << std::endl;
 
 
   save_fixture_objects_to_xml(false);
@@ -1641,6 +1922,7 @@ void MainWindow::get_edited_fixture() {
   on_fixture_list_itemSelectionChanged();
 
 
+  std::cout << "debug3" << std::endl;
 
   if (parent && parent->childCount() > 0) parent->setExpanded(true);
 
@@ -1653,13 +1935,7 @@ void MainWindow::get_edited_fixture() {
   this->resize_fixture_list_columns();
 
 
-}
-
-void MainWindow::on_actionFixture_Presets_bearbeiten_triggered() {
-  fcd = new FixtureChoosingDialog(this, fixtures, color_palettes);
-  fcd->setup_for_edit();
-  connect(fcd, SIGNAL(accepted()), this, SLOT(open_edit_preset()));
-  fcd->exec();
+  std::cout << "debug3" << std::endl;
 }
 
 void MainWindow::open_edit_preset() {
@@ -1690,13 +1966,6 @@ void MainWindow::on_action_activate_grid_triggered() {
   player_edit_view->show_hide_grid();
 }
 
-void MainWindow::on_actionLade_Presetdatei_triggered() {
-  QString filename = QFileDialog::getOpenFileName(this, "Open Presetfile", QDir::homePath(), ("XML: (*.xml)"));
-  fixtures.clear();
-  load_fixture_objects_from_xml(true, &filename);
-  save_fixture_objects_to_xml();
-}
-
 void MainWindow::on_actionLade_Fixtures_triggered() {
   ui->fixture_list->clearSelection();
   QString filename = QFileDialog::getOpenFileName(this, "Open Fixturelist", QDir::homePath(), ("XML: (*.xml)"));
@@ -1709,16 +1978,23 @@ void MainWindow::on_actionLade_Fixtures_triggered() {
 
 void MainWindow::rowsInserted(const QModelIndex &parent, int start, int end) {
 
-  if (ui->fixture_list->currentItem() != nullptr && ui->fixture_list->currentItem() != ui->fixture_list->topLevelItem(0)) {
+  /*if (ui->fixture_list->currentItem() != nullptr && ui->fixture_list->currentItem() != ui->fixture_list->topLevelItem(0)) {
     int fixture_id = universes[0].get_fixtureid_by_startchannel(
         universe_tree.begin()->child((parent.row()))->
             child(start)->text(1).split(" ")[0].toInt());
+    std::cout << "rows inserted startchannel: " << universe_tree.begin()->child((parent.row()))->
+        child(start)->text(1).split(" ")[0].toInt() << std::endl;
     Fixture temp = universes[0].get_fixture(fixture_id);
     temp.set_type(universe_tree.begin()->child((parent.row()))->text(0).toStdString());
     universes[0].set_fixture(temp, fixture_id);
     fixtures_changed = true;
     save_fixture_objects_to_xml(false);
-  }
+  }*/
+}
+
+void MainWindow::fixture_item_dropped(QDropEvent* event) {
+  std::cout << "event source object name: " << event->source()->objectName().toStdString() << std::endl;
+  std::cout << "event mime data: " << event->mimeData() << std::endl;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
@@ -1743,7 +2019,8 @@ void MainWindow::closeEvent(QCloseEvent *event) {
             lightshow_playing = false;
             usleep(625 * this->lightshow_resolution
                + 1); // sleep extra on close event to make sure everything really is turned off! 25ms if resolution = 40
-          get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
+            //get_current_dmx_device().turn_off_all_channels(this->get_all_pan_tilt_channels());
+          get_current_dmx_device().set_all_channel_values(this->get_all_pan_tilt_channels_with_default_value(), false);
             usleep(625 * this->lightshow_resolution
                + 1); // sleep extra on close event to make sure everything really is turned off! 25ms if resolution = 40
             get_current_dmx_device().stop_device();
@@ -1976,4 +2253,160 @@ std::vector<int> MainWindow::get_all_pan_tilt_channels() {
     all_pan_tilt_channels.insert(all_pan_tilt_channels.end(), fixture_pan_tilt_channels.begin(), fixture_pan_tilt_channels.end());
   }
   return all_pan_tilt_channels;
+}
+
+std::vector<std::uint8_t> MainWindow::get_all_pan_tilt_channels_with_default_value() {
+  std::vector<channel_value> all_pan_tilt_channels_with_default_value;
+  for(Fixture f: universes[0].get_fixtures()) {
+    std::vector<channel_value> fixture_pan_tilt_channels_with_default_values = f.get_pan_tilt_channels_with_default_positions();
+    for(int i = 0; i < fixture_pan_tilt_channels_with_default_values.size(); i++) {
+      fixture_pan_tilt_channels_with_default_values[i].channel = fixture_pan_tilt_channels_with_default_values[i].channel + f.get_start_channel() - 1;
+    }
+    all_pan_tilt_channels_with_default_value.insert(all_pan_tilt_channels_with_default_value.end(), fixture_pan_tilt_channels_with_default_values.begin(), fixture_pan_tilt_channels_with_default_values.end());
+  }
+
+  std::vector<std::uint8_t> channel_values(512, 0);
+  for(int i = 0; i < all_pan_tilt_channels_with_default_value.size(); i++) {
+    channel_values[all_pan_tilt_channels_with_default_value[i].channel - 1] = all_pan_tilt_channels_with_default_value[i].value;
+  }
+  return channel_values;
+}
+
+std::vector<std::uint8_t> MainWindow::get_control_channels_with_ignite_value() {
+  std::vector<channel_value> all_control_channels_with_ignite_value;
+  for(Fixture f: universes[0].get_fixtures()) {
+    channel_value fixture_control_channel_with_ignition_values = f.get_control_channel_with_ignite_value();
+    if(fixture_control_channel_with_ignition_values.channel > 0) {
+      fixture_control_channel_with_ignition_values.channel =
+          fixture_control_channel_with_ignition_values.channel + f.get_start_channel() - 1;
+      all_control_channels_with_ignite_value.push_back({fixture_control_channel_with_ignition_values.channel, fixture_control_channel_with_ignition_values.value});
+    }
+  }
+
+  std::vector<std::uint8_t> channel_values(512, 0);
+  for(int i = 0; i < all_control_channels_with_ignite_value.size(); i++) {
+    channel_values[all_control_channels_with_ignite_value[i].channel - 1] = all_control_channels_with_ignite_value[i].value;
+  }
+  return channel_values;
+}
+
+std::vector<std::uint8_t> MainWindow::get_control_channels_with_turn_off_value() {
+  std::vector<channel_value> all_control_channels_with_turn_off_value;
+  for(Fixture f: universes[0].get_fixtures()) {
+    channel_value fixture_control_channel_with_turn_off_values = f.get_control_channel_with_turn_off_value();
+    if(fixture_control_channel_with_turn_off_values.channel > 0) {
+      fixture_control_channel_with_turn_off_values.channel =
+          fixture_control_channel_with_turn_off_values.channel + f.get_start_channel() - 1;
+      all_control_channels_with_turn_off_value.push_back({fixture_control_channel_with_turn_off_values.channel, fixture_control_channel_with_turn_off_values.value});
+    }
+  }
+
+  std::vector<std::uint8_t> channel_values(512, 0);
+  for(int i = 0; i < all_control_channels_with_turn_off_value.size(); i++) {
+    channel_values[all_control_channels_with_turn_off_value[i].channel - 1] = all_control_channels_with_turn_off_value[i].value;
+  }
+  return channel_values;
+}
+
+void MainWindow::changed_fixtures_for_lightshow_ready(QUrl url, std::list<Fixture> _fixtures, int user_bpm, float onset_value) {
+  std::cout << "URL: " << url.toString().toStdString() << std::endl;
+  Song * song = player->add_to_playlist(url);
+  lightshows_to_generate_for.push_back({false, song, _fixtures, user_bpm, onset_value});
+  this->start_thread_for_generating_queue();
+  this->change_fixtures_dialog->deleteLater();
+}
+
+void MainWindow::right_click_on_playlist_item(QPersistentModelIndex index) {
+  if(index.row() >= 0 && index.row() < this->player->get_playlist_length()) {
+
+    std::cout << this->player->get_playlist_media_at(index.row())->get_song()->get_song_name() << std::endl;
+
+    QMenu contextMenu(tr(std::to_string(index.row()).c_str()), this);
+    contextMenu.setObjectName(QString::fromStdString(std::to_string(index.row())));
+
+    QAction action1("Change Fixtures", &contextMenu);
+    connect(&action1, &QAction::triggered, this, &MainWindow::change_fixtures_of_existing_song);
+    contextMenu.addAction(&action1);
+
+    QAction action2("Regenerate lightshow with default fixtures", &contextMenu);
+    connect(&action2, &QAction::triggered, this, &MainWindow::regenerate_lightshow_with_default_fixtures);
+    contextMenu.addAction(&action2);
+
+    QAction action3("Remove song from playlist", &contextMenu);
+    //connect(&action3, SIGNAL(triggered()), this, SLOT(removeDataPoint()));
+    action3.setEnabled(false);
+    contextMenu.addAction(&action3);
+
+    contextMenu.exec(QCursor::pos());
+
+  }
+}
+
+void MainWindow::change_fixtures_of_existing_song() {
+  std::cout << QObject::sender()->parent()->objectName().toStdString() << std::endl;
+
+  int index_of_song = QObject::sender()->parent()->objectName().toInt();
+
+  Song *song = player->get_playlist_media_at(index_of_song)->get_song();
+
+  QUrl url(QString::fromStdString(song->get_file_path()));
+
+  std::shared_ptr<Lightshow> lightshow = this->lightShowRegistry.get_lightshow(song);
+  std::list<Fixture> _fixtures;
+  for(int i = 0; i < lightshow->get_fixtures().size(); i++) {
+    LightshowFixture l_fix = lightshow->get_fixtures()[i];
+    Fixture fix;
+    fix.set_name(l_fix.get_name());
+    fix.set_type(l_fix.get_type());
+    fix.set_colors(l_fix.get_colors_string());
+    fix.set_channel_count(l_fix.get_number_of_channels());
+    fix.set_start_channel(l_fix.get_start_channel());
+    fix.set_icon("lamp");
+    fix.set_position_in_group(l_fix.get_position_in_group());
+    fix.set_position_on_stage(l_fix.get_position_on_stage());
+    fix.set_modifier_pan(l_fix.get_modifier_pan());
+    fix.set_modifier_tilt(l_fix.get_modifier_tilt());
+    fix.set_moving_head_type(l_fix.get_moving_head_type());
+    fix.set_timestamps_type(l_fix.get_timestamps_type());
+    fix.set_position_in_mh_group(l_fix.get_position_in_mh_group());
+    fix.set_invert_tilt(l_fix.get_invert_tilt());
+    fix.set_amplitude_pan(l_fix.get_amplitude_pan());
+    fix.set_amplitude_tilt(l_fix.get_amplitude_tilt());
+    _fixtures.push_back(fix);
+  }
+
+  change_fixtures_dialog = new ChangeFixtures(_fixtures, this->color_palettes, this->fixtures, url, lightshow->get_bpm(), lightshow->get_onset_value(), this);
+  change_fixtures_dialog->set_song(song);
+  change_fixtures_dialog->setWindowModality(Qt::ApplicationModal);
+  if(connect(this->change_fixtures_dialog, SIGNAL(changed_fixtures_of_existing_lightshow(Song*, std::list<Fixture>, int, float)), this, SLOT(changed_fixtures_for_existing_lightshow_ready(Song*, std::list<Fixture>, int, float)))) {
+    std::cout << "connection worked" << std::endl;
+  } else {
+    std::cout << "connection did not work" << std::endl;
+  }
+  change_fixtures_dialog->show();
+
+
+}
+
+void MainWindow::changed_fixtures_for_existing_lightshow_ready(Song* song, std::list<Fixture> _fixtures, int user_bpm, float onset_value) {
+  std::cout << "URL: " << song->get_file_path() << std::endl;
+  this->lightShowRegistry.get_lightshow(song)->set_onset_value(onset_value);
+  lightshows_to_generate_for.push_back({true, song, _fixtures, user_bpm, onset_value});
+  this->start_thread_for_generating_queue();
+  this->playlist_view->reset_lightshow_status(this->player->playlist_index_for(song));
+  this->change_fixtures_dialog->deleteLater();
+}
+
+void MainWindow::regenerate_lightshow_with_default_fixtures() {
+  std::cout << QObject::sender()->parent()->objectName().toStdString() << std::endl;
+
+  int index_of_song = QObject::sender()->parent()->objectName().toInt();
+
+  Song *song = player->get_playlist_media_at(index_of_song)->get_song();
+
+  lightshows_to_generate_for.push_back({true, song, this->universes[0].get_fixtures(), this->lightShowRegistry.get_lightshow(song)->get_bpm(), this->lightShowRegistry.get_lightshow(song)->get_onset_value()});
+  this->start_thread_for_generating_queue();
+
+  this->playlist_view->reset_lightshow_status(index_of_song);
+
 }

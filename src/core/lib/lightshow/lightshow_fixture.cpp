@@ -13,7 +13,7 @@
 #include <atomic>
 
 
-LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage, std::string _moving_head_type, int _modifier_pan, int _modifier_tilt) {
+LightshowFixture::LightshowFixture(std::string name, int start_channel, int number_of_channels, std::string type, std::string colors, int _position_inside_group, std::string _position_on_stage, std::string _moving_head_type, int _modifier_pan, int _modifier_tilt, std::string _timestamps_type, int _position_inside_mh_group, bool _invert_tilt, int _amplitude_pan, int _amplitude_tilt) {
   this->name = name;
   this->start_channel = start_channel;
   this->number_of_channels = number_of_channels;
@@ -22,6 +22,12 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
   this->moving_head_type = _moving_head_type;
   this->modifier_pan = _modifier_pan;
   this->modifier_tilt = _modifier_tilt;
+  this->colors_string = colors;
+  this->timestamps_type = _timestamps_type;
+  this->position_in_mh_group = _position_inside_mh_group;
+  this->invert_tilt = _invert_tilt;
+  this->amplitude_pan = _amplitude_pan;
+  this->amplitude_tilt = _amplitude_tilt;
   std::istringstream ss(colors);
   std::string color;
   if(!colors.empty()) {
@@ -88,8 +94,8 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_red(9);
     this->set_channel_green(10);
     this->set_channel_blue(11);
-    this->degrees_per_pan = (float) 430 / (float) 256;
-    this->degrees_per_tilt = (float) 300 / (float) 256;
+    this->degrees_per_pan = (float) 430 / 255;
+    this->degrees_per_tilt = (float) 300 / 255;
     this->has_global_dimmer = true;
     this->has_pan = true;
     this->has_tilt = true;
@@ -102,8 +108,8 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_focus(8);
     this->set_channel_zoom(9);
     this->set_channel_colorwheel(14);
-    this->degrees_per_pan = (float) 433.6 / (float) 256;
-    this->degrees_per_tilt = (float) 280 / (float) 256;
+    this->degrees_per_pan = (float) 433.6 / 255;
+    this->degrees_per_tilt = (float) 280 / 255;
     this->colorwheel_values.insert(std::pair<std::string, uint8_t>("white", 1));
     this->colorwheel_values.insert(std::pair<std::string, uint8_t>("red", 4));
     this->colorwheel_values.insert(std::pair<std::string, uint8_t>("yellow", 8));
@@ -118,6 +124,22 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->has_shutter = true;
     this->has_colorwheel = true;
     this->has_focus = true;
+    this->has_zoom = true;
+  } else if(name == "JBLED Sparx 7 (M3)") {
+    this->set_channel_pan(1);
+    this->set_channel_tilt(3);
+    this->set_channel_shutter(6);
+    this->set_channel_dimmer(7);
+    this->set_channel_zoom(8);
+    this->set_channel_red(21);
+    this->set_channel_green(22);
+    this->set_channel_blue(23);
+    this->degrees_per_pan = (float) 433.6 / 255;
+    this->degrees_per_tilt = (float) 333.3 / 255;
+    this->has_global_dimmer = true;
+    this->has_pan = true;
+    this->has_tilt = true;
+    this->has_shutter = true;
     this->has_zoom = true;
   } else if(name == "Stairville LED Flood Panel 150 (3ch)") {
     this->set_channel_red(1);
@@ -171,6 +193,22 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_blinder(1);
     this->set_blinder_value(249);
     this->is_blinder = true;
+  } else if(name == "SGM X-5 (3CH)") {
+    this->set_channel_blinder(1);
+    this->set_channel_flash_duration(2);
+    this->set_channel_flash_rate(3);
+    this->set_blinder_value(249);
+    this->is_blinder = true;
+    this->has_flash_duration = true;
+    this->has_flash_rate = true;
+  } else if(name == "SGM X-5 (4CH)") {
+    this->set_channel_blinder(1);
+    this->set_channel_flash_duration(2);
+    this->set_channel_flash_rate(3);
+    this->set_blinder_value(249);
+    this->is_blinder = true;
+    this->has_flash_duration = true;
+    this->has_flash_rate = true;
   } else Logger::error("Fixture with unknown name created. Channels have not been set.");
 }
 
@@ -247,21 +285,41 @@ void LightshowFixture::set_channel_blue(std::uint8_t channel_blue) {
 }
 
 void LightshowFixture::add_value_changes_to_channel(std::vector<time_value_int> value_changes, int channel) {
-  Channel ch(channel);
-  ValueChange vc(0.0, 0);
+  if(this->channel_already_exists(channel)) {
+    //std::cout << "channel already exists and has " << this->get_channel(channel).get_value_changes().size() << " value changes" << std::endl;
 
-  // loop through all ValueChanges and add them to the channel
-  for (int i = 0; i < value_changes.size(); i++) {
-    vc.set_timestamp(value_changes[i].time);
-    vc.set_value(value_changes[i].value);
-    if(vc.get_value() == -1) { // end of song special
-      vc.set_value(0);
-      ch.add_value_change(vc);
-    } else if (vc.get_value() != ch.get_value_of_last_added_value_change()) // if ValueChange is different than the last one added to the channel, add it to the channel
+    //Channel ch(channel);
+    ValueChange vc(0.0, 0);
+
+    // loop through all ValueChanges and add them to the channel
+    for (int i = 0; i < value_changes.size(); i++) {
+      vc.set_timestamp(value_changes[i].time);
+      vc.set_value(value_changes[i].value);
+      if (vc.get_value() == -1) { // end of song special
+        vc.set_value(0);
+        this->get_channel(channel).add_value_change(vc);
+      } else if (vc.get_value()
+          != this->get_channel(channel).get_value_of_last_added_value_change()) // if ValueChange is different than the last one added to the channel, add it to the channel
+        this->get_channel(channel).add_value_change(vc);
+    }
+  } else {
+    Channel ch(channel);
+    ValueChange vc(0.0, 0);
+
+    // loop through all ValueChanges and add them to the channel
+    for (int i = 0; i < value_changes.size(); i++) {
+      vc.set_timestamp(value_changes[i].time);
+      vc.set_value(value_changes[i].value);
+      if (vc.get_value() == -1) { // end of song special
+        vc.set_value(0);
         ch.add_value_change(vc);
+      } else if (vc.get_value()
+          != ch.get_value_of_last_added_value_change()) // if ValueChange is different than the last one added to the channel, add it to the channel
+        ch.add_value_change(vc);
+    }
+    if (ch.get_value_of_last_added_value_change() != -1)
+      this->add_channel(ch);
   }
-  if(ch.get_value_of_last_added_value_change() != -1)
-    this->add_channel(ch);
 }
 
 void LightshowFixture::set_type(std::string type) {
@@ -272,18 +330,22 @@ void LightshowFixture::set_type(std::string type) {
   || type == "action"
   || type == "everything"
   || type == "ambient"
-  || type == "color_change_beats"
-  || type == "color_change_beats_action"
-  || type == "color_change_onsets"
-  || type == "onset_flash"
-  || type == "onset_flash_reverse"
-  || type == "onset_blink"
+  || type == "color_change"
+  || type == "flash"
+  || type == "flash_reverse"
+  || type == "blink"
   || type == "group_one_after_another"
+  || type == "group_one_after_another_back_and_forth"
   || type == "group_one_after_another_blink"
+  || type == "group_one_after_another_back_and_forth_blink"
   || type == "group_two_after_another"
   || type == "group_alternate_odd_even"
   || type == "group_random_flashes"
-  || type == "strobe_if_many_onsets") {
+  || type == "strobe_if_many_onsets"
+  || type == "auto_beats"
+  || type == "group_auto_beats"
+  || type == "auto_onsets"
+  || type == "group_auto_onsets") {
     this->type = type;
     Logger::debug("Set type of fixture to {}", type);
   }
@@ -415,4 +477,87 @@ float LightshowFixture::get_degrees_per_pan() {
 }
 float LightshowFixture::get_degrees_per_tilt() {
   return this->degrees_per_tilt;
+}
+
+std::string LightshowFixture::get_colors_string() {
+  return this->colors_string;
+}
+
+void LightshowFixture::set_timestamps_type(std::string _timestamps_type) {
+  this->timestamps_type = _timestamps_type;
+}
+
+std::string LightshowFixture::get_timestamps_type() {
+  return this->timestamps_type;
+}
+
+std::uint8_t LightshowFixture::get_channel_flash_duration() {
+  return this->channel_flash_duration;
+}
+
+std::uint8_t LightshowFixture::get_channel_flash_rate() {
+  return this->channel_flash_rate;
+}
+
+void LightshowFixture::set_channel_flash_duration(std::uint8_t _channel_flash_duration) {
+  this->channel_flash_duration = _channel_flash_duration;
+}
+
+void LightshowFixture::set_channel_flash_rate(std::uint8_t _channel_flash_rate) {
+  this->channel_flash_rate = _channel_flash_rate;
+}
+
+void LightshowFixture::set_position_in_mh_group(int _position) {
+  this->position_in_mh_group = _position;
+}
+
+int LightshowFixture::get_position_in_mh_group() {
+  return this->position_in_mh_group;
+}
+
+
+bool LightshowFixture::get_invert_tilt() {
+  return this->invert_tilt;
+}
+
+void LightshowFixture::set_invert_tilt(bool _invert_tilt) {
+  this->invert_tilt = _invert_tilt;
+}
+
+int LightshowFixture::get_amplitude_pan() {
+  return this->amplitude_pan;
+}
+
+void LightshowFixture::set_amplitude_pan(int _amplitude_pan) {
+  this->amplitude_pan = _amplitude_pan;
+}
+
+int LightshowFixture::get_amplitude_tilt() {
+  return this->amplitude_tilt;
+}
+
+void LightshowFixture::set_amplitude_tilt(int _amplitude_tilt) {
+  this->amplitude_tilt = _amplitude_tilt;
+}
+
+bool LightshowFixture::channel_already_exists(int channel) {
+  bool channel_already_exists = false;
+
+  for(auto const &ch : this->get_channels()) {
+    if(ch.get_channel() == channel)
+      channel_already_exists = true;
+  }
+
+  return channel_already_exists;
+}
+
+Channel &LightshowFixture::get_channel(int channel) {
+  Channel channel1(0);
+  for(int i = 0; i < this->channels.size(); i++) {
+    if(this->channels[i].get_channel() == channel) {
+      return std::ref(this->channels[i]);
+    }
+  }
+  std::cerr << "THIS SHOULD NEVER HAPPEN" << std::endl;
+  return std::ref(channel1);
 }

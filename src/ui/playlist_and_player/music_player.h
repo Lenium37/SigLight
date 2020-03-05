@@ -22,7 +22,7 @@ class MusicPlayer : public QObject {
   MusicPlayer();
 
   void set_songs_directory_path(std::string _songs_directory_path);
-  std::vector<Song*> add_to_playlist(std::vector<QUrl> selected_urls);
+  Song* add_to_playlist(QUrl url);
   QString get_formatted_time() const;
   QString format_time(qint64 time_milli_seconds) const;
   Playlist_item *get_playlist_media_at(int index);

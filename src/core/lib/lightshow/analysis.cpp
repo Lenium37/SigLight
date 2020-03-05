@@ -149,7 +149,7 @@ void Analysis::stft() {
 
 }
 
-std::vector<float> Analysis::get_onset_timestamps_energy_difference(){
+std::vector<float> Analysis::get_onset_timestamps_energy_difference(float onset_value){
 
   std::vector<float> onset_timestamps;
 
@@ -238,14 +238,32 @@ std::vector<float> Analysis::get_onset_timestamps_energy_difference(){
   }
   float mean_of_all_peaks = all_peaks / peak_counter;
 
+  // OLD VALUES
   // rocky = 5.5
   // metal (HSB Voice of the Voiceless, double bass) = 1.7
   // metal/hard rock (Sabaton 7734) = 4.5
   // somewhat allgemeingültig = 5
   //min_value_onset = min_value_onset / onsets.size() * 5;
 
+  // NEW VALUES for whole frequency onset detection
+  // 9 average
+  // 11:
+    // Was Ich Liebe: okay, eher zu wenige
+    // Madsen Keiner: zu viele
+    // Callejon Ein Kompliment: zu viele
+    // HSB Voice Of The Voiceless: gut, ein paar mehr wären okay
+  // 12:
+    // HSB Voice Of The Voiceless: gut!
+    // Sabaton 7734: okay, ein paar zu viele
+    // Powerwolf Armati Stigoi: gut, beim leisen Beginn ein paar zu viele
+    // SOAD Prison Song: schlecht, viel zu viele
+    // Architects Doomsday: sehr geil!
+  // -> maybe 11.5-12.0 is fine for double bass songs?
+
+
   //min_value_onset = max_ed_value * 0.315;
-  min_value_onset = (max_ed_value + mean_of_all_peaks + mean_of_all_peaks) / 7.5;
+  std::cout << "using onset_value: " << onset_value << std::endl;
+  min_value_onset = (max_ed_value + mean_of_all_peaks + mean_of_all_peaks) / onset_value; // 7.5 zu wenig, 10 zu viel, 9 maybe
   std::cout << "mean_of_all_peaks: " << mean_of_all_peaks << std::endl;
   std::cout << "max_ed_value: " << max_ed_value << std::endl;
   std::cout << "min_value_onset: " << min_value_onset << std::endl;
@@ -286,8 +304,8 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
   // BAND PASS FREQUENCIES
   //float f_start = 0;
   //float f_end = 22050;
-  f_start = 0;
-  f_end = 22050;
+  //f_start = 0;
+  //f_end = 22050;
 
   int window_size_onsets = 2048;
   Gist<float> gist2(window_size_onsets, 44100);
@@ -296,23 +314,41 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
   int numSamplesMinus1 = window_size_onsets - 1;
   std::vector<float> onsets;
   std::vector<time_value_float> spectral_flux;
+  std::vector<fluxes> spectral_fluxes;
+  std::vector<fluxes> thresholds;
   std::vector<float> magnitude_spectrum;
   std::vector<float> last_magnitude_spectrum;
   std::vector<time_value_float> threshold_function_values;
+  float max_ed, max_sd, max_sdhwr, max_csd, max_hfc, max_l2nh, max_l1nh, max_l2h, max_l1h = -9999999;
+
 
   // PREPARE CSV FILES WITH HEADERS FOR ALGORITHM COMPARISON
-  FILE *fp_spectral_flux = std::fopen("spectral_flux.csv", "w");
+  /*FILE *fp_spectral_flux = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/spectral_flux.csv",
+                                      "w");
   fprintf(fp_spectral_flux, "time, ed, sd, sdhwr, csd, hfc, l2nohwr, l1nohwr, l2hwr, l1hwr\n");
 
-  FILE* fp_threshold_function = std::fopen("threshold.csv", "w");
+  FILE *fp_thresholds = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/thresholds.csv", "w");
+  fprintf(fp_thresholds, "time, ed, sd, sdhwr, csd, hfc, l2nohwr, l1nohwr, l2hwr, l1hwr\n");
+
+  FILE *fp_threshold_function = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/threshold.csv",
+                                           "w");
   fprintf(fp_threshold_function, "time, value\n");
 
-  FILE *fp_onsets = std::fopen("onsets.csv", "w");
+  FILE *fp_onsets = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/onsets.csv", "w");
   fprintf(fp_onsets, "time, dummyvalue\n");
+
+  FILE *fp_average_flux = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/average_flux.csv",
+                                     "w");
+  fprintf(fp_average_flux, "time, average\n");
+
+  FILE *fp_average_threshold = std::fopen(
+      "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/average_threshold.csv", "w");
+  fprintf(fp_average_threshold, "time, average\n");*/
 
   // GENERATE HAMMING WINDOW FOR AUDIOFRAME (TIME-DOMAIN SMOOTHING)
   for (int i = 0; i < window_size_onsets; i++) {
-    window_function[i] = (float)(0.5 * (float)(1.0 - cos(2.0 * (float)M_PI * ((float)i / (float)numSamplesMinus1))));
+    window_function[i] = (float) (0.5 *
+        (float) (1.0 - cos(2.0 * (float) M_PI * ((float) i / (float) numSamplesMinus1))));
   }
 
   // LOOP OVER COMPLETE SIGNAL WITH WINDOW_SIZE_ONSETS AND A HOPSIZE OF 50%
@@ -329,16 +365,16 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
     // ALSO DELETE COEFFICIENTS FOR FREQUENCIES OUT OF RANGE OF [F_START, F_END]
     magnitude_spectrum = gist2.getMagnitudeSpectrum();
 
-    for (int k = 0; k < magnitude_spectrum.size(); k++){
-      float f_current = (44100/window_size_onsets) * k;
-      if (f_current <= f_start || f_current >= f_end){
+    for (int k = 0; k < magnitude_spectrum.size(); k++) {
+      float f_current = (44100 / window_size_onsets) * k;
+      if (f_current <= f_start || f_current >= f_end) {
         magnitude_spectrum[k] = 0.0;
       }
     }
 
     // HACK TO ALSO SAVE LAST MAGNITUDE SPECTRUM TEMPORARY, WE NEED THIS TO GET THE DELTA FOR SPECTRAL FLUX
     if (i == 0) {
-      for (int k = 0; k <= magnitude_spectrum.size(); k++){
+      for (int k = 0; k <= magnitude_spectrum.size(); k++) {
         last_magnitude_spectrum.push_back(magnitude_spectrum[k]);
       }
     }
@@ -353,7 +389,6 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
     float i_float = i;
     float time = i_float / 44100;
 
-
     // CALCULATE SPECTRAL FLUXES INCLUDED BY ESSENTIA
     float flux_l2_no_hwr = 0.0;
     float flux_l1_no_hwr = 0.0;
@@ -364,7 +399,7 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
 
       float flux_value_l2_no_hwr = (magnitude_spectrum[m] - last_magnitude_spectrum[m]) *
           (magnitude_spectrum[m] - last_magnitude_spectrum[m]);
-      flux_l2_no_hwr += flux_value_l2_no_hwr;
+      flux_l2_no_hwr += flux_value_l2_no_hwr * flux_value_l2_no_hwr;
 
       float flux_value_l1_no_hwr = abs((magnitude_spectrum[m] - last_magnitude_spectrum[m]));
       flux_l1_no_hwr += flux_value_l1_no_hwr;
@@ -381,11 +416,40 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
     flux_l2_no_hwr = sqrt(flux_l2_no_hwr);
     flux_l2_hwr = sqrt(flux_l2_hwr);
 
-    // PRINT ALL THE SPECTRAL FLUXES TO A CSV FILE FOR COMPARISON
-    fprintf(fp_spectral_flux, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", time, ed, sd, sdhwr, csd, hfc, flux_l2_no_hwr, flux_l1_no_hwr, flux_l2_hwr, flux_l1_hwr);
+
 
     // CHOOSE A SPECTRAL FLUX TO USE FOR ONSET DETECTION (SEE LINE 251 FOR THEIR NAMES)
-    spectral_flux.push_back({time, flux_l2_hwr});
+    spectral_flux.push_back({time, csd});
+    if (ed > max_ed) {
+      max_ed = ed;
+    }
+    if (sd > max_sd) {
+      max_sd = sd;
+    }
+    if (sdhwr > max_sdhwr) {
+      max_sdhwr = sdhwr;
+    }
+    if (csd > max_csd) {
+      max_csd = csd;
+    }
+    if (hfc > max_hfc) {
+      max_hfc = hfc;
+    }
+    if (flux_l2_no_hwr > max_l2nh) {
+      max_l2nh = flux_l2_no_hwr;
+    }
+    if (flux_l1_no_hwr > max_l1nh) {
+      max_l1nh = flux_l1_no_hwr;
+    }
+    if (flux_l2_hwr > max_l2h) {
+      max_l2h = flux_l2_hwr;
+    }
+    if (flux_l1_hwr > max_l1h) {
+      max_l1h = flux_l1_hwr;
+    }
+    spectral_fluxes.push_back(
+        {time, ed, sd, sdhwr, csd, hfc, flux_l2_no_hwr, flux_l1_no_hwr, flux_l2_hwr, flux_l1_hwr}
+    );
 
     // SAVE CURRENT SPECTRAL FLUX AS LAST TEMPORAL FLUX FOR COMPARISON
     last_magnitude_spectrum.clear();
@@ -394,33 +458,48 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
     for (int k = 0; k < magnitude_spectrum.size(); k++) {
       last_magnitude_spectrum.push_back(magnitude_spectrum[k]);
     }
-
-
   }
+
+  for (int j = 0; j < spectral_fluxes.size(); j++) {
+    spectral_fluxes[j].ed /= max_ed;
+    spectral_fluxes[j].sd /= max_sd;
+    spectral_fluxes[j].sdhwr /= max_sdhwr;
+    spectral_fluxes[j].csd /= max_csd;
+    spectral_fluxes[j].hfc /= max_hfc;
+    spectral_fluxes[j].l2nh /= max_l2nh;
+    spectral_fluxes[j].l1nh /= max_l1nh;
+    spectral_fluxes[j].l2h /= max_l2h;
+    spectral_fluxes[j].l1h /= max_l1h;
+    //fprintf(fp_spectral_flux, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", spectral_fluxes[j].time, spectral_fluxes[j].ed, spectral_fluxes[j].sd, spectral_fluxes[j].sdhwr, spectral_fluxes[j].csd, spectral_fluxes[j].hfc,
+      //      spectral_fluxes[j].l2nh, spectral_fluxes[j].l1nh, spectral_fluxes[j].l2h, spectral_fluxes[j].l1h);
+  }
+
+  //fclose(fp_spectral_flux);
+
+  // PRINT ALL THE SPECTRAL FLUXES TO A CSV FILE FOR COMPARISON
+
 
   // GENERATE MOVING AVERAGE OF THE CHOSEN SPECTRAL FLUX - THIS IS USED FOR THRESHOLDING AKA FINDING REAL ONSETS!
 
   // CALCULATE HOW MANY FLUXES WILL BE USED FOR MOVING AVERAGE (LEFT/RIGHT)
-  int fluxes = 0.5/(44100/window_size_onsets*0.001);
+  int fluxes = 0.5 / (44100 / window_size_onsets * 0.001);
 
   // SET A MULTIPLIER TO MOVE UP THE THRESHOLD FUNCTION VALUES AND FIND REAL ONSETS
   // THIS VALUE CAN BE TWEAKED!!! (1.5 IS THE VALUE USED IN THE ONSET DETECTION TUTORIAL)
   // ANYTHING BETWEEN ~1.3 AND ~1.9 MIGHT YIELD GOOD RESULTS
-  float multiplier = 1.5;
+  float multiplier = 1;
 
   // ZERO PADDING FOR MOVING AVERAGE
 
   float delta = 0;
-  for (int f = 0; f < spectral_flux.size(); f++){
+  for (int f = 0; f < spectral_flux.size(); f++) {
     delta += (spectral_flux[f].value / spectral_flux.size());
   }
   // SIMPLE MOVING AVERAGE LOOP OVER ALL SPECTRAL FLUX VALUES
-
-  for( int i = 0; i < spectral_flux.size(); i++ )
-  {
-    int start = fmax( 0, i - (fluxes/2) + 1 );
-    int end = fmin( spectral_flux.size() - 1, i + (fluxes/2) + 1 );
-    float mean = delta * 1.5;
+  for (int i = 0; i < spectral_flux.size() - (fluxes/2); i++) {
+    int start = fmax(0, i - (fluxes / 2) + 1);
+    int end = fmin(spectral_flux.size() - 1, i + (fluxes / 2) + 1);
+    float mean = delta * multiplier;
     float mean_current = 0;
 
     for (int j = start; j <= end; j++) {
@@ -429,21 +508,187 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
     }
     //mean /= (float)(end - start);
 
-    float this_time = spectral_flux[i+(fluxes/2)].time;
+    float this_time = spectral_flux[i + (fluxes / 2)].time;
     //mean *= multiplier;
     threshold_function_values.push_back({this_time, mean});
-    fprintf(fp_threshold_function, "%f, %f\n", threshold_function_values[i].time, threshold_function_values[i].value);
+    //fprintf(fp_threshold_function, "%f, %f\n", threshold_function_values[i].time,
+      //      threshold_function_values[i].value);
   }
-  fclose(fp_threshold_function);
+  //fclose(fp_threshold_function);
+
+  // GRAPH STUFF //
+  // GO THROUGH ALL FLUXES AND GENERATE ALL THRESHOLDS FOR GRAPH COMPARISON
+
+  float multiplier_ed = 1;
+  float multiplier_sd = 1;
+  float multiplier_sdhwr = 1;
+  float multiplier_hfc = 1;
+  float multiplier_csd = 1;
+  float multiplier_l2nh = 1;
+  float multiplier_l1nh = 1;
+  float multiplier_l2h = 1;
+  float multiplier_l1h = 1;
+
+  float delta_ed = 0;
+  float delta_sd = 0;
+  float delta_sdhwr = 0;
+  float delta_csd = 0;
+  float delta_hfc = 0;
+  float delta_l2nh = 0;
+  float delta_l1nh = 0;
+  float delta_l2h = 0;
+  float delta_l1h = 0;
+
+  for (int g = 0; g < spectral_fluxes.size(); g++) {
+    delta_ed += (spectral_fluxes[g].ed / spectral_fluxes.size());
+    delta_sd += (spectral_fluxes[g].sd / spectral_fluxes.size());
+    delta_sdhwr += (spectral_fluxes[g].sdhwr / spectral_fluxes.size());
+    delta_csd += (spectral_fluxes[g].csd / spectral_fluxes.size());
+    delta_hfc += (spectral_fluxes[g].hfc / spectral_fluxes.size());
+    delta_l2nh += (spectral_fluxes[g].l2nh / spectral_fluxes.size());
+    delta_l1nh += (spectral_fluxes[g].l1nh / spectral_fluxes.size());
+    delta_l2h += (spectral_fluxes[g].l2h / spectral_fluxes.size());
+    delta_l1h += (spectral_fluxes[g].l1h / spectral_fluxes.size());
+  }
+  for (int i = 0; i < spectral_fluxes.size() - (fluxes/2); i++) {
+    int start = fmax(0, i - (fluxes / 2) + 1);
+    int end = fmin(spectral_fluxes.size() - 1, i + (fluxes / 2) + 1);
+    float mean_ed = delta_ed * multiplier_ed;
+    float mean_sd = delta_sd * multiplier_sd;
+    float mean_sdhwr = delta_sdhwr * multiplier_sdhwr;
+    float mean_csd = delta_csd * multiplier_csd;
+    float mean_hfc = delta_hfc * multiplier_hfc;
+    float mean_l2nh = delta_l2nh * multiplier_l2nh;
+    float mean_l1nh = delta_l1nh * multiplier_l1nh;
+    float mean_l2h = delta_l2h * multiplier_l2h;
+    float mean_l1h = delta_l1h * multiplier_l1h;
+
+    float mean_current_ed = 0;
+    float mean_current_sd = 0;
+    float mean_current_sdhwr = 0;
+    float mean_current_csd = 0;
+    float mean_current_hfc = 0;
+    float mean_current_l2nh = 0;
+    float mean_current_l1nh = 0;
+    float mean_current_l2h = 0;
+    float mean_current_l1h = 0;
+
+
+    for (int j = start; j <= end; j++) {
+      mean_current_ed = spectral_fluxes[j].ed / (end - start);
+      mean_current_sd = spectral_fluxes[j].sd / (end - start);
+      mean_current_sdhwr = spectral_fluxes[j].sdhwr / (end - start);
+      mean_current_csd = spectral_fluxes[j].csd / (end - start);
+      mean_current_hfc = spectral_fluxes[j].hfc / (end - start);
+      mean_current_l2nh = spectral_fluxes[j].l2nh / (end - start);
+      mean_current_l1nh = spectral_fluxes[j].l1nh / (end - start);
+      mean_current_l2h = spectral_fluxes[j].l2h / (end - start);
+      mean_current_l1h = spectral_fluxes[j].l1h / (end - start);
+      mean_ed = mean_ed + mean_current_ed;
+      mean_sd = mean_sd + mean_current_sd;
+      mean_sdhwr = mean_sdhwr + mean_current_sdhwr;
+      mean_csd = mean_csd + mean_current_csd;
+      mean_hfc = mean_hfc + mean_current_hfc;
+      mean_l2nh = mean_l2nh + mean_current_l2nh;
+      mean_l1nh = mean_l1nh + mean_current_l1nh;
+      mean_l2h = mean_l2h + mean_current_l2h;
+      mean_l1h = mean_l1h + mean_current_l1h;
+    }
+    //mean /= (float)(end - start);
+
+    float this_time = spectral_fluxes[i + (fluxes / 2)].time;
+    //mean *= multiplier;
+    thresholds.push_back(
+        {this_time, mean_ed, mean_sd, mean_sdhwr, mean_csd, mean_hfc, mean_l2nh, mean_l1nh, mean_l2h,
+         mean_l1h});
+    //fprintf(fp_thresholds, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", thresholds[i].time, thresholds[i].ed,
+      //      thresholds[i].sd, thresholds[i].sdhwr, thresholds[i].csd, thresholds[i].hfc, thresholds[i].l2nh,
+        //    thresholds[i].l1nh, thresholds[i].l2h, thresholds[i].l1h);
+
+  }
+  //fclose(fp_thresholds);
+
+
+  // DAS ULTIMATIVE MITTEL AUS NEUN ONSET DETECTION ALGORITHMS MIT GEWICHTUNGSMÖGLICHKEIT ZUM TUNEN
+
+  float w1 = 4.0 / 9.0; // energy difference
+  float w2 = 0.0 / 9.0; // spectral difference
+  float w3 = 1.0 / 9.0; // spectral difference hwr
+  float w4 = 0.0 / 9.0; // complex spectral difference
+  float w5 = 0.0 / 9.0; // high frequency content
+  float w6 = 1.0 / 9.0; // l2 no hwr
+  float w7 = 0.0 / 9.0; // l1 no hwr
+  float w8 = 2.0 / 9.0; // l2 hwr
+  float w9 = 1.0 / 9.0; // l1 hwr
+
+  std::vector<time_value_float> average_flux, average_threshold;
+
+  for (int i = 0; i < spectral_fluxes.size() - (fluxes/2); i++) {
+    average_flux.push_back({spectral_fluxes[i].time, (
+        (spectral_fluxes[i].ed * w1) +
+            (spectral_fluxes[i].sd * w2) +
+            (spectral_fluxes[i].sdhwr * w3) +
+            (spectral_fluxes[i].csd * w4) +
+            (spectral_fluxes[i].hfc * w5) +
+            (spectral_fluxes[i].l2nh * w6) +
+            (spectral_fluxes[i].l1nh * w7) +
+            (spectral_fluxes[i].l2h * w8) +
+            (spectral_fluxes[i].l1h * w9)
+    )});
+    //fprintf(fp_average_flux, "%f, %f\n", average_flux[i].time, average_flux[i].value);
+    float current_threshold = (
+        (thresholds[i].ed * w1) +
+            (thresholds[i].sd * w2) +
+            (thresholds[i].sdhwr * w3) +
+            (thresholds[i].csd * w4) +
+            (thresholds[i].hfc * w5) +
+            (thresholds[i].l2nh * w6) +
+            (thresholds[i].l1nh * w7) +
+            (thresholds[i].l2h * w8) +
+            (thresholds[i].l1h * w9)
+    ) * 0.5;
+    average_threshold.push_back({thresholds[i].time, current_threshold});
+
+    //fprintf(fp_average_threshold, "%f, %f\n", average_threshold[i].time, average_threshold[i].value);
+
+  }
+
+
+
 
   // ADD FLUX TIMES TO ONSETS IF THEYRE ABOVE THRESHOLD AND IF THEY'RE A PEAK (GREATER THAN LAST AND NEXT VALUE)
+  /*
   for (int i = 1; i < spectral_flux.size() - 2; i++) {
-    if (spectral_flux[i].value > threshold_function_values[i].value && spectral_flux[i].value > spectral_flux[i+1].value && spectral_flux[i].value > spectral_flux[i-1].value) {
-      onsets.push_back({spectral_flux[i].time});
-      fprintf(fp_onsets, "%f, %d\n", spectral_flux[i].time, 1);
-    }
+      if (spectral_flux[i].value > threshold_function_values[i].value &&
+          spectral_flux[i].value > spectral_flux[i + 1].value &&
+          spectral_flux[i].value > spectral_flux[i - 1].value) {
+          onsets.push_back({spectral_flux[i].time});
+          fprintf(fp_onsets, "%f, %d\n", spectral_flux[i].time, 1);
+      }
   }
   fclose(fp_onsets);
+   */
+
+  // ADD FLUX TIMES TO ONSETS IF THEYRE ABOVE THRESHOLD AND IF THEY'RE A PEAK (GREATER THAN LAST AND NEXT VALUE) AND IF THERE HAS NOT BEEN ANOTHER ONSET IN THE LAST 20 MILLISECONDS
+  for (int i = 1; i < spectral_flux.size() - 2; i++) {
+    if (average_flux[i].value > average_threshold[i].value &&
+        average_flux[i].value > average_flux[i + 1].value &&
+        average_flux[i].value > average_flux[i - 1].value) {
+
+      if (!onsets.empty() && (average_flux[i].time - onsets.back() >= 0.025)){
+        onsets.push_back({average_flux[i].time});
+        //fprintf(fp_onsets, "%f, %d\n", average_flux[i].time, 1);
+      } else if (onsets.empty()){
+        onsets.push_back({average_flux[i].time});
+        //fprintf(fp_onsets, "%f, %d\n", average_flux[i].time, 1);
+      } else {
+
+      }
+
+
+    }
+  }
+  //fclose(fp_onsets);
 
   return onsets;
 
@@ -562,7 +807,582 @@ std::vector<time_value_double> Analysis::get_intensity_function_values() {
 
     return intensities;
 
-};
+}
+
+std::vector<time_value_float> Analysis::get_segments(){
+
+  bool FILEPRINT = false;
+  auto start = std::chrono::system_clock::now();
+
+  std::vector<time_value_float> segments;
+
+  int bin_size = 22050; // 22050 = 0.5 seconds, 2Hz
+  int hop_size = 22050; // no overlap, don't do overlap, all timestamps will be broken.
+
+  // TODO: HIER MUSS EVTL. NOCH MINIMAL WAS PASSIEREN!
+  // TODO: AUSSERDEM NOCHMAL ALLE SCHLEIFEN DURCHGUCKEN
+  // TODO: MATRIX MUSS AUCH NOCH ETWAS DIFFERENZIERTER WERDEN... VIELLEICHT ANDERE DISTANZ NUTZEN...
+
+  float middle_factor = 0.75;
+  float novelty_factor = 0.5;
+  float deviation_factor = 4;
+  float cut_seconds_end = 10; // HOW MANY SECONDS TO CUT AT THE END
+  float cut_seconds_start = 5;
+
+  Gist<float> gist2(bin_size, samplerate);
+  std::vector<std::vector<float>> window;
+  std::vector<std::vector<float>> ssm;
+  std::vector<float> bin;
+  bin.reserve(bin_size);
+  std::vector<float> coeffs;
+
+  std::vector<std::vector<float>> cb_kernel;
+  std::vector<float> cb_kernel_line;
+  float cb_value;
+  std::vector<std::vector<float>> gaussian_kernel;
+  std::vector<float> gaussian_kernel_line;
+  double gaussian_value;
+
+  // filter kernel variables
+  std::cout << "bpm: " << this->bpm << std::endl;
+  float kernel_time = (float)32.0 * ( (float) 60.0 / (float) this->bpm );
+  float L_f = (kernel_time / (float) 2.0) / ( (float) bin_size / (float) samplerate );
+  int L = L_f;
+  std::cout << "KERNEL-SIZE L in seconds: " << kernel_time << std::endl;
+  //int L = 10;
+  int N = (L*2)+1;
+  double var = 0.5;
+  double epsilon = sqrt(0.5) / ((double)L * var);
+  std::vector<std::vector<float>> kernel;
+  std::vector<float> kernel_line;
+  float value;
+
+
+
+  // ##############################
+  // ###### 1. GET AUDIO BIN ######
+  // ##############################
+
+  auto start_audiobin = std::chrono::system_clock::now();
+
+  for (int i = 0; i < (signal_length_mono - bin_size); i += hop_size){
+
+    for(int j = 0; j < bin_size; j++){
+      int index = i + j;
+      //std::cout << "index " << index << ": " << wav_values_mono[index] << std::endl;
+      bin.push_back(wav_values_mono[index]);
+    }
+    gist2.processAudioFrame(bin);
+
+    // ########################################
+    // ###### 2. GET THE FEATURE VECTORS ######
+    // ###### AND PUT THEM INTO WINDOW ########
+    // ########################################
+
+    // USE MAGNITUDE SPECTRUM
+    //coeffs = gist2.getMagnitudeSpectrum();
+    //std::cout << "COEFFS-SIZE: " << coeffs.size() << std::endl;
+
+    // USE MFCC
+    coeffs = gist2.getMelFrequencyCepstralCoefficients();
+
+    // USE MFCC
+    //coeffs = gist2.getMelFrequencySpectrum();
+
+
+    window.push_back(coeffs);
+    coeffs.clear();
+    bin.clear();
+  }
+
+  auto end_audiobin = std::chrono::system_clock::now();
+
+
+  // MAYBE WE WILL NEED THIS LATER
+  // HOW TO GET THE TIMES
+  // time of window[n] = (((n * hop_size) + (bin_size / 2)) / sample_rate)
+
+  // #################################
+  // ###### 3. COMPUTE DISTANCE ######
+  // #################################
+
+  // THIS HAS TO BE OPTIMIZED!!!
+  // ONE HALF OF MATRIX DOESNT NEED TO BE CALCULATED BECAUSE [m][n] = [n][m]
+  // EVERYTHING ABOVE OR BELOW L DOESN'T NEED TO BE CALCULATED
+  // ZERO PADDING MUST BE APPLIED!
+
+  std::vector<float> similarity;
+
+  double ssm_max = -1;
+  double ssm_min = 1;
+  double ssm_count = 0;
+  double ssm_middle = 0;
+  double ssm_sum = 0;
+
+  float distance = 0;
+
+  auto start_distance = std::chrono::system_clock::now();
+
+  for (int m = 0; m < window.size(); m++){
+    similarity.clear();
+    for (int n = 0; n < window.size(); n++){
+
+      // if (n <= m+L && n >= m-L) {
+
+      // BEFORE CALCULATING DISTANCE, CHECK IF THERE IS A MIRRORED VALUE BECAUSE [m][n] = [n][m]
+      /*
+      if (ssm[n].size() > m && ssm[m].size() > n) {
+          ssm[m][n] = ssm[n][m];
+          continue;
+      }
+      else {
+      }
+       */
+
+      // #################################################################
+      // ###################### 3.1 COSINE DISTANCE ######################
+      // #### d_cos  =  m*n / |m|*|n|  =  m*n / sqrt(m*m) * sqrt(n*n) ####
+      // #################################################################
+
+      float p_mn = 0;
+      for (int j = 0; j < window[m].size(); j++) {
+        p_mn += window[m][j] * window[n][j];
+      }
+      float p_mm = 0;
+      for (int j = 0; j < window[m].size(); j++) {
+        p_mm += window[m][j] * window[m][j];
+      }
+      float p_nn = 0;
+      for (int j = 0; j < window[n].size(); j++) {
+        p_nn += window[n][j] * window[n][j];
+      }
+      // EXPONENTIAL COSINE DISTANCE  e^(d(x_i, x_j) - 1)
+      // WERTEBEREICH => [0,1] ERSTMAL NICHT MACHEN
+      float cosine_distance = exp( (p_mn / (sqrt(p_mm) * sqrt(p_nn))) - 1 );
+
+
+      // USE COSINE DISTANCE
+      distance = cosine_distance;
+
+      /*
+  }
+  else {
+      distance = 0;
+  }
+  */
+      // USE OTHER DISTANCE
+      //float distance = other_distance;
+
+      similarity.push_back(distance);
+
+      // SUM UP DISTANCES
+      ssm_sum += (double) distance;
+
+      // COUNT DISTANCES
+      ssm_count += 1;
+
+      // GET MIN AND MAX DISTANCE
+      if (distance < ssm_min){
+        ssm_min = distance;
+      }
+      else if (distance > ssm_max){
+        ssm_max = distance;
+      }
+      else {}
+
+    }
+    //std::cout << "SSM_SUM & SSM_COUNT: " << ssm_sum << " //  " << ssm_count << std::endl;
+
+    // GET MIDDLE OF DISTANCES
+    //ssm_middle = ssm_sum / ssm_count;
+
+    // ####################
+    // ## 4. MAKE MATRIX ##
+    // ####################
+
+    ssm.push_back(similarity);
+
+
+  }
+
+
+  auto end_distance = std::chrono::system_clock::now();
+
+
+  // PRINT MIN, MAX AND MIDDLE
+  //std::cout << "SSM_MIN: " << ssm_min << " SSM_MAX: " << ssm_max << std::endl;
+  //std::cout << "SSM_MIDDLE: " << ssm_middle <<  std::endl;
+
+  // ###############################################
+  // ## 4.1 PUT MATRIX IN A CSV FILE FOR PLOTTING ##
+  // ###############################################
+  auto start_file_ssm = std::chrono::system_clock::now();
+
+  if (FILEPRINT == true) {
+    FILE *fp_ssm = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/ssm.csv", "w");
+
+    for (int m = 0; m < ssm.size(); m++) {
+      for (int n = 0; n < ssm.size(); n++) {
+        fprintf(fp_ssm, "%f,", ssm[m][n]);
+      }
+      fprintf(fp_ssm, "\n");
+    }
+
+    fclose(fp_ssm);
+
+  }
+  auto end_file_ssm = std::chrono::system_clock::now();
+
+
+
+  // ###################################
+  // ## 5. NOVELTY BASED SEGMENTATION ##
+  // ###################################
+
+  // ####################################################
+  // ## 5.1 CREATE RADIAL GAUSSIAN CHECKERBOARD KERNEL ##
+  // ####################################################
+
+
+
+  auto start_kernel = std::chrono::system_clock::now();
+
+  // CREATE CHECKERBOARD KERNEL
+  // TODO: CHECKEN WARUM RECHTS NOCH EIN X-WERT MEHR GEPLOTTET WIRD!!!
+
+  for (int m = 1; m <= N; m++){
+    for (int n = 1; n <= N; n++){
+      if ((m <= L && n <= L) || (m >= (L+2) && n >= (L+2))){
+        cb_value = 1;
+      }
+      else if (m == (L+1) || n == (L+1)) {
+        cb_value = 0;
+      }
+      else {
+        cb_value = -1;
+      }
+      cb_kernel_line.push_back(cb_value);
+    }
+    cb_kernel.push_back(cb_kernel_line);
+    cb_kernel_line.clear();
+  }
+
+  if (FILEPRINT == true) {
+    FILE *fp_cb_kernel = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/cb_kernel.csv", "w");
+
+    for (int m = 0; m < cb_kernel.size(); m++) {
+      for (int n = 0; n < cb_kernel.size(); n++) {
+        fprintf(fp_cb_kernel, "%f,", cb_kernel[m][n]);
+      }
+      fprintf(fp_cb_kernel, "\n");
+    }
+    fclose(fp_cb_kernel);
+  }
+
+  // CREATE RADIAL GAUSSIAN KERNEL
+  // TODO: NUMPY VARIANTE MIT NORMIERTEM KERNEL SAUBER IMPLEMENTIEREN
+  for (double s = -L; s <= L; s+=1.0){
+    for (double t = -L; t <= L; t+=1.0){
+
+      // NORMIERTE KERNEL VALUES!
+      gaussian_value = exp(-1.0 * pow(epsilon, 2.0) * ( pow(s, 2.0) + pow(t, 2.0) ));
+      gaussian_value /=  (4.0 * pow(L,2.0));
+      // MAKE LINE
+      gaussian_kernel_line.push_back((float)gaussian_value);
+
+    }
+    // MAKE MATRIX
+    gaussian_kernel.push_back(gaussian_kernel_line);
+    gaussian_kernel_line.clear();
+  }
+  if (FILEPRINT == true) {
+    FILE *fp_gaussian_kernel = std::fopen(
+        "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/gaussian_kernel.csv", "w");
+
+    for (int m = 0; m < gaussian_kernel.size(); m++) {
+      for (int n = 0; n < gaussian_kernel.size(); n++) {
+        fprintf(fp_gaussian_kernel, "%f,", gaussian_kernel[m][n]);
+      }
+      fprintf(fp_gaussian_kernel, "\n");
+    }
+
+    fclose(fp_gaussian_kernel);
+  }
+
+  // ADD THEM UP ELEMENTWISE!
+  for (int m = 0; m < N; m++){
+    for (int n = 0; n < N; n++){
+      value = cb_kernel[m][n] * gaussian_kernel[m][n];
+      kernel_line.push_back(value);
+    }
+    kernel.push_back(kernel_line);
+    kernel_line.clear();
+  }
+  if (FILEPRINT == true) {
+    FILE *fp_kernel = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/kernel.csv", "w");
+
+    for (int m = 0; m < kernel.size(); m++) {
+      for (int n = 0; n < kernel.size(); n++) {
+        fprintf(fp_kernel, "%f,", kernel[m][n]);
+      }
+      fprintf(fp_kernel, "\n");
+    }
+
+    fclose(fp_kernel);
+  }
+
+  auto end_kernel = std::chrono::system_clock::now();
+
+  // 1  1  0 -1 -1
+  // 1  1  0 -1 -1
+  // 0  0  0  0  0
+  // -1 -1 0  1  1
+  // -1 -1 0  1  1
+
+  // ####################################
+  // ## 5.1 KERNEL MIT SSM VERHEIRATEN ##
+  // ####################################
+
+  // LAUT BUCH: DELTA_KERNEL(n) = SUM(K(k,l)*S(n+k,n+l)
+  // LAUT BUCH MÜSSTE DAS ALLES IRGENDWIE SO GEHEN...
+  std::vector<time_value_float> novelty_function;
+  float novelty_value = 0;
+
+  auto start_filter = std::chrono::system_clock::now();
+
+  float cut = ((float) samplerate / (float) bin_size) * cut_seconds_end;
+  for (int n = 0; n < (ssm.size()) - cut; n++){
+    novelty_value = 0;
+    // [n,n] müsste der punkt sein, um den herum wir uns alles ansehen.... also auf der diagonalen liegen
+    for (int k = 0; k < N; k++){
+      // dann über k....
+      for (int l = 0; l < N; l++){
+        // dann checken wie groß n gerade so ist, evtl. müssen wir gar nicht rechnen, weil zero padding
+
+        if ((n-L) < 0 || ((n-L)+k) >= ssm.size() || ((n-L)+l) >= ssm.size()){
+          novelty_value += 0;
+        } else {
+          float k_val = kernel[k][l];
+          float ssm_val = ssm[(n-L)+k][(n-L)+l];
+          novelty_value += (k_val * ssm_val);
+        }
+
+      }
+    }
+    float novelty_time = ((float) n * ((float) bin_size / (float) samplerate)) + ( ( (float) bin_size / (float) 2.0 ) / (float) samplerate );
+    //novelty_value /= (4 * L * L);
+    novelty_function.push_back({novelty_time, novelty_value});
+  }
+
+  auto end_filter = std::chrono::system_clock::now();
+
+
+  // CHECK NOVELTY FOR EXTREMA
+  std::vector<time_value_float> extrema;
+
+  bool first_extremum = true;
+
+  for (int i = 1; i < novelty_function.size()-1; i++){
+    /*
+    if (novelty_function[i].value >= novelty_knn_middle
+    && novelty_function[i-1].value < novelty_function[i].value
+    && novelty_function[i+1].value < novelty_function[i].value ){
+        segments.push_back({novelty_function[i].time, novelty_function[i].value});
+        std::cout << "time: " << novelty_function[i].time << std::endl;
+    }
+
+
+    // ALTERNATIVER NOVELTY FUNCTION VALUE ALGO AUS DER DINGENS DISSERTATION
+    // CHECK FOR MAXIMA P AND MINIMA T
+    */
+    if ((novelty_function[i-1].value < novelty_function[i].value
+        && novelty_function[i+1].value < novelty_function[i].value )) {
+      // WE GOT A MAXIMUM
+      if (first_extremum){
+        first_extremum = false;
+      }
+      else {
+        extrema.push_back({novelty_function[i].time, (novelty_function[i].value)});
+      }
+    }
+  }
+
+  auto start_file_novelty = std::chrono::system_clock::now();
+  // WHERE IS THIS?
+  auto end_file_novelty = std::chrono::system_clock::now();
+
+  // DELETE FIRST AND LAST EXTREMUM FROM EXTREMA
+  extrema.pop_back();
+  std::cout << "HERE WE GO!" << std::endl;
+
+
+  // MITTELWERT DER EXTREMA BERECHNEN
+  float extrema_middle = 0;
+  for(auto x:extrema){
+    extrema_middle += x.value;
+  }
+  std::cout << "extrema_middle: " << extrema_middle << std::endl;
+  std::cout << "extrema.size(): " << extrema.size() << std::endl;
+  if(!extrema.empty())
+    extrema_middle /= (float) extrema.size();
+
+  std::cout << "EXTREMA MIDDLE: " << extrema_middle << std::endl;
+
+  // VARIANZ DER EXTREMA BERECHNEN
+  float extrema_variance = 0;
+
+  for (int i = 0; i < extrema.size(); i++){
+    extrema_variance += pow((extrema[i].value - extrema_middle), 2.0);
+  }
+  if(!extrema.empty())
+    extrema_variance /= (float) extrema.size();
+
+  std::cout << "EXTREMA VARIANCE: " << extrema_variance << std::endl;
+
+  // novelty empirical standard deviation
+  float extrema_deviation = 0;
+  if(extrema_variance > 0)
+    extrema_deviation = sqrt(extrema_variance);
+
+  std::cout << "EXTREMA DEVIATION: " << extrema_deviation << std::endl;
+
+
+  // TODO: WE DON'T NEED THIS ANYMORE!!
+  /*
+  for (int i = 1; i < novelty_function.size()-1; i++){
+
+      if (novelty_function[i].value > novelty_function[i-1].value
+      && novelty_function[i].value > novelty_function[i+1].value
+      && novelty_function[i].value < extrema_deviation * deviation_factor) {
+          novelty_count += 1.0;
+          novelty_knn_middle += novelty_function[i].value;
+      }
+  }
+  */
+  //novelty_knn_middle /= novelty_count;
+  //novelty_knn_middle *= novelty_factor;
+
+  //std::cout << "NOVELTY MIDDLE: " << novelty_middle << std::endl;
+
+  //std::cout << "NOVELTY KNN MIDDLE: " << novelty_knn_middle << std::endl;
+
+  std::cout << "--- SEGMENT CHANGES ---" << std::endl;
+
+  // ERSTEN DIREKT REINBALLERN... NEIN!
+
+  // JETZT ÜBER DIE EXTREMA SCHLEIFEN
+  // IGNORE FIRST AND LAST EXTREMUM BECAUSE THEY'RE ALWAYS BIG!
+  for (int i = 0; i < extrema.size(); i++) {
+    // HIER GUCKEN OB VALUE KEIN AUSREISSER IST (~ x > novelty_middle * 4)ugelol.com/fresh
+
+    // TODO: HIER PASSIERT JETZT DIE GANZE MAGIE!!!!
+
+    if( /*extrema[i].value < (extrema_middle + (deviation_factor * extrema_deviation)) && */
+        extrema[i].value >= (extrema_middle * middle_factor)){
+      //if (extrema[i].value >= ((extrema[i - 1].value + extrema[i + 1].value) / 2) + novelty_knn_middle) {
+      // GREATER THAN DEVIATION AND SMALLER THAN VARIANCE? THEN PUSH BACK!!!!
+      segments.push_back({extrema[i].time, extrema[i].value});
+
+    }
+  }
+
+  bool multiple_peaks = false;
+  std::vector<int> indexes_of_multiple_peaks;
+
+  float bars = ( (float) 2.0 * (float) this->bpm ) / (float) 60.0;
+  if (!segments.empty()) {
+    for (int i = 0; i < segments.size() - 1; i++) {
+
+      if ((abs(segments[i + 1].time - segments[i].time)) < bars && multiple_peaks) {
+        indexes_of_multiple_peaks.push_back(i);
+      }
+
+      if ((abs(segments[i + 1].time - segments[i].time)) < bars && !multiple_peaks) {
+        multiple_peaks = true;
+        indexes_of_multiple_peaks.push_back(i);
+      }
+
+      if (((abs(segments[i + 1].time - segments[i].time)) >= bars || i == segments.size() - 2) && multiple_peaks) {
+        multiple_peaks = false;
+        float max_value_of_multiple_peaks = 0;
+        int index_of_max_value_of_multiple_peaks = 0;
+        // find out which index has the highest value
+        for (int i = 0; i < indexes_of_multiple_peaks.size(); i++) {
+          if (segments[indexes_of_multiple_peaks[i]].value >= max_value_of_multiple_peaks) {
+            max_value_of_multiple_peaks = segments[indexes_of_multiple_peaks[i]].value;
+            index_of_max_value_of_multiple_peaks = indexes_of_multiple_peaks[i];
+          }
+        }
+        // remove the index of the value we want to keep
+        indexes_of_multiple_peaks.erase(
+            std::remove(indexes_of_multiple_peaks.begin(), indexes_of_multiple_peaks.end(),
+                        max_value_of_multiple_peaks), indexes_of_multiple_peaks.end());
+
+        for (int j = indexes_of_multiple_peaks.size() - 1; j >= 0; j--) {
+          std::cout << "to be erased: " << segments[indexes_of_multiple_peaks[j]].time << std::endl;
+          for (int k = 0; k < segments.size(); k++) {
+            if (indexes_of_multiple_peaks[j] == k) {
+              segments.erase(segments.begin() + k);
+            }
+          }
+        }
+        i = 0;
+        indexes_of_multiple_peaks.clear();
+      }
+    }
+  }
+  std::cout << "--- SEGMENTS JOHANNES STYLE ---" << std::endl;
+  for (auto tvf:segments){
+    std::cout << "time: " << tvf.time << std::endl;
+  }
+
+
+
+
+  if (FILEPRINT == true) {
+    FILE *fp_novelty = std::fopen("/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/novelty.csv", "w");
+
+    for (int i = 0; i < extrema.size(); i++) {
+      fprintf(fp_novelty, "%f, %f\n", extrema[i].time, extrema[i].value);
+    }
+    fclose(fp_novelty);
+  }
+
+
+  // #########################
+  // ## 6. CLUSTER SEGMENTS ##
+  // #########################
+
+  // PRINT COMPUTATION TIME
+  auto end = std::chrono::system_clock::now();
+  std::chrono::duration<double> elapsed_seconds = end-start;
+  std::chrono::duration<double> elapsed_seconds_audiobin = end_audiobin-start_audiobin;
+  std::chrono::duration<double> elapsed_seconds_distance = end_distance-start_distance;
+  std::chrono::duration<double> elapsed_seconds_file_ssm = end_file_ssm-start_file_ssm;
+  std::chrono::duration<double> elapsed_seconds_kernel = end_kernel-start_kernel;
+  std::chrono::duration<double> elapsed_seconds_filter = end_filter-start_filter;
+  std::chrono::duration<double> elapsed_seconds_file_novelty = end_file_novelty-start_file_novelty;
+
+
+  std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+
+  std::cout << "finished segmentation at " << std::ctime(&end_time)
+            << "elapsed time: " << elapsed_seconds.count() << "s\n"
+            << "elapsed_seconds_audiobin: " << elapsed_seconds_audiobin.count() << "s\n"
+            << "elapsed_seconds_distance: " << elapsed_seconds_distance.count() << "s\n"
+            << "elapsed_seconds_file_ssm: " << elapsed_seconds_file_ssm.count() << "s\n"
+            << "elapsed_seconds_kernel: " << elapsed_seconds_kernel.count() << "s\n"
+            << "elapsed_seconds_filter: " << elapsed_seconds_filter.count() << "s\n"
+            << "elapsed_seconds_file_novelty: " << elapsed_seconds_file_novelty.count() << "s\n"
+      ;
+
+
+  // RETURN SEGMENTS
+
+  return segments;
+}
+
+
 
 std::vector<time_value_int>
 Analysis::get_intensity_average_for_next_segment(std::vector<double> beats, int beats_per_minute,
@@ -1150,6 +1970,8 @@ int Analysis::get_bpm() {
     fftw_free(ifft_result);
 
     //std::cout << "BPM: " << finalBPM << std::endl;
+    this->bpm = finalBPM;
+    this->bpm = finalBPM;
 
     return finalBPM;
 }
@@ -1266,7 +2088,7 @@ double Analysis::get_first_beat() {
 
 std::vector<double> Analysis::get_all_beats(int beats_per_minute, double firstBeat) {
 
-
+    this->bpm = beats_per_minute;
     std::vector<double> times;
 
     double timeTemp = firstBeat;
@@ -1318,4 +2140,7 @@ int Analysis::get_samplerate() {
 int Analysis::get_spectral_flux() {
 
     return 0;
+}
+void Analysis::set_bpm(int _bpm) {
+  this->bpm = _bpm;
 }

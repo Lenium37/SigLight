@@ -23,7 +23,7 @@ class EditFixtureDialog : public QDialog {
   * @brief set_up_dialog_options Sets the blocked channels.
   * @param blocked_channels Channels that are allready occupied from other fixtures.
   */
-  void set_up_dialog_options(std::list<int> _blocked_channels, std::string _own_channels, std::string _name, std::string _colors, int pos_in_group, std::string _type, std::string pos_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt);
+  void set_up_dialog_options(std::list<int> _blocked_channels, std::string _own_channels, std::string _name, std::string _colors, int pos_in_group, std::string _type, std::string pos_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt, std::string timestamps_type, int position_inside_mh_group, bool invert_tilt, int amplitude_pan, int amplitude_tilt);
 
   /**
    * @brief get_fixture_options Gives you the choosen starting Point and type.
@@ -31,7 +31,7 @@ class EditFixtureDialog : public QDialog {
    * @param start_channel Start channel of the fixture.
    * @param type Type of the fixture.
    */
-  void get_fixture_options(int & fixture_id, int & start_channel, QString & type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type, int &modifier_pan, int &modifier_tilt);
+  void get_fixture_options(int & fixture_id, int & start_channel, QString & type, std::string &colors, int &position_in_group, std::string &position_on_stage, std::string &moving_head_type, int &modifier_pan, int &modifier_tilt, std::string &timestamps_type, int & position_inside_mh_group, bool & invert_tilt, int & amplitude_pan, int & amplitude_tilt);
 
   /**
    * @brief setup_for_edit Setup the dialog for choosing an fixture preset to be edited.
@@ -58,6 +58,7 @@ class EditFixtureDialog : public QDialog {
   void on_pB_delete_fixture_clicked();
 
   void update_position_in_group_status(QString current_type);
+  void update_position_in_mh_group_status(QString current_type);
   void update_moving_head_position_status(QString current_fixture);
 
  private:

@@ -6,6 +6,11 @@
 #include "channel_gui.h"
 #include <vector>
 
+struct channel_value {
+  int channel;
+  int value;
+};
+
 using namespace std;
 
 class Fixture
@@ -60,6 +65,8 @@ public:
    * @return Number of channels.
    */
   int get_channel_count();
+
+  void set_channel_count(int _channel_count);
 
   /**
    * @brief get_start_channel Get the starting channel.
@@ -147,6 +154,9 @@ public:
   void set_position_in_group(int _position);
   int get_position_in_group();
 
+  void set_position_in_mh_group(int _position);
+  int get_position_in_mh_group();
+
   void set_position_on_stage(std::string _position);
   std::string get_position_on_stage();
 
@@ -154,17 +164,26 @@ public:
   std::string get_moving_head_type();
 
   std::vector<int> get_pan_tilt_channels();
+  std::vector<int> get_pan_channels();
+  std::vector<int> get_tilt_channels();
 
-  struct channel_value {
-    int channel;
-    int value;
-  };
+
   std::vector<channel_value> get_pan_tilt_channels_with_default_positions();
 
   void set_modifier_pan(int _modifier_pan);
   void set_modifier_tilt(int _modifier_tilt);
   int get_modifier_pan();
   int get_modifier_tilt();
+  void set_timestamps_type(std::string _timestamps_type);
+  std::string get_timestamps_type();
+  channel_value get_control_channel_with_ignite_value();
+  channel_value get_control_channel_with_turn_off_value();
+  bool get_invert_tilt();
+  int get_amplitude_pan();
+  int get_amplitude_tilt();
+  void set_invert_tilt(bool _invert_tilt);
+  void set_amplitude_pan(int _amplitude_pan);
+  void set_amplitude_tilt(int _amplitude_tilt);
 
 private:
   /**
@@ -205,6 +224,7 @@ private:
   std::string colors;
 
   int position_in_group;
+  int position_in_mh_group;
 
   std::string position_on_stage;
 
@@ -212,6 +232,11 @@ private:
 
   int modifier_pan;
   int modifier_tilt;
+  int channel_count;
+  std::string timestamps_type;
+  bool invert_tilt;
+  int amplitude_pan;
+  int amplitude_tilt;
 
 };
 

@@ -40,6 +40,8 @@ void LightShowRegistry::write_lightshow(const std::string &lightshow_filename, s
   lightshow_element->SetAttribute("src", lightshow->get_sound_src().c_str());
   lightshow_element->SetAttribute("length", lightshow->get_length());
   lightshow_element->SetAttribute("res", lightshow->get_resolution());
+  lightshow_element->SetAttribute("bpm", lightshow->get_bpm());
+  lightshow_element->SetAttribute("onset_value", lightshow->get_onset_value());
   lightshow_xml.InsertFirstChild(lightshow_element);
 
   for(auto fixture : lightshow->get_fixtures()){
@@ -50,9 +52,18 @@ void LightShowRegistry::write_lightshow(const std::string &lightshow_filename, s
     fixture_element->SetAttribute("type", fixture.get_type().c_str());
     fixture_element->SetAttribute("position_inside_group", fixture.get_position_in_group());
     fixture_element->SetAttribute("moving_head_type", fixture.get_moving_head_type().c_str());
+    fixture_element->SetAttribute("position_in_mh_group", fixture.get_position_in_mh_group());
     fixture_element->SetAttribute("position_on_stage", fixture.get_position_on_stage().c_str());
     fixture_element->SetAttribute("modifier_pan", fixture.get_modifier_pan());
     fixture_element->SetAttribute("modifier_tilt", fixture.get_modifier_tilt());
+    fixture_element->SetAttribute("timestamps_type", fixture.get_timestamps_type().c_str());
+    if(fixture.get_invert_tilt())
+      fixture_element->SetAttribute("invert_tilt", "yes");
+    else
+      fixture_element->SetAttribute("invert_tilt", "no");
+    fixture_element->SetAttribute("amplitude_pan", fixture.get_amplitude_pan());
+    fixture_element->SetAttribute("amplitude_tilt", fixture.get_amplitude_tilt());
+
     std::string colors;
     for(std::string c: fixture.get_colors()) {
       colors.append(c);
@@ -122,18 +133,25 @@ std::shared_ptr<Lightshow> LightShowRegistry::read_lightshow(const std::string f
   std::shared_ptr<Lightshow> lightshow = std::make_shared<Lightshow>();
 
   tinyxml2::XMLElement *lightshow_element = lightshow_xml.FirstChildElement("lightshow");
-
-  lightshow->set_sound_src(lightshow_element->Attribute("src"));
-  lightshow->set_length(std::stoi(lightshow_element->Attribute("length")));
-  lightshow->set_resolution(std::stoi(lightshow_element->Attribute("res")));
-
-
   if (lightshow_element == nullptr){ Logger::error("Fehler beim Laden einer Lightshow XML"); }
   else {
+
+    lightshow->set_sound_src(lightshow_element->Attribute("src"));
+    lightshow->set_length(std::stoi(lightshow_element->Attribute("length")));
+    lightshow->set_resolution(std::stoi(lightshow_element->Attribute("res")));
+    lightshow->set_bpm(std::stoi(lightshow_element->Attribute("bpm")));
+    lightshow->set_onset_value(std::stof(lightshow_element->Attribute("onset_value")));
+
+
     tinyxml2::XMLElement *fixture_element = lightshow_element->FirstChildElement("fixture");
     while (fixture_element != nullptr) {
       std::string colors = fixture_element->Attribute("colors");
-      LightshowFixture fixture(fixture_element->Attribute("name"), std::stoi(fixture_element->Attribute("start_channel")), std::stoi(fixture_element->Attribute("number_of_channels")), fixture_element->Attribute("type"), colors, std::stoi(fixture_element->Attribute("position_inside_group")), fixture_element->Attribute("position_on_stage"), fixture_element->Attribute("moving_head_type"), std::stoi(fixture_element->Attribute("modifier_pan")), std::stoi(fixture_element->Attribute("modifier_tilt")));
+      bool invert_tilt = false;
+      std::string invert_tilt_s = fixture_element->Attribute("invert_tilt");
+      if(invert_tilt_s == "yes")
+        invert_tilt = true;
+
+      LightshowFixture fixture(fixture_element->Attribute("name"), std::stoi(fixture_element->Attribute("start_channel")), std::stoi(fixture_element->Attribute("number_of_channels")), fixture_element->Attribute("type"), colors, std::stoi(fixture_element->Attribute("position_inside_group")), fixture_element->Attribute("position_on_stage"), fixture_element->Attribute("moving_head_type"), std::stoi(fixture_element->Attribute("modifier_pan")), std::stoi(fixture_element->Attribute("modifier_tilt")), fixture_element->Attribute("timestamps_type"), std::stoi(fixture_element->Attribute("position_in_mh_group")), invert_tilt, std::stoi(fixture_element->Attribute("amplitude_pan")), std::stoi(fixture_element->Attribute("amplitude_tilt")));
 
       tinyxml2::XMLElement *channel_element = fixture_element->FirstChildElement("channel");
       while(channel_element != nullptr) {
@@ -167,21 +185,21 @@ std::shared_ptr<Lightshow> LightShowRegistry::read_lightshow(const std::string f
         lightshow->add_fixture_high(fixture);
       } else if(fixture.get_type() == "ambient") {
         lightshow->add_fixture_ambient(fixture);
-      } else if(fixture.get_type() == "color_change_beats") {
+      } else if(fixture.get_type() == "color_change") {
         lightshow->add_fixture_ambient(fixture);
-      } else if(fixture.get_type() == "color_change_beats_action") {
+      } else if(fixture.get_type() == "flash") {
         lightshow->add_fixture_ambient(fixture);
-      } else if(fixture.get_type() == "color_change_onsets") {
+      } else if(fixture.get_type() == "flash_reverse") {
         lightshow->add_fixture_ambient(fixture);
-      } else if(fixture.get_type() == "onset_flash") {
-        lightshow->add_fixture_ambient(fixture);
-      } else if(fixture.get_type() == "onset_flash_reverse") {
-        lightshow->add_fixture_ambient(fixture);
-      } else if(fixture.get_type() == "onset_blink") {
+      } else if(fixture.get_type() == "blink") {
         lightshow->add_fixture_ambient(fixture);
       } else if(fixture.get_type() == "group_one_after_another") {
         lightshow->add_fixture_ambient(fixture);
+      } else if(fixture.get_type() == "group_one_after_another_back_and_forth") {
+        lightshow->add_fixture_ambient(fixture);
       } else if(fixture.get_type() == "group_one_after_another_blink") {
+        lightshow->add_fixture_ambient(fixture);
+      } else if(fixture.get_type() == "group_one_after_another_back_and_forth_blink") {
         lightshow->add_fixture_ambient(fixture);
       } else if(fixture.get_type() == "group_two_after_another") {
         lightshow->add_fixture_ambient(fixture);
@@ -190,6 +208,14 @@ std::shared_ptr<Lightshow> LightShowRegistry::read_lightshow(const std::string f
       } else if(fixture.get_type() == "group_random_flashes") {
         lightshow->add_fixture_ambient(fixture);
       } else if(fixture.get_type() == "strobe_if_many_onsets") {
+        lightshow->add_fixture_ambient(fixture);
+      } else if(fixture.get_type() == "auto_beats") {
+        lightshow->add_fixture_ambient(fixture);
+      } else if(fixture.get_type() == "group_auto_beats") {
+        lightshow->add_fixture_ambient(fixture);
+      } else if(fixture.get_type() == "auto_onsets") {
+        lightshow->add_fixture_ambient(fixture);
+      } else if(fixture.get_type() == "group_auto_onsets") {
         lightshow->add_fixture_ambient(fixture);
       } else {
         lightshow->add_fixture(fixture);

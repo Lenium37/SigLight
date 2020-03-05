@@ -64,39 +64,37 @@ Playlist_item *MusicPlayer::get_playlist_media_at(int index) {
     return nullptr;
 }
 
-std::vector<Song *> MusicPlayer::add_to_playlist(std::vector<QUrl> selected_urls) {
+Song * MusicPlayer::add_to_playlist(QUrl url) {
   const bool mp3_converter_is_avaible = Mp3ToWavConverter::is_avaible();
   int start_media_inserted_into_playlist = pls->playlist_length();
-  std::vector<Song *> generate_ls_for_songs;
+  Song * _ls_for_song;
 
-  for (QUrl file_url : selected_urls) {
-    if (!is_playlist(file_url)) {
-      std::string new_file_url = change_and_copy_file(file_url);
-      Logger::debug(new_file_url);
+  if (!is_playlist(url)) {
+    std::string new_file_url = change_and_copy_file(url);
+    Logger::debug(new_file_url);
 
-      Song *song = new Song(new_file_url);
-      pls->add_playlist_item(song);
-      generate_ls_for_songs.push_back(song);
-    } else {
-      int first_index_playlist_insertion = this->pls->playlist_length();
-      bool read_successful = this->pls->read_m3u_file(file_url.toString().toStdString());
-      int last_index_playlist_insertion = this->pls->playlist_length() - 1;
+    Song *song = new Song(new_file_url);
+    pls->add_playlist_item(song);
+    _ls_for_song = song;
+  } else {
+    int first_index_playlist_insertion = this->pls->playlist_length();
+    bool read_successful = this->pls->read_m3u_file(url.toString().toStdString());
+    int last_index_playlist_insertion = this->pls->playlist_length() - 1;
 
-      if (read_successful) {
-        for (int i = first_index_playlist_insertion; i <= last_index_playlist_insertion; i++) {
-          const std::string source = pls->playlist_item_at(i)->get_song()->get_file_path();
-          const ghc::filesystem::path file_extension = ghc::filesystem::path(source).extension();
-          if (file_extension == ".wav" || (file_extension == ".mp3" && mp3_converter_is_avaible)) {
-            QUrl u = QUrl::fromLocalFile(QString::fromStdString(source));
-            Logger::debug(u.toString().toStdString());
+    if (read_successful) {
+      for (int i = first_index_playlist_insertion; i <= last_index_playlist_insertion; i++) {
+        const std::string source = pls->playlist_item_at(i)->get_song()->get_file_path();
+        const ghc::filesystem::path file_extension = ghc::filesystem::path(source).extension();
+        if (file_extension == ".wav" || (file_extension == ".mp3" && mp3_converter_is_avaible)) {
+          QUrl u = QUrl::fromLocalFile(QString::fromStdString(source));
+          Logger::debug(u.toString().toStdString());
 
-            std::string new_file_url = change_and_copy_file(u);
-            pls->playlist_item_at(i)->get_song()->set_file_path(new_file_url);
-            Logger::info(source);
-            generate_ls_for_songs.push_back(pls->playlist_item_at(i)->get_song());
-          } else {
-            Logger::error("Skipping file {}, converter is not avaible", source);
-          }
+          std::string new_file_url = change_and_copy_file(u);
+          pls->playlist_item_at(i)->get_song()->set_file_path(new_file_url);
+          Logger::info(source);
+          _ls_for_song = pls->playlist_item_at(i)->get_song();
+        } else {
+          Logger::error("Skipping file {}, converter is not avaible", source);
         }
       }
     }
@@ -115,7 +113,7 @@ std::vector<Song *> MusicPlayer::add_to_playlist(std::vector<QUrl> selected_urls
   if (end_media_inserted_into_playlist != -1)
       emit media_inserted_into_playlist(start_media_inserted_into_playlist, end_media_inserted_into_playlist);
 
-  return generate_ls_for_songs;
+  return _ls_for_song;
 }
 
 static inline void replace_substring(std::string &str, const std::string &from, const std::string &to) {

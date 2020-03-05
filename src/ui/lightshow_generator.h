@@ -23,20 +23,32 @@ class LightshowGenerator {
  public:
   LightshowGenerator();
 	~LightshowGenerator();
-  std::shared_ptr<Lightshow> generate(int resolution, Song *song, std::list<Fixture> fixtures);
+  std::shared_ptr<Lightshow> generate(int resolution, Song *song, std::shared_ptr<Lightshow> lightshow, int user_bpm, float onset_value);
  private:
   float fade_duration = 1;
   std::shared_ptr<AnalysisResult> analysis_result;
-  void generate_color_fades(std::shared_ptr<Lightshow> lightshow_from_analysis, LightshowFixture& fix, std::vector<std::string>& colors);
-  void generate_beat_color_changes(std::shared_ptr<Lightshow> lightshow_from_analysis, LightshowFixture& fix, std::vector<std::string>& colors, bool only_change_color_if_action);
-  void generate_onset_color_changes(std::shared_ptr<Lightshow> lightshow_from_analysis, LightshowFixture& fix, std::vector<std::string>& colors);
+  void set_dimmer_values_in_segment(LightshowFixture & fix, float segment_start, int start_value, float segment_end, int end_value);
+  void generate_color_fades_on_segment_changes(std::shared_ptr<Lightshow> lightshow_from_analysis,
+                                               LightshowFixture &fix,
+                                               std::vector<std::string> &colors);
+  void generate_color_changes(LightshowFixture &fix,
+                              std::vector<std::string> &colors,
+                              std::vector<float> timestamps,
+                              float end_of_last_color);
   void set_soft_color_changes(std::shared_ptr<Lightshow> lightshow_from_analysis, LightshowFixture& fix, std::vector<color_change> color_changes, float fade_duration);
-  void set_hard_color_changes(std::shared_ptr<Lightshow> lightshow_from_analysis, LightshowFixture &fix, std::vector<color_change> color_changes);
+  void set_hard_color_changes(LightshowFixture &fix, std::vector<color_change> color_changes, float end_of_last_color);
   std::vector<time_value_int> calculate_single_fade(std::shared_ptr<Lightshow> lightshow_from_analysis, float fade_duration, int c_old, int c_new);
   void set_color_for_fixed_time(LightshowFixture& fix, std::string& color, float begin, float end);
   void set_color_of_fixture_during_song(std::shared_ptr<Lightshow> lightshow_from_analysis, LightshowFixture& fix, std::initializer_list<std::string> a_args);
   color_values color_to_rgb(std::string color);
-  //std::vector<LightshowFixture> fixtures;
+  void generate_blink_fade_outs(std::vector<time_value_int> &value_changes, float current_timestamp, float next_timestamp, float lightshow_length);
+  void generate_flash(LightshowFixture & fix, std::vector<float> & onset_timestamps, float segment_start, float segment_end);
+  void generate_flash_reverse(LightshowFixture & fix, std::vector<float> & onset_timestamps, float segment_start, float segment_end);
+  void generate_blink(LightshowFixture & fix, std::vector<float> timestamps, float segment_end);
+  void generate_blink_back_and_forth(LightshowFixture & fix, std::vector<float> timestamps, int group_counter, float segment_end);
+
+  void generate_continuous_8(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_pan, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group);
+  void generate_continuous_circle(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_pan, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group);
 };
 
 #endif //RASPITOLIGHT_SRC_CORE_LIB_LIGHTSHOW_LIGHT_SHOW_GENERATOR_H_

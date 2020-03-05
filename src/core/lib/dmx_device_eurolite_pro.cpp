@@ -152,7 +152,7 @@ void DmxDeviceEurolitePro::start_daemon_thread() {
 }
 
 int DmxDeviceEurolitePro::turn_off_all_channels(std::vector<int> pan_tilt_channels) {
-  usleep(25000);
+  //usleep(25000);
   int actual = 0;
   std::memset(dmx_frame + 5, 0, 512);
   for(int i = 0; i < pan_tilt_channels.size(); i++) {
@@ -170,3 +170,50 @@ int DmxDeviceEurolitePro::turn_off_all_channels(std::vector<int> pan_tilt_channe
   Logger::info("turned off all DMX channels");
   return 0;
 }
+
+int DmxDeviceEurolitePro::set_all_channel_values(std::vector<std::uint8_t> channels_with_default_values,
+                                                 bool only_non_zeros) {
+  //usleep(25000);
+  int actual = 0;
+  for(int i = 0; i < 512; i++) {
+    if(channels_with_default_values.size() > i) {
+      if(only_non_zeros) {
+        if(channels_with_default_values[i] > 0)
+          dmx_frame[i + 5] = channels_with_default_values[i];
+      } else
+        dmx_frame[i + 5] = channels_with_default_values[i];
+    }
+  }
+  libusb_interrupt_transfer(
+      devh,                 // dev handle
+      (0x2 | LIBUSB_ENDPOINT_OUT), // EP
+      this->dmx_frame,                        // data
+      sizeof(this->dmx_frame),                   // size
+      &actual,                        // & bytes sent
+      0                      // timeout (ms)
+  );
+  usleep(25000);
+
+  if(only_non_zeros) {
+    usleep(4000000);
+    for(int i = 0; i < 512; i++) {
+      if(channels_with_default_values.size() > i) {
+        //std::cout << i + 5 << "  " << channels_with_default_values[i];
+        if(channels_with_default_values[i] > 0)
+          dmx_frame[i + 5] = 0;
+      }
+    }
+    libusb_interrupt_transfer(
+        devh,                 // dev handle
+        (0x2 | LIBUSB_ENDPOINT_OUT), // EP
+        this->dmx_frame,                        // data
+        sizeof(this->dmx_frame),                   // size
+        &actual,                        // & bytes sent
+        0                      // timeout (ms)
+    );
+    usleep(25000);
+  }
+  Logger::info("set all DMX channel values");
+  return 0;
+}
+

@@ -3,7 +3,7 @@
 
 #define STANDARD_COLUMN_WIDTH 150
 
-//#include <QWidget>
+#include <QMouseEvent>
 #include <QTableView>
 #include <QHeaderView>
 #include <QLabel>
@@ -25,6 +25,8 @@ public:
     void add_to_playlist_view(Playlist_item *playlist_item);
     int delete_current_selected_song();
     void reset_every_lightshow_status();
+    void reset_lightshow_status(int index);
+    void mouseReleaseEvent(QMouseEvent *event);
 
 public slots:
     void slot_song_lightshow_state_has_changed(int index_in_playlist);
@@ -41,6 +43,7 @@ signals:
     /* Out of Order -> still here so it can posibly be used in the future
     void song_title_or_artist_has_changed(int playlist_index, bool string_is_title, std::string title_or_artist);*/
     void playlist_order_has_been_changed(int old_first_row_index, int old_last_row_index, int new_first_row_index, int new_last_row_index);
+    void activated(QPersistentModelIndex index);
 
 private:
     PlaylistViewModel *playlist_view_model;

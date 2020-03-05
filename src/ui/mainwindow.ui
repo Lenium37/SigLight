@@ -164,17 +164,6 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="create_fixture_button">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset resource="resources/resources.qrc">
-              <normaloff>:/icons_svg/svg/editor.svg</normaloff>:/icons_svg/svg/editor.svg</iconset>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QPushButton" name="edit_fixture">
             <property name="text">
              <string/>
@@ -245,6 +234,17 @@
             <property name="styleSheet">
              <string notr="true"/>
             </property>
+            <property name="minimumSize">
+             <size>
+              <width>400</width>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>400</width>
+              <height>1080</height>
+             </size>
+            </property>
            </widget>
           </item>
          </layout>
@@ -271,18 +271,19 @@
     <addaction name="action_add_song_to_player"/>
     <addaction name="action_safe_playlist"/>
     <addaction name="action_remove_song_from_playlist"/>
-    <addaction name="actionLade_Presetdatei"/>
     <addaction name="actionLade_Fixtures"/>
+    <addaction name="action_open_current_dmx_device"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuBeabeiten">
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="actionFixture_Presets_bearbeiten"/>
     <addaction name="actionAmbient_Fixtures_always_on"/>
     <addaction name="actionAlways_generate_Lightshows"/>
     <addaction name="action_regenerate_lightshows"/>
+    <addaction name="action_ignite_discharge_lamps"/>
+    <addaction name="action_turn_off_discharge_lamps"/>
    </widget>
    <widget class="QMenu" name="menuHilfe">
     <property name="title">
@@ -414,11 +415,6 @@
     <string>Display current playlist</string>
    </property>
   </action>
-  <action name="actionFixture_Presets_bearbeiten">
-   <property name="text">
-    <string>Edit Fixture Presets</string>
-   </property>
-  </action>
   <action name="action_activate_grid">
    <property name="checkable">
     <bool>true</bool>
@@ -434,20 +430,20 @@
     <string>Toggle grid in Lightshow</string>
    </property>
   </action>
-  <action name="actionLade_Presetdatei">
-   <property name="text">
-    <string>Load file with fixturepreset</string>
-   </property>
-   <property name="toolTip">
-    <string>Load file with fixturepreset</string>
-   </property>
-  </action>
   <action name="actionLade_Fixtures">
    <property name="text">
     <string>Load fixtures</string>
    </property>
    <property name="toolTip">
     <string>Load fixtures</string>
+   </property>
+  </action>
+  <action name="action_open_current_dmx_device">
+   <property name="text">
+    <string>Open current DMX device</string>
+   </property>
+   <property name="toolTip">
+    <string>Open the currently connected DMX device if it wasn't connected at program start or got disconnected while the program was running</string>
    </property>
   </action>
   <action name="actionExit">
@@ -489,6 +485,16 @@
   <action name="action_regenerate_lightshows">
    <property name="text">
     <string>Regenerate Lightshows</string>
+   </property>
+  </action>
+  <action name="action_ignite_discharge_lamps">
+   <property name="text">
+    <string>Ignite discharge lamps</string>
+   </property>
+  </action>
+  <action name="action_turn_off_discharge_lamps">
+   <property name="text">
+    <string>Turn off discharge lamps</string>
    </property>
   </action>
   <action name="action_remove_song_from_playlist">

@@ -20,6 +20,7 @@ set(Main_SRCS
         file_system_utils_qt.cpp
         lightshow_player.cpp
         edit_fixture_dialog.cpp
+        change_fixtures.cpp
         )
 
 set(Main_headers
@@ -31,6 +32,7 @@ set(Main_headers
         file_system_utils_qt.h
         lightshow_player.h
         edit_fixture_dialog.h
+        change_fixtures.h
         )
 
 set(Main_ui
@@ -38,6 +40,7 @@ set(Main_ui
         fixturechoosingdialog.ui
         createfixturedialog.ui
         edit_fixture_dialog.ui
+        change_fixtures.ui
         )
 
 qt5_add_resources(RESOURCE_FILES resources/resources.qrc)

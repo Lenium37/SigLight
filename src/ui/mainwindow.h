@@ -32,6 +32,7 @@
 #include <dmx_device_eurolite_pro.h>
 #include "lightshow_generator.h"
 #include "edit_fixture_dialog.h"
+#include "change_fixtures.h"
 
 using namespace std;
 
@@ -43,6 +44,9 @@ struct ls_generating_parameter
 {
     bool is_regenerate;
     Song *song;
+    std::list<Fixture> fixtures;
+    int user_bpm;
+    float onset_value;
 };
 
 
@@ -80,22 +84,22 @@ public:
      * is used by other interfaces.
      */
     Universe universes[5];
+    void change_fixtures_of_existing_song();
+    void regenerate_lightshow_with_default_fixtures();
 
     signals:
     void lightshow_for_song_is_ready(Song *song);
 
 private slots:
+    void changed_fixtures_for_lightshow_ready(QUrl url, std::list<Fixture> _fixtures, int user_bpm, float onset_value);
+    void changed_fixtures_for_existing_lightshow_ready(Song* song, std::list<Fixture> _fixtures, int user_bpm, float onset_value);
+    void right_click_on_playlist_item(QPersistentModelIndex index);
+
     /**
      * @brief on_delete_fixture_button_clicked Slot that deletes a Fixture.
      * The Fixture will be deleted in the visual and the logic part.
      */
     void on_delete_fixture_button_clicked();
-
-    /**
-     * @brief on_create_fixture_button_clicked Opens a Dialog to create a Fixture.
-     * After the Dialog finishes with accept a Fixture is created and saved to the fixturelist.
-     */
-    void on_create_fixture_button_clicked();
 
     /**
      * @brief on_add_fixture_button_clicked Adds a Fixture to the View and the Logic.
@@ -162,11 +166,6 @@ private slots:
     void get_edited_fixture();
 
     /**
-     * @brief on_actionFixture_Presets_bearbeiten_triggered Will trigger the fixture choosing dialog for editing
-     */
-    void on_actionFixture_Presets_bearbeiten_triggered();
-
-    /**
      * @brief edit_preset opens up the create fixture dialog in preset edit mode.
      */
     void open_edit_preset();
@@ -178,9 +177,9 @@ private slots:
 
     void on_action_activate_grid_triggered();
 
-    void on_actionLade_Presetdatei_triggered();
-
     void on_actionLade_Fixtures_triggered();
+
+    void on_action_open_current_dmx_device_triggered();
 
     void closeEvent(QCloseEvent *event) override;
 
@@ -193,6 +192,8 @@ private slots:
      * @param end Position of the Type the Fixture is droped on, because only singledrag is allowed.
      */
     void rowsInserted(const QModelIndex &parent, int start, int end);
+
+    void fixture_item_dropped(QDropEvent* event);
 
     void on_actionExit_triggered();
 
@@ -217,6 +218,8 @@ private slots:
     void on_action_switch_to_dark_mode_triggered();
 
     void on_action_regenerate_lightshows_triggered();
+    void on_action_ignite_discharge_lamps_triggered();
+    void on_action_turn_off_discharge_lamps_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -242,6 +245,7 @@ private:
     CreateFixtureDialog * create_dialog;
     FixtureChoosingDialog * fcd;
     EditFixtureDialog * efd;
+    ChangeFixtures * change_fixtures_dialog;
     QComboBox* combobox_edit_chosen_song;
     QStandardItemModel* combobox_model;
     bool default_is_active;
@@ -301,7 +305,7 @@ private:
      *
      * Creats a Universe to handle Fixtures.
      */
-    void add_universe(QString name, QString description);
+    void add_universe(QString name);
 
     /**
      * @brief add_fixture Add Fixture to the View and Universe.
@@ -310,7 +314,7 @@ private:
      * @param start_channel The start channel of the Fixture.
      * @param type Type of the Fixutre.
      */
-    void add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt);
+    void add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt, std::string timestamps_type, int position_inside_mh_group, bool invert_tilt, int amplitude_pan, int amplitude_tilt);
 
     /**
      * @brief create_fixtures Creates the preset Fixtures or loads them if the Fixturefile exists.
@@ -329,7 +333,7 @@ private:
      * @param start_channel Set the start channel of a Fixture.
      */
     void create_new_fixture(std::string name, std::string type, std::string description, QStringList channels,
-                            std::string icon_identifyer, std::string colors, int position_in_group, std::string position_on_stage = "Left", std::string moving_head_type = "Nothing", int modifier_pan = 0, int modifier_tilt = 0, int start_channel = 0);
+                            std::string icon_identifyer, std::string colors, int position_in_group, std::string position_on_stage = "Left", std::string moving_head_type = "Nothing", int modifier_pan = 0, int modifier_tilt = 0, std::string timestamps_type = "onsets", int start_channel = 0, int position_in_mh_group = 0, bool invert_tilt = false, int amplitude_pan = 0, int amplitude_tilt = 0);
 
     /**
      * @brief init Initializes some settings of the UI and sets some Presets.
@@ -382,14 +386,17 @@ private:
      */
     bool has_fixture_changed();
 
-    void generate_lightshow(Song *song);
-    void regenerate_lightshow(Song *song);
+    void generate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm, float onset_value);
+    void regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm, float onset_value);
     void queue_for_generating_light_show();
     void start_thread_for_generating_queue();
     void init_shortcuts();
     void resize_fixture_list_columns();
 
     std::vector<int> get_all_pan_tilt_channels();
+    std::vector<std::uint8_t> get_all_pan_tilt_channels_with_default_value();
+    std::vector<std::uint8_t> get_control_channels_with_ignite_value();
+    std::vector<std::uint8_t> get_control_channels_with_turn_off_value();
 };
 
 #endif // MAINWINDOW_H

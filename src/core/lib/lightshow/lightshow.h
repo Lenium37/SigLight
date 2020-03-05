@@ -28,6 +28,7 @@ class Lightshow {
 
   std::string get_sound_src();
   std::vector<LightshowFixture> get_fixtures();
+  std::vector<LightshowFixture> &get_fixtures_reference();
 
   void set_sound_src(std::string sound_src);
   void add_fixture(LightshowFixture fixture);
@@ -40,7 +41,7 @@ class Lightshow {
 
   std::vector<std::vector<std::uint8_t>> read_channel_values();
 
-  void prepare_analysis_for_song(char *song_path);
+  void prepare_analysis_for_song(char *song_path, bool need_bass, bool need_mid, bool need_high, bool need_onsets, int user_bpm, float onset_value);
 
   std::vector<LightshowFixture> get_fixtures_bass();
   std::vector<LightshowFixture> get_fixtures_middle();
@@ -70,10 +71,16 @@ class Lightshow {
   int get_wait_time_standard();
   int get_wait_time_special();
 
-  std::vector<time_value_int> get_timestamps_colorchanges();
+  std::vector<time_value_float> get_timestamps_segment_changes();
   std::vector<double> get_all_beats();
+  std::vector<float> get_specific_beats(std::string beat_type, float start = 0, float end = 0);
   std::vector<float> get_onset_timestamps();
+  std::vector<float> get_onset_timestamps_in_segment(float start, float end);
   int get_bpm();
+  void set_bpm(int _bpm);
+
+  float get_onset_value();
+  void set_onset_value(float _onset_value);
 
  private:
   std::string sound_src;
@@ -89,7 +96,7 @@ class Lightshow {
   std::vector<time_value_int> value_changes_bass;
   std::vector<time_value_int> value_changes_middle;
   std::vector<time_value_int> value_changes_high;
-  std::vector<time_value_int> timestamps_colorchanges;
+  std::vector<time_value_float> timestamps_segment_changes;
   std::vector<float> onset_timestamps;
 
   int resolution = 40; // 40 = DMX update every 25ms.    20 = DMX update every 50ms.    10 = DMX update every 100ms.
@@ -106,8 +113,9 @@ class Lightshow {
                          std::uint8_t lower_border,
                          std::uint8_t upper_border,
                          std::uint8_t value);
-  void get_bpm_and_beats(bool &finished);
+  void get_bpm_and_beats(bool &finished, int user_bpm);
   double first_beat = 0;
+  float onset_value = 9;
 };
 
 #endif //RASPITOLIGHT_SRC_UI_LIGHTSHOW_LIGHTSHOW_H_
