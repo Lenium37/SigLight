@@ -27,7 +27,7 @@
 int main() {
     int resolution = 40;
 
-    std::string song = "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/assets/Sabaton-7734.wav";
+    std::string song = "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/assets/Madsen-Keiner.wav";
 
     std::shared_ptr<Lightshow> lightshow = std::make_shared<Lightshow>();
     lightshow->set_resolution(resolution);

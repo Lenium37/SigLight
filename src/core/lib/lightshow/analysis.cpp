@@ -1210,7 +1210,7 @@ std::vector <time_value_float> Analysis::get_segments() {
     int bin_size = 22050; // 22050 = 0.5 seconds, 2Hz
     int hop_size = 22050; // no overlap, don't do overlap, all timestamps will be broken.
 
-    float middle_factor = 0.5;
+    float middle_factor = 0.75;
     float novelty_factor = 0.5;
     float deviation_factor = 4;
     float cut_seconds_end = 10; // HOW MANY SECONDS TO CUT AT THE END
@@ -1222,8 +1222,8 @@ std::vector <time_value_float> Analysis::get_segments() {
     // ###################################
 
     auto start_features = std::chrono::system_clock::now();
-    //std::vector<std::vector<float>> window = get_stmfcc(wav_values_mono, bin_size, hop_size);
-    std::vector<std::vector<float>> window = get_chromagram(wav_values_mono, bin_size, hop_size, samplerate);
+    std::vector<std::vector<float>> window_mfcc = get_stmfcc(wav_values_mono, bin_size, hop_size);
+    std::vector<std::vector<float>> window_chroma = get_chromagram(wav_values_mono, bin_size, hop_size, samplerate);
 
     auto end_features = std::chrono::system_clock::now();
 
@@ -1232,7 +1232,8 @@ std::vector <time_value_float> Analysis::get_segments() {
     // #################################
 
     auto start_ssm = std::chrono::system_clock::now();
-    std::vector<std::vector<float>> ssm = get_self_similarity_matrix(window, 0);
+    std::vector<std::vector<float>> ssm_mfcc = get_self_similarity_matrix(window_mfcc, 0);
+    std::vector<std::vector<float>> ssm_chroma = get_self_similarity_matrix(window_chroma, 0);
     auto end_ssm = std::chrono::system_clock::now();
 
     // ####################################################
@@ -1248,25 +1249,57 @@ std::vector <time_value_float> Analysis::get_segments() {
     // ###################################
 
     auto start_filter = std::chrono::system_clock::now();
-    std::vector<time_value_float> novelty_function = get_novelty_function(ssm, kernel, cut_seconds_end, bin_size,
+    std::vector<time_value_float> novelty_function_mfcc = get_novelty_function(ssm_mfcc, kernel, cut_seconds_end, bin_size,
                                                                           samplerate, kernel[0].size());
+    std::vector<time_value_float> novelty_function_chroma = get_novelty_function(ssm_chroma, kernel, cut_seconds_end, bin_size,
+                                                                               samplerate, kernel[0].size());
+    float novelty_mfcc_max = 0;
+    float novelty_chroma_max = 0;
+
+    for(int i = 0; i < novelty_function_mfcc.size(); i++){
+        if(novelty_function_mfcc[i].value > novelty_mfcc_max)
+            novelty_mfcc_max = novelty_function_mfcc[i].value;
+    }
+    for(int i = 0; i < novelty_function_mfcc.size(); i++){
+        novelty_function_mfcc[i].value /= novelty_mfcc_max;
+    }
+
+    for(int i = 0; i < novelty_function_chroma.size(); i++){
+        if(novelty_function_chroma[i].value > novelty_chroma_max)
+            novelty_chroma_max = novelty_function_chroma[i].value;
+    }
+    for(int i = 0; i < novelty_function_chroma.size(); i++){
+        novelty_function_chroma[i].value /= novelty_chroma_max;
+    }
+    std::vector<time_value_float> novelty_function_combined;
+
+    float mfcc_factor = 1;
+    float chroma_factor = 2;
+
+    for(int i = 0; i < novelty_function_mfcc.size(); i++){
+        novelty_function_combined.push_back({novelty_function_mfcc[i].time, static_cast<float>(((mfcc_factor * novelty_function_mfcc[i].value + chroma_factor * novelty_function_chroma[i].value) / (mfcc_factor + chroma_factor)))});
+    }
+
     auto end_filter = std::chrono::system_clock::now();
 
     auto start_extrema = std::chrono::system_clock::now();
-    std::vector<time_value_float> extrema = get_extrema(novelty_function);
+    std::vector<time_value_float> extrema = get_extrema(novelty_function_combined);
     float extrema_middle = get_middle_tvf(extrema);
     float extrema_variance = get_variance_tvf(extrema, extrema_middle);
     float extrema_deviation = get_standard_deviation_tvf(extrema, extrema_variance);
+
     std::vector<time_value_float> segments = filter_extrema(extrema, extrema_middle, middle_factor, extrema_variance,
-                                                            extrema_deviation, this->bpm, false);
+                                                            extrema_deviation, this->bpm, true);
     auto end_extrema = std::chrono::system_clock::now();
 
     if (FILEPRINT == true) {
         char *directory = "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/";
-        make_csv_matrix_f(kernel, directory, "window");
         make_csv_matrix_f(kernel, directory, "kernel");
-        make_csv_matrix_f(ssm, directory, "ssm");
-        make_csv_timeseries_tvf(novelty_function, directory, "novelty_function");
+        make_csv_matrix_f(ssm_mfcc, directory, "ssm_mfcc");
+        make_csv_matrix_f(ssm_chroma, directory, "ssm_chroma");
+        make_csv_timeseries_tvf(novelty_function_mfcc, directory, "novelty_function_mfcc");
+        make_csv_timeseries_tvf(novelty_function_chroma, directory, "novelty_function_chroma");
+        make_csv_timeseries_tvf(novelty_function_combined, directory, "novelty_function_combined");
         make_csv_timeseries_tvf(extrema, directory, "extrema");
         make_csv_timeseries_tvf(segments, directory, "segments");
     }
@@ -1284,7 +1317,6 @@ std::vector <time_value_float> Analysis::get_segments() {
     std::chrono::duration<double> elapsed_seconds_kernel = end_kernel - start_kernel;
     std::chrono::duration<double> elapsed_seconds_filter = end_filter - start_filter;
     std::chrono::duration<double> elapsed_seconds_extrema = end_extrema - start_extrema;
-
 
     std::time_t end_time = std::chrono::system_clock::to_time_t(end_segmentation);
 
