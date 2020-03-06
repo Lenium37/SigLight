@@ -8,7 +8,6 @@
 
 #define PI 3.14159265
 
-
 LightshowGenerator::LightshowGenerator() {
 
 }
@@ -21,6 +20,9 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   bool need_onsets = false;
 
   lightshow->set_onset_value(onset_value);
+
+  std::random_device rd;     // only used once to initialise (seed) engine
+  std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
 
   for(int i = 0; i < lightshow->get_fixtures().size(); i++) {
     std::string fix_type = lightshow->get_fixtures()[i].get_type();
@@ -65,7 +67,31 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   int fixtures_in_mh_group_auto_action = 0;
 
 
-  //for (LightshowFixture fix: lightshow->get_fixtures_reference()) {
+  std::vector<std::vector<std::string>> color_palettes = {
+      {"orange", "red", "yellow"},
+      {"white", "blue"},
+      {"orange", "light-green"},
+      {"red", "blue"},
+      {"pink", "blue"},
+      {"cyan", "pink"}
+  };
+
+  std::uniform_int_distribution<int> uni(0, 5); // guaranteed unbiased
+  int random_color_index = uni(rng);
+
+  srand (time(NULL));
+  random_color_index = rand() % 5 + 0;
+  std::cout << "random_color_index: " << random_color_index << std::endl;
+  std::vector<std::string> color_palette = color_palettes[random_color_index];
+
+  std::vector<std::string> colors_1 = color_palette;
+  auto first_color = color_palette.begin();
+  std::rotate(first_color, first_color + 1, color_palette.end());
+  std::vector<std::string> colors_2 = color_palette;
+
+  std::map<std::string, std::vector<std::string>> fix_types_with_colors;
+
+
   for(int i = 0; i < lightshow->get_fixtures().size(); i++) {
     LightshowFixture &fix = lightshow->get_fixtures_reference()[i];
     std::string fix_type = fix.get_type();
@@ -112,7 +138,30 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
     else if(fix_mh_type == "group_auto_action" && fix.get_position_in_mh_group() > fixtures_in_mh_group_auto_action)
       fixtures_in_mh_group_auto_action = fix.get_position_in_mh_group();
 
+
+    if(fix_types_with_colors.find(fix_type) == fix_types_with_colors.end() ) { // alternatively could also divide by fix name
+      // not found
+      if(!fix_types_with_colors.empty() && fix_types_with_colors.rbegin().operator*().second == colors_1)
+        fix_types_with_colors.insert(std::pair<std::string, std::vector<std::string>>(fix_type, colors_2));
+      else
+        fix_types_with_colors.insert(std::pair<std::string, std::vector<std::string>>(fix_type, colors_1));
+    } else {
+      // found
+
+    }
+
+
   }
+
+  for (auto const& x : fix_types_with_colors) {
+    std::cout << x.first << std::endl;
+    for(auto const& y: x.second)
+      std::cout << y << std::endl;
+  }
+
+
+
+
 
   for(int i = 0; i < lightshow->get_fixtures().size(); i++) {
     LightshowFixture & fix = lightshow->get_fixtures_reference()[i];
@@ -161,8 +210,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
           tilt_center = tilt_center + (fix.get_modifier_tilt() / fix.get_degrees_per_tilt());
       }
 
-      std::cout << "pan_center: " << pan_center << std::endl;
-      std::cout << "tilt_center: " << tilt_center << std::endl;
+      //std::cout << "pan_center: " << pan_center << std::endl;
+      //std::cout << "tilt_center: " << tilt_center << std::endl;
 
       int amplitude_tilt;
       int amplitude_pan;
@@ -199,8 +248,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
           else
             segment_end = ((float) lightshow->get_length() - 3) / lightshow->get_resolution();
 
-          std::cout << "segment_start: " << segment_start << std::endl;
-          std::cout << "segment_end: " << segment_end << std::endl;
+          //std::cout << "segment_start: " << segment_start << std::endl;
+          //std::cout << "segment_end: " << segment_end << std::endl;
 
           std::vector<float> onset_timestamps = lightshow->get_onset_timestamps_in_segment(segment_start, segment_end);
           // duration of segment / duration of one bar * how often an onsets should occur each bar
@@ -283,7 +332,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
         std::vector<time_value_float> segment_changes = lightshow->get_timestamps_segment_changes();
 
-        std::cout << "all segment changes:" << std::endl;
+        //std::cout << "all segment changes:" << std::endl;
         //for(time_value_int f: segment_changes) {
           //std::cout << f.time << "    " << f.value << std::endl;
         //}
@@ -368,8 +417,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         else
           segment_end = ((float) lightshow->get_length() - 3) / lightshow->get_resolution();
 
-        std::cout << "segment_start_seconds: " << segment_start << std::endl;
-        std::cout << "segment_end_seconds: " << segment_end << std::endl;
+        //std::cout << "segment_start_seconds: " << segment_start << std::endl;
+        //std::cout << "segment_end_seconds: " << segment_end << std::endl;
 
         std::vector<float> onset_timestamps = lightshow->get_onset_timestamps_in_segment(segment_start, segment_end);
         // duration of segment / duration of one bar * how often an onsets should occur each bar
@@ -379,8 +428,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         float four_per_bar = (segment_end - segment_start) / time_of_one_bar * 4;
         float two_per_bar = (segment_end - segment_start) / time_of_one_bar * 2;
         float one_per_bar = (segment_end - segment_start) / time_of_one_bar;
-        std::cout << "four_per_bar: " << four_per_bar << std::endl;
-        std::cout << "number of onset timestamps in segment: " << onset_timestamps.size() << std::endl;
+        //std::cout << "four_per_bar: " << four_per_bar << std::endl;
+        //std::cout << "number of onset timestamps in segment: " << onset_timestamps.size() << std::endl;
 
         if(fix_type == "auto_beats") {
           if (onset_timestamps.size() >= four_per_bar)
@@ -394,7 +443,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
           if (fix.has_global_dimmer) {
             //this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);
-            std::vector<std::string> colors = fix.get_colors();
+            std::vector<std::string> colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
             this->generate_color_changes(fix, colors, timestamps, segment_end);
           } else {
           }
@@ -417,7 +466,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
             this->generate_group_one_after_another(fix, timestamps, segment_start, segment_end, fixtures_in_group_auto_beats);
           }
 
-          std::vector<std::string> colors = fix.get_colors();
+          std::vector<std::string> colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
           this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
 
         } else if(fix_type == "auto_onsets" || fix_type == "group_auto_onsets") {
@@ -454,7 +503,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
               if (fix.has_global_dimmer) {
                 this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);
 
-                std::vector<std::string> colors = fix.get_colors();
+                std::vector<std::string> colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
                 this->generate_color_changes(fix, colors, onset_timestamps, segment_end);
 
               } else {
@@ -480,7 +529,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
             }
           }
 
-          std::vector<std::string> colors = fix.get_colors();
+          std::vector<std::string> colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
           this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
 
         }
@@ -765,8 +814,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         //std::vector<float> timestamps = lightshow->get_onset_timestamps();
         std::vector<time_value_int> value_changes_onset_blink;
 
-        std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
-        std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
+        //std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
+        //std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
         if(fix.get_position_in_group() > 0) {
           uint8_t counter = 1;
           bool left_to_right = true;
@@ -803,8 +852,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         //std::vector<float> timestamps = lightshow->get_onset_timestamps();
         std::vector<time_value_int> value_changes;
 
-        std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
-        std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
+        //std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
+        //std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
         if(fix.get_position_in_group() > 0) {
           uint8_t counter = 1;
           bool left_to_right = true;
@@ -842,9 +891,9 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         //std::vector<float> timestamps = {0.452789, 0.917188, 1.38159, 1.84599, 2.31039, 2.77478, 3.22757, 3.68036, 4.13315, 4.60916, 5.08517, 5.54957, 6.0488, 6.54803, 7.04726, 7.55809, 8.06893, 8.57977, 9.12544, 9.67111, 10.2168, 10.7741, 11.3313, 11.8886, 12.4343, 12.98, 13.5605, 14.141, 14.7215, 15.2787, 15.836, 16.3933, 16.9506, 17.4962, 18.0419, 18.5876, 19.1332, 19.5512, 19.9692, 20.3871, 20.8051, 21.223, 21.641, 22.059, 22.4885, 22.9181, 23.3593, 23.7888, 24.2184, 24.6364, 25.0659, 25.5536, 26.0412, 26.5288, 27.0164, 27.5156, 27.9917, 28.4561, 28.9205, 29.3965, 29.7448, 30.0931, 30.4414, 30.7897, 31.1263, 31.4746, 31.8113, 32.1364, 32.4731, 32.8098, 33.1349, 33.46, 33.785, 34.1101, 34.4352, 34.7835, 35.1202, 35.4453, 35.7819, 36.1186, 36.4437, 36.7688, 37.0939, 37.419, 37.7556, 38.0923, 38.429, 38.7773, 39.1256, 39.4855, 39.8338, 40.1821, 40.5304, 40.8787, 41.227, 41.5753, 41.9236, 42.2603, 42.6086, 42.9569, 43.2936, 43.6303, 43.967, 44.2921, 44.6171, 44.9422, 45.2673, 45.5924, 45.9175, 46.2425, 46.5676, 46.9043, 47.241, 47.6009, 47.9608, 48.3323, 48.7039, 49.145, 49.5746, 50.0158, 50.4454, 50.9446, 51.4322, 51.9198, 52.4307, 52.9299, 53.4291, 53.9283, 54.4392, 54.9384, 55.4376, 55.9369, 56.4477, 56.9702, 57.5042, 58.1195, 58.7233, 59.3154, 59.9075, 60.4996, 61.0336, 61.5677, 62.1018, 62.6358, 63.1815, 63.7156, 64.2728, 64.8185, 65.4687, 66.1072, 66.7458, 67.3959, 68.0345, 68.673, 69.3116, 69.9385, 70.5538, 71.1808, 71.8309, 72.4695, 73.108, 73.7466, 74.3851, 75.0121, 75.639, 76.2659, 76.9045, 77.485, 78.0655, 78.6344, 79.2265, 79.8302, 80.4107, 80.9912, 81.5833, 82.1986, 82.8024, 83.3596, 83.8937, 84.4278, 84.9618, 85.5075, 86.0415, 86.5756, 87.098, 87.6205, 88.1429, 88.6538, 89.1762, 89.6987, 90.2095, 90.7204, 91.2196, 91.7188, 92.2297, 92.7289, 93.2281, 93.7273, 94.2382, 94.7606, 95.225, 95.6778, 96.119, 96.5602, 96.9317, 97.3032, 97.6631, 98.0346, 98.4062, 98.7777, 99.1492, 99.5207, 99.9039, 100.287, 100.67, 101.053, 101.436, 101.808, 102.179, 102.632, 103.097, 103.573, 104.049, 104.525, 105.001, 105.477, 105.941, 106.394, 106.858, 107.334, 107.799, 108.263, 108.82, 109.378, 109.946, 110.55, 111.154, 111.746, 112.338, 112.93, 113.429, 113.94, 114.44, 114.939, 115.438, 115.926, 116.413, 116.901, 117.388, 117.946, 118.515, 119.084, 119.641, 120.198, 120.767, 121.324, 121.87, 122.427, 122.996, 123.577, 124.134, 124.703, 125.272, 125.841, 126.398, 126.967, 127.536, 128.104, 128.662, 129.231, 129.8, 130.357, 130.914, 131.483, 132.052, 132.621, 133.19, 133.77, 134.339, 134.908, 135.465, 136.034, 136.591, 137.149, 137.718, 138.286, 138.855, 139.413, 139.97, 140.55, 141.119, 141.688, 142.257, 142.826, 143.383, 143.94, 144.498, 145.067, 145.624, 146.193, 146.773, 147.342, 147.911, 148.48, 149.037, 149.606, 150.175, 150.732, 151.301, 151.87, 152.451, 153.02, 153.577, 154.134, 154.691, 155.26, 155.829, 156.398, 156.967, 157.536, 158.093, 158.662, 159.242, 159.823, 160.403, 160.961, 161.518, 162.087, 162.656, 163.213, 163.77, 164.328, 164.896, 165.465, 166.057, 166.626, 167.195, 167.753, 168.321, 168.89, 169.448, 170.005, 170.574, 171.154, 171.735, 172.327, 172.942, 173.546, 174.057, 174.568, 175.078, 175.589, 176.089, 176.599, 177.11, 177.621, 178.143, 178.596, 179.049, 179.49, 179.943, 180.384, 180.825, 181.267, 181.696, 182.126, 182.544, 182.938, 183.333, 183.728, 184.123, 184.506, 184.889, 185.272, 185.678, 186.073, 186.468, 186.863, 187.373, 187.884, 188.395, 188.918, 189.428, 189.928, 190.427, 190.926, 191.425, 191.994, 192.563, 193.132, 193.712, 194.293, 194.862, 195.431, 196, 196.557, 197.126, 197.683, 198.252, 198.821, 199.39, 199.959, 200.528, 201.096, 201.665, 202.234, 202.803, 203.372, 203.941, 204.51, 205.079, 205.648, 206.216, 206.774, 207.331, 207.888, 208.457, 209.026, 209.595, 210.164, 210.733, 211.29, 211.859, 212.428, 212.997, 213.554, 214.111, 214.68, 215.249, 215.818, 216.375, 216.944, 217.525, 218.093, 218.662, 219.22, 219.788, 220.357, 220.926, 221.495, 222.064, 222.621, 223.179, 223.736, 224.305, 224.874, 225.431, 226, 226.569, 227.138, 227.706, 228.275, 228.844, 229.425, 229.994, 230.563, 231.131, 231.689, 232.258, 232.826, 233.395, 233.953, 234.522, 235.079, 235.648, 236.205, 236.774, 237.343, 237.912, 238.481, 239.026, 239.583, 240.152, 240.71, 241.279, 241.836, 242.405, 242.974, 243.554, 244.123, 244.703, 245.261, 245.83, 246.399, 246.967, 247.525, 248.094, 248.662, 249.243, 249.8, 250.358, 250.926, 251.507, 252.076, 252.645, 253.214, 253.771, 254.328, 254.885, 255.454, 256.023, 256.592, 257.161, 257.718, 258.287, 258.856, 259.413, 259.971, 260.539, 261.097, 261.666, 262.235, 262.803, 263.361, 263.918, 264.475, 265.044, 265.613, 266.17, 266.739, 267.308, 267.877, 268.457, 269.038, 269.607, 270.164, 270.721, 271.29, 271.859, 272.428, 272.997, 273.554, 274.123, 274.692, 275.261, 275.83, 276.399, 276.968, 277.536, 278.105, 278.674, 279.232, 279.789, 280.346, 280.915, 281.472, 282.041, 282.61, 283.179, 283.748, 284.305, 284.874, 285.513, 286.139, 286.766, 287.393, 288.02, 288.624, 289.239, 289.855, 290.458, 291.051, 291.643, 292.223, 292.792, 293.361, 293.941, 294.51, 295.091, 295.671, 296.252, 296.844, 297.482, 298.121, 298.771, 299.421, 300.06, 300.71, 301.36, 302.022, 302.684, 303.345, 304.007, 304.681, 305.354, 306.027, 306.701, 307.386, 308.117, 308.849, 309.568, 310.288, 310.996, 311.705, 312.366, 313.04, 313.678, 314.317, 314.955, 315.594, 316.233, 316.859, 317.486, 318.113, 318.74, 319.356, 320.029, 320.702, 321.306, 321.921, 322.537, 323.141, 323.744, 324.29, 324.836, 325.381, 325.915, 326.461, 327.053, 327.645, 328.237, 328.76, 329.282, 329.805, 330.304, 330.815, 331.314, 331.802, 332.289, 332.777, 333.264, 333.775, 334.286, 334.809, 335.343, 335.865, 336.387, 336.91, 337.432, 337.966};
         std::vector<time_value_int> value_changes;
 
-        std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
-        std::cout << "fixtures_in_group_one_after_another_blink: " << fixtures_in_group_one_after_another_blink << std::endl;
-        std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
+        //std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
+        //std::cout << "fixtures_in_group_one_after_another_blink: " << fixtures_in_group_one_after_another_blink << std::endl;
+        //std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
         if(fix.get_position_in_group() > 0) {
           for (int i = 0; i < timestamps.size(); i++) {
             if(i % fixtures_in_group_one_after_another_blink + 1 == fix.get_position_in_group()) {
@@ -984,7 +1033,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         float last_time = 0;
         float begin_timestamp = 0;
         float time_of_one_eigth = ((float) 60 / (float) lightshow->get_bpm()) / 2;
-        std::cout << "time_of_one_eigth: " << time_of_one_eigth << std::endl;
+        //std::cout << "time_of_one_eigth: " << time_of_one_eigth << std::endl;
         for(float onset_timestamp: onset_timestamps) {
           if(onset_counter == 0 && onset_timestamp - last_time < time_of_one_eigth) {
             begin_timestamp = last_time;
@@ -1013,12 +1062,12 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
         std::vector<time_value_int> value_changes;
 
-        std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
-        std::cout << "begin_and_end_of_flashing_timestamps.size(): " << begin_and_end_of_flashing_timestamps.size() << std::endl;
-        std::cout << "old bpm analysis: " << lightshow->get_bpm() << std::endl;
+        //std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
+        //std::cout << "begin_and_end_of_flashing_timestamps.size(): " << begin_and_end_of_flashing_timestamps.size() << std::endl;
+        //std::cout << "old bpm analysis: " << lightshow->get_bpm() << std::endl;
 
-        std::random_device rd;     // only used once to initialise (seed) engine
-        std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
+        //std::random_device rd;     // only used once to initialise (seed) engine
+        //std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
         std::uniform_int_distribution<int> uni(1, fixtures_in_group_random_flashes); // guaranteed unbiased
         float begin_flashing = 0;
         float end_flashing = 0;
@@ -1449,7 +1498,7 @@ void LightshowGenerator::generate_color_changes(LightshowFixture &fix,
 
   std::vector<color_change> color_changes;
 
-  std::cout << "Number of color changes in this lightshow: " << timestamps.size() << std::endl;
+  //std::cout << "Number of color changes in this lightshow: " << timestamps.size() << std::endl;
 
   Logger::debug("Number of color changes in this lightshow: {}", timestamps.size());
 
@@ -1922,8 +1971,8 @@ std::vector<time_value_int> LightshowGenerator::generate_single_fade(int start_v
 void LightshowGenerator::generate_group_one_after_another(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end, int fixtures_in_group) {
   std::vector<time_value_int> value_changes;
 
-  std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
-  std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
+  //std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
+  //std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
   if(fix.get_position_in_group() > 0) {
     for (int i = 0; i < timestamps.size(); i++) {
       if(i % fixtures_in_group + 1 == fix.get_position_in_group()) {
@@ -1946,9 +1995,9 @@ void LightshowGenerator::generate_group_one_after_another(LightshowFixture & fix
 
 void LightshowGenerator::generate_group_one_after_another_fade(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end, int fixtures_in_group, int lightshow_resolution) {
   if (fix.has_global_dimmer) {
-    std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
+    //std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
     //timestamps = lightshow->get_specific_beats("beats 1/2/3/4");
-    std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
+    //std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
     std::vector<float> timestamps_for_this_fixture;
     if(fix.get_position_in_group() > 0) {
       for (int j = 0; j < timestamps.size(); j++) {
@@ -1994,9 +2043,9 @@ void LightshowGenerator::generate_group_one_after_another_fade(LightshowFixture 
 
 void LightshowGenerator::generate_group_one_after_another_fade_reverse(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end, int fixtures_in_group, int lightshow_resolution) {
   if (fix.has_global_dimmer) {
-    std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
+    //std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
     //timestamps = lightshow->get_specific_beats("beats 1/2/3/4");
-    std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
+    //std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
     std::vector<float> timestamps_for_this_fixture;
     if(fix.get_position_in_group() > 0) {
       for (int j = 0; j < timestamps.size(); j++) {
