@@ -100,6 +100,20 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->has_pan = true;
     this->has_tilt = true;
     this->has_shutter = true;
+  } else if(name == "JBLED A7 (S16)") {
+    this->set_channel_pan(1);
+    this->set_channel_tilt(3);
+    this->set_channel_shutter(6);
+    this->set_channel_dimmer(7);
+    this->set_channel_red(9);
+    this->set_channel_green(11);
+    this->set_channel_blue(13);
+    this->degrees_per_pan = (float) 430 / 255;
+    this->degrees_per_tilt = (float) 300 / 255;
+    this->has_global_dimmer = true;
+    this->has_pan = true;
+    this->has_tilt = true;
+    this->has_shutter = true;
   } else if(name == "JBLED P4 (M1)") {
     this->set_channel_pan(1);
     this->set_channel_tilt(3);

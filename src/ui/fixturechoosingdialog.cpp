@@ -267,6 +267,7 @@ void FixtureChoosingDialog::update_position_in_mh_group_status(QString current_t
 
 void FixtureChoosingDialog::update_moving_head_position_status(QString current_fixture) {
   if(current_fixture == "JBLED A7 (S8)"
+  || current_fixture == "JBLED A7 (S16)"
   || current_fixture == "JBLED P4 (M1)"
   || current_fixture == "JBLED Sparx 7 (M3)") {
     ui->cB_moving_head_position->setEnabled(true);

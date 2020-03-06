@@ -413,6 +413,27 @@ void MainWindow::create_fixtures() {
                        0);
     channels.clear();
 
+    channels << "Pan (X) 430°~0~255" << "Pan (X) fein~0~255" << "Tilt (Y) 300°~0~255" << "Tilt (Y) fein~0~255"
+             << "Control 100% Ausgangsleistung der LED-Straenge~0~7|Fade out with Fader (langsam - schnell)~8~15"
+             << "Shutter zu~0~15|Shutter auf~255~255"
+             << "Dimmer (0-100%)~0~255"
+             << "Zoom (12° - 36°)~0~255"
+             << "Red (0-100%)~0~255" << "Red fine~0~255" << "Green (0-100%)~0~255" << "Green fine~0~255" << "Blue (0-100%)~0~255" << "Blue fine~0~255"
+             << "CTC (0-100%)~0~255"
+             << "Color wheel~0~255"
+             << "Pan/Tilt speed real time~0~3|movement delayed (fast-slow)~4~255"
+             << "Effektgeschwindigkeit real time~0~3|Effekte delayed (fast-slow)~4~255"
+             << "Blackout move~0~255";
+
+    create_new_fixture("JBLED A7 (S16)",
+                       "color_change",
+                       "DMX-Funktionen: Pan, Tilt, Colour Fade, Master Dimmer, RGB, Shutter",
+                       channels,
+                       "lamp",
+                       color_palettes[0],
+                       0);
+    channels.clear();
+
     channels << "Pan (X) 433,6°~0~255" << "Pan (X) fein~0~255" << "Tilt (Y) 280°~0~255" << "Tilt (Y) fein~0~255"
              << "Control channel~0~255"
              << "Shutter zu~0~15|Shutter auf~255~255"
@@ -1037,6 +1058,7 @@ void MainWindow::generate_lightshow(Song *song, std::list<Fixture> _fixtures, in
     //std::cout << "new fix. name: " << fix.get_name() << ". start address: " << fix.get_start_channel() << ", number of addresses: " << fix.get_channel_count() << std::endl;
     if (fix.get_name() == "Cameo Flat RGB 10"
         || fix.get_name() == "JBLED A7 (S8)"
+        || fix.get_name() == "JBLED A7 (S16)"
         || fix.get_name() == "JBLED P4 (M1)"
         || fix.get_name() == "JBLED Sparx 7 (M3)"
         || fix.get_name() == "Stairville LED Flood Panel 150 (3ch)"
@@ -1067,6 +1089,7 @@ void MainWindow::regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, 
     //std::cout << "new fix. name: " << fix.get_name() << ". start address: " << fix.get_start_channel() << ", number of addresses: " << fix.get_channel_count() << std::endl;
     if (fix.get_name() == "Cameo Flat RGB 10"
         || fix.get_name() == "JBLED A7 (S8)"
+        || fix.get_name() == "JBLED A7 (S16)"
         || fix.get_name() == "JBLED P4 (M1)"
         || fix.get_name() == "JBLED Sparx 7 (M3)"
         || fix.get_name() == "Stairville LED Flood Panel 150 (3ch)"

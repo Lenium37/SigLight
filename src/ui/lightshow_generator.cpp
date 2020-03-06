@@ -423,7 +423,21 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
           } else {
           }
         } else if(fix_type == "group_auto_beats") {
+          if (onset_timestamps.size() >= four_per_bar)
+            timestamps = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
+          else if (onset_timestamps.size() >= two_per_bar)
+            timestamps = lightshow->get_specific_beats("beats 2/4", segment_start, segment_end);
+          else if (onset_timestamps.size() >= one_per_bar)
+            timestamps = lightshow->get_specific_beats("beats 1", segment_start, segment_end);
+          else
+            continue;
 
+          if (fix.has_global_dimmer) {
+            //this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);
+            std::vector<std::string> colors = fix.get_colors();
+            this->generate_color_changes(fix, colors, timestamps, segment_end);
+          } else {
+          }
         } else if(fix_type == "auto_onsets" || fix_type == "group_auto_onsets") {
           if (onset_timestamps.size() >= eight_per_bar) {
             if (fix.has_pan && fix.has_tilt) {
@@ -656,31 +670,11 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
       }
     } else if (fix_type == "group_one_after_another") {
-      if (fix.has_global_dimmer) {
 
-        //std::vector<float> timestamps = lightshow->get_onset_timestamps();
-        std::vector<time_value_int> value_changes_onset_blink;
-
-        std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
-        std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
-        if(fix.get_position_in_group() > 0) {
-          for (int i = 0; i < timestamps.size(); i++) {
-            if(i % fixtures_in_group_one_after_another + 1 == fix.get_position_in_group()) {
-              value_changes_onset_blink.push_back({timestamps[i], 200});
-              if(i < timestamps.size() - 1)
-                value_changes_onset_blink.push_back({timestamps[i + 1], 0});
-              else
-                value_changes_onset_blink.push_back({((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0});
-            }
-          }
-
-          fix.add_value_changes_to_channel(value_changes_onset_blink, fix.get_channel_dimmer());
-        }
-        std::vector<std::string> colors = fix.get_colors();
-        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
-      } else {
-
-      }
+      //std::vector<float> timestamps = lightshow->get_onset_timestamps();
+      this->generate_group_one_after_another(fix, timestamps, 0, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), fixtures_in_group_one_after_another);
+      std::vector<std::string> colors = fix.get_colors();
+      this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
     } else if (fix_type == "group_one_after_another_fade") {
       if (fix.has_global_dimmer) {
         std::vector<time_value_int> value_changes;
@@ -1893,4 +1887,29 @@ std::vector<time_value_int> LightshowGenerator::generate_single_fade(int start_v
   }
 
   return v;
+}
+
+void LightshowGenerator::generate_group_one_after_another(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end, int fixtures_in_group) {
+  std::vector<time_value_int> value_changes;
+
+  std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
+  std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
+  if(fix.get_position_in_group() > 0) {
+    for (int i = 0; i < timestamps.size(); i++) {
+      if(i % fixtures_in_group + 1 == fix.get_position_in_group()) {
+        value_changes.push_back({timestamps[i], 255});
+        if(i < timestamps.size() - 1)
+          value_changes.push_back({timestamps[i + 1], 0});
+        else
+          value_changes.push_back({segment_end, 0});
+      }
+    }
+
+    if (fix.has_global_dimmer) {
+      fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
+    } else if(fix.has_shutter) {
+      this->set_dimmer_values_in_segment(fix, segment_start, 255, segment_end, 0);
+      fix.add_value_changes_to_channel(value_changes, fix.get_channel_shutter());
+    }
+  }
 }

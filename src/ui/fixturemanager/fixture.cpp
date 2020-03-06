@@ -169,6 +169,7 @@ int Fixture::get_position_in_group() {
 std::vector<int> Fixture::get_pan_tilt_channels() {
   std::vector<int> pan_tilt_channels;
   if(this->name == "JBLED A7 (S8)"
+  || this->name == "JBLED A7 (S16)"
   || this->name == "JBLED P4 (M1)"
   || this->name == "JBLED Sparx 7 (M3)") {
     pan_tilt_channels.push_back(1);
@@ -242,6 +243,7 @@ std::string Fixture::get_timestamps_type() {
 std::vector<int> Fixture::get_pan_channels() {
   std::vector<int> pan_channels;
   if(this->name == "JBLED A7 (S8)"
+  || this->name == "JBLED A7 (S16)"
   || this->name == "JBLED P4 (M1)"
   || this->name == "JBLED Sparx 7 (M3)") {
     pan_channels.push_back(1);
@@ -253,6 +255,7 @@ std::vector<int> Fixture::get_pan_channels() {
 std::vector<int> Fixture::get_tilt_channels() {
   std::vector<int> tilt_channels;
   if(this->name == "JBLED A7 (S8)"
+  || this->name == "JBLED A7 (S16)"
   || this->name == "JBLED P4 (M1)"
   || this->name == "JBLED Sparx 7 (M3)") {
     tilt_channels.push_back(3);
