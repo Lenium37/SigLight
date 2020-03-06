@@ -15,7 +15,7 @@ Q_OBJECT
 public:
   explicit FixtureChoosingDialog(QWidget *parent = nullptr);
 
-  explicit FixtureChoosingDialog(QWidget *parent = nullptr, list<Fixture> &fixtures = *new list<Fixture>(), std::vector<std::string> color_palettes = *new std::vector<std::string>());
+  explicit FixtureChoosingDialog(QWidget *parent = nullptr, list<Fixture> &fixtures = *new list<Fixture>(), std::vector<std::string> color_palettes = *new std::vector<std::string>(), QStringList _types = QStringList(" "));
 
   ~FixtureChoosingDialog() override;
 
