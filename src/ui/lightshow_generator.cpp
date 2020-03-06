@@ -147,20 +147,15 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         fix_types_with_colors.insert(std::pair<std::string, std::vector<std::string>>(fix_type, colors_1));
     } else {
       // found
-
     }
-
-
   }
 
   for (auto const& x : fix_types_with_colors) {
     std::cout << x.first << std::endl;
     for(auto const& y: x.second)
       std::cout << y << std::endl;
+    std::cout << std::endl;
   }
-
-
-
 
 
   for(int i = 0; i < lightshow->get_fixtures().size(); i++) {
@@ -261,17 +256,41 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
           float one_per_bar = (segment_end - segment_start) / time_of_one_bar;
 
           if(fix.get_moving_head_type() == "auto_background" || fix.get_moving_head_type() == "group_auto_background") {
-            if (onset_timestamps.size() >= four_per_bar) {
-              fix.set_amplitude_pan(60);
-              fix.set_amplitude_tilt(40);
-              this->generate_continuous_8(fix, pan_center, tilt_center, time_of_two_bars, time_of_two_bars, segment_start, segment_end, fixtures_in_mh_group_auto_background);
+            if (onset_timestamps.size() >= eight_per_bar) {
+              fix.set_amplitude_pan(0);
+              fix.set_amplitude_tilt(25);
+              int tilt_offset = (int) std::round((float) 90 / (float) fix.get_degrees_per_tilt());
+              this->generate_vertical_line(fix, pan_center, tilt_center + tilt_offset, time_of_one_beat, segment_start, segment_end, fixtures_in_mh_group_auto_background);
+
+            } else if (onset_timestamps.size() >= four_per_bar) {
+              if(rand() % 1 == 1) {
+                fix.set_amplitude_pan(30);
+                fix.set_amplitude_tilt(20);
+                int tilt_offset = (int) std::round((float) 90 / (float) fix.get_degrees_per_tilt());
+                this->generate_continuous_circle(fix, pan_center, tilt_center + tilt_offset, time_of_two_beats, time_of_two_beats, segment_start, segment_end, fixtures_in_mh_group_auto_background);
+              } else {
+                fix.set_amplitude_pan(0);
+                fix.set_amplitude_tilt(25);
+                int tilt_offset = (int) std::round((float) 90 / (float) fix.get_degrees_per_tilt());
+                this->generate_vertical_line(fix, pan_center, tilt_center + tilt_offset, time_of_two_beats, segment_start, segment_end, fixtures_in_mh_group_auto_background);
+
+              }
+            } else if(onset_timestamps.size() >= two_per_bar) {
+              fix.set_amplitude_pan(30);
+              fix.set_amplitude_tilt(20);
+              this->generate_continuous_8(fix, pan_center, tilt_center, time_of_two_bars / 2, time_of_two_bars / 2, segment_start, segment_end, fixtures_in_mh_group_auto_background);
+
             } else {
-              fix.set_amplitude_pan(60);
+              /*fix.set_amplitude_pan(60);
               fix.set_amplitude_tilt(40);
               //if(fix.get_moving_head_type() == "group_auto_background")
-                this->generate_continuous_8(fix, pan_center, tilt_center, time_of_four_bars, time_of_four_bars, segment_start, segment_end, fixtures_in_mh_group_auto_background);
+              this->generate_continuous_8(fix, pan_center, tilt_center, time_of_four_bars, time_of_four_bars, segment_start, segment_end, fixtures_in_mh_group_auto_background);
               //else
-                //this->generate_continuous_8(fix, pan_center, tilt_center, time_of_four_bars * 2, time_of_four_bars * 2, segment_start, segment_end, 0);
+              //this->generate_continuous_8(fix, pan_center, tilt_center, time_of_four_bars * 2, time_of_four_bars * 2, segment_start, segment_end, 0);*/
+              int pan_position = 0;
+              int tilt_position = (float) 30 / fix.get_degrees_per_tilt();
+              this->generate_static_position(fix, pan_center, tilt_center, pan_position, tilt_position, segment_start, fixtures_in_mh_group_auto_background);
+
             }
 
           }
@@ -2132,4 +2151,25 @@ void LightshowGenerator::generate_vertical_line(LightshowFixture & fix, int pan_
   fix.add_value_changes_to_channel(vc_pan, fix.get_channel_pan());
   fix.add_value_changes_to_channel(vc_tilt, fix.get_channel_tilt());
 
+}
+void LightshowGenerator::generate_static_position(LightshowFixture &fix,
+                                                  int pan_center,
+                                                  int tilt_center,
+                                                  int pan_position,
+                                                  int tilt_position,
+                                                  float segment_start,
+                                                  int number_of_fixtures_in_group) {
+  if(number_of_fixtures_in_group > 1) {
+    std::vector<time_value_int> vc_pan;
+    std::vector<time_value_int> vc_tilt;
+    if(fix.get_position_in_mh_group() & 2 == 0) {
+      vc_pan.push_back({segment_start, pan_center + pan_position});
+      vc_tilt.push_back({segment_start, tilt_center + tilt_position});
+    } else {
+      vc_pan.push_back({segment_start, pan_center + pan_position});
+      vc_tilt.push_back({segment_start, tilt_center - tilt_position});
+    }
+    fix.add_value_changes_to_channel(vc_pan, fix.get_channel_pan());
+    fix.add_value_changes_to_channel(vc_tilt, fix.get_channel_tilt());
+  }
 }

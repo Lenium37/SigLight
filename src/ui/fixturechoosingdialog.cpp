@@ -258,8 +258,9 @@ void FixtureChoosingDialog::update_position_in_mh_group_status(QString current_t
     ui->sB_amplitude_pan->setValue(60);
     ui->sB_amplitude_tilt->setValue(40);
   } else if(current_type.toLower().toStdString().find("continuous circle") != string::npos) {
-    ui->sB_amplitude_pan->setValue(45);
-    ui->sB_amplitude_tilt->setValue(25);
+    ui->sB_amplitude_pan->setValue(30);
+    ui->sB_amplitude_tilt->setValue(20);
+    ui->sB_modifier_tilt->setValue(40);
   } else if(current_type.toLower().toStdString().find("continuous line vertical") != string::npos) {
     ui->sB_amplitude_pan->setValue(0);
     ui->sB_amplitude_tilt->setValue(45);
