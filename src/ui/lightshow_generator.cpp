@@ -1845,6 +1845,8 @@ void LightshowGenerator::generate_continuous_8(LightshowFixture & fix, int pan_c
   }
 
   while(current_timestamp < end_timestamp) {
+      // ( cos(2 * PI * t * f + left_right_switch + (group_offset * PI)) * amplitude_pan ) + pan_center
+      // x * cos(2 * PI * f * t + phi) + pan_center mit phi = (group_offset * PI)
     value = (int) (cos((2*PI*current_timestamp)/(time_of_one_loop_pan) + left_right_switch + (group_offset * PI)) * amplitude_pan) + pan_center;
     vc_pan.push_back({current_timestamp, value});
     if(fix.get_invert_tilt())
