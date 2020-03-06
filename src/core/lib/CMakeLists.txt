@@ -53,6 +53,10 @@ set(CORE_LIB_SRCS
         ../../../external_libraries/gist/source/Gist/src/onset-detection-functions/OnsetDetectionFunction.cpp
         ../../../external_libraries/gist/source/Gist/src/pitch/Yin.h
         ../../../external_libraries/gist/source/Gist/src/pitch/Yin.cpp
+        ../../../external_libraries/Chord-Detector-and-Chromagram-master/src/ChordDetector.h
+        ../../../external_libraries/Chord-Detector-and-Chromagram-master/src/ChordDetector.cpp
+        ../../../external_libraries/Chord-Detector-and-Chromagram-master/src/Chromagram.h
+        ../../../external_libraries/Chord-Detector-and-Chromagram-master/src/Chromagram.cpp
 
 
 
@@ -124,6 +128,10 @@ target_link_libraries(${CORE_LIBRARY_NAME} tag)
 
 # make gist avaible
 target_include_directories(${CORE_LIBRARY_NAME} PUBLIC ../../../external_libraries/gist/source/Gist/src)
+
+#make Chromagram available
+target_include_directories(${CORE_LIBRARY_NAME} PUBLIC ../../../external_libraries/Chord-Detector-and-Chromagram-master/src)
+
 
 #make essentia and dependencies avaible
 

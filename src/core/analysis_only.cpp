@@ -27,7 +27,7 @@
 int main() {
     int resolution = 40;
 
-    std::string song = "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/assets/Rammstein-Radio.wav";
+    std::string song = "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/assets/Sabaton-7734.wav";
 
     std::shared_ptr<Lightshow> lightshow = std::make_shared<Lightshow>();
     lightshow->set_resolution(resolution);
@@ -36,9 +36,7 @@ int main() {
     //lightshow->prepare_analysis_for_song((char*)file_path.c_str());
     lightshow->prepare_analysis_for_song((char*)song.c_str(), false, false, false, false, 0, 0);
 
-
-    //system("python /Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/plot.py");
-    //system("python /Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/plot_av.py");
+    system("python /Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/plot_novelty.py");
 
     return 0;
 }
