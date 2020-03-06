@@ -55,6 +55,7 @@ class LightshowGenerator {
 
   void generate_continuous_8(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_pan, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group);
   void generate_continuous_circle(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_pan, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group);
+  void generate_vertical_line(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group);
 
   std::vector<time_value_int> generate_single_fade(int start_value, int end_value, float start_timestamp, float end_timestamp, int lightshow_resolution);
 };
