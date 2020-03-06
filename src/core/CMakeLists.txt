@@ -32,6 +32,8 @@ endif ()
 #        main_dmx_device.cpp
 #        )
 
+add_executable(analysis_only analysis_only.cpp analysis_only.cpp)
+target_link_libraries(analysis_only CORE_LIB)
 
 #add_executable(crash_demo crash_demo.cpp)
 
