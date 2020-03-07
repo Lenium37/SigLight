@@ -51,6 +51,8 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
           this->colors.push_back("yellow");
         else if (color == "O" || color == "orange")
           this->colors.push_back("orange");
+        else if(colors == "auto")
+          this->colors.push_back("auto");
       }
     } else {
       if (colors == "R" || colors == "red")
@@ -71,6 +73,8 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
         this->colors.push_back("yellow");
       else if (colors == "O" || colors == "orange")
         this->colors.push_back("orange");
+      else if(colors == "auto")
+        this->colors.push_back("auto");
     }
   } else { this->colors.push_back("white"); }
 

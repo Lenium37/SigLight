@@ -108,6 +108,14 @@ class Lightshow {
   std::vector<float> timestamps_of_all_beats;
   std::vector<time_value_float> timestamps_colorchanges_ambient;
   std::vector<double> all_beats;
+  std::vector<float> beats_1_2_3_4;
+  std::vector<float> beats_2_4;
+  std::vector<float> beats_1_3;
+  std::vector<float> beats_1;
+  std::vector<float> beats_2;
+  std::vector<float> beats_3;
+  std::vector<float> beats_4;
+  std::vector<float> beats_1_every_other_bar;
 
   void generalize_values(std::vector<time_value_int> &v,
                          std::uint8_t lower_border,
@@ -116,6 +124,9 @@ class Lightshow {
   void get_bpm_and_beats(bool &finished, int user_bpm);
   double first_beat = 0;
   float onset_value = 9;
+
+  void prepare_beat_timestamps();
+
 };
 
 #endif //RASPITOLIGHT_SRC_UI_LIGHTSHOW_LIGHTSHOW_H_
