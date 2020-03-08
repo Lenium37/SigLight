@@ -820,17 +820,16 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       }
     } else if (fix_type == "group_one_after_another") {
 
-      //std::vector<float> timestamps = lightshow->get_onset_timestamps();
-      fix.get_timestamps_type();
+      //fix.get_timestamps_type();
       this->generate_group_one_after_another(fix, timestamps, 0, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), fixtures_in_group_one_after_another);
-      //std::vector<std::string> colors = fix.get_colors();
+      //this->generate_group_ABBA(fix, timestamps, 0, ((float) lightshow->get_length() - 3) / lightshow->get_resolution());
+
+
       this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
     } else if (fix_type == "group_one_after_another_fade") {
-      //std::vector<std::string> colors = fix.get_colors();
       this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
       this->generate_group_one_after_another_fade(fix, timestamps, 0, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), fixtures_in_group_one_after_another_fade, lightshow->get_resolution());
     } else if (fix_type == "group_one_after_another_fade_reverse") {
-      //std::vector<std::string> colors = fix.get_colors();
       this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
       this->generate_group_one_after_another_fade_reverse(fix, timestamps, 0, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), fixtures_in_group_one_after_another_fade_reverse, lightshow->get_resolution());
     } else if (fix_type == "group_one_after_another_back_and_forth") {
@@ -2001,6 +2000,60 @@ void LightshowGenerator::generate_group_one_after_another(LightshowFixture & fix
   if(fix.get_position_in_group() > 0) {
     for (int i = 0; i < timestamps.size(); i++) {
       if(i % fixtures_in_group + 1 == fix.get_position_in_group()) {
+        value_changes.push_back({timestamps[i], 255});
+        if(i < timestamps.size() - 1)
+          value_changes.push_back({timestamps[i + 1], 0});
+        else
+          value_changes.push_back({segment_end, 0});
+      }
+    }
+
+    if (fix.has_global_dimmer) {
+      fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
+    } else if(fix.has_shutter) {
+      this->set_dimmer_values_in_segment(fix, segment_start, 255, segment_end, 0);
+      fix.add_value_changes_to_channel(value_changes, fix.get_channel_shutter());
+    }
+  }
+}
+
+void LightshowGenerator::generate_group_ABA(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end) {
+  std::vector<time_value_int> value_changes;
+
+  int use = 1;
+  if(fix.get_position_in_group() % 3 == 1 || fix.get_position_in_group() % 3 == 0)
+    use = 0;
+
+  if(fix.get_position_in_group() > 0) {
+    for (int i = 0; i < timestamps.size(); i++) {
+      if(i % 2 == use) {
+        value_changes.push_back({timestamps[i], 255});
+        if(i < timestamps.size() - 1)
+          value_changes.push_back({timestamps[i + 1], 0});
+        else
+          value_changes.push_back({segment_end, 0});
+      }
+    }
+
+    if (fix.has_global_dimmer) {
+      fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
+    } else if(fix.has_shutter) {
+      this->set_dimmer_values_in_segment(fix, segment_start, 255, segment_end, 0);
+      fix.add_value_changes_to_channel(value_changes, fix.get_channel_shutter());
+    }
+  }
+}
+
+void LightshowGenerator::generate_group_ABBA(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end) {
+  std::vector<time_value_int> value_changes;
+
+  int use = 1;
+  if(fix.get_position_in_group() % 4 == 1 || fix.get_position_in_group() % 4 == 0)
+    use = 0;
+
+  if(fix.get_position_in_group() > 0) {
+    for (int i = 0; i < timestamps.size(); i++) {
+      if(i % 2 == use) {
         value_changes.push_back({timestamps[i], 255});
         if(i < timestamps.size() - 1)
           value_changes.push_back({timestamps[i + 1], 0});
