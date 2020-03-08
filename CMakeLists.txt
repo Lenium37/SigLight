@@ -2,6 +2,11 @@ project(SigLight) # accessable with ${PROJECT_NAME}
 cmake_minimum_required(VERSION 2.8.11)
 option(FORCE_COMPILE_FOR_RASPBERRY "Forces for example usage of portaudio" OFF)
 
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+    message("set build type to Release")
+endif()
+
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/modules)
 # todo do we need this?
 set(FFTW_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/external_libraries/fftw3/install)

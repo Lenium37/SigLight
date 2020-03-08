@@ -279,7 +279,7 @@ void Lightshow::prepare_analysis_for_song(char *song_path, bool need_bass, bool 
 
   while(!bpm_analysis_finished) {
     //std::cout << "waiting for bpm" << std::endl;
-    ;
+    usleep(1);
   }
 
   if(user_bpm == 0 && bpm_from_onsets < 200 && this->bpm * 2  - 15 < bpm_from_onsets && this->bpm * 2 + 15 > bpm_from_onsets) {

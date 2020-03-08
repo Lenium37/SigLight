@@ -63,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
   init_shortcuts();
   init_connects();
   init();
-  this->read_own_m3u_on_startup();
+  //this->read_own_m3u_on_startup();  TODO currently not working because of build type RELEASE
 }
 
 void MainWindow::init() {
@@ -1076,10 +1076,14 @@ void MainWindow::generate_lightshow(Song *song, std::list<Fixture> _fixtures, in
   }
 
   this->lightshow_generator.generate(this->lightshow_resolution, song, generated_lightshow, user_bpm, onset_value);
+  std::cout << "generated lightshow" << std::endl;
 
   lightShowRegistry.register_lightshow_file(song, generated_lightshow, this->lightshows_directory_path);
-  if(player->playlist_index_for(song) != -1)
+  std::cout << "registered lightshow" << std::endl;
+  if(player->playlist_index_for(song) != -1) {
     emit lightshow_for_song_is_ready(song);
+    std::cout << "emitted signal for lightshow" << std::endl;
+  }
 }
 
 void MainWindow::regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm, float onset_value) {
@@ -1246,9 +1250,16 @@ void MainWindow::change_player_edit_view(int index) {
 }
 
 void MainWindow::read_own_m3u_on_startup() {
-  if (universes[0].get_fixture_count() != 0)
+  std::cout << "debug6.1" << std::endl;
+  if (universes[0].get_fixture_count() != 0) {
+    std::cout << "debug6.2" << std::endl;
+    std::cout << sig_light_path.toStdString() << std::endl;
+    std::cout << "debug6.3" << std::endl;
     player->read_own_m_3_u_on_startup(sig_light_path.toStdString());
+    std::cout << "debug6.4" << std::endl;
+  }
 
+  std::cout << "debug6.5" << std::endl;
   int i = 0;
   while (player->get_playlist_media_at(i) != nullptr) {
     Song *song = player->get_playlist_media_at(i)->get_song();

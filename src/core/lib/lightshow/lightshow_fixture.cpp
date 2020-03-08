@@ -582,3 +582,11 @@ Channel &LightshowFixture::get_channel(int channel) {
   std::cerr << "THIS SHOULD NEVER HAPPEN" << std::endl;
   return std::ref(channel1);
 }
+
+void LightshowFixture::set_temp_position_in_group(int _position) {
+  this->position_inside_group = _position;
+}
+
+int LightshowFixture::get_temp_position_in_group() {
+  return this->temp_position_inside_group;
+}

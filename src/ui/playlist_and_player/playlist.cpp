@@ -175,6 +175,8 @@ bool Playlist::read_m3u_file(std::string file_to_read) {
     emit current_rtl_m3u_read_and_inserted(0, this->playlist_length() - 1);
   }
 
+  // TODO it is crashing here somehow?!
+
   return success;
 }
 

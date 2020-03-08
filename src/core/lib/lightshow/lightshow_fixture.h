@@ -208,6 +208,9 @@ class LightshowFixture {
   void set_position_in_group(int _position);
   int get_position_in_group();
 
+  void set_temp_position_in_group(int _position);
+  int get_temp_position_in_group();
+
   void set_position_in_mh_group(int _position);
   int get_position_in_mh_group();
 
@@ -265,6 +268,7 @@ class LightshowFixture {
   std::vector<std::string> colors;
   std::string colors_string;
   int position_inside_group;
+  int temp_position_inside_group;
   std::string position_on_stage;
   std::string moving_head_type;
   std::map<const std::string, std::uint8_t> colorwheel_values;
