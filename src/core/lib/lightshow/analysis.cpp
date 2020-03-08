@@ -905,7 +905,7 @@ std::vector <std::vector<float>> Analysis::get_rhythmogram(float *signal_values,
     return rhythmogram;
 }
 
-float Analysis::get_cosine_distance(std::vector<float> m, std::vector<float> n) {
+float Analysis::get_cosine_distance(const std::vector<float> &m, const std::vector<float> &n) {
 
     float cosine_distance = 0;
 
@@ -924,7 +924,7 @@ float Analysis::get_cosine_distance(std::vector<float> m, std::vector<float> n) 
 
 }
 
-float Analysis::get_exponential_cosine_distance(std::vector<float> m, std::vector<float> n) {
+float Analysis::get_exponential_cosine_distance(const std::vector<float> &m, const std::vector<float> &n) {
 
     float exponential_cosine_distance = 0;
 
@@ -943,10 +943,12 @@ float Analysis::get_exponential_cosine_distance(std::vector<float> m, std::vecto
 }
 
 std::vector <std::vector<float>>
-Analysis::get_self_similarity_matrix(std::vector <std::vector<float>> window, int distance_formula) {
+Analysis::get_self_similarity_matrix(const std::vector <std::vector<float>> &window, int distance_formula) {
 
     std::vector <std::vector<float>> ssm;
     std::vector<float> similarity;
+    ssm.resize(window.size());
+    similarity.reserve(window.size());
     float distance = 0;
 
     for (int m = 0; m < window.size(); m++) {
@@ -965,11 +967,15 @@ Analysis::get_self_similarity_matrix(std::vector <std::vector<float>> window, in
             } else {
                 distance = get_cosine_distance(window[m], window[n]);
             }
-            similarity.push_back(distance);
+            //similarity.push_back(distance);
+          similarity.emplace_back(distance);
         }
 
-        ssm.push_back(similarity);
+        //ssm.push_back(similarity);
+        ssm[m] = similarity;
     }
+    //std::cout << "ssm.size(): " << ssm.size() << std::endl;
+    //std::cout << "similarity.size(): " << similarity.size() << std::endl;
     return ssm;
 }
 
@@ -1347,7 +1353,7 @@ void Analysis::make_csv_matrix_f(std::vector <std::vector<float>> v, char *direc
 
 std::vector <time_value_float> Analysis::get_segments() {
 
-    bool FILEPRINT = true;
+    bool FILEPRINT = false;
     bool filter_by_bars = false;
     auto start_segmentation = std::chrono::system_clock::now();
 
@@ -1403,14 +1409,42 @@ std::vector <time_value_float> Analysis::get_segments() {
     std::vector<std::vector<float>> ssm_stft;
     std::vector<std::vector<float>> ssm_rhythm;
 
-    if(mfcc_factor > 0)
-        ssm_mfcc = get_self_similarity_matrix(window_mfcc, 0);
-    if(chroma_factor > 0)
-        ssm_chroma = get_self_similarity_matrix(window_chroma, 0);
-    if(stft_factor > 0)
-        ssm_stft = get_self_similarity_matrix(window_stft, 0);
-    if(rhythm_factor > 0)
-        ssm_rhythm = get_self_similarity_matrix(window_rhythm, 0);
+    //auto start_ssm1 = std::chrono::system_clock::now();
+    if(mfcc_factor > 0) {
+      //std::cout << "getting ssm for mfcc" << std::endl;
+      //std::cout << "window_mfcc.size(): " << window_mfcc.size() << std::endl;
+      //std::cout << "window_mfcc[0].size(): " << window_mfcc[0].size() << std::endl;
+      //std::cout << "window_mfcc[0][0]: " << window_mfcc[0][0] << std::endl;
+      ssm_mfcc = get_self_similarity_matrix(window_mfcc, 0);
+    }
+    //auto end_ssm1 = std::chrono::system_clock::now();
+
+    //auto start_ssm2 = std::chrono::system_clock::now();
+    if(chroma_factor > 0) {
+      //std::cout << "getting ssm for chroma" << std::endl;
+      //std::cout << "window_chroma.size(): " << window_chroma.size() << std::endl;
+      //std::cout << "window_chroma[0].size(): " << window_chroma[0].size() << std::endl;
+      //std::cout << "window_chroma[0][0]: " << window_chroma[0][0] << std::endl;
+      ssm_chroma = get_self_similarity_matrix(window_chroma, 0);
+    }
+    //auto end_ssm2 = std::chrono::system_clock::now();
+
+    //auto start_ssm3 = std::chrono::system_clock::now();
+    if(stft_factor > 0) {
+      //std::cout << "getting ssm for stft" << std::endl;
+      //std::cout << "window_stft.size(): " << window_stft.size() << std::endl;
+      //std::cout << "window_stft[0].size(): " << window_stft[0].size() << std::endl;
+      //std::cout << "window_stft[0][0]: " << window_stft[0][0] << std::endl;
+      ssm_stft = get_self_similarity_matrix(window_stft, 0);
+    }
+    //auto end_ssm3 = std::chrono::system_clock::now();
+
+    //auto start_ssm4 = std::chrono::system_clock::now();
+    if(rhythm_factor > 0) {
+      //std::cout << "getting ssm for rhythm" << std::endl;
+      ssm_rhythm = get_self_similarity_matrix(window_rhythm, 0);
+    }
+    //auto end_ssm4 = std::chrono::system_clock::now();
 
     auto end_ssm = std::chrono::system_clock::now();
 
@@ -1504,6 +1538,10 @@ std::vector <time_value_float> Analysis::get_segments() {
     std::chrono::duration<double> elapsed_seconds = end_segmentation - start_segmentation;
     std::chrono::duration<double> elapsed_seconds_features = end_features - start_features;
     std::chrono::duration<double> elapsed_seconds_ssm = end_ssm - start_ssm;
+    //std::chrono::duration<double> elapsed_seconds_ssm1 = end_ssm1 - start_ssm1;
+    //std::chrono::duration<double> elapsed_seconds_ssm2 = end_ssm2 - start_ssm2;
+    //std::chrono::duration<double> elapsed_seconds_ssm3 = end_ssm3 - start_ssm3;
+    //std::chrono::duration<double> elapsed_seconds_ssm4 = end_ssm4 - start_ssm4;
     std::chrono::duration<double> elapsed_seconds_kernel = end_kernel - start_kernel;
     std::chrono::duration<double> elapsed_seconds_filter = end_filter - start_filter;
     std::chrono::duration<double> elapsed_seconds_extrema = end_extrema - start_extrema;
@@ -1514,6 +1552,10 @@ std::vector <time_value_float> Analysis::get_segments() {
               << "elapsed time: " << elapsed_seconds.count() << "s\n"
               << "FEATURE EXTRACTION: " << elapsed_seconds_features.count() << "s\n"
               << "SSM CALCULATION: " << elapsed_seconds_ssm.count() << "s\n"
+              //<< "SSM CALCULATION1: " << elapsed_seconds_ssm1.count() << "s\n"
+              //<< "SSM CALCULATION2: " << elapsed_seconds_ssm2.count() << "s\n"
+              //<< "SSM CALCULATION3: " << elapsed_seconds_ssm3.count() << "s\n"
+              //<< "SSM CALCULATION4: " << elapsed_seconds_ssm4.count() << "s\n"
               << "KERNEL CALCULATION: " << elapsed_seconds_kernel.count() << "s\n"
               << "NOVELTY CALCULATION: " << elapsed_seconds_filter.count() << "s\n"
               << "SEGMENTS CALCULATION: " << elapsed_seconds_extrema.count() << "s\n";
