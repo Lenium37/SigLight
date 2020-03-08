@@ -825,7 +825,7 @@ std::vector <std::vector<float>> Analysis::get_stmfcc(float *signal_values, int 
         gist2.processAudioFrame(bin);
 
         // USE MFCC
-        coeffs = gist2.getMelFrequencyCepstralCoefficients();
+        coeffs = gist2.getMelFrequencySpectrum();
 
         // USE CHROMAGRAM
         // TODO: WRITE FUNCTION getChromagram()
@@ -839,6 +839,7 @@ std::vector <std::vector<float>> Analysis::get_stmfcc(float *signal_values, int 
 
     return stmfcc;
 }
+
 std::vector <std::vector<float>> Analysis::get_chromagram(float *signal_values, int bin_size, int hop_size, int song_samplerate) {
 
     std::vector<std::vector<float>> chromagram;
@@ -869,9 +870,39 @@ std::vector <std::vector<float>> Analysis::get_chromagram(float *signal_values, 
     return chromagram;
 }
 
-std::vector <std::vector<float>> Analysis::get_spectrogram(std::vector<float> audio, int bin_size, int hop_size) {
+std::vector <std::vector<float>> Analysis::get_spectrogram(float *signal_values, int bin_size, int hop_size) {
     std::vector <std::vector<float>> spectrogram;
+
+    std::vector<float> bin, coeffs;
+    Gist<float> gist2 (bin_size, samplerate);
+
+    for (int i = 0; i < (signal_length_mono - bin_size); i += hop_size) {
+
+        for (int j = 0; j < bin_size; j++) {
+            int index = i + j;
+            //std::cout << "index " << index << ": " << wav_values_mono[index] << std::endl;
+            bin.push_back(signal_values[index]);
+        }
+        gist2.processAudioFrame(bin);
+
+        // USE MFCC
+        coeffs = gist2.getMagnitudeSpectrum();
+
+        // USE CHROMAGRAM
+        // TODO: WRITE FUNCTION getChromagram()
+        // TODO: std::vector<std::vector<float>> window = (std::vector<float> wav_values_mono, int resolution);
+
+        spectrogram.push_back(coeffs);
+        coeffs.clear();
+        bin.clear();
+    }
+
     return spectrogram;
+}
+
+std::vector <std::vector<float>> Analysis::get_rhythmogram(float *signal_values, int bin_size, int hop_size) {
+    std::vector <std::vector<float>> rhythmogram;
+    return rhythmogram;
 }
 
 float Analysis::get_cosine_distance(std::vector<float> m, std::vector<float> n) {
@@ -961,6 +992,7 @@ std::vector <std::vector<float>> Analysis::get_filter_kernel(int song_bpm, int b
     int L = L_f;
     int N = 2 * L + 1;
     std::cout << "L: " << L << std::endl;
+
     double var = 0.5;
     double epsilon = sqrt(0.5) / ((double) L * var);
 
@@ -1037,6 +1069,117 @@ Analysis::get_novelty_function(std::vector <std::vector<float>> ssm, std::vector
 
     return novelty_function;
 }
+
+std::vector<time_value_float> Analysis::get_combined_novelty_function(std::vector<time_value_float> mfcc, std::vector<time_value_float> chroma, std::vector<time_value_float> stft, std::vector<time_value_float> rhythm, float mfcc_co, float chroma_co, float stft_co, float rhythm_co, bool FILEPRINT, char *directory){
+
+    std::vector<time_value_float> combined_novelty_function;
+
+    float mfcc_max = 0;
+    float chroma_max = 0;
+    float stft_max = 0;
+    float rhythm_max = 0;
+    int size = 0;
+    float combined_factor = 0;
+
+    if (!mfcc.empty())
+        size = mfcc.size();
+    else if (!chroma.empty())
+        size = chroma.size();
+    else if (!stft.empty())
+        size = stft.size();
+    else if (!rhythm.empty())
+        size = rhythm.size();
+
+
+    if (mfcc_co > 0){
+        combined_factor += mfcc_co;
+    }
+    if (chroma_co > 0){
+        combined_factor += chroma_co;
+    }
+    if (stft_co > 0){
+        combined_factor += stft_co;
+    }
+    if (rhythm_co > 0){
+        combined_factor += rhythm_co;
+    }
+
+    for(int i = 0; i < size; i++){
+        if(!mfcc.empty() )
+            if (mfcc[i].value > mfcc_max)
+                mfcc_max = mfcc[i].value;
+        if(!chroma.empty() )
+            if (chroma[i].value > chroma_max)
+                chroma_max = chroma[i].value;
+        if(!stft.empty() )
+            if (stft[i].value > stft_max)
+                stft_max = stft[i].value;
+        if(!rhythm.empty() )
+            if (rhythm[i].value > rhythm_max)
+                rhythm_max = rhythm[i].value;
+    }
+
+    for(int i = 0; i < size; i++){
+        if(!mfcc.empty())
+            mfcc[i].value /= mfcc_max;
+        if(!chroma.empty())
+            chroma[i].value /= chroma_max;
+        if(!stft.empty())
+            stft[i].value /= stft_max;
+        if(!rhythm.empty())
+            rhythm[i].value /= rhythm_max;
+    }
+
+    if (FILEPRINT == true) {
+        make_csv_timeseries_tvf(mfcc, directory, "novelty_function_mfcc");
+        make_csv_timeseries_tvf(chroma, directory, "novelty_function_chroma");
+        make_csv_timeseries_tvf(stft, directory, "novelty_function_stft");
+        make_csv_timeseries_tvf(rhythm, directory, "novelty_function_rhythm");
+    }
+
+
+
+    // std::cout << "i: " << i << " // time: " << time << std::endl;
+
+
+    for(int i = 0; i < size; i++){
+
+        float time = 0.0;
+
+        if (!mfcc.empty()) {
+            time = mfcc[i].time;
+        }
+        if (!chroma.empty()) {
+            time = chroma[i].time;
+        }
+        if (!stft.empty()) {
+            time = stft[i].time;
+        }
+        if (!rhythm.empty()) {
+            time = rhythm[i].time;
+        }
+
+
+        float value = 0.0;
+
+        if(!mfcc.empty())
+            value += mfcc[i].value * mfcc_co;
+        if(!chroma.empty())
+            value += chroma[i].value * chroma_co;
+        if(!stft.empty())
+            value += stft[i].value * stft_co;
+        if(!rhythm.empty())
+            value += rhythm[i].value * rhythm_co;
+
+        value /= combined_factor;
+
+        combined_novelty_function.push_back({time, value});
+    }
+
+    return combined_novelty_function;
+
+}
+
 
 std::vector <time_value_float> Analysis::get_extrema(std::vector <time_value_float> novelty_function) {
 
@@ -1205,6 +1348,7 @@ void Analysis::make_csv_matrix_f(std::vector <std::vector<float>> v, char *direc
 std::vector <time_value_float> Analysis::get_segments() {
 
     bool FILEPRINT = true;
+    bool filter_by_bars = false;
     auto start_segmentation = std::chrono::system_clock::now();
 
     int bin_size = 22050; // 22050 = 0.5 seconds, 2Hz
@@ -1216,14 +1360,35 @@ std::vector <time_value_float> Analysis::get_segments() {
     float cut_seconds_end = 10; // HOW MANY SECONDS TO CUT AT THE END
     float cut_seconds_start = 0;
 
+    float mfcc_factor = 1;
+    float chroma_factor = 1;
+    float stft_factor = 1;
+    float rhythm_factor = 0;
+
+    char *directory = "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/";
+
+    // weighting for influence on novelty function
+
     // ###################################
     // ###### 1. GET AUDIO FEATURES ######
     // ####### CURRENTLY MFCC ONLY #######
     // ###################################
 
     auto start_features = std::chrono::system_clock::now();
-    std::vector<std::vector<float>> window_mfcc = get_stmfcc(wav_values_mono, bin_size, hop_size);
-    std::vector<std::vector<float>> window_chroma = get_chromagram(wav_values_mono, bin_size, hop_size, samplerate);
+
+    std::vector<std::vector<float>> window_mfcc;
+    std::vector<std::vector<float>> window_chroma;
+    std::vector<std::vector<float>> window_stft;
+    std::vector<std::vector<float>> window_rhythm;
+
+    if(mfcc_factor > 0)
+        window_mfcc = get_stmfcc(wav_values_mono, bin_size, hop_size);
+    if(chroma_factor > 0)
+        window_chroma = get_chromagram(wav_values_mono, bin_size, hop_size, samplerate);
+    if(stft_factor > 0)
+        window_stft = get_spectrogram(wav_values_mono, bin_size, hop_size);
+    if(rhythm_factor > 0)
+        window_rhythm = get_rhythmogram(wav_values_mono, bin_size, hop_size);
 
     auto end_features = std::chrono::system_clock::now();
 
@@ -1232,8 +1397,21 @@ std::vector <time_value_float> Analysis::get_segments() {
     // #################################
 
     auto start_ssm = std::chrono::system_clock::now();
-    std::vector<std::vector<float>> ssm_mfcc = get_self_similarity_matrix(window_mfcc, 0);
-    std::vector<std::vector<float>> ssm_chroma = get_self_similarity_matrix(window_chroma, 0);
+
+    std::vector<std::vector<float>> ssm_mfcc;
+    std::vector<std::vector<float>> ssm_chroma;
+    std::vector<std::vector<float>> ssm_stft;
+    std::vector<std::vector<float>> ssm_rhythm;
+
+    if(mfcc_factor > 0)
+        ssm_mfcc = get_self_similarity_matrix(window_mfcc, 0);
+    if(chroma_factor > 0)
+        ssm_chroma = get_self_similarity_matrix(window_chroma, 0);
+    if(stft_factor > 0)
+        ssm_stft = get_self_similarity_matrix(window_stft, 0);
+    if(rhythm_factor > 0)
+        ssm_rhythm = get_self_similarity_matrix(window_rhythm, 0);
+
     auto end_ssm = std::chrono::system_clock::now();
 
     // ####################################################
@@ -1241,7 +1419,9 @@ std::vector <time_value_float> Analysis::get_segments() {
     // ####################################################
 
     auto start_kernel = std::chrono::system_clock::now();
+
     std::vector<std::vector<float>> kernel = get_filter_kernel(this->bpm, bin_size, samplerate);
+
     auto end_kernel = std::chrono::system_clock::now();
 
     // ###################################
@@ -1249,67 +1429,77 @@ std::vector <time_value_float> Analysis::get_segments() {
     // ###################################
 
     auto start_filter = std::chrono::system_clock::now();
-    std::vector<time_value_float> novelty_function_mfcc = get_novelty_function(ssm_mfcc, kernel, cut_seconds_end, bin_size,
+
+    std::vector<time_value_float> novelty_function_mfcc;
+    std::vector<time_value_float> novelty_function_chroma;
+    std::vector<time_value_float> novelty_function_stft;
+    std::vector<time_value_float> novelty_function_rhythm;
+
+    if(mfcc_factor > 0)
+        novelty_function_mfcc = get_novelty_function(ssm_mfcc, kernel, cut_seconds_end, bin_size,
                                                                           samplerate, kernel[0].size());
-    std::vector<time_value_float> novelty_function_chroma = get_novelty_function(ssm_chroma, kernel, cut_seconds_end, bin_size,
+    if(chroma_factor > 0)
+        novelty_function_chroma = get_novelty_function(ssm_chroma, kernel, cut_seconds_end, bin_size,
                                                                                samplerate, kernel[0].size());
-    float novelty_mfcc_max = 0;
-    float novelty_chroma_max = 0;
+    if(stft_factor > 0)
+        novelty_function_stft = get_novelty_function(ssm_stft, kernel, cut_seconds_end, bin_size,
+                                                                                 samplerate, kernel[0].size());
+    if(rhythm_factor > 0)
+        novelty_function_rhythm = get_novelty_function(ssm_rhythm, kernel, cut_seconds_end, bin_size,
+                                                                               samplerate, kernel[0].size());
 
-    for(int i = 0; i < novelty_function_mfcc.size(); i++){
-        if(novelty_function_mfcc[i].value > novelty_mfcc_max)
-            novelty_mfcc_max = novelty_function_mfcc[i].value;
-    }
-    for(int i = 0; i < novelty_function_mfcc.size(); i++){
-        novelty_function_mfcc[i].value /= novelty_mfcc_max;
-    }
-
-    for(int i = 0; i < novelty_function_chroma.size(); i++){
-        if(novelty_function_chroma[i].value > novelty_chroma_max)
-            novelty_chroma_max = novelty_function_chroma[i].value;
-    }
-    for(int i = 0; i < novelty_function_chroma.size(); i++){
-        novelty_function_chroma[i].value /= novelty_chroma_max;
-    }
-    std::vector<time_value_float> novelty_function_combined;
-
-    float mfcc_factor = 1;
-    float chroma_factor = 2;
-
-    for(int i = 0; i < novelty_function_mfcc.size(); i++){
-        novelty_function_combined.push_back({novelty_function_mfcc[i].time, static_cast<float>(((mfcc_factor * novelty_function_mfcc[i].value + chroma_factor * novelty_function_chroma[i].value) / (mfcc_factor + chroma_factor)))});
-    }
+    std::vector<time_value_float> novelty_function_combined = get_combined_novelty_function(novelty_function_mfcc, novelty_function_chroma, novelty_function_stft, novelty_function_rhythm, mfcc_factor, chroma_factor, stft_factor, rhythm_factor, FILEPRINT, directory);
 
     auto end_filter = std::chrono::system_clock::now();
 
+
+    // ########################
+    // ### 5.2 FIND EXTREMA ###
+    // ########################
+
     auto start_extrema = std::chrono::system_clock::now();
+
     std::vector<time_value_float> extrema = get_extrema(novelty_function_combined);
     float extrema_middle = get_middle_tvf(extrema);
     float extrema_variance = get_variance_tvf(extrema, extrema_middle);
     float extrema_deviation = get_standard_deviation_tvf(extrema, extrema_variance);
 
     std::vector<time_value_float> segments = filter_extrema(extrema, extrema_middle, middle_factor, extrema_variance,
-                                                            extrema_deviation, this->bpm, true);
+                                                            extrema_deviation, this->bpm, filter_by_bars);
     auto end_extrema = std::chrono::system_clock::now();
+
+
+    // #######################
+    // ### 6. PRINT TO CSV ###
+    // #######################
 
     if (FILEPRINT == true) {
         char *directory = "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/";
         make_csv_matrix_f(kernel, directory, "kernel");
         make_csv_matrix_f(ssm_mfcc, directory, "ssm_mfcc");
         make_csv_matrix_f(ssm_chroma, directory, "ssm_chroma");
-        make_csv_timeseries_tvf(novelty_function_mfcc, directory, "novelty_function_mfcc");
-        make_csv_timeseries_tvf(novelty_function_chroma, directory, "novelty_function_chroma");
+        make_csv_matrix_f(ssm_stft, directory, "ssm_stft");
+        make_csv_matrix_f(ssm_rhythm, directory, "ssm_rhythm");
+        //make_csv_timeseries_tvf(novelty_function_mfcc, directory, "novelty_function_mfcc");
+        //make_csv_timeseries_tvf(novelty_function_chroma, directory, "novelty_function_chroma");
+        //make_csv_timeseries_tvf(novelty_function_stft, directory, "novelty_function_stft");
+       // make_csv_timeseries_tvf(novelty_function_rhythm, directory, "novelty_function_rhythm");
+
         make_csv_timeseries_tvf(novelty_function_combined, directory, "novelty_function_combined");
         make_csv_timeseries_tvf(extrema, directory, "extrema");
         make_csv_timeseries_tvf(segments, directory, "segments");
     }
 
 
-    // ###############################
-    // ## TODO: 6. CLUSTER SEGMENTS ##
-    // ###############################
+    // ################################
+    // ### TODO: 7. CLUSTER SEGMENTS ##
+    // ################################
 
-    // PRINT COMPUTATION TIME
+
+    // #################################
+    // ### 8. PRINT CALCULATION TIMES ##
+    // #################################
+
     auto end_segmentation = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end_segmentation - start_segmentation;
     std::chrono::duration<double> elapsed_seconds_features = end_features - start_features;

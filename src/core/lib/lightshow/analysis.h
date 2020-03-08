@@ -67,12 +67,15 @@ class Analysis {
 
   std::vector<std::vector<float> > get_stmfcc(float *signal_values, int bin_size, int hop_size);
   std::vector<std::vector<float> > get_chromagram(float *signal_values, int bin_size, int hop_size, int song_samplerate);
-  std::vector<std::vector<float> > get_spectrogram(std::vector<float> audio, int bin_size, int hop_size);
+  std::vector<std::vector<float> > get_spectrogram(float *signal_values, int bin_size, int hop_size);
+  std::vector<std::vector<float> > get_rhythmogram(float *signal_values, int bin_size, int hop_size);
+
   float get_cosine_distance(std::vector<float> m, std::vector<float> n);
   float get_exponential_cosine_distance(std::vector<float> m, std::vector<float> n);
   std::vector<std::vector<float> > get_self_similarity_matrix(std::vector<std::vector<float>> window, int distance_formula);
   std::vector<std::vector<float> > get_filter_kernel(int song_bpm, int bin_size, int song_samplerate);
   std::vector<time_value_float> get_novelty_function(std::vector<std::vector<float> > ssm, std::vector<std::vector<float> > kernel, int cut_seconds_end, int bin_size, int song_samplerate, int N);
+  std::vector<time_value_float> get_combined_novelty_function(std::vector<time_value_float> mfcc, std::vector<time_value_float> chroma, std::vector<time_value_float> stft, std::vector<time_value_float> rhythm, float mfcc_co, float chroma_co, float stft_co, float rhythm_co, bool FILEPRINT, char *directory);
   std::vector<time_value_float> get_extrema(std::vector<time_value_float> novelty_function);
   float get_middle_tvf(std::vector<time_value_float> v);
   float get_variance_tvf(std::vector<time_value_float> v, float middle);
