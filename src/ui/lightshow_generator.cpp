@@ -764,7 +764,11 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
             //fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
 
 
-            if (timestamps[j] + 0.35 < timestamps[j+1])
+            if (timestamps[j] + 1 < timestamps[j+1])
+              time_difference = 1;
+            else if (timestamps[j] + 0.7 < timestamps[j+1])
+              time_difference = 0.7;
+            else if (timestamps[j] + 0.35 < timestamps[j+1])
               time_difference = 0.35;
             else if (timestamps[j] + 0.3 < timestamps[j+1])
               time_difference = 0.3;
