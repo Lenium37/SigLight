@@ -754,7 +754,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
             fix.add_value_changes_to_channel(this->generate_single_fade(100,
                                                                         255,
-                                                                        timestamps[j] - time_difference,
+                                                                        timestamps[j] - time_difference / 3,
                                                                         timestamps[j],
                                                                         lightshow->get_resolution()),
                                              fix.get_channel_dimmer());
@@ -781,7 +781,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
             fix.add_value_changes_to_channel(this->generate_single_fade(255,
                                                                         100,
-                                                                        timestamps[j],
+                                                                        timestamps[j] + time_difference/2,
                                                                         timestamps[j] + time_difference,
                                                                         lightshow->get_resolution()),
                                              fix.get_channel_dimmer());
@@ -803,7 +803,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
             fix.add_value_changes_to_channel(this->generate_single_fade(255,
                                                                         100,
-                                                                        timestamps[j],
+                                                                        timestamps[j] + time_difference/2,
                                                                         timestamps[j] + time_difference,
                                                                         lightshow->get_resolution()),
                                              fix.get_channel_dimmer());
