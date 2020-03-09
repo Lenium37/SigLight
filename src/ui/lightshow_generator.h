@@ -54,6 +54,7 @@ class LightshowGenerator {
   void generate_group_one_after_another_fade_reverse(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end, int fixtures_in_group, int lightshow_resolution);
   void generate_group_ABA(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end);
   void generate_group_ABBA(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end);
+  void generate_group_alternate_odd_even(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end);
 
   void generate_continuous_8(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_pan, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group);
   void generate_continuous_circle(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_pan, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group);

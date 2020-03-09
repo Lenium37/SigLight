@@ -500,8 +500,19 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
               // flash reverse
               this->generate_flash_reverse(fix, onset_timestamps, segment_start, segment_end);
             } else {
-              // flash
-              this->generate_flash(fix, onset_timestamps, segment_start, segment_end);
+              if(fix_type == "group_auto_onsets") {
+               if(fixtures_in_group_auto_onsets % 4 == 0) {
+                 this->generate_group_ABBA(fix, onset_timestamps, segment_start, segment_end);
+               } else if(fixtures_in_group_auto_onsets % 3 == 0) {
+                 this->generate_group_ABA(fix, onset_timestamps, segment_start, segment_end);
+               } else if(fixtures_in_group_auto_onsets % 2 == 1) {
+                 this->generate_group_alternate_odd_even(fix, onset_timestamps, segment_start, segment_end);
+               }
+              } else {
+                // flash
+                this->generate_flash(fix, onset_timestamps, segment_start, segment_end);
+              }
+
             }
 
           } else if (onset_timestamps.size() >= four_per_bar) {
@@ -2053,6 +2064,33 @@ void LightshowGenerator::generate_group_ABBA(LightshowFixture & fix, std::vector
 
   int use = 1;
   if(fix.get_position_in_group() % 4 == 1 || fix.get_position_in_group() % 4 == 0)
+    use = 0;
+
+  if(fix.get_position_in_group() > 0) {
+    for (int i = 0; i < timestamps.size(); i++) {
+      if(i % 2 == use) {
+        value_changes.push_back({timestamps[i], 255});
+        if(i < timestamps.size() - 1)
+          value_changes.push_back({timestamps[i + 1], 0});
+        else
+          value_changes.push_back({segment_end, 0});
+      }
+    }
+
+    if (fix.has_global_dimmer) {
+      fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
+    } else if(fix.has_shutter) {
+      this->set_dimmer_values_in_segment(fix, segment_start, 255, segment_end, 0);
+      fix.add_value_changes_to_channel(value_changes, fix.get_channel_shutter());
+    }
+  }
+}
+
+void LightshowGenerator::generate_group_alternate_odd_even(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end) {
+  std::vector<time_value_int> value_changes;
+
+  int use = 1;
+  if(fix.get_position_in_group() % 2 == 0)
     use = 0;
 
   if(fix.get_position_in_group() > 0) {
