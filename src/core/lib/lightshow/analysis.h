@@ -80,7 +80,7 @@ class Analysis {
   float get_middle_tvf(std::vector<time_value_float> v);
   float get_variance_tvf(std::vector<time_value_float> v, float middle);
   float get_standard_deviation_tvf(std::vector<time_value_float> v, float variance);
-  std::vector<time_value_float> filter_extrema(std::vector<time_value_float> extrema, float middle, float middle_factor, float variance, float standard_deviation, int bpm, bool filter_by_bars);
+  std::vector<time_value_float> filter_extrema(std::vector<time_value_float> extrema, float middle, float middle_factor, float variance, float standard_deviation, int bpm, bool filter_by_bars, int bars_c);
   void make_csv_timeseries_tvf(std::vector<time_value_float> v, char const *directory, char const *filename );
   void make_csv_matrix_f(std::vector<std::vector<float>> v, char const *directory, char  const *filename );
 

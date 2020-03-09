@@ -3,6 +3,7 @@
 //
 
 #include <logger.h>
+#include <map>
 #include "analysis.h"
 
 void Analysis::read_wav(char *filepath) {
@@ -878,11 +879,11 @@ std::vector <std::vector<float>> Analysis::get_spectrogram(float *signal_values,
         // USE MFCC
         coeffs = gist2.getMagnitudeSpectrum();
 
-
         spectrogram.push_back(coeffs);
         coeffs.clear();
         bin.clear();
     }
+    std::vector<std::vector<float>> real_spectrogram;
 
     return spectrogram;
 }
@@ -930,7 +931,7 @@ float Analysis::get_exponential_cosine_distance(const std::vector<float> &m, con
 }
 
 std::vector <std::vector<float>>
-Analysis::get_self_similarity_matrix(const std::vector <std::vector<float>> &window, int distance_formula) {
+Analysis::get_self_similarity_matrix(const std::vector <std::vector<float>> &f_window, int distance_formula) {
 
     std::vector <std::vector<float>> ssm;
     std::vector<float> similarity;
@@ -938,9 +939,9 @@ Analysis::get_self_similarity_matrix(const std::vector <std::vector<float>> &win
     //similarity.reserve(window.size());
     float distance = 0;
 
-    for (int m = 0; m < window.size(); m++) {
+    for (int m = 0; m < f_window.size(); m++) {
         similarity.clear();
-        for (int n = 0; n < window.size(); n++) {
+        for (int n = 0; n < f_window.size(); n++) {
 
             // #################################################################
             // ###################### 3.1 COSINE DISTANCE ######################
@@ -950,9 +951,9 @@ Analysis::get_self_similarity_matrix(const std::vector <std::vector<float>> &win
             // ######################## exp(d_cos - 1) #########################
 
             if (distance_formula == 1) {
-                distance = get_exponential_cosine_distance(window[m], window[n]);
+                distance = get_exponential_cosine_distance(f_window[m], f_window[n]);
             } else {
-                distance = get_cosine_distance(window[m], window[n]);
+                distance = get_cosine_distance(f_window[m], f_window[n]);
             }
             similarity.push_back(distance);
           //similarity.emplace_back(distance);
@@ -1130,11 +1131,275 @@ std::vector<time_value_float> Analysis::get_combined_novelty_function(std::vecto
         make_csv_timeseries_tvf(rhythm, directory, "novelty_function_rhythm");
     }
 
+    // START PEAK SELECT ALGORITHM
+    std::map<int, int> number_of_maxima_at_timestamp;
+    std::map<int, int>::iterator it;
+    std::vector<time_value_float> v_max;
+    
+    if(mfcc.size() > size)
+        size = mfcc.size();
+    if(chroma.size() > size)
+        size = chroma.size();
+    if(stft.size() > size)
+        size = stft.size();
+    if(rhythm.size() > size)
+        size = rhythm.size();
 
+    for(int i = 1; i < size - 1; i++) {
+        if(mfcc.size() == size) {
+            if(mfcc[i].value > mfcc[i - 1].value && mfcc[i].value > mfcc[i + 1].value) {
+              it = number_of_maxima_at_timestamp.find(i);
+              if (it != number_of_maxima_at_timestamp.end()) { // found
+                it->second++;
+                //std::cout << "increasing maxima" << std::endl;
+              } else { // not found
+                number_of_maxima_at_timestamp.insert(std::pair<int, int>(i, 1));
+                //std::cout << "adding maxima" << std::endl;
+              }
+              it = number_of_maxima_at_timestamp.find(i - 1);
+              if (it != number_of_maxima_at_timestamp.end()) { // found
+                it->second++;
+                //std::cout << "increasing maxima" << std::endl;
+              } else { // not found
+                number_of_maxima_at_timestamp.insert(std::pair<int, int>(i - 1, 1));
+                //std::cout << "adding maxima" << std::endl;
+              }
+              it = number_of_maxima_at_timestamp.find(i + 1);
+              if (it != number_of_maxima_at_timestamp.end()) { // found
+                it->second++;
+                //std::cout << "increasing maxima" << std::endl;
+              } else { // not found
+                number_of_maxima_at_timestamp.insert(std::pair<int, int>(i + 1, 1));
+                //std::cout << "adding maxima" << std::endl;
+              }
+            }
+        }
+
+        if(chroma.size() == size) {
+            if(chroma[i].value > chroma[i - 1].value && chroma[i].value > chroma[i + 1].value) {
+              it = number_of_maxima_at_timestamp.find(i);
+              if (it != number_of_maxima_at_timestamp.end()) { // found
+                  it->second++;
+                  //std::cout << "increasing maxima" << std::endl;
+              } else { // not found
+                  number_of_maxima_at_timestamp.insert(std::pair<int, int>(i, 1));
+                  //std::cout << "adding maxima" << std::endl;
+              }
+              it = number_of_maxima_at_timestamp.find(i - 1);
+              if (it != number_of_maxima_at_timestamp.end()) { // found
+                it->second++;
+                //std::cout << "increasing maxima" << std::endl;
+              } else { // not found
+                number_of_maxima_at_timestamp.insert(std::pair<int, int>(i - 1, 1));
+                //std::cout << "adding maxima" << std::endl;
+              }
+              it = number_of_maxima_at_timestamp.find(i + 1);
+              if (it != number_of_maxima_at_timestamp.end()) { // found
+                it->second++;
+                //std::cout << "increasing maxima" << std::endl;
+              } else { // not found
+                number_of_maxima_at_timestamp.insert(std::pair<int, int>(i + 1, 1));
+                //std::cout << "adding maxima" << std::endl;
+              }
+            }
+        }
+
+        if(stft.size() == size) {
+            if(stft[i].value > stft[i - 1].value && stft[i].value > stft[i + 1].value) {
+              it = number_of_maxima_at_timestamp.find(i);
+              if (it != number_of_maxima_at_timestamp.end()) { // found
+                  it->second++;
+                  //std::cout << "increasing maxima" << std::endl;
+              } else { // not found
+                  number_of_maxima_at_timestamp.insert(std::pair<int, int>(i, 1));
+                  //std::cout << "adding maxima" << std::endl;
+              }
+              it = number_of_maxima_at_timestamp.find(i - 1);
+              if (it != number_of_maxima_at_timestamp.end()) { // found
+                it->second++;
+                //std::cout << "increasing maxima" << std::endl;
+              } else { // not found
+                number_of_maxima_at_timestamp.insert(std::pair<int, int>(i - 1, 1));
+                //std::cout << "adding maxima" << std::endl;
+              }
+              it = number_of_maxima_at_timestamp.find(i + 1);
+              if (it != number_of_maxima_at_timestamp.end()) { // found
+                it->second++;
+                //std::cout << "increasing maxima" << std::endl;
+              } else { // not found
+                number_of_maxima_at_timestamp.insert(std::pair<int, int>(i + 1, 1));
+                //std::cout << "adding maxima" << std::endl;
+              }
+            }
+        }
+
+        if(rhythm.size() == size) {
+            if(rhythm[i].value > rhythm[i - 1].value && rhythm[i].value > rhythm[i + 1].value) {
+              it = number_of_maxima_at_timestamp.find(i);
+              if (it != number_of_maxima_at_timestamp.end()) { // found
+                  it->second++;
+                  //std::cout << "increasing maxima" << std::endl;
+              } else { // not found
+                  number_of_maxima_at_timestamp.insert(std::pair<int, int>(i, 1));
+                  //std::cout << "adding maxima" << std::endl;
+              }
+              it = number_of_maxima_at_timestamp.find(i - 1);
+              if (it != number_of_maxima_at_timestamp.end()) { // found
+                it->second++;
+                //std::cout << "increasing maxima" << std::endl;
+              } else { // not found
+                number_of_maxima_at_timestamp.insert(std::pair<int, int>(i - 1, 1));
+                //std::cout << "adding maxima" << std::endl;
+              }
+              it = number_of_maxima_at_timestamp.find(i + 1);
+              if (it != number_of_maxima_at_timestamp.end()) { // found
+                it->second++;
+                //std::cout << "increasing maxima" << std::endl;
+              } else { // not found
+                number_of_maxima_at_timestamp.insert(std::pair<int, int>(i + 1, 1));
+                //std::cout << "adding maxima" << std::endl;
+              }
+            }
+        }
+    }
+
+    for(auto const & max: number_of_maxima_at_timestamp) {
+        std::cout << "at: " << max.first << " there are " << max.second << " maxima" << std::endl;
+        if(max.second > 1) { // found maximum at same timestamp in at least 2 vectors
+            float max_value = 0;
+            float timestamp_of_max_value = 0;
+          if(max.first == 0 || max.first == size - 1) {
+            if(mfcc.size() == size && mfcc[max.first].value > max_value) {
+              max_value = mfcc[max.first].value;
+              timestamp_of_max_value = mfcc[max.first].time;
+            }
+          } else {
+            if(mfcc.size() == size) {
+              if(mfcc[max.first].value > max_value) {
+                max_value = mfcc[max.first].value;
+                timestamp_of_max_value = mfcc[max.first].time;
+              }
+              if(mfcc[max.first - 1].value > max_value) {
+                max_value = mfcc[max.first - 1].value;
+                timestamp_of_max_value = mfcc[max.first - 1].time;
+              }
+              if(mfcc[max.first + 1].value > max_value) {
+                max_value = mfcc[max.first + 1].value;
+                timestamp_of_max_value = mfcc[max.first + 1].time;
+              }
+            }
+          }
+          if(max.first == 0 || max.first == size - 1) {
+            if(chroma.size() == size && chroma[max.first].value > max_value) {
+              max_value = chroma[max.first].value;
+              timestamp_of_max_value = chroma[max.first].time;
+            }
+          } else {
+            if(chroma.size() == size) {
+              if(chroma[max.first].value > max_value) {
+                max_value = chroma[max.first].value;
+                timestamp_of_max_value = chroma[max.first].time;
+              }
+              if(chroma[max.first - 1].value > max_value) {
+                max_value = chroma[max.first - 1].value;
+                timestamp_of_max_value = chroma[max.first - 1].time;
+              }
+              if(chroma[max.first + 1].value > max_value) {
+                max_value = chroma[max.first + 1].value;
+                timestamp_of_max_value = chroma[max.first + 1].time;
+              }
+            }
+          }
+          if(max.first == 0 || max.first == size - 1) {
+            if(stft.size() == size && stft[max.first].value > max_value) {
+              max_value = stft[max.first].value;
+              timestamp_of_max_value = stft[max.first].time;
+            }
+          } else {
+            if(stft.size() == size) {
+              if(stft[max.first].value > max_value) {
+                max_value = stft[max.first].value;
+                timestamp_of_max_value = stft[max.first].time;
+              }
+              if(stft[max.first - 1].value > max_value) {
+                max_value = stft[max.first - 1].value;
+                timestamp_of_max_value = stft[max.first - 1].time;
+              }
+              if(stft[max.first + 1].value > max_value) {
+                max_value = stft[max.first + 1].value;
+                timestamp_of_max_value = stft[max.first + 1].time;
+              }
+            }
+          }
+          if(max.first == 0 || max.first == size - 1) {
+            if(rhythm.size() == size && rhythm[max.first].value > max_value) {
+              max_value = rhythm[max.first].value;
+              timestamp_of_max_value = rhythm[max.first].time;
+            }
+          } else {
+            if(rhythm.size() == size) {
+              if(rhythm[max.first].value > max_value) {
+                max_value = rhythm[max.first].value;
+                timestamp_of_max_value = rhythm[max.first].time;
+              }
+              if(rhythm[max.first - 1].value > max_value) {
+                max_value = rhythm[max.first - 1].value;
+                timestamp_of_max_value = rhythm[max.first - 1].time;
+              }
+              if(rhythm[max.first + 1].value > max_value) {
+                max_value = rhythm[max.first + 1].value;
+                timestamp_of_max_value = rhythm[max.first + 1].time;
+              }
+            }
+          }
+          v_max.push_back({timestamp_of_max_value, max_value});
+        }
+    }
+
+    /*std::map<int, int>::iterator it2 = number_of_maxima_at_timestamp.begin();
+    it2.
+
+    for(int j = 1; j < number_of_maxima_at_timestamp.size() - 1; j++) {
+      std::pair<int, int> current = number_of_maxima_at_timestamp[j];
+      auto const & previous = number_of_maxima_at_timestamp[j - 1];
+      auto const & next = number_of_maxima_at_timestamp[j + 1];
+
+      std::cout << "at: " << number_of_maxima_at_timestamp[j].first << " there are " << number_of_maxima_at_timestamp[j].second << " maxima" << std::endl;
+      if(number_of_maxima_at_timestamp[j].second > 1) { // found maximum at same timestamp in at least 2 vectors
+        float max_value = 0;
+        float timestamp_of_max_value = 0;
+        if(mfcc.size() == size && mfcc[number_of_maxima_at_timestamp[j].first].value > max_value) {
+          max_value = mfcc[number_of_maxima_at_timestamp[j].first].value;
+          timestamp_of_max_value = mfcc[number_of_maxima_at_timestamp[j].first].time;
+        }
+        if(chroma.size() == size && chroma[number_of_maxima_at_timestamp[j].first].value > max_value) {
+          max_value = chroma[number_of_maxima_at_timestamp[j].first].value;
+          timestamp_of_max_value = chroma[number_of_maxima_at_timestamp[j].first].time;
+        }
+        if(stft.size() == size && stft[number_of_maxima_at_timestamp[j].first].value > max_value) {
+          max_value = stft[number_of_maxima_at_timestamp[j].first].value;
+          timestamp_of_max_value = stft[number_of_maxima_at_timestamp[j].first].time;
+        }
+        if(rhythm.size() == size && rhythm[number_of_maxima_at_timestamp[j].first].value > max_value) {
+          max_value = rhythm[number_of_maxima_at_timestamp[j].first].value;
+          timestamp_of_max_value = rhythm[number_of_maxima_at_timestamp[j].first].time;
+        }
+        v_number_of_maxima_at_timestamp[j].push_back({timestamp_of_max_value, max_value});
+      }
+    }*/
+    /*
+    for(auto const & max: v_max) {
+        std::cout << "at: " << max.time << " the maximum maxima value is " << max.value << std::endl;
+    }
+     */
+    
+    // END PEAK SELECT ALGORITHM
+    
+    
 
     // std::cout << "i: " << i << " // time: " << time << std::endl;
 
-
+    /*
     for(int i = 0; i < size; i++){
 
         float time = 0.0;
@@ -1168,8 +1433,10 @@ std::vector<time_value_float> Analysis::get_combined_novelty_function(std::vecto
 
         combined_novelty_function.push_back({time, value});
     }
+     */
 
-    return combined_novelty_function;
+    //return combined_novelty_function;
+    return v_max;
 
 }
 
@@ -1237,7 +1504,7 @@ float Analysis::get_standard_deviation_tvf(std::vector <time_value_float> v, flo
 
 std::vector <time_value_float>
 Analysis::filter_extrema(std::vector <time_value_float> extrema, float middle, float middle_factor, float variance,
-                         float standard_deviation, int bpm, bool filter_by_bars) {
+                         float standard_deviation, int bpm, bool filter_by_bars, int bars_c) {
     std::vector <time_value_float> segments;
 
     for (int i = 0; i < extrema.size(); i++) {
@@ -1251,8 +1518,7 @@ Analysis::filter_extrema(std::vector <time_value_float> extrema, float middle, f
         bool multiple_peaks = false;
         std::vector<int> indexes_of_multiple_peaks;
 
-        int bars = 2;
-        float bars_time = (float) bars * ((float) 4.0 * 60.0 / (float) bpm);
+        float bars_time = (float) bars_c * ((float) 4.0 * 60.0 / (float) bpm);
 
         if (!segments.empty()) {
             for (int i = 0; i < segments.size() - 1; i++) {
@@ -1340,22 +1606,23 @@ void Analysis::make_csv_matrix_f(std::vector <std::vector<float>> v, char const 
 std::vector <time_value_float> Analysis::get_segments() {
 
     bool FILEPRINT = false;
-    bool filter_by_bars = false;
+    bool filter_by_bars = true;
+    int bars_c = 1;
     auto start_segmentation = std::chrono::system_clock::now();
 
-    int bin_size = 22050; // 22050 = 0.5 seconds, 2Hz
-    int hop_size = 22050; // no overlap, don't do overlap, all timestamps will be broken.
+    int bin_size = 44100; // 44100 = 1 second, 1Hz
+    int hop_size = 44100; // no overlap, don't do overlap, all timestamps will be broken.
 
-    float middle_factor = 0.75;
+    float middle_factor = 0.9; // 1
     float novelty_factor = 0.5;
     float deviation_factor = 4;
     float cut_seconds_end = 10; // HOW MANY SECONDS TO CUT AT THE END
     float cut_seconds_start = 0;
 
-    float mfcc_factor = 1;
-    float chroma_factor = 1;
-    float stft_factor = 1;
-    float rhythm_factor = 0;
+    float mfcc_factor = 0.666; // 1
+    float chroma_factor = 0.666; // 0.5
+    float stft_factor = 4.6666; // 4
+    float rhythm_factor = 0; // 0
 
     const char *directory = "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/";
 
@@ -1480,13 +1747,15 @@ std::vector <time_value_float> Analysis::get_segments() {
 
     auto start_extrema = std::chrono::system_clock::now();
 
-    std::vector<time_value_float> extrema = get_extrema(novelty_function_combined);
+    //std::vector<time_value_float> extrema = get_extrema(novelty_function_combined);
+    std::vector<time_value_float> extrema = novelty_function_combined;
+
     float extrema_middle = get_middle_tvf(extrema);
     float extrema_variance = get_variance_tvf(extrema, extrema_middle);
     float extrema_deviation = get_standard_deviation_tvf(extrema, extrema_variance);
 
     std::vector<time_value_float> segments = filter_extrema(extrema, extrema_middle, middle_factor, extrema_variance,
-                                                            extrema_deviation, this->bpm, filter_by_bars);
+                                                            extrema_deviation, this->bpm, filter_by_bars, bars_c);
     auto end_extrema = std::chrono::system_clock::now();
 
 
