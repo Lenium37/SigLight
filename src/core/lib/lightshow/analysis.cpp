@@ -51,12 +51,6 @@ void Analysis::read_wav(char *filepath) {
 
     //printf("time: %d, value: %f\n", max_sample/44100, max_sample_value);
 
-    /** TODO:
-     * HIER MÜSST MAN FÜNF MARKANTE SEKUNDEN AUS DEM SONG SUCHEN,
-     * DIE HOHE ENERGIE IM TIEFEN FREQUENZBEREICH HABEN
-     * MOMENTAN WIRD DIE HÄLFTE DES SONGS GENOMMEN, DAS GEHT IN ÜBER 90% DER FÄLLE KLAR
-     * EVTL.
-    */
     if (signal_length_mono > 15 * samplerate) {
         float wert = 0;
         //printf("from: %d, to: %d\n", (max_sample - (bpm_seconds_to_check*44100/2))/44100, (max_sample + (bpm_seconds_to_check*44100/2))/44100);
@@ -768,7 +762,7 @@ std::vector <time_value_double> Analysis::get_intensity_function_values() {
             float f = (float) i * samplerate / block_size;
             float weight = 1;
             // unomment for weighting based on frequency!
-            // TODO: find useful weighting!
+
 
             if (f < 1) {
                 weight = 0;
@@ -827,10 +821,6 @@ std::vector <std::vector<float>> Analysis::get_stmfcc(float *signal_values, int 
         // USE MFCC
         coeffs = gist2.getMelFrequencySpectrum();
 
-        // USE CHROMAGRAM
-        // TODO: WRITE FUNCTION getChromagram()
-        // TODO: std::vector<std::vector<float>> window = (std::vector<float> wav_values_mono, int resolution);
-
         stmfcc.push_back(coeffs);
         coeffs.clear();
         bin.clear();
@@ -888,9 +878,6 @@ std::vector <std::vector<float>> Analysis::get_spectrogram(float *signal_values,
         // USE MFCC
         coeffs = gist2.getMagnitudeSpectrum();
 
-        // USE CHROMAGRAM
-        // TODO: WRITE FUNCTION getChromagram()
-        // TODO: std::vector<std::vector<float>> window = (std::vector<float> wav_values_mono, int resolution);
 
         spectrogram.push_back(coeffs);
         coeffs.clear();
@@ -1076,7 +1063,7 @@ Analysis::get_novelty_function(std::vector <std::vector<float>> ssm, std::vector
     return novelty_function;
 }
 
-std::vector<time_value_float> Analysis::get_combined_novelty_function(std::vector<time_value_float> mfcc, std::vector<time_value_float> chroma, std::vector<time_value_float> stft, std::vector<time_value_float> rhythm, float mfcc_co, float chroma_co, float stft_co, float rhythm_co, bool FILEPRINT, char *directory){
+std::vector<time_value_float> Analysis::get_combined_novelty_function(std::vector<time_value_float> mfcc, std::vector<time_value_float> chroma, std::vector<time_value_float> stft, std::vector<time_value_float> rhythm, float mfcc_co, float chroma_co, float stft_co, float rhythm_co, bool FILEPRINT, char const *directory){
 
     std::vector<time_value_float> combined_novelty_function;
 
@@ -1254,7 +1241,6 @@ Analysis::filter_extrema(std::vector <time_value_float> extrema, float middle, f
     std::vector <time_value_float> segments;
 
     for (int i = 0; i < extrema.size(); i++) {
-        //TODO: SAUBER MACHEN!
         if (extrema[i].value >= (middle * middle_factor))
             segments.push_back({extrema[i].time, extrema[i].value});
 
@@ -1315,7 +1301,7 @@ Analysis::filter_extrema(std::vector <time_value_float> extrema, float middle, f
     return segments;
 }
 
-void Analysis::make_csv_timeseries_tvf(std::vector <time_value_float> v, char *directory, char *filename) {
+void Analysis::make_csv_timeseries_tvf(std::vector <time_value_float> v, char const *directory, char const *filename) {
     std::string str_path;
     str_path += directory;
     str_path += filename;
@@ -1331,7 +1317,7 @@ void Analysis::make_csv_timeseries_tvf(std::vector <time_value_float> v, char *d
     return;
 }
 
-void Analysis::make_csv_matrix_f(std::vector <std::vector<float>> v, char *directory, char *filename) {
+void Analysis::make_csv_matrix_f(std::vector <std::vector<float>> v, char const *directory, char const*filename) {
     std::string str_path;
     str_path += directory;
     str_path += filename;
@@ -1353,7 +1339,7 @@ void Analysis::make_csv_matrix_f(std::vector <std::vector<float>> v, char *direc
 
 std::vector <time_value_float> Analysis::get_segments() {
 
-    bool FILEPRINT = false;
+    bool FILEPRINT = true;
     bool filter_by_bars = false;
     auto start_segmentation = std::chrono::system_clock::now();
 
@@ -1371,7 +1357,7 @@ std::vector <time_value_float> Analysis::get_segments() {
     float stft_factor = 1;
     float rhythm_factor = 0;
 
-    char *directory = "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/";
+    const char *directory = "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/";
 
     // weighting for influence on novelty function
 
@@ -1386,6 +1372,7 @@ std::vector <time_value_float> Analysis::get_segments() {
     std::vector<std::vector<float>> window_chroma;
     std::vector<std::vector<float>> window_stft;
     std::vector<std::vector<float>> window_rhythm;
+    std::cout << "WOOHOO" << std::endl;
 
     if(mfcc_factor > 0)
         window_mfcc = get_stmfcc(wav_values_mono, bin_size, hop_size);
@@ -1508,7 +1495,7 @@ std::vector <time_value_float> Analysis::get_segments() {
     // #######################
 
     if (FILEPRINT == true) {
-        char *directory = "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/";
+        char const *directory = "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/";
         make_csv_matrix_f(kernel, directory, "kernel");
         make_csv_matrix_f(ssm_mfcc, directory, "ssm_mfcc");
         make_csv_matrix_f(ssm_chroma, directory, "ssm_chroma");
@@ -1517,7 +1504,7 @@ std::vector <time_value_float> Analysis::get_segments() {
         //make_csv_timeseries_tvf(novelty_function_mfcc, directory, "novelty_function_mfcc");
         //make_csv_timeseries_tvf(novelty_function_chroma, directory, "novelty_function_chroma");
         //make_csv_timeseries_tvf(novelty_function_stft, directory, "novelty_function_stft");
-       // make_csv_timeseries_tvf(novelty_function_rhythm, directory, "novelty_function_rhythm");
+        //make_csv_timeseries_tvf(novelty_function_rhythm, directory, "novelty_function_rhythm");
 
         make_csv_timeseries_tvf(novelty_function_combined, directory, "novelty_function_combined");
         make_csv_timeseries_tvf(extrema, directory, "extrema");
@@ -1574,9 +1561,7 @@ std::vector <time_value_int>
 Analysis::get_intensity_average_for_next_segment(std::vector<double> beats, int beats_per_minute,
                                                  double first_good_beat) {
 
-    // TODO: 4 beats, also 1 takt in die zukunft schauen um average intensität für diesen takt zu berechnen
     int block_size = (60 * 4 * samplerate) / beats_per_minute;
-    // TODO: alle 4 beats, also jeden takt average intensity des kommenden takts bestimmen
     int jump_size = (60 * 4 * samplerate) / beats_per_minute;
     while (first_good_beat > jump_size) {
         first_good_beat -= jump_size;
@@ -1661,7 +1646,7 @@ Analysis::get_intensity_average_for_next_segment(std::vector<double> beats, int 
             float f = (float) i * samplerate / block_size;
             float weight = 1;
             // unomment for weighting based on frequency!
-            /* TODO: gewichtung der einzelnen frequenzanteile zur berechnung der average intensity für einen takt
+            /*
              * evtl. kann man das noch basierend auf gesamtem spektrum automatisch festlegen.
              * geht sicherlich eleganter...
              * hier werden freuenz von 1Hz bis 6kHz berücksichtigt

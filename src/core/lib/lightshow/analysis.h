@@ -75,14 +75,14 @@ class Analysis {
   std::vector<std::vector<float> > get_self_similarity_matrix(const std::vector<std::vector<float>> &window, int distance_formula);
   std::vector<std::vector<float> > get_filter_kernel(int song_bpm, int bin_size, int song_samplerate);
   std::vector<time_value_float> get_novelty_function(std::vector<std::vector<float> > ssm, std::vector<std::vector<float> > kernel, int cut_seconds_end, int bin_size, int song_samplerate, int N);
-  std::vector<time_value_float> get_combined_novelty_function(std::vector<time_value_float> mfcc, std::vector<time_value_float> chroma, std::vector<time_value_float> stft, std::vector<time_value_float> rhythm, float mfcc_co, float chroma_co, float stft_co, float rhythm_co, bool FILEPRINT, char *directory);
+  std::vector<time_value_float> get_combined_novelty_function(std::vector<time_value_float> mfcc, std::vector<time_value_float> chroma, std::vector<time_value_float> stft, std::vector<time_value_float> rhythm, float mfcc_co, float chroma_co, float stft_co, float rhythm_co, bool FILEPRINT, char const *directory);
   std::vector<time_value_float> get_extrema(std::vector<time_value_float> novelty_function);
   float get_middle_tvf(std::vector<time_value_float> v);
   float get_variance_tvf(std::vector<time_value_float> v, float middle);
   float get_standard_deviation_tvf(std::vector<time_value_float> v, float variance);
   std::vector<time_value_float> filter_extrema(std::vector<time_value_float> extrema, float middle, float middle_factor, float variance, float standard_deviation, int bpm, bool filter_by_bars);
-  void make_csv_timeseries_tvf(std::vector<time_value_float> v, char *directory, char *filename );
-  void make_csv_matrix_f(std::vector<std::vector<float>> v, char *directory, char *filename );
+  void make_csv_timeseries_tvf(std::vector<time_value_float> v, char const *directory, char const *filename );
+  void make_csv_matrix_f(std::vector<std::vector<float>> v, char const *directory, char  const *filename );
 
   std::vector<time_value_float> get_segments();
 
