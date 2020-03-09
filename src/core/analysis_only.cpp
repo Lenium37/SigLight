@@ -37,7 +37,7 @@ int main() {
     //lightshow->prepare_analysis_for_song((char*)file_path.c_str());
     lightshow->prepare_analysis_for_song((char*)song.c_str(), false, false, false, false, 0, 0);
 
-    system("python /Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/plot_novelty.py --mfcc --chroma --stft");
+    system("python /Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/plot_novelty.py --stft");
     // --kernel --mfcc --chroma --stft --rhythm
 
     return 0;
