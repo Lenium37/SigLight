@@ -491,8 +491,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
             this->generate_group_one_after_another(fix, timestamps, segment_start, segment_end, fixtures_in_group_auto_beats);
           }
 
-          std::vector<std::string> colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
-          this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
+          //std::vector<std::string> colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
+          //this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
 
         } else if(fix_type == "auto_onsets" || fix_type == "group_auto_onsets") {
           if (onset_timestamps.size() >= eight_per_bar) {
@@ -565,11 +565,13 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
             }
           }
 
-          std::vector<std::string> colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
-          this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
+          //std::vector<std::string> colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
+          //this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
 
         }
       }
+      std::vector<std::string> colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
+      this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
     }
 
     else if (fix_type == "bass") {
@@ -2225,7 +2227,7 @@ void LightshowGenerator::generate_vertical_line(LightshowFixture & fix, int pan_
   else if(pan_center - amplitude_pan < 0)
     amplitude_pan = pan_center;
 
-  float current_timestamp = 0.0;
+  float current_timestamp = start_timestamp;
   uint8_t value = 0;
   if(fix.get_position_on_stage() == "Center")
     vc_pan.push_back({start_timestamp, pan_center});
