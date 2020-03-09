@@ -87,9 +87,13 @@ void Playlist::delete_current_playlist() {
 }
 
 bool Playlist::read_m3u_file(std::string file_to_read) {
+
+  std::cout << "debug00" << std::endl;
   bool success = false;
-  std::ifstream input_file;
-  if (file_to_read.empty()) {
+  std::cout << "debug000" << std::endl;
+  std::ifstream input_file(directory_path + m3u_file_name, std::ifstream::in);
+  std::cout << "debug0000" << std::endl;
+  /*if (file_to_read.empty()) {
     std::string s = directory_path + m3u_file_name;
     input_file.open(s);
   } else {
@@ -167,7 +171,7 @@ bool Playlist::read_m3u_file(std::string file_to_read) {
         useless_line = false;
       }
     }
-  }
+  }*/
 
   input_file.close();
 
@@ -176,6 +180,7 @@ bool Playlist::read_m3u_file(std::string file_to_read) {
   }
 
   // TODO it is crashing here somehow?!
+  std::cout << "before return" << std::endl;
 
   return success;
 }

@@ -934,8 +934,8 @@ Analysis::get_self_similarity_matrix(const std::vector <std::vector<float>> &win
 
     std::vector <std::vector<float>> ssm;
     std::vector<float> similarity;
-    ssm.resize(window.size());
-    similarity.reserve(window.size());
+    //ssm.resize(window.size());
+    //similarity.reserve(window.size());
     float distance = 0;
 
     for (int m = 0; m < window.size(); m++) {
@@ -954,12 +954,12 @@ Analysis::get_self_similarity_matrix(const std::vector <std::vector<float>> &win
             } else {
                 distance = get_cosine_distance(window[m], window[n]);
             }
-            //similarity.push_back(distance);
-          similarity.emplace_back(distance);
+            similarity.push_back(distance);
+          //similarity.emplace_back(distance);
         }
 
-        //ssm.push_back(similarity);
-        ssm[m] = similarity;
+        ssm.push_back(similarity);
+        //ssm[m] = similarity;
     }
     //std::cout << "ssm.size(): " << ssm.size() << std::endl;
     //std::cout << "similarity.size(): " << similarity.size() << std::endl;
@@ -1339,7 +1339,7 @@ void Analysis::make_csv_matrix_f(std::vector <std::vector<float>> v, char const 
 
 std::vector <time_value_float> Analysis::get_segments() {
 
-    bool FILEPRINT = true;
+    bool FILEPRINT = false;
     bool filter_by_bars = false;
     auto start_segmentation = std::chrono::system_clock::now();
 

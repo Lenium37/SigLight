@@ -212,7 +212,9 @@ void MusicPlayer::save_playlist(std::string directory_to_save_playlist) {
 }
 
 void MusicPlayer::read_own_m_3_u_on_startup(std::string standard_directory_to_read_playlist) {
+  std::cout << "debug" << std::endl;
   pls->set_directory(standard_directory_to_read_playlist);
+  std::cout << "debug0" << std::endl;
   pls->read_m3u_file("");
 }
 

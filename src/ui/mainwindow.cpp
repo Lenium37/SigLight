@@ -63,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
   init_shortcuts();
   init_connects();
   init();
-  //this->read_own_m3u_on_startup();  TODO currently not working because of build type RELEASE
+  //this->read_own_m3u_on_startup(); // TODO currently not working because of build type RELEASE
 }
 
 void MainWindow::init() {
