@@ -584,7 +584,7 @@ Channel &LightshowFixture::get_channel(int channel) {
 }
 
 void LightshowFixture::set_temp_position_in_group(int _position) {
-  this->position_inside_group = _position;
+  this->temp_position_inside_group = _position;
 }
 
 int LightshowFixture::get_temp_position_in_group() {
