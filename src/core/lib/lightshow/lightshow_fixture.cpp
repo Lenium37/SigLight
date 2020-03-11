@@ -356,6 +356,8 @@ void LightshowFixture::set_type(std::string type) {
   || type == "group_one_after_another"
   || type == "group_one_after_another_fade"
   || type == "group_one_after_another_fade_reverse"
+  || type == "group_one_after_another_fade_single"
+  || type == "group_one_after_another_fade_single_reverse"
   || type == "group_one_after_another_back_and_forth"
   || type == "group_one_after_another_blink"
   || type == "group_one_after_another_back_and_forth_blink"

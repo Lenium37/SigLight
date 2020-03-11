@@ -209,16 +209,18 @@ void FixtureChoosingDialog::update_position_in_group_status(QString current_type
   std::cout << current_type.toStdString() << std::endl;
   current_type = current_type.toLower();
   if(current_type == "group_one_after_another"
-  || current_type == "group_one_after_another_fade"
-  || current_type == "group_one_after_another_fade_reverse"
-  || current_type == "group_one_after_another_back_and_forth"
-  || current_type == "group_one_after_another_back_and_forth_blink"
-  || current_type == "group_two_after_another"
-  || current_type == "group_alternate_odd_even"
-  || current_type == "group_one_after_another_blink"
-  || current_type == "group_random_flashes"
-  || current_type == "group_auto_beats"
-  || current_type == "group_auto_onsets")
+      || current_type == "group_one_after_another_fade"
+      || current_type == "group_one_after_another_fade_reverse"
+      || current_type == "group_one_after_another_fade_single"
+      || current_type == "group_one_after_another_fade_single_reverse"
+      || current_type == "group_one_after_another_back_and_forth"
+      || current_type == "group_one_after_another_back_and_forth_blink"
+      || current_type == "group_two_after_another"
+      || current_type == "group_alternate_odd_even"
+      || current_type == "group_one_after_another_blink"
+      || current_type == "group_random_flashes"
+      || current_type == "group_auto_beats"
+      || current_type == "group_auto_onsets")
     ui->sB_position_inside_group->setEnabled(true);
   else {
     ui->sB_position_inside_group->setEnabled(false);
@@ -226,19 +228,21 @@ void FixtureChoosingDialog::update_position_in_group_status(QString current_type
   }
 
   if(current_type == "color_change"
-  || current_type == "flash"
-  || current_type == "flash_reverse"
-  || current_type == "blink"
-  || current_type == "pulse"
-  || current_type == "group_one_after_another"
-  || current_type == "group_one_after_another_fade"
-  || current_type == "group_one_after_another_fade_reverse"
-  || current_type == "group_one_after_another_blink"
-  || current_type == "group_one_after_another_back_and_forth"
-  || current_type == "group_one_after_another_back_and_forth_blink"
-  || current_type == "group_two_after_another"
-  || current_type == "group_alternate_odd_even"
-  || current_type == "group_random_flashes") {
+      || current_type == "flash"
+      || current_type == "flash_reverse"
+      || current_type == "blink"
+      || current_type == "pulse"
+      || current_type == "group_one_after_another"
+      || current_type == "group_one_after_another_fade"
+      || current_type == "group_one_after_another_fade_reverse"
+      || current_type == "group_one_after_another_fade_single"
+      || current_type == "group_one_after_another_fade_single_reverse"
+      || current_type == "group_one_after_another_blink"
+      || current_type == "group_one_after_another_back_and_forth"
+      || current_type == "group_one_after_another_back_and_forth_blink"
+      || current_type == "group_two_after_another"
+      || current_type == "group_alternate_odd_even"
+      || current_type == "group_random_flashes") {
     ui->cB_timestamps->setEnabled(true);
   } else {
     ui->cB_timestamps->setEnabled(false);

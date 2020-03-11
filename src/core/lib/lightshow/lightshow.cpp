@@ -461,60 +461,61 @@ std::vector<float> Lightshow::get_specific_beats(std::string beat_type, float st
   std::vector<float> all_timestamps;
   std::vector<float> timestamps;
 
-  if(end > 0) {
-    Logger::debug("start: {}", start);
-    Logger::debug("end: {}", end);
+  Logger::debug("start: {}", start);
+  Logger::debug("end: {}", end);
 
-    if(beat_type == "beats 1/2/3/4" || beat_type == "beats 1/2/3/4 action") {
-      all_timestamps = this->beats_1_2_3_4;
-    } else if(beat_type == "beats 2/4" || beat_type == "beats 2/4 action") {
-      all_timestamps = this->beats_2_4;
-    } else if(beat_type == "beats 1/3" || beat_type == "beats 1/3 action") {
-      all_timestamps = this->beats_1_3;
-    } else if(beat_type == "beats 1" || beat_type == "beats 1 action") {
-      all_timestamps = this->beats_1;
-    } else if(beat_type == "beats 2" || beat_type == "beats 2 action") {
-      all_timestamps = this->beats_2;
-    } else if(beat_type == "beats 3" || beat_type == "beats 3 action") {
-      all_timestamps = this->beats_3;
-    } else if(beat_type == "beats 4" || beat_type == "beats 4 action") {
-      all_timestamps = this->beats_4;
-    } else if(beat_type == "beats 1 every other bar" || beat_type == "beats 1 every other bar action") {
-      all_timestamps = this->beats_1_every_other_bar;
-    }
-
-    for(int i = 0; i < all_timestamps.size(); i++) {
-      if(all_timestamps[i] >= start && all_timestamps[i] <= end)
-        timestamps.push_back(all_timestamps[i]);
-    }
-
-    if(beat_type.find("action") != std::string::npos) {
-      std::cout << "timestamps size: " << timestamps.size() << std::endl;
-      std::vector<time_value_int> bass_values = this->get_value_changes_bass();
-      std::vector<time_value_int> mid_values = this->get_value_changes_middle();
-      std::vector<float> timestamps_action;
-      for (int i = 0; i < timestamps.size(); i++) {
-        for (time_value_int &tvi_bass: bass_values) {
-          if (tvi_bass.time >= (float) timestamps[i] - 0.02 && tvi_bass.time <= (float) timestamps[i] + 0.02) {
-            if (tvi_bass.value > 90)
-              timestamps_action.push_back(timestamps[i]);
-            break;
-          }
-        }
-        for (time_value_int &tvi_mid: mid_values) {
-          if (tvi_mid.time >= (float) timestamps[i] - 0.02 && tvi_mid.time <= (float) timestamps[i] + 0.02) {
-            if (tvi_mid.value > 200)
-              timestamps_action.push_back(timestamps[i]);
-            break;
-          }
-        }
-      }
-      timestamps_action.erase( unique( timestamps_action.begin(), timestamps_action.end() ), timestamps_action.end() );
-      std::cout << "timestamps action size: " << timestamps_action.size() << std::endl;
-      timestamps = timestamps_action;
-    }
+  if(beat_type == "beats 1/2/3/4" || beat_type == "beats 1/2/3/4 action") {
+    all_timestamps = this->beats_1_2_3_4;
+  } else if(beat_type == "beats 2/4" || beat_type == "beats 2/4 action") {
+    all_timestamps = this->beats_2_4;
+  } else if(beat_type == "beats 1/3" || beat_type == "beats 1/3 action") {
+    all_timestamps = this->beats_1_3;
+  } else if(beat_type == "beats 1" || beat_type == "beats 1 action") {
+    all_timestamps = this->beats_1;
+  } else if(beat_type == "beats 2" || beat_type == "beats 2 action") {
+    all_timestamps = this->beats_2;
+  } else if(beat_type == "beats 3" || beat_type == "beats 3 action") {
+    all_timestamps = this->beats_3;
+  } else if(beat_type == "beats 4" || beat_type == "beats 4 action") {
+    all_timestamps = this->beats_4;
+  } else if(beat_type == "beats 1 every other bar" || beat_type == "beats 1 every other bar action") {
+    all_timestamps = this->beats_1_every_other_bar;
   }
 
+  if(end > 0) {
+    for (int i = 0; i < all_timestamps.size(); i++) {
+      if (all_timestamps[i] >= start && all_timestamps[i] <= end)
+        timestamps.push_back(all_timestamps[i]);
+    }
+  } else {
+    timestamps = all_timestamps;
+  }
+
+  if(beat_type.find("action") != std::string::npos) {
+    std::cout << "timestamps size: " << timestamps.size() << std::endl;
+    std::vector<time_value_int> bass_values = this->get_value_changes_bass();
+    std::vector<time_value_int> mid_values = this->get_value_changes_middle();
+    std::vector<float> timestamps_action;
+    for (int i = 0; i < timestamps.size(); i++) {
+      for (time_value_int &tvi_bass: bass_values) {
+        if (tvi_bass.time >= (float) timestamps[i] - 0.02 && tvi_bass.time <= (float) timestamps[i] + 0.02) {
+          if (tvi_bass.value > 90)
+            timestamps_action.push_back(timestamps[i]);
+          break;
+        }
+      }
+      for (time_value_int &tvi_mid: mid_values) {
+        if (tvi_mid.time >= (float) timestamps[i] - 0.02 && tvi_mid.time <= (float) timestamps[i] + 0.02) {
+          if (tvi_mid.value > 200)
+            timestamps_action.push_back(timestamps[i]);
+          break;
+        }
+      }
+    }
+    timestamps_action.erase( unique( timestamps_action.begin(), timestamps_action.end() ), timestamps_action.end() );
+    std::cout << "timestamps action size: " << timestamps_action.size() << std::endl;
+    timestamps = timestamps_action;
+  }
   return timestamps;
 }
 
@@ -528,6 +529,7 @@ void Lightshow::set_onset_value(float _onset_value) {
 }
 
 void Lightshow::prepare_beat_timestamps() {
+  //std::cout << "all_beats.size: " << this->all_beats.size() << std::endl;
   for(int i = 0; i < this->all_beats.size(); i++) {
     this->beats_1_2_3_4.push_back((float) this->all_beats[i] / (float) 44100);
 
