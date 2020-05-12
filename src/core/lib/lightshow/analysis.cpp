@@ -155,7 +155,7 @@ std::vector<float> Analysis::get_onset_timestamps_energy_difference(float onset_
     float last_time = 0;
     bool onset_found = false;
     bool already_added_this_onset = false;
-    std::vector <time_value_float> onsets;
+    std::vector<time_value_float> onsets;
     onsets.resize(signal_length_mono / window_size_onsets / 2);
     float min_value_onset = 0;
 
@@ -310,12 +310,12 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
     float window_function[window_size_onsets];
     int numSamplesMinus1 = window_size_onsets - 1;
     std::vector<float> onsets;
-    std::vector <time_value_float> spectral_flux;
-    std::vector <fluxes> spectral_fluxes;
-    std::vector <fluxes> thresholds;
+    std::vector<time_value_float> spectral_flux;
+    std::vector<fluxes> spectral_fluxes;
+    std::vector<fluxes> thresholds;
     std::vector<float> magnitude_spectrum;
     std::vector<float> last_magnitude_spectrum;
-    std::vector <time_value_float> threshold_function_values;
+    std::vector<time_value_float> threshold_function_values;
     float max_ed, max_sd, max_sdhwr, max_csd, max_hfc, max_l2nh, max_l1nh, max_l2h, max_l1h = -9999999;
 
 
@@ -503,7 +503,7 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
             mean_current = spectral_flux[j].value / (end - start);
             mean = mean + mean_current;
         }
-        //mean /= (float)(end - start);
+        //mean /= (float)(end - start);,m,m,m
 
         float this_time = spectral_flux[i + (fluxes / 2)].time;
         //mean *= multiplier;
@@ -618,7 +618,7 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
     float w8 = 2.0 / 9.0; // l2 hwr
     float w9 = 1.0 / 9.0; // l1 hwr
 
-    std::vector <time_value_float> average_flux, average_threshold;
+    std::vector<time_value_float> average_flux, average_threshold;
 
     for (int i = 0; i < spectral_fluxes.size() - (fluxes / 2); i++) {
         average_flux.push_back({spectral_fluxes[i].time, (
@@ -691,13 +691,13 @@ std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, flo
 
 }
 
-std::vector <time_value_double> Analysis::get_intensity_function_values() {
+std::vector<time_value_double> Analysis::get_intensity_function_values() {
 
     int block_size = 44100;
     int segment_duration = 60 / 169 * 16;
     int jump_size = block_size / 3;
 
-    std::vector <time_value_double> intensities = std::vector<time_value_double>();
+    std::vector<time_value_double> intensities = std::vector<time_value_double>();
     float average_window_value = 0;
     float normalization_factor = (2.0 * 1.63) / samplerate;
 
@@ -804,11 +804,11 @@ std::vector <time_value_double> Analysis::get_intensity_function_values() {
 
 }
 
-std::vector <std::vector<float>> Analysis::get_stmfcc(float *signal_values, int bin_size, int hop_size, int offset) {
+std::vector<std::vector<float>> Analysis::get_stmfcc(float *signal_values, int bin_size, int hop_size, int offset, int cut_start, int cut_end) {
 
-    std::vector <std::vector<float>> stmfcc;
+    std::vector<std::vector<float>> stmfcc;
     std::vector<float> bin, coeffs;
-    Gist<float> gist2 (bin_size, samplerate);
+    Gist<float> gist2(bin_size, samplerate);
 
     for (int i = offset; i < (signal_length_mono - bin_size); i += hop_size) {
 
@@ -822,7 +822,12 @@ std::vector <std::vector<float>> Analysis::get_stmfcc(float *signal_values, int 
         // USE MFCC
         coeffs = gist2.getMelFrequencySpectrum();
 
-        stmfcc.push_back(coeffs);
+        std::vector<float>::const_iterator first = coeffs.begin() + (cut_start - 1);
+        std::vector<float>::const_iterator last = coeffs.begin() + (cut_end - 1);
+        std::vector<float> coeffs_cut(first, last);
+
+        stmfcc.push_back(coeffs_cut);
+        coeffs_cut.clear();
         coeffs.clear();
         bin.clear();
     }
@@ -831,24 +836,25 @@ std::vector <std::vector<float>> Analysis::get_stmfcc(float *signal_values, int 
     return stmfcc;
 }
 
-std::vector <std::vector<float>> Analysis::get_chromagram(float *signal_values, int bin_size, int hop_size, int song_samplerate, int offset) {
+std::vector<std::vector<float>>
+Analysis::get_chromagram(float *signal_values, int bin_size, int hop_size, int song_samplerate, int offset) {
 
     std::vector<std::vector<float>> chromagram;
     std::vector<double> bin, chromagram_line;
     std::vector<float> chromagram_line_f;
-    Chromagram chroma (bin_size, song_samplerate);
+    Chromagram chroma(bin_size, song_samplerate);
 
     for (int i = offset; i < (signal_length_mono - bin_size); i += hop_size) {
         for (int j = 0; j < bin_size; j++) {
             int index = i + j;
-            bin.push_back((double)signal_values[index]);
+            bin.push_back((double) signal_values[index]);
         }
         chroma.processAudioFrame(bin);
 
-        if (chroma.isReady()){
+        if (chroma.isReady()) {
             chromagram_line = chroma.getChromagram();
-            for (auto x:chromagram_line){
-                chromagram_line_f.push_back((float)x);
+            for (auto x:chromagram_line) {
+                chromagram_line_f.push_back((float) x);
             }
             chromagram.push_back(chromagram_line_f);
         }
@@ -861,11 +867,12 @@ std::vector <std::vector<float>> Analysis::get_chromagram(float *signal_values, 
     return chromagram;
 }
 
-std::vector <std::vector<float>> Analysis::get_spectrogram(float *signal_values, int bin_size, int hop_size, int offset) {
-    std::vector <std::vector<float>> spectrogram;
+std::vector<std::vector<float>>
+Analysis::get_spectrogram(float *signal_values, int bin_size, int hop_size, int offset) {
+    std::vector<std::vector<float>> spectrogram;
 
     std::vector<float> bin, coeffs, coeffs_half;
-    Gist<float> gist2 (bin_size, samplerate);
+    Gist<float> gist2(bin_size, samplerate);
 
     for (int i = offset; i < (signal_length_mono - bin_size); i += hop_size) {
 
@@ -876,10 +883,9 @@ std::vector <std::vector<float>> Analysis::get_spectrogram(float *signal_values,
         }
         gist2.processAudioFrame(bin);
 
-        // USE MFCC
         coeffs = gist2.getMagnitudeSpectrum();
 
-        for (int j = 0; j < coeffs.size() / 2; j++){
+        for (int j = 0; j < coeffs.size() / 2; j++) {
             coeffs_half.push_back(coeffs[j]);
         }
 
@@ -892,8 +898,9 @@ std::vector <std::vector<float>> Analysis::get_spectrogram(float *signal_values,
     return spectrogram;
 }
 
-std::vector <std::vector<float>> Analysis::get_rhythmogram(float *signal_values, int bin_size, int hop_size, int offset) {
-    std::vector <std::vector<float>> rhythmogram;
+std::vector<std::vector<float>>
+Analysis::get_rhythmogram(float *signal_values, int bin_size, int hop_size, int offset) {
+    std::vector<std::vector<float>> rhythmogram;
     return rhythmogram;
 }
 
@@ -934,10 +941,10 @@ float Analysis::get_exponential_cosine_distance(const std::vector<float> &m, con
     return exponential_cosine_distance;
 }
 
-std::vector <std::vector<float>>
-Analysis::get_self_similarity_matrix(const std::vector <std::vector<float>> &f_window, int distance_formula) {
+std::vector<std::vector<float>>
+Analysis::get_self_similarity_matrix(const std::vector<std::vector<float>> &f_window, int distance_formula) {
 
-    std::vector <std::vector<float>> ssm;
+    std::vector<std::vector<float>> ssm;
     std::vector<float> similarity;
     //ssm.resize(window.size());
     //similarity.reserve(window.size());
@@ -960,7 +967,7 @@ Analysis::get_self_similarity_matrix(const std::vector <std::vector<float>> &f_w
                 distance = get_cosine_distance(f_window[m], f_window[n]);
             }
             similarity.push_back(distance);
-          //similarity.emplace_back(distance);
+            //similarity.emplace_back(distance);
         }
 
         ssm.push_back(similarity);
@@ -971,22 +978,22 @@ Analysis::get_self_similarity_matrix(const std::vector <std::vector<float>> &f_w
     return ssm;
 }
 
-std::vector <std::vector<float>> Analysis::get_filter_kernel(int song_bpm, int bin_size, int song_samplerate, int bars) {
+std::vector<std::vector<float>> Analysis::get_filter_kernel(int song_bpm, int bin_size, int song_samplerate, int bars) {
 
-    std::vector <std::vector<float>> kernel;
+    std::vector<std::vector<float>> kernel;
     std::vector<float> kernel_line;
     float kernel_value = 0;
 
 
-    std::vector <std::vector<float>> gaussian_kernel;
+    std::vector<std::vector<float>> gaussian_kernel;
     std::vector<float> gaussian_kernel_line;
     float gaussian_kernel_value = 0;
 
-    std::vector <std::vector<float>> cb_kernel;
+    std::vector<std::vector<float>> cb_kernel;
     std::vector<float> cb_kernel_line;
     float cb_kernel_value = 0;
 
-    float kernel_time = (float) (bars*4) * ((float) 60.0 / (float) song_bpm);
+    float kernel_time = (float) (bars * 4) * ((float) 60.0 / (float) song_bpm);
     float L_f = (kernel_time / (float) 2.0) / ((float) bin_size / (float) song_samplerate);
     int L = L_f;
     int N = 2 * L + 1;
@@ -1035,10 +1042,10 @@ std::vector <std::vector<float>> Analysis::get_filter_kernel(int song_bpm, int b
     return kernel;
 }
 
-std::vector <time_value_float>
-Analysis::get_novelty_function(std::vector <std::vector<float>> ssm, std::vector <std::vector<float>> kernel,
+std::vector<time_value_float>
+Analysis::get_novelty_function(std::vector<std::vector<float>> ssm, std::vector<std::vector<float>> kernel,
                                int cut_seconds_end, int bin_size, int song_samplerate, int N, int offset) {
-    std::vector <time_value_float> novelty_function;
+    std::vector<time_value_float> novelty_function;
     float novelty_value;
     int L = (N - 1) / 2;
 
@@ -1070,7 +1077,95 @@ Analysis::get_novelty_function(std::vector <std::vector<float>> ssm, std::vector
     return novelty_function;
 }
 
-std::vector<time_value_float> Analysis::get_combined_novelty_function(std::vector<time_value_float> mfcc, std::vector<time_value_float> chroma, std::vector<time_value_float> stft, std::vector<time_value_float> rhythm, float mfcc_co, float chroma_co, float stft_co, float rhythm_co, bool FILEPRINT, char const *directory){
+std::vector<std::vector<float>> Analysis::norm_euclidian(std::vector<std::vector<float>> v, float threshold){
+    float norm = 0;
+
+    for (int i = 0; i < v.size(); i++){
+        for (int j = 0; j < v[i].size(); j++){
+            norm += pow(v[i][j], 2);
+        }
+        norm = sqrt(norm);
+        for (int j = 0; j < v[i].size(); j++){
+            if (v[i][j] > threshold){
+                v[i][j] /= norm;
+            }
+        }
+    }
+
+    return v;
+}
+std::vector<std::vector<float>> Analysis::norm_absolute(std::vector<std::vector<float>> v, float threshold){
+    float norm = 0;
+
+    for (int i = 0; i < v.size(); i++){
+        for (int j = 0; j < v[i].size(); j++){
+            norm += abs(v[i][j]);
+        }
+        norm = sqrt(norm);
+        for (int j = 0; j < v[i].size(); j++){
+            if (v[i][j] > threshold){
+                v[i][j] /= norm;
+            }
+        }
+    }
+
+    return v;
+}
+std::vector<std::vector<float>> Analysis::norm_manhattan(std::vector<std::vector<float>> v, float threshold){
+    float norm = -INFINITY;
+
+    for (int i = 0; i < v.size(); i++){
+        norm = -INFINITY;
+        for (int j = 0; j < v[i].size(); j++){
+            if (v[i][j] > norm){
+                norm = v[i][j];
+            }
+        }
+        for (int j = 0; j < v[i].size(); j++){
+            if (v[i][j] > threshold){
+                v[i][j] /= norm;
+            }
+        }
+    }
+
+    return v;
+}
+std::vector<std::vector<float>> Analysis::norm_mean_variance(std::vector<std::vector<float>> v, float threshold){
+    float norm = 0;
+    float dev = 0;
+    float var = 0;
+    std::vector<std::vector<float>> normed;
+
+    for (int i = 0; i < v.size(); i++){
+        var = 0;
+        dev = 0;
+        for (int j = 0; j < v[i].size(); j++){
+            dev += v[i][j];
+        }
+        dev /= v[i].size();
+        for (int j = 0; j < v[i].size(); j++){
+            var += pow((v[i][j] - dev),2);
+        }
+        var /= (v[i].size() - 1);
+        var = sqrt(var);
+
+        for (int j = 0; j < v[i].size(); j++){
+            if (v[i][j] > threshold){
+                v[i][j] = (v[i][j] - dev) / var;
+            }
+            else {
+            }
+        }
+    }
+
+    return v;
+}
+
+std::vector<time_value_float>
+Analysis::get_combined_novelty_function(std::vector<time_value_float> mfcc, std::vector<time_value_float> chroma,
+                                        std::vector<time_value_float> stft, std::vector<time_value_float> rhythm,
+                                        float mfcc_co, float chroma_co, float stft_co, float rhythm_co, bool FILEPRINT,
+                                        char const *directory) {
 
     std::vector<time_value_float> combined_novelty_function;
 
@@ -1091,42 +1186,42 @@ std::vector<time_value_float> Analysis::get_combined_novelty_function(std::vecto
         size = rhythm.size();
 
 
-    if (mfcc_co > 0){
+    if (mfcc_co > 0) {
         combined_factor += mfcc_co;
     }
-    if (chroma_co > 0){
+    if (chroma_co > 0) {
         combined_factor += chroma_co;
     }
-    if (stft_co > 0){
+    if (stft_co > 0) {
         combined_factor += stft_co;
     }
-    if (rhythm_co > 0){
+    if (rhythm_co > 0) {
         combined_factor += rhythm_co;
     }
 
-    for(int i = 0; i < size; i++){
-        if(!mfcc.empty() )
+    for (int i = 0; i < size; i++) {
+        if (!mfcc.empty())
             if (mfcc[i].value > mfcc_max)
                 mfcc_max = mfcc[i].value;
-        if(!chroma.empty() )
+        if (!chroma.empty())
             if (chroma[i].value > chroma_max)
                 chroma_max = chroma[i].value;
-        if(!stft.empty() )
+        if (!stft.empty())
             if (stft[i].value > stft_max)
                 stft_max = stft[i].value;
-        if(!rhythm.empty() )
+        if (!rhythm.empty())
             if (rhythm[i].value > rhythm_max)
                 rhythm_max = rhythm[i].value;
     }
 
-    for(int i = 0; i < size; i++){
-        if(!mfcc.empty())
+    for (int i = 0; i < size; i++) {
+        if (!mfcc.empty())
             mfcc[i].value /= mfcc_max;
-        if(!chroma.empty())
+        if (!chroma.empty())
             chroma[i].value /= chroma_max;
-        if(!stft.empty())
+        if (!stft.empty())
             stft[i].value /= stft_max;
-        if(!rhythm.empty())
+        if (!rhythm.empty())
             rhythm[i].value /= rhythm_max;
     }
 
@@ -1141,235 +1236,242 @@ std::vector<time_value_float> Analysis::get_combined_novelty_function(std::vecto
     std::map<int, int> number_of_maxima_at_timestamp;
     std::map<int, int>::iterator it;
     std::vector<time_value_float> v_max;
-    
-    if(mfcc.size() > size)
+
+    if (mfcc.size() > size)
         size = mfcc.size();
-    if(chroma.size() > size)
+    if (chroma.size() > size)
         size = chroma.size();
-    if(stft.size() > size)
+    if (stft.size() > size)
         size = stft.size();
-    if(rhythm.size() > size)
+    if (rhythm.size() > size)
         size = rhythm.size();
-
-    for(int i = 1; i < size - 1; i++) {
-        if(mfcc.size() == size) {
-            if(mfcc[i].value > mfcc[i - 1].value && mfcc[i].value > mfcc[i + 1].value) {
-              it = number_of_maxima_at_timestamp.find(i);
-              if (it != number_of_maxima_at_timestamp.end()) { // found
-                it->second++;
-                //std::cout << "increasing maxima" << std::endl;
-              } else { // not found
-                number_of_maxima_at_timestamp.insert(std::pair<int, int>(i, 1));
-                //std::cout << "adding maxima" << std::endl;
-              }
-              it = number_of_maxima_at_timestamp.find(i - 1);
-              if (it != number_of_maxima_at_timestamp.end()) { // found
-                it->second++;
-                //std::cout << "increasing maxima" << std::endl;
-              } else { // not found
-                number_of_maxima_at_timestamp.insert(std::pair<int, int>(i - 1, 1));
-                //std::cout << "adding maxima" << std::endl;
-              }
-              it = number_of_maxima_at_timestamp.find(i + 1);
-              if (it != number_of_maxima_at_timestamp.end()) { // found
-                it->second++;
-                //std::cout << "increasing maxima" << std::endl;
-              } else { // not found
-                number_of_maxima_at_timestamp.insert(std::pair<int, int>(i + 1, 1));
-                //std::cout << "adding maxima" << std::endl;
-              }
+    /*
+    for (int i = 1; i < size - 1; i++) {
+        if (mfcc.size() == size) {
+            if (mfcc[i].value > mfcc[i - 1].value && mfcc[i].value > mfcc[i + 1].value) {
+                it = number_of_maxima_at_timestamp.find(i);
+                if (it != number_of_maxima_at_timestamp.end()) { // found
+                    it->second++;
+                    //std::cout << "increasing maxima" << std::endl;
+                } else { // not found
+                    number_of_maxima_at_timestamp.insert(std::pair<int, int>(i, 1));
+                    //std::cout << "adding maxima" << std::endl;
+                }
+                it = number_of_maxima_at_timestamp.find(i - 1);
+                if (it != number_of_maxima_at_timestamp.end()) { // found
+                    it->second++;
+                    //std::cout << "increasing maxima" << std::endl;
+                } else { // not found
+                    number_of_maxima_at_timestamp.insert(std::pair<int, int>(i - 1, 1));
+                    //std::cout << "adding maxima" << std::endl;
+                }
+                it = number_of_maxima_at_timestamp.find(i + 1);
+                if (it != number_of_maxima_at_timestamp.end()) { // found
+                    it->second++;
+                    //std::cout << "increasing maxima" << std::endl;
+                } else { // not found
+                    number_of_maxima_at_timestamp.insert(std::pair<int, int>(i + 1, 1));
+                    //std::cout << "adding maxima" << std::endl;
+                }
             }
         }
 
-        if(chroma.size() == size) {
-            if(chroma[i].value > chroma[i - 1].value && chroma[i].value > chroma[i + 1].value) {
-              it = number_of_maxima_at_timestamp.find(i);
-              if (it != number_of_maxima_at_timestamp.end()) { // found
-                  it->second++;
-                  //std::cout << "increasing maxima" << std::endl;
-              } else { // not found
-                  number_of_maxima_at_timestamp.insert(std::pair<int, int>(i, 1));
-                  //std::cout << "adding maxima" << std::endl;
-              }
-              it = number_of_maxima_at_timestamp.find(i - 1);
-              if (it != number_of_maxima_at_timestamp.end()) { // found
-                it->second++;
-                //std::cout << "increasing maxima" << std::endl;
-              } else { // not found
-                number_of_maxima_at_timestamp.insert(std::pair<int, int>(i - 1, 1));
-                //std::cout << "adding maxima" << std::endl;
-              }
-              it = number_of_maxima_at_timestamp.find(i + 1);
-              if (it != number_of_maxima_at_timestamp.end()) { // found
-                it->second++;
-                //std::cout << "increasing maxima" << std::endl;
-              } else { // not found
-                number_of_maxima_at_timestamp.insert(std::pair<int, int>(i + 1, 1));
-                //std::cout << "adding maxima" << std::endl;
-              }
+        if (chroma.size() == size) {
+            if (chroma[i].value > chroma[i - 1].value && chroma[i].value > chroma[i + 1].value) {
+                it = number_of_maxima_at_timestamp.find(i);
+                if (it != number_of_maxima_at_timestamp.end()) { // found
+                    it->second++;
+                    //std::cout << "increasing maxima" << std::endl;
+                } else { // not found
+                    number_of_maxima_at_timestamp.insert(std::pair<int, int>(i, 1));
+                    //std::cout << "adding maxima" << std::endl;
+                }
+                it = number_of_maxima_at_timestamp.find(i - 1);
+                if (it != number_of_maxima_at_timestamp.end()) { // found
+                    it->second++;
+                    //std::cout << "increasing maxima" << std::endl;
+                } else { // not found
+                    number_of_maxima_at_timestamp.insert(std::pair<int, int>(i - 1, 1));
+                    //std::cout << "adding maxima" << std::endl;
+                }
+                it = number_of_maxima_at_timestamp.find(i + 1);
+                if (it != number_of_maxima_at_timestamp.end()) { // found
+                    it->second++;
+                    //std::cout << "increasing maxima" << std::endl;
+                } else { // not found
+                    number_of_maxima_at_timestamp.insert(std::pair<int, int>(i + 1, 1));
+                    //std::cout << "adding maxima" << std::endl;
+                }
             }
         }
 
-        if(stft.size() == size) {
-            if(stft[i].value > stft[i - 1].value && stft[i].value > stft[i + 1].value) {
-              it = number_of_maxima_at_timestamp.find(i);
-              if (it != number_of_maxima_at_timestamp.end()) { // found
-                  it->second++;
-                  //std::cout << "increasing maxima" << std::endl;
-              } else { // not found
-                  number_of_maxima_at_timestamp.insert(std::pair<int, int>(i, 1));
-                  //std::cout << "adding maxima" << std::endl;
-              }
-              it = number_of_maxima_at_timestamp.find(i - 1);
-              if (it != number_of_maxima_at_timestamp.end()) { // found
-                it->second++;
-                //std::cout << "increasing maxima" << std::endl;
-              } else { // not found
-                number_of_maxima_at_timestamp.insert(std::pair<int, int>(i - 1, 1));
-                //std::cout << "adding maxima" << std::endl;
-              }
-              it = number_of_maxima_at_timestamp.find(i + 1);
-              if (it != number_of_maxima_at_timestamp.end()) { // found
-                it->second++;
-                //std::cout << "increasing maxima" << std::endl;
-              } else { // not found
-                number_of_maxima_at_timestamp.insert(std::pair<int, int>(i + 1, 1));
-                //std::cout << "adding maxima" << std::endl;
-              }
+        if (stft.size() == size) {
+            if (stft[i].value > stft[i - 1].value && stft[i].value > stft[i + 1].value) {
+                it = number_of_maxima_at_timestamp.find(i);
+                if (it != number_of_maxima_at_timestamp.end()) { // found
+                    it->second++;
+                    //std::cout << "increasing maxima" << std::endl;
+                } else { // not found
+                    number_of_maxima_at_timestamp.insert(std::pair<int, int>(i, 1));
+                    //std::cout << "adding maxima" << std::endl;
+                }
+                it = number_of_maxima_at_timestamp.find(i - 1);
+                if (it != number_of_maxima_at_timestamp.end()) { // found
+                    it->second++;
+                    //std::cout << "increasing maxima" << std::endl;
+                } else { // not found
+                    number_of_maxima_at_timestamp.insert(std::pair<int, int>(i - 1, 1));
+                    //std::cout << "adding maxima" << std::endl;
+                }
+                it = number_of_maxima_at_timestamp.find(i + 1);
+                if (it != number_of_maxima_at_timestamp.end()) { // found
+                    it->second++;
+                    //std::cout << "increasing maxima" << std::endl;
+                } else { // not found
+                    number_of_maxima_at_timestamp.insert(std::pair<int, int>(i + 1, 1));
+                    //std::cout << "adding maxima" << std::endl;
+                }
             }
         }
 
-        if(rhythm.size() == size) {
-            if(rhythm[i].value > rhythm[i - 1].value && rhythm[i].value > rhythm[i + 1].value) {
-              it = number_of_maxima_at_timestamp.find(i);
-              if (it != number_of_maxima_at_timestamp.end()) { // found
-                  it->second++;
-                  //std::cout << "increasing maxima" << std::endl;
-              } else { // not found
-                  number_of_maxima_at_timestamp.insert(std::pair<int, int>(i, 1));
-                  //std::cout << "adding maxima" << std::endl;
-              }
-              it = number_of_maxima_at_timestamp.find(i - 1);
-              if (it != number_of_maxima_at_timestamp.end()) { // found
-                it->second++;
-                //std::cout << "increasing maxima" << std::endl;
-              } else { // not found
-                number_of_maxima_at_timestamp.insert(std::pair<int, int>(i - 1, 1));
-                //std::cout << "adding maxima" << std::endl;
-              }
-              it = number_of_maxima_at_timestamp.find(i + 1);
-              if (it != number_of_maxima_at_timestamp.end()) { // found
-                it->second++;
-                //std::cout << "increasing maxima" << std::endl;
-              } else { // not found
-                number_of_maxima_at_timestamp.insert(std::pair<int, int>(i + 1, 1));
-                //std::cout << "adding maxima" << std::endl;
-              }
+        if (rhythm.size() == size) {
+            if (rhythm[i].value > rhythm[i - 1].value && rhythm[i].value > rhythm[i + 1].value) {
+                it = number_of_maxima_at_timestamp.find(i);
+                if (it != number_of_maxima_at_timestamp.end()) { // found
+                    it->second++;
+                    //std::cout << "increasing maxima" << std::endl;
+                } else { // not found
+                    number_of_maxima_at_timestamp.insert(std::pair<int, int>(i, 1));
+                    //std::cout << "adding maxima" << std::endl;
+                }
+                it = number_of_maxima_at_timestamp.find(i - 1);
+                if (it != number_of_maxima_at_timestamp.end()) { // found
+                    it->second++;
+                    //std::cout << "increasing maxima" << std::endl;
+                } else { // not found
+                    number_of_maxima_at_timestamp.insert(std::pair<int, int>(i - 1, 1));
+                    //std::cout << "adding maxima" << std::endl;
+                }
+                it = number_of_maxima_at_timestamp.find(i + 1);
+                if (it != number_of_maxima_at_timestamp.end()) { // found
+                    it->second++;
+                    //std::cout << "increasing maxima" << std::endl;
+                } else { // not found
+                    number_of_maxima_at_timestamp.insert(std::pair<int, int>(i + 1, 1));
+                    //std::cout << "adding maxima" << std::endl;
+                }
             }
         }
     }
-
+    */
     int number_of_maxima_needed = 1;
 
-    if((!mfcc.empty() && chroma.empty() && stft.empty() && rhythm.empty()) || (mfcc.empty() && !chroma.empty() && stft.empty() && rhythm.empty()) || (mfcc.empty() && chroma.empty() && !stft.empty() && rhythm.empty()) || (mfcc.empty() && chroma.empty() && stft.empty() && !rhythm.empty())){
+    /*
+    if ((!mfcc.empty() && chroma.empty() && stft.empty() && rhythm.empty()) ||
+        (mfcc.empty() && !chroma.empty() && stft.empty() && rhythm.empty()) ||
+        (mfcc.empty() && chroma.empty() && !stft.empty() && rhythm.empty()) ||
+        (mfcc.empty() && chroma.empty() && stft.empty() && !rhythm.empty())) {
         number_of_maxima_needed = 0;
     }
+     */
 
-
-    for(auto const & max: number_of_maxima_at_timestamp) {
+    /*
+    for (auto const &max: number_of_maxima_at_timestamp) {
         std::cout << "at: " << max.first << " there are " << max.second << " maxima" << std::endl;
-        if(max.second > number_of_maxima_needed) { // found maximum at same timestamp in at least 2 vectors
+        if (max.second > number_of_maxima_needed) { // found maximum at same timestamp in at least 2 vectors
             float max_value = 0;
             float timestamp_of_max_value = 0;
-          if(max.first == 0 || max.first == size - 1) {
-            if(mfcc.size() == size && mfcc[max.first].value > max_value) {
-              max_value = mfcc[max.first].value;
-              timestamp_of_max_value = mfcc[max.first].time;
+            if (max.first == 0 || max.first == size - 1) {
+                if (mfcc.size() == size && mfcc[max.first].value > max_value) {
+                    max_value = mfcc[max.first].value;
+                    timestamp_of_max_value = mfcc[max.first].time;
+                }
+            } else {
+                if (mfcc.size() == size) {
+                    if (mfcc[max.first].value > max_value) {
+                        max_value = mfcc[max.first].value;
+                        timestamp_of_max_value = mfcc[max.first].time;
+                    }
+                    if (mfcc[max.first - 1].value > max_value) {
+                        max_value = mfcc[max.first - 1].value;
+                        timestamp_of_max_value = mfcc[max.first - 1].time;
+                    }
+                    if (mfcc[max.first + 1].value > max_value) {
+                        max_value = mfcc[max.first + 1].value;
+                        timestamp_of_max_value = mfcc[max.first + 1].time;
+                    }
+                }
             }
-          } else {
-            if(mfcc.size() == size) {
-              if(mfcc[max.first].value > max_value) {
-                max_value = mfcc[max.first].value;
-                timestamp_of_max_value = mfcc[max.first].time;
-              }
-              if(mfcc[max.first - 1].value > max_value) {
-                max_value = mfcc[max.first - 1].value;
-                timestamp_of_max_value = mfcc[max.first - 1].time;
-              }
-              if(mfcc[max.first + 1].value > max_value) {
-                max_value = mfcc[max.first + 1].value;
-                timestamp_of_max_value = mfcc[max.first + 1].time;
-              }
+            if (max.first == 0 || max.first == size - 1) {
+                if (chroma.size() == size && chroma[max.first].value > max_value) {
+                    max_value = chroma[max.first].value;
+                    timestamp_of_max_value = chroma[max.first].time;
+                }
+            } else {
+                if (chroma.size() == size) {
+                    if (chroma[max.first].value > max_value) {
+                        max_value = chroma[max.first].value;
+                        timestamp_of_max_value = chroma[max.first].time;
+                    }
+                    if (chroma[max.first - 1].value > max_value) {
+                        max_value = chroma[max.first - 1].value;
+                        timestamp_of_max_value = chroma[max.first - 1].time;
+                    }
+                    if (chroma[max.first + 1].value > max_value) {
+                        max_value = chroma[max.first + 1].value;
+                        timestamp_of_max_value = chroma[max.first + 1].time;
+                    }
+                }
             }
-          }
-          if(max.first == 0 || max.first == size - 1) {
-            if(chroma.size() == size && chroma[max.first].value > max_value) {
-              max_value = chroma[max.first].value;
-              timestamp_of_max_value = chroma[max.first].time;
+            if (max.first == 0 || max.first == size - 1) {
+                if (stft.size() == size && stft[max.first].value > max_value) {
+                    max_value = stft[max.first].value;
+                    timestamp_of_max_value = stft[max.first].time;
+                }
+            } else {
+                if (stft.size() == size) {
+                    if (stft[max.first].value > max_value) {
+                        max_value = stft[max.first].value;
+                        timestamp_of_max_value = stft[max.first].time;
+                    }
+                    if (stft[max.first - 1].value > max_value) {
+                        max_value = stft[max.first - 1].value;
+                        timestamp_of_max_value = stft[max.first - 1].time;
+                    }
+                    if (stft[max.first + 1].value > max_value) {
+                        max_value = stft[max.first + 1].value;
+                        timestamp_of_max_value = stft[max.first + 1].time;
+                    }
+                }
             }
-          } else {
-            if(chroma.size() == size) {
-              if(chroma[max.first].value > max_value) {
-                max_value = chroma[max.first].value;
-                timestamp_of_max_value = chroma[max.first].time;
-              }
-              if(chroma[max.first - 1].value > max_value) {
-                max_value = chroma[max.first - 1].value;
-                timestamp_of_max_value = chroma[max.first - 1].time;
-              }
-              if(chroma[max.first + 1].value > max_value) {
-                max_value = chroma[max.first + 1].value;
-                timestamp_of_max_value = chroma[max.first + 1].time;
-              }
+            if (max.first == 0 || max.first == size - 1) {
+                if (rhythm.size() == size && rhythm[max.first].value > max_value) {
+                    max_value = rhythm[max.first].value;
+                    timestamp_of_max_value = rhythm[max.first].time;
+                }
+            } else {
+                if (rhythm.size() == size) {
+                    if (rhythm[max.first].value > max_value) {
+                        max_value = rhythm[max.first].value;
+                        timestamp_of_max_value = rhythm[max.first].time;
+                    }
+                    if (rhythm[max.first - 1].value > max_value) {
+                        max_value = rhythm[max.first - 1].value;
+                        timestamp_of_max_value = rhythm[max.first - 1].time;
+                    }
+                    if (rhythm[max.first + 1].value > max_value) {
+                        max_value = rhythm[max.first + 1].value;
+                        timestamp_of_max_value = rhythm[max.first + 1].time;
+                    }
+                }
             }
-          }
-          if(max.first == 0 || max.first == size - 1) {
-            if(stft.size() == size && stft[max.first].value > max_value) {
-              max_value = stft[max.first].value;
-              timestamp_of_max_value = stft[max.first].time;
-            }
-          } else {
-            if(stft.size() == size) {
-              if(stft[max.first].value > max_value) {
-                max_value = stft[max.first].value;
-                timestamp_of_max_value = stft[max.first].time;
-              }
-              if(stft[max.first - 1].value > max_value) {
-                max_value = stft[max.first - 1].value;
-                timestamp_of_max_value = stft[max.first - 1].time;
-              }
-              if(stft[max.first + 1].value > max_value) {
-                max_value = stft[max.first + 1].value;
-                timestamp_of_max_value = stft[max.first + 1].time;
-              }
-            }
-          }
-          if(max.first == 0 || max.first == size - 1) {
-            if(rhythm.size() == size && rhythm[max.first].value > max_value) {
-              max_value = rhythm[max.first].value;
-              timestamp_of_max_value = rhythm[max.first].time;
-            }
-          } else {
-            if(rhythm.size() == size) {
-              if(rhythm[max.first].value > max_value) {
-                max_value = rhythm[max.first].value;
-                timestamp_of_max_value = rhythm[max.first].time;
-              }
-              if(rhythm[max.first - 1].value > max_value) {
-                max_value = rhythm[max.first - 1].value;
-                timestamp_of_max_value = rhythm[max.first - 1].time;
-              }
-              if(rhythm[max.first + 1].value > max_value) {
-                max_value = rhythm[max.first + 1].value;
-                timestamp_of_max_value = rhythm[max.first + 1].time;
-              }
-            }
-          }
-          v_max.push_back({timestamp_of_max_value, max_value});
+            v_max.push_back({timestamp_of_max_value, max_value});
         }
     }
+     */
 
-    /*std::map<int, int>::iterator it2 = number_of_maxima_at_timestamp.begin();
+    /*
+     std::map<int, int>::iterator it2 = number_of_maxima_at_timestamp.begin();
     it2.
 
     for(int j = 1; j < number_of_maxima_at_timestamp.size() - 1; j++) {
@@ -1405,14 +1507,14 @@ std::vector<time_value_float> Analysis::get_combined_novelty_function(std::vecto
         std::cout << "at: " << max.time << " the maximum maxima value is " << max.value << std::endl;
     }
      */
-    
+
     // END PEAK SELECT ALGORITHM
-    
-    
+
+
 
     // std::cout << "i: " << i << " // time: " << time << std::endl;
 
-    /*
+
     for(int i = 0; i < size; i++){
 
         float time = 0.0;
@@ -1442,27 +1544,30 @@ std::vector<time_value_float> Analysis::get_combined_novelty_function(std::vecto
         if(!rhythm.empty())
             value += rhythm[i].value * rhythm_co;
 
-        value /= combined_factor;
+        value = sqrtf(value / combined_factor);
 
         combined_novelty_function.push_back({time, value});
     }
-     */
 
-    //return combined_novelty_function;
-    return v_max;
+    return combined_novelty_function;
+    //return v_max;
 
 }
 
+std::vector<time_value_float> Analysis::get_extrema(std::vector<time_value_float> novelty_function) {
 
-std::vector <time_value_float> Analysis::get_extrema(std::vector <time_value_float> novelty_function) {
+    std::vector<time_value_float> extrema;
 
-    std::vector <time_value_float> extrema;
     bool first_extremum = true;
 
     for (int i = 1; i < novelty_function.size() - 1; i++) {
 
         if ((novelty_function[i - 1].value < novelty_function[i].value
-             && novelty_function[i + 1].value < novelty_function[i].value)) {
+        && novelty_function[i + 1].value < novelty_function[i].value)
+        ||
+        (novelty_function[i - 1].value > novelty_function[i].value
+        && novelty_function[i + 1].value > novelty_function[i].value)
+        ){
             // WE GOT A MAXIMUM
             if (first_extremum) {
                 first_extremum = false;
@@ -1479,10 +1584,10 @@ std::vector <time_value_float> Analysis::get_extrema(std::vector <time_value_flo
     // DELETE FIRST AND LAST EXTREMUM FROM EXTREMA
     extrema.pop_back();
 
-    return extrema;
+    return extrema; // RETURN ONLY HIGHS!
 }
 
-float Analysis::get_middle_tvf(std::vector <time_value_float> v) {
+float Analysis::get_middle_tvf(std::vector<time_value_float> v) {
     float v_m = 0;
 
     if (!v.empty()) {
@@ -1495,7 +1600,7 @@ float Analysis::get_middle_tvf(std::vector <time_value_float> v) {
     return v_m;
 }
 
-float Analysis::get_variance_tvf(std::vector <time_value_float> v, float middle) {
+float Analysis::get_variance_tvf(std::vector<time_value_float> v, float middle) {
     float v_var = 0;
 
     for (int i = 0; i < v.size(); i++) {
@@ -1507,7 +1612,7 @@ float Analysis::get_variance_tvf(std::vector <time_value_float> v, float middle)
     return v_var;
 }
 
-float Analysis::get_standard_deviation_tvf(std::vector <time_value_float> v, float variance) {
+float Analysis::get_standard_deviation_tvf(std::vector<time_value_float> v, float variance) {
     float v_dev = 0;
     if (variance > 0)
         v_dev = sqrt(variance);
@@ -1515,16 +1620,23 @@ float Analysis::get_standard_deviation_tvf(std::vector <time_value_float> v, flo
     return v_dev;
 }
 
-std::vector <time_value_float>
-Analysis::filter_extrema(std::vector <time_value_float> extrema, float middle, float middle_factor, float variance,
-                         float standard_deviation, int bpm, bool filter_by_bars, int bars_c) {
-    std::vector <time_value_float> segments;
+std::vector<time_value_float>
 
-    for (int i = 0; i < extrema.size(); i++) {
-        if (extrema[i].value >= (middle * middle_factor))
-            segments.push_back({extrema[i].time, extrema[i].value});
+Analysis::filter_extrema(std::vector<time_value_float> extrema, float middle, float middle_factor, float variance,
+                         float standard_deviation, int bpm, bool filter_by_bars, int bars_c, float knn_upper_mean, float factor) {
+    std::vector<time_value_float> segments;
 
+    for (int i = 1; i < extrema.size()-1; i++) {
+        if (extrema[i].value > extrema[i-1].value) {
+            float threshold = ((extrema[i + 1].value + extrema[i - 1].value) / 2) + (knn_upper_mean * factor);
+            if (extrema[i].value > threshold) {
+                segments.push_back({extrema[i].time, extrema[i].value});
+            }
+        }
+        else {}
     }
+
+
 
     // FILTER SEGMENTS THAT ARE LESS THAN "bars" APART
     if (filter_by_bars == true) {
@@ -1580,7 +1692,7 @@ Analysis::filter_extrema(std::vector <time_value_float> extrema, float middle, f
     return segments;
 }
 
-void Analysis::make_csv_timeseries_tvf(std::vector <time_value_float> v, char const *directory, char const *filename) {
+void Analysis::make_csv_timeseries_tvf(std::vector<time_value_float> v, char const *directory, char const *filename) {
     std::string str_path;
     str_path += directory;
     str_path += filename;
@@ -1596,7 +1708,7 @@ void Analysis::make_csv_timeseries_tvf(std::vector <time_value_float> v, char co
     return;
 }
 
-void Analysis::make_csv_matrix_f(std::vector <std::vector<float>> v, char const *directory, char const*filename) {
+void Analysis::make_csv_matrix_f(std::vector<std::vector<float>> v, char const *directory, char const *filename) {
     std::string str_path;
     str_path += directory;
     str_path += filename;
@@ -1616,20 +1728,216 @@ void Analysis::make_csv_matrix_f(std::vector <std::vector<float>> v, char const 
     return;
 }
 
-std::vector <time_value_float> Analysis::get_segments() {
+float mean(std::vector<float> v){
+
+    float mean = 0;
+    if (!v.empty()) {
+        for (float x:v) {
+            mean += x;
+        }
+        mean /= v.size();
+        return mean;
+    }
+    else{
+        return 0;
+    }
+
+}
+
+float Analysis::knn_upper_mean(std::vector<time_value_float> values){
+
+    // PSEUDO CODE
+    std::vector<float> a;
+    std::vector<float> b;
+
+    float mean_a = 0;
+    float mean_b = 0;
+    bool threshold = false;
+    float e = 0.1;
+
+    while(!threshold){
+        for (auto v:values){
+
+            float delta_a = abs(mean(a) - v.value);
+            float delta_b = abs(mean(b) - v.value);
+            if (delta_a > delta_b || delta_a == delta_b){
+                a.push_back(v.value);
+            }
+            else if(delta_a < delta_b){
+                b.push_back(v.value);
+            }
+            else {
+                // there SHOULD be no else... but NaN and stuff are creepy and unpredictable... :)
+            }
+            //std::cout << "mean_a: " << mean(a) << " // mean_b: " << mean(b) << std::endl;
+            if (delta_a >= e && delta_b >= e){
+                threshold = true;
+            }
+        }
+        // TODO: DAS HIER MACHT NOCH KEINEN SINN!!!
+
+
+        // MACH'S EINFACH 20 mal...?
+    }
+
+    if (mean(a) >= mean(b))
+        return mean(a);
+    else {
+        return mean(b);
+    }
+
+}
+
+std::vector<std::vector<float>> Analysis::smoothing_median(std::vector<std::vector<float>> &v, int L){
+    std::vector<std::vector<float>> vs;
+    std::vector<float> vm;
+
+    vs.resize(v.size());
+
+    for (int i = 0; i < v.size(); i++){
+        vs[i].resize(v[i].size());
+    }
+
+
+    //es wird mit einem offset nach links und rechts über jeden iten wert JEDES feature vektors geschleift
+
+    //        {v-1  v0  v1  v2  v3}
+    // dim_0    0   1   2   3   0
+    // dim_1    0   4   5   6   0
+    // dim_2    0   7   8   9   0
+
+    //
+
+    // neu_0        1   2   2
+    // neu_1        4   5   5
+    // neu_2        7   8   8
+    //
+    // L = 3 // N = 1 MEDIAN
+
+    // median_filter w über komplett dim_0 mit offset links und rechts also L = (N*2)+1
+    int N = (L-1)/2;
+    float median = 0;
+    if (!v.empty()){
+        for (int i = 0; i < v[0].size(); i++){
+            for (int j = 0; j < v.size(); j++){
+
+                for(int k = j-N; k <= j+N; k++){
+                    if (k < 0 || k >= v.size()){
+                        vm.push_back(0);
+                    }
+                    else {
+                        vm.push_back(v[k][i]);
+                    }
+                }
+                std::sort (vm.begin(), vm.end());
+
+                int it = 0;
+                if ((vm.size() % 2) > 0){
+                    it = (int)((vm.size() - 1) / 2);
+                    vs[j][i] = vm[it];
+                }
+                else {
+                    it = vm.size() / 2;
+                    vs[j][i] = ( (vm[it-1] + vm[it]) / 2);
+                }
+                vm.clear();
+                vm.shrink_to_fit();
+            }
+        }
+    }
+
+    return vs;
+};
+
+float Analysis::get_average_energy_for_segment(float start, float end, float *vals, int sr, bool last){
+    std::cout << "start: " << start << " // end: " << end << std::endl;
+    // DO SIMPLE RMS SHIT
+
+    float av_energy = 0;
+    float energy;
+    int sample_start = int(start * (float) sr);
+
+
+    if (last) {
+        std::vector<float> vals_nonzero;
+        int zero_counter = 0;
+        for (int i = signal_length_mono-1; i >= sample_start; i--) {
+            //std::cout << vals[i] << std::endl;
+            if (vals[i] < 0.01) {
+                zero_counter++;
+            } else {
+                break;
+            }
+        }
+
+        end = end - ((float) zero_counter / (float) samplerate);
+        std::cout << "ZEROS: " << zero_counter << std::endl;
+        std::cout << "end cut: " << end << std::endl;
+    }
+
+    int sample_end = int(end * (float) sr);
+    int n = sample_end - sample_start;
+
+    //TODO: check if sample calc is needed. this depends on vals
+
+    for (int i = sample_start; i < sample_end; i++){
+
+        // calc energy for sample here
+        // (sum sample squares, take sqrt)
+
+        energy = pow(vals[i], 2);
+
+        av_energy += energy;
+
+    }
+
+    av_energy = sqrt(av_energy/n);
+
+    return av_energy;
+}
+
+std::vector<time_value_float> Analysis::get_segments() {
 
     bool FILEPRINT = true; // print csv files for plotting?
 
-    bool filter_by_bars = false; // filter extrema that are too close?
-    int bars_c = 4; // left/right distance for filtering extrema that are too close
-    int bars_bin = 1; // width of audio bin in samples
-    int filter_bars = 4; // filter kernel width in bars
+    // TODO: PRINT MULTIPLE OUTPUTS WITH VARYING PARAMETERS FOR EVERY SONG!
+    // CSV/MADSEN_KEINER/01/...
+    char const *directory = "/Users/sd/CLionProjects/Sound-to-Light-2.0/CSV/"; // DIRECTORY FOR FILEPRINTS
 
-    double first_good_beat = get_first_beat();
-    int offset = first_good_beat / this->samplerate;
+    // TEMPORAL ALIGNMENT AND TIME-DISTANCE BASED THRESHOLDING OF EXTREMA
+    bool filter_by_bars = true; // filter extrema that are too close?
+    int bars_c = 1; // left/right distance for filtering extrema that are too close // TODO: EIGENTLICH 1
+    float bars_bin = 1; // width of audio bin in bars
+    int filter_bars = 2; // filter kernel width in bars
+    float cut_seconds_end = 2.5; // HOW MANY SECONDS TO CUT AT THE END
 
+    // KNN ALGORITHM FOR EXTREMA THRESHOLDING
+    float knn_factor = 0.5;
+    float norm_threshold = 0.00001;
+
+    // MEDIAN SMOOTHING
+    bool smooth_median = true;
+    int smoothing_filter_length = 5;
+
+    // NOVELTY COMBINATION WITH WEIGHTS (ALSO ON OFF SWITCH, =0 for OFF, >0 for ON)
+    // youreallygotme 8,1,4
+    // madsen 2/1/4
+    float mfcc_factor = 8; // 1
+    float chroma_factor = 1; // 0.5
+    float stft_factor = 4; // 4
+    float rhythm_factor = 0; // 0
+
+    int offset = get_first_beat();
+
+    // TODO: REVERT!!!!
+    // TODO: DON'T GO OVER samplerate/2 BECAUSE OF CHROMAGRAM... DUH...
     float bpm_bin = bars_bin * (60.0 / this->bpm) * this->samplerate;
-    std::cout << "Sampling Frequency: " << bpm_bin / this->samplerate << " // BPM based bin size: " << bpm_bin << std::endl;
+    while (bpm_bin > 44100){
+        bpm_bin /= 2;
+    }
+
+    std::cout << "Sampling Frequency: " << bpm_bin / this->samplerate << " // BPM based bin size: " << bpm_bin
+              << std::endl;
     std::cout << "New bin size: " << bpm_bin << std::endl;
 
     auto start_segmentation = std::chrono::system_clock::now();
@@ -1638,18 +1946,12 @@ std::vector <time_value_float> Analysis::get_segments() {
     std::cout << "bin_size: " << bin_size << std::endl;
     int hop_size = (int) bin_size; // no overlap, don't do overlap, all timestamps will be broken.
 
+    // MIDDLE THRESHOLDING (CURRENTLY OFF)
     float middle_factor = 1; // 1
     float novelty_factor = 0.5;
     float deviation_factor = 4;
-    float cut_seconds_end = 10; // HOW MANY SECONDS TO CUT AT THE END
     float cut_seconds_start = 0;
 
-    float mfcc_factor = 0; // 1
-    float chroma_factor = 0; // 0.5
-    float stft_factor = 1; // 4
-    float rhythm_factor = 0; // 0
-
-    const char *directory = "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/";
 
     // weighting for influence on novelty function
 
@@ -1665,15 +1967,31 @@ std::vector <time_value_float> Analysis::get_segments() {
     std::vector<std::vector<float>> window_stft;
     std::vector<std::vector<float>> window_rhythm;
 
-    if(mfcc_factor > 0)
-        window_mfcc = get_stmfcc(wav_values_mono, bin_size, hop_size, offset);
-    if(chroma_factor > 0)
+
+
+    if (mfcc_factor > 0) {
+        window_mfcc = get_stmfcc(wav_values_mono, bin_size, hop_size, offset, 4, 14);
+        window_mfcc = norm_euclidian(window_mfcc, norm_threshold);
+        if (smooth_median)
+            window_mfcc = smoothing_median(window_mfcc, smoothing_filter_length);
+    }
+    if (chroma_factor > 0) {
         window_chroma = get_chromagram(wav_values_mono, bin_size, hop_size, samplerate, offset);
-    if(stft_factor > 0)
+        window_chroma = norm_euclidian(window_chroma, norm_threshold);
+        if (smooth_median)
+            window_chroma = smoothing_median(window_chroma, smoothing_filter_length);
+    }
+    if (stft_factor > 0){
         window_stft = get_spectrogram(wav_values_mono, bin_size, hop_size, offset);
-    if(rhythm_factor > 0)
+        window_stft = norm_euclidian(window_stft, norm_threshold);
+        if(smooth_median)
+            window_stft = smoothing_median(window_stft, smoothing_filter_length);
+    }
+
+    if (rhythm_factor > 0) {
         window_rhythm = get_rhythmogram(wav_values_mono, bin_size, hop_size, offset);
-    std::cout << "get_spectrogram etc. = durch" << std::endl;
+        window_rhythm = norm_euclidian(window_rhythm, norm_threshold);
+    }
     auto end_features = std::chrono::system_clock::now();
 
     // #################################
@@ -1688,53 +2006,47 @@ std::vector <time_value_float> Analysis::get_segments() {
     std::vector<std::vector<float>> ssm_rhythm;
 
     //auto start_ssm1 = std::chrono::system_clock::now();
-    if(mfcc_factor > 0) {
-      //std::cout << "getting ssm for mfcc" << std::endl;
-      //std::cout << "window_mfcc.size(): " << window_mfcc.size() << std::endl;
-      //std::cout << "window_mfcc[0].size(): " << window_mfcc[0].size() << std::endl;
-      //std::cout << "window_mfcc[0][0]: " << window_mfcc[0][0] << std::endl;
-      ssm_mfcc = get_self_similarity_matrix(window_mfcc, 0);
+    if (mfcc_factor > 0) {
+        //std::cout << "getting ssm for mfcc" << std::endl;
+        //std::cout << "window_mfcc.size(): " << window_mfcc.size() << std::endl;
+        //std::cout << "window_mfcc[0].size(): " << window_mfcc[0].size() << std::endl;
+        //std::cout << "window_mfcc[0][0]: " << window_mfcc[0][0] << std::endl;
+        ssm_mfcc = get_self_similarity_matrix(window_mfcc, 0);
     }
-    std::cout << "get_ssm mfcc durch" << std::endl;
 
     //auto end_ssm1 = std::chrono::system_clock::now();
 
     //auto start_ssm2 = std::chrono::system_clock::now();
-    if(chroma_factor > 0) {
-      //std::cout << "getting ssm for chroma" << std::endl;
-      //std::cout << "window_chroma.size(): " << window_chroma.size() << std::endl;
-      //std::cout << "window_chroma[0].size(): " << window_chroma[0].size() << std::endl;
-      //std::cout << "window_chroma[0][0]: " << window_chroma[0][0] << std::endl;
-      ssm_chroma = get_self_similarity_matrix(window_chroma, 0);
+    if (chroma_factor > 0) {
+        //std::cout << "getting ssm for chroma" << std::endl;
+        //std::cout << "window_chroma.size(): " << window_chroma.size() << std::endl;
+        //std::cout << "window_chroma[0].size(): " << window_chroma[0].size() << std::endl;
+        //std::cout << "window_chroma[0][0]: " << window_chroma[0][0] << std::endl;
+        ssm_chroma = get_self_similarity_matrix(window_chroma, 0);
     }
-    std::cout << "get_ssm chroma durch" << std::endl;
 
     //auto end_ssm2 = std::chrono::system_clock::now();
 
     //auto start_ssm3 = std::chrono::system_clock::now();
-    if(stft_factor > 0) {
-      //std::cout << "getting ssm for stft" << std::endl;
-      //std::cout << "window_stft.size(): " << window_stft.size() << std::endl;
-      //std::cout << "window_stft[0].size(): " << window_stft[0].size() << std::endl;
-      //std::cout << "window_stft[0][0]: " << window_stft[0][0] << std::endl;
-      ssm_stft = get_self_similarity_matrix(window_stft, 0);
+    if (stft_factor > 0) {
+        //std::cout << "getting ssm for stft" << std::endl;
+        //std::cout << "window_stft.size(): " << window_stft.size() << std::endl;
+        //std::cout << "window_stft[0].size(): " << window_stft[0].size() << std::endl;
+        //std::cout << "window_stft[0][0]: " << window_stft[0][0] << std::endl;
+        ssm_stft = get_self_similarity_matrix(window_stft, 0);
     }
-    std::cout << "get_ssm stft durch" << std::endl;
 
     //auto end_ssm3 = std::chrono::system_clock::now();
 
     //auto start_ssm4 = std::chrono::system_clock::now();
-    if(rhythm_factor > 0) {
-      //std::cout << "getting ssm for rhythm" << std::endl;
-      ssm_rhythm = get_self_similarity_matrix(window_rhythm, 0);
+    if (rhythm_factor > 0) {
+        //std::cout << "getting ssm for rhythm" << std::endl;
+        ssm_rhythm = get_self_similarity_matrix(window_rhythm, 0);
     }
-    std::cout << "get_ssm rhythm durch" << std::endl;
 
     //auto end_ssm4 = std::chrono::system_clock::now();
 
     auto end_ssm = std::chrono::system_clock::now();
-
-    std::cout << "get_ssm alle durch" << std::endl;
 
     // ####################################################
     // ## 5.1 CREATE RADIAL GAUSSIAN CHECKERBOARD KERNEL ##
@@ -1760,20 +2072,26 @@ std::vector <time_value_float> Analysis::get_segments() {
     std::vector<time_value_float> novelty_function_stft;
     std::vector<time_value_float> novelty_function_rhythm;
 
-    if(mfcc_factor > 0)
+    if (mfcc_factor > 0)
         novelty_function_mfcc = get_novelty_function(ssm_mfcc, kernel, cut_seconds_end, bin_size,
-                                                                          samplerate, kernel[0].size(), offset);
-    if(chroma_factor > 0)
+                                                     samplerate, kernel[0].size(), offset);
+    if (chroma_factor > 0)
         novelty_function_chroma = get_novelty_function(ssm_chroma, kernel, cut_seconds_end, bin_size,
-                                                                               samplerate, kernel[0].size(), offset);
-    if(stft_factor > 0)
+                                                       samplerate, kernel[0].size(), offset);
+    if (stft_factor > 0)
         novelty_function_stft = get_novelty_function(ssm_stft, kernel, cut_seconds_end, bin_size,
-                                                                                 samplerate, kernel[0].size(), offset);
-    if(rhythm_factor > 0)
+                                                     samplerate, kernel[0].size(), offset);
+    if (rhythm_factor > 0)
         novelty_function_rhythm = get_novelty_function(ssm_rhythm, kernel, cut_seconds_end, bin_size,
-                                                                               samplerate, kernel[0].size(), offset);
+                                                       samplerate, kernel[0].size(), offset);
 
-    std::vector<time_value_float> novelty_function_combined = get_combined_novelty_function(novelty_function_mfcc, novelty_function_chroma, novelty_function_stft, novelty_function_rhythm, mfcc_factor, chroma_factor, stft_factor, rhythm_factor, FILEPRINT, directory);
+    std::vector<time_value_float> novelty_function_combined = get_combined_novelty_function(novelty_function_mfcc,
+                                                                                            novelty_function_chroma,
+                                                                                            novelty_function_stft,
+                                                                                            novelty_function_rhythm,
+                                                                                            mfcc_factor, chroma_factor,
+                                                                                            stft_factor, rhythm_factor,
+                                                                                            FILEPRINT, directory);
 
     auto end_filter = std::chrono::system_clock::now();
 
@@ -1785,23 +2103,73 @@ std::vector <time_value_float> Analysis::get_segments() {
 
     auto start_extrema = std::chrono::system_clock::now();
 
-    //std::vector<time_value_float> extrema = get_extrema(novelty_function_combined);
-    std::vector<time_value_float> extrema = novelty_function_combined;
+    std::vector<time_value_float> extrema = get_extrema(novelty_function_combined);
+    //std::vector<time_value_float> extrema = novelty_function_combined;
+
+    float novelty_middle = get_middle_tvf(novelty_function_combined);
+    float novelty_variance = get_variance_tvf(novelty_function_combined, novelty_middle);
+    float novelty_deviation = get_variance_tvf(novelty_function_combined, novelty_variance);
 
     float extrema_middle = get_middle_tvf(extrema);
     float extrema_variance = get_variance_tvf(extrema, extrema_middle);
     float extrema_deviation = get_standard_deviation_tvf(extrema, extrema_variance);
 
+    float novelty_knn_upper_mean = knn_upper_mean(novelty_function_combined);
+
     std::vector<time_value_float> segments = filter_extrema(extrema, extrema_middle, middle_factor, extrema_variance,
-                                                            extrema_deviation, this->bpm, filter_by_bars, bars_c);
+                                                            extrema_deviation, this->bpm, filter_by_bars, bars_c, novelty_knn_upper_mean, knn_factor);
     auto end_extrema = std::chrono::system_clock::now();
+
+
+    // ######################################
+    // ### 5.3. GET AVERAGE SEGMENT ENERGY ##
+    // ######################################
+
+    float seg_start;
+    float seg_end;
+    std::vector<time_value_float> energy_segments;
+    for (int i = 0; i <= segments.size(); i++){
+        if (i == 0){
+            seg_start = 0;
+            seg_end = segments[i].time;
+            energy_segments.push_back({0.0 ,get_average_energy_for_segment(seg_start, seg_end, wav_values_mono, samplerate, false)});
+        }
+        else if (i == segments.size()){
+            seg_start = segments[i-1].time;
+            seg_end = (float) ((signal_length_mono) / samplerate);
+            energy_segments.push_back({segments[i-1].time ,get_average_energy_for_segment(seg_start, seg_end, wav_values_mono, samplerate, true)});
+        }
+        else {
+            seg_start = segments[i-1].time;
+            seg_end = segments[i].time;
+            energy_segments.push_back({segments[i-1].time ,get_average_energy_for_segment(seg_start, seg_end, wav_values_mono, samplerate, false)});
+        }
+
+
+    }
+
+    float max_energy = 0;
+    for (int i = 0; i < energy_segments.size(); i++){
+        if (energy_segments[i].value > max_energy){
+            max_energy = energy_segments[i].value;
+        }
+    }
+    float min_energy = INFINITY;
+    for (int i = 0; i < energy_segments.size(); i++){
+        if (energy_segments[i].value < min_energy && energy_segments[i].value != 0){
+            min_energy = energy_segments[i].value;
+        }
+    }
+
+    for (int i = 0; i < energy_segments.size(); i++){
+        energy_segments[i].value = ((energy_segments[i].value - min_energy) / (max_energy - min_energy) );
+    }
 
     // #######################
     // ### 6. PRINT TO CSV ###
     // #######################
 
     if (FILEPRINT == true) {
-        char const *directory = "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/";
         make_csv_matrix_f(kernel, directory, "kernel");
         if (mfcc_factor > 0)
             make_csv_matrix_f(ssm_mfcc, directory, "ssm_mfcc");
@@ -1816,9 +2184,10 @@ std::vector <time_value_float> Analysis::get_segments() {
         //make_csv_timeseries_tvf(novelty_function_stft, directory, "novelty_function_stft");
         //make_csv_timeseries_tvf(novelty_function_rhythm, directory, "novelty_function_rhythm");
 
-        //make_csv_timeseries_tvf(novelty_function_combined, directory, "novelty_function_combined");
+        make_csv_timeseries_tvf(novelty_function_combined, directory, "novelty_function_combined");
         make_csv_timeseries_tvf(extrema, directory, "extrema");
         make_csv_timeseries_tvf(segments, directory, "segments");
+        make_csv_timeseries_tvf(energy_segments, directory, "energy_segments");
     }
 
 
@@ -1857,18 +2226,81 @@ std::vector <time_value_float> Analysis::get_segments() {
               << "NOVELTY CALCULATION: " << elapsed_seconds_filter.count() << "s\n"
               << "SEGMENTS CALCULATION: " << elapsed_seconds_extrema.count() << "s\n";
 
-    // PRINT SEGENTS TO CONSOLE FOR EASY AND FAST CHECKING
-    std::cout << "--- SEGMENTS FOUND ---" << std::endl;
+    // PRINT SEGMENTS TO CONSOLE FOR EASY AND FAST CHECKING
+    //std::cout << "--- SEGMENTS FOUND ---" << std::endl;
+    /*
     for (auto tvf:segments) {
         std::cout << "time: " << tvf.time << std::endl;
     }
+    */
 
-    // FINALLY RETURN SEGMENTS
-    return segments;
+
+    // PRINT ALL THE COOL STUFF
+    // PRINT ALL PARAMETERS
+    if (FILEPRINT){
+
+        std::string str_path;
+        str_path += directory;
+        str_path += "params.csv";
+        const char *filepath = str_path.c_str();
+
+        FILE *fp = std::fopen(filepath, "w");
+
+        fprintf(fp, "\n\n### GENERAL - SIGNAL INFORMATION ###\n");
+        fprintf(fp, "SIGNAL LENGTH: %d SAMPLES\n", sizeof(wav_values_mono));
+        fprintf(fp, "SAMPLE RATE: %d SAMPLES PER SECOND\n", samplerate);
+
+        fprintf(fp, "\n\n### GENERAL - SET PARAMATERS ###\n");
+        fprintf(fp, "KERNEL BARS: %d BARS\n", filter_bars);
+        fprintf(fp, "BIN BARS: %d BARS\n", bars_bin);
+        fprintf(fp, "CUT SECONDS (END): %f s\n", cut_seconds_end);
+        if (filter_by_bars)
+            fprintf(fp, "FILTER BY BARS: %d BARS\n", bars_c);
+        else
+            fprintf(fp, "FILTER BY BARS: FALSE\n");
+
+        fprintf(fp, "\n\n### FEATURE EXTRACTION - CALCULATED PARAMETERS ###\n");
+        fprintf(fp, "BPM: %d BEATS/m\n", this->bpm);
+        fprintf(fp, "FIRST BEAT (OFFSET): %d samples\n", offset);
+        fprintf(fp, "BIN SIZE: %f SAMPLES\n", bpm_bin);
+        fprintf(fp, "HOP SIZE: %d SAMPLES\n", hop_size);
+        fprintf(fp, "FEATURE SAMPLING FREQUENCY: %f Hz\n", (bpm_bin / samplerate));
+
+        fprintf(fp, "\n\n### NOVELTY — SET PARAMETERS ###\n");
+        fprintf(fp, "NOVELTY WEIGHTING FACTOR (MFCC): %f \n", mfcc_factor);
+        fprintf(fp, "NOVELTY WEIGHTING FACTOR (CHROMA): %f \n", chroma_factor);
+        fprintf(fp, "NOVELTY WEIGHTING FACTOR (STFT): %f \n", stft_factor);
+        fprintf(fp, "NOVELTY WEIGHTING FACTOR (RHYTHM): %f \n", rhythm_factor);
+
+        fprintf(fp, "\n\n### NOVELTY — CALCULATED PARAMETERS ###\n");
+        fprintf(fp, "ARITHMETIC MIDDLE (NOVELTY): %f \n", novelty_middle);
+        fprintf(fp, "VARIANCE (NOVELTY): %f \n", novelty_variance);
+        fprintf(fp, "STANDARD DEVIATION (NOVELTY): %f \n", novelty_deviation);
+        fprintf(fp, "ARITHMETIC MIDDLE (EXTREMA): %f \n", extrema_middle);
+        fprintf(fp, "VARIANCE (EXTREMA): %f \n", extrema_variance);
+        fprintf(fp, "STANDARD DEVIATION (EXTREMA): %f \n", extrema_deviation);
+        //fprintf(fp, "KNN - BIGGEST SET (NOVELTY): %f \n", novelty_knn_big_middle);
+        //fprintf(fp, "KNN SMALLEST SET (NOVELTY): %f \n", novelty_knn_small_set);
+
+        fprintf(fp, "\n\n### ELAPSED TIME ###\n");
+        fprintf(fp, "SEGMENTATION OVERALL: %f s\n", elapsed_seconds.count());
+        fprintf(fp, "FEATURE EXTRACTION: %f s\n", elapsed_seconds_features.count());
+        fprintf(fp, "SELF SIMILARITY CALCULATION: %f s\n", elapsed_seconds_ssm.count());
+        fprintf(fp, "KERNEL CALCULATION: %f s\n", elapsed_seconds_kernel.count());
+        fprintf(fp, "NOVELTY CALCULATION: %f s\n", elapsed_seconds_filter.count());
+        fprintf(fp, "EXTREMA CALCULATION AND FILTERING: %f s\n", elapsed_seconds_extrema.count());
+
+        fclose(fp);
+    }
+
+    // FINALLY RETURN SEGMENTS OR ENERGY SEGMENTS
+    //return segments;
+    return energy_segments;
+
+
 }
 
-
-std::vector <time_value_int>
+std::vector<time_value_int>
 Analysis::get_intensity_average_for_next_segment(std::vector<double> beats, int beats_per_minute,
                                                  double first_good_beat) {
 
@@ -1879,8 +2311,8 @@ Analysis::get_intensity_average_for_next_segment(std::vector<double> beats, int 
     }
     int chunk_position = first_good_beat;
 
-    std::vector <time_value_double> intensities = std::vector<time_value_double>();
-    std::vector <time_value_int> intensities_normalized = std::vector<time_value_int>();
+    std::vector<time_value_double> intensities = std::vector<time_value_double>();
+    std::vector<time_value_int> intensities_normalized = std::vector<time_value_int>();
     float normalization_factor = (2.0 * 1.63) / samplerate;
 
     fftw_complex *data, *fft_result, *ifft_result;
@@ -2069,9 +2501,9 @@ Analysis::get_intensity_average_for_next_segment(std::vector<double> beats, int 
 
 };
 
-std::vector <time_value_int> Analysis::get_intensity_changes(std::vector <time_value_int> intensities, int threshold) {
+std::vector<time_value_int> Analysis::get_intensity_changes(std::vector<time_value_int> intensities, int threshold) {
 
-    std::vector <time_value_int> intensity_changes;
+    std::vector<time_value_int> intensity_changes;
     intensity_changes.push_back({intensities[0].time, intensities[0].value});
     for (int i = 0; i < intensities.size(); i++) {
         int a = intensity_changes.size() - 1;
@@ -2123,9 +2555,9 @@ float Analysis::get_intensity_mean() {
     return intensity;
 };
 
-std::vector <time_value_int> Analysis::peaks_per_band(int f1, int f2) {
+std::vector<time_value_int> Analysis::peaks_per_band(int f1, int f2) {
 
-    std::vector <time_value_int> data = std::vector<time_value_int>();
+    std::vector<time_value_int> data = std::vector<time_value_int>();
 
     float f1_sample = ((float) window_size / samplerate) * f1;
     float f2_sample = ((float) window_size / samplerate) * f2;
@@ -2209,7 +2641,7 @@ void Analysis::binomial_weights(int ma_window_size) {
 
 }
 
-float Analysis::average(std::vector <time_value_float> data) {
+float Analysis::average(std::vector<time_value_float> data) {
     float mw = 0;
     for (int i = 0; i < data.size(); i++) {
         mw += data.at(i).value / data.size();
@@ -2217,13 +2649,13 @@ float Analysis::average(std::vector <time_value_float> data) {
     return mw;
 }
 
-std::vector <time_value_double> Analysis::moving_average(int left, int right, std::vector <time_value_double> data) {
+std::vector<time_value_double> Analysis::moving_average(int left, int right, std::vector<time_value_double> data) {
     int ma_window_size = left + right + 1;
     // calculate weights ONCE
     binomial_weights(ma_window_size);
 
     //Moving Average weighted and centered
-    std::vector <time_value_double> data2;
+    std::vector<time_value_double> data2;
     time_value_double temp = {0.0, 0.0};
     float zeit;
 
@@ -2248,16 +2680,16 @@ std::vector <time_value_double> Analysis::moving_average(int left, int right, st
     return data2;
 }
 
-std::vector <time_value_float> Analysis::moving_average_delta(std::vector <time_value_float> data, float average) {
-    std::vector <time_value_float> ma_result;
+std::vector<time_value_float> Analysis::moving_average_delta(std::vector<time_value_float> data, float average) {
+    std::vector<time_value_float> ma_result;
     for (int i = 0; i < data.size(); i++) {
         ma_result.push_back({data.at(i).time, fabsf(data.at(i).value - average)});
     }
     return ma_result;
 }
 
-std::vector <time_value_double> Analysis::get_turningpoints(std::vector <time_value_double> data) {
-    std::vector <time_value_double> tp_result;
+std::vector<time_value_double> Analysis::get_turningpoints(std::vector<time_value_double> data) {
+    std::vector<time_value_double> tp_result;
     for (int i = 1; i < data.size() - 2; i++) {
         double delta0 = fabs(data.at(i).value - data.at(i - 1).value);
         double delta1 = fabs(data.at(i + 1).value - data.at(i).value);

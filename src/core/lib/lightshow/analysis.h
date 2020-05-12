@@ -65,7 +65,7 @@ class Analysis {
   std::vector<time_value_int> get_intensity_average_for_next_segment(std::vector<double> beats, int beats_per_minute, double first_good_beat);
   std::vector<time_value_int> get_intensity_changes(std::vector<time_value_int> intensities, int threshold);
 
-  std::vector<std::vector<float> > get_stmfcc(float *signal_values, int bin_size, int hop_size, int offset);
+  std::vector<std::vector<float> > get_stmfcc(float *signal_values, int bin_size, int hop_size, int offset, int cut_start, int cut_end);
   std::vector<std::vector<float> > get_chromagram(float *signal_values, int bin_size, int hop_size, int song_samplerate, int offset);
   std::vector<std::vector<float> > get_spectrogram(float *signal_values, int bin_size, int hop_size, int offset);
   std::vector<std::vector<float> > get_rhythmogram(float *signal_values, int bin_size, int hop_size, int offset);
@@ -75,14 +75,24 @@ class Analysis {
   std::vector<std::vector<float> > get_self_similarity_matrix(const std::vector<std::vector<float>> &window, int distance_formula);
   std::vector<std::vector<float> > get_filter_kernel(int song_bpm, int bin_size, int song_samplerate, int bars);
   std::vector<time_value_float> get_novelty_function(std::vector<std::vector<float> > ssm, std::vector<std::vector<float> > kernel, int cut_seconds_end, int bin_size, int song_samplerate, int N, int offset);
+
+    std::vector<std::vector<float>> norm_euclidian(std::vector<std::vector<float>> v, float threshold);
+    std::vector<std::vector<float>> norm_absolute(std::vector<std::vector<float>> v, float threshold);
+    std::vector<std::vector<float>> norm_manhattan(std::vector<std::vector<float>> v, float threshold);
+    std::vector<std::vector<float>> norm_mean_variance(std::vector<std::vector<float>> v, float threshold);
+
   std::vector<time_value_float> get_combined_novelty_function(std::vector<time_value_float> mfcc, std::vector<time_value_float> chroma, std::vector<time_value_float> stft, std::vector<time_value_float> rhythm, float mfcc_co, float chroma_co, float stft_co, float rhythm_co, bool FILEPRINT, char const *directory);
   std::vector<time_value_float> get_extrema(std::vector<time_value_float> novelty_function);
   float get_middle_tvf(std::vector<time_value_float> v);
   float get_variance_tvf(std::vector<time_value_float> v, float middle);
   float get_standard_deviation_tvf(std::vector<time_value_float> v, float variance);
-  std::vector<time_value_float> filter_extrema(std::vector<time_value_float> extrema, float middle, float middle_factor, float variance, float standard_deviation, int bpm, bool filter_by_bars, int bars_c);
+  std::vector<time_value_float> filter_extrema(std::vector<time_value_float> extrema, float middle, float middle_factor, float variance, float standard_deviation, int bpm, bool filter_by_bars, int bars_c, float knn_upper_mean, float factor);
   void make_csv_timeseries_tvf(std::vector<time_value_float> v, char const *directory, char const *filename );
   void make_csv_matrix_f(std::vector<std::vector<float>> v, char const *directory, char  const *filename );
+  float knn_upper_mean(std::vector<time_value_float> values);
+  std::vector<std::vector<float>> smoothing_median(std::vector<std::vector<float>> &v, int L);
+  float get_average_energy_for_segment(float start, float end, float *vals, int sr, bool last);
+
 
   std::vector<time_value_float> get_segments();
 

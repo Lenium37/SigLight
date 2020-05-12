@@ -9,6 +9,7 @@
 #include <float.h>
 #include <iostream>
 #include <math.h>
+#include <libusb.h>
 
 #include <array>
 
@@ -23,12 +24,12 @@
 #include <filesystem>
 #include <lightshow/analysis.h>
 
-// copy beahaviour of "SONG ADDED"!
+// copy behaviour of "SONG ADDED"!
 
 int main() {
     int resolution = 40;
 
-    std::string song = "/Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/assets/Sportfreunde_Stiller-Ein_Kompliment.wav";
+    std::string song = "/Users/sd/CLionProjects/Sound-to-Light-2.0/assets/doku/the_kinks_you_really_got_me.wav";
 
     std::shared_ptr<Lightshow> lightshow = std::make_shared<Lightshow>();
     lightshow->set_resolution(resolution);
@@ -37,8 +38,8 @@ int main() {
     //lightshow->prepare_analysis_for_song((char*)file_path.c_str());
     lightshow->prepare_analysis_for_song((char*)song.c_str(), false, false, false, false, 0, 0);
 
-    system("python /Users/stevendrewers/CLionProjects/Sound-to-Light-2.0/CSV/plot_novelty.py --stft");
-    // --kernel --mfcc --chroma --stft --rhythm
+    system("python /Users/sd/CLionProjects/Sound-to-Light-2.0/CSV/plot_novelty.py --kernel --mfcc --chroma --stft");
+    // --kernel --mfcc --chroma --stft --rhythm --energybars
 
     return 0;
 }
