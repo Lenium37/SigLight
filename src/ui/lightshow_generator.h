@@ -47,18 +47,21 @@ class LightshowGenerator {
   void generate_blink_fade_outs(std::vector<time_value_int> &value_changes, float current_timestamp, float next_timestamp, float lightshow_length);
   void generate_flash(LightshowFixture & fix, std::vector<float> & onset_timestamps, float segment_start, float segment_end);
   void generate_flash_reverse(LightshowFixture & fix, std::vector<float> & onset_timestamps, float segment_start, float segment_end);
-  void generate_blink(LightshowFixture & fix, std::vector<float> timestamps, float segment_end);
-  void generate_blink_back_and_forth(LightshowFixture & fix, std::vector<float> timestamps, int group_counter, float segment_end);
-  void generate_group_one_after_another(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end, int fixtures_in_group);
-  void generate_group_one_after_another_fade(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end, int fixtures_in_group, int lightshow_resolution);
-  void generate_group_one_after_another_fade_reverse(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end, int fixtures_in_group, int lightshow_resolution);
-  void generate_group_ABA(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end);
-  void generate_group_ABBA(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end);
+  void generate_blink(LightshowFixture & fix, std::vector<float> & timestamps, float segment_end);
+  void generate_blink_back_and_forth(LightshowFixture & fix, std::vector<float> & timestamps, int group_counter, float segment_end);
+  void generate_group_one_after_another(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end, int fixtures_in_group);
+  void generate_group_one_kind_after_another(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end, int fixtures_in_group);
+  void generate_group_one_after_another_fade(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end, int fixtures_in_group, int lightshow_resolution, bool only_single_lamp);
+  void generate_group_one_after_another_fade_reverse(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end, int fixtures_in_group, int lightshow_resolution, bool only_single_lamp);
+  void generate_group_ABA(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end);
+  void generate_group_ABBA(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end);
+  void generate_group_alternate_odd_even(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end);
+  void generate_pulse(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end, int fixtures_in_group, int lightshow_resolution);
 
   void generate_continuous_8(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_pan, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group);
   void generate_continuous_circle(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_pan, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group);
   void generate_vertical_line(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group);
-  void generate_static_position(LightshowFixture & fix, int pan_center, int tilt_center, int pan_position, int tilt_position, float segment_start, int number_of_fixtures_in_group);
+  void generate_static_position(LightshowFixture & fix, int pan_center, int tilt_center, int pan_position, int tilt_position, float segment_start, float segment_end, int number_of_fixtures_in_group, float time_of_two_bars);
 
   std::vector<time_value_int> generate_single_fade(int start_value, int end_value, float start_timestamp, float end_timestamp, int lightshow_resolution);
 };

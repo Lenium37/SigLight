@@ -21,8 +21,17 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
   lightshow->set_onset_value(onset_value);
 
-  std::random_device rd;     // only used once to initialise (seed) engine
-  std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
+  //std::random_device rd;     // only used once to initialise (seed) engine
+  //std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
+  auto seed = std::chrono::system_clock::now().time_since_epoch().count();
+  std::mt19937 rng(seed);    // random-number engine used (Mersenne-Twister in this case)
+  std::uniform_int_distribution<> random_int_0_1(0, 1);
+  std::uniform_int_distribution<> random_int_0_2(0, 2);
+  std::uniform_int_distribution<> random_int_0_3(0, 3);
+  std::uniform_int_distribution<> random_int_0_4(0, 4);
+  std::uniform_int_distribution<> random_int_0_5(0, 5);
+  std::uniform_int_distribution<> random_int_0_6(0, 6);
+  std::uniform_int_distribution<> random_int_0_7(0, 7);
 
   for(int i = 0; i < lightshow->get_fixtures().size(); i++) {
     std::string fix_type = lightshow->get_fixtures()[i].get_type();
@@ -49,6 +58,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   int fixtures_in_group_one_after_another = 0;
   int fixtures_in_group_one_after_another_fade = 0;
   int fixtures_in_group_one_after_another_fade_reverse = 0;
+  int fixtures_in_group_one_after_another_fade_single = 0;
+  int fixtures_in_group_one_after_another_fade_single_reverse = 0;
   int fixtures_in_group_one_after_another_back_and_forth = 0;
   int fixtures_in_group_one_after_another_back_and_forth_blink = 0;
   int fixtures_in_group_one_after_another_blink = 0;
@@ -71,16 +82,18 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       {"orange", "red", "yellow"},
       {"white", "blue"},
       {"orange", "light-green"},
-      {"red", "blue"},
+      {"blue", "red"},
       {"pink", "blue"},
-      {"cyan", "pink"}
+      {"cyan", "pink"},
+      {"cyan", "green"},
+      {"green", "white"}
   };
 
-  std::uniform_int_distribution<int> uni(0, 5); // guaranteed unbiased
-  int random_color_index = uni(rng);
+  //std::uniform_int_distribution<int> uni(0, 5); // guaranteed unbiased
+  int random_color_index = random_int_0_7(rng);
 
-  srand (time(NULL));
-  random_color_index = rand() % 5 + 0;
+  //srand (time(NULL));
+  //random_color_index = rand() % 5 + 0;
   std::cout << "random_color_index: " << random_color_index << std::endl;
   std::vector<std::string> color_palette = color_palettes[random_color_index];
 
@@ -90,17 +103,25 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   std::vector<std::string> colors_2 = color_palette;
 
   std::map<std::string, std::vector<std::string>> fix_types_with_colors;
+  std::map<std::string, int> fix_types_with_temp_position;
+  int temp_position_counter = 1;
 
 
   for(int i = 0; i < lightshow->get_fixtures().size(); i++) {
     LightshowFixture &fix = lightshow->get_fixtures_reference()[i];
     std::string fix_type = fix.get_type();
+    std::string fix_kind = fix.get_name();
+
     if (fix_type == "group_one_after_another" && fix.get_position_in_group() > fixtures_in_group_one_after_another)
       fixtures_in_group_one_after_another = fix.get_position_in_group();
     else if (fix_type == "group_one_after_another_fade" && fix.get_position_in_group() > fixtures_in_group_one_after_another_fade)
       fixtures_in_group_one_after_another_fade = fix.get_position_in_group();
     else if (fix_type == "group_one_after_another_fade_reverse" && fix.get_position_in_group() > fixtures_in_group_one_after_another_fade_reverse)
       fixtures_in_group_one_after_another_fade_reverse = fix.get_position_in_group();
+    else if (fix_type == "group_one_after_another_fade_single" && fix.get_position_in_group() > fixtures_in_group_one_after_another_fade_single)
+      fixtures_in_group_one_after_another_fade_single = fix.get_position_in_group();
+    else if (fix_type == "group_one_after_another_fade_single_reverse" && fix.get_position_in_group() > fixtures_in_group_one_after_another_fade_single_reverse)
+      fixtures_in_group_one_after_another_fade_single_reverse = fix.get_position_in_group();
     else if(fix_type == "group_one_after_another_back_and_forth" && fix.get_position_in_group() > fixtures_in_group_one_after_another_back_and_forth)
       fixtures_in_group_one_after_another_back_and_forth = fix.get_position_in_group();
     else if(fix_type == "group_one_after_another_back_and_forth_blink" && fix.get_position_in_group() > fixtures_in_group_one_after_another_back_and_forth_blink)
@@ -148,6 +169,15 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
     } else {
       // found
     }
+
+    if(fix_types_with_temp_position.find(fix_kind) == fix_types_with_temp_position.end() ) { // alternatively could also divide by fix name
+      // not found
+      fix_types_with_temp_position.insert(std::pair<std::string, int>(fix_kind, temp_position_counter));
+      temp_position_counter++;
+    } else {
+      // found
+    }
+
   }
 
   for (auto const& x : fix_types_with_colors) {
@@ -157,6 +187,38 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
     std::cout << std::endl;
   }
 
+  for (auto const& x : fix_types_with_temp_position) {
+    std::cout << x.first << std::endl;
+    std::cout << x.second << std::endl;
+    std::cout << std::endl;
+  }
+
+
+  auto segment_changes = lightshow->get_timestamps_segment_changes();
+
+  // randomize some auto stuff for every segment
+  std::vector<int> auto_beats_choice;
+  std::vector<int> auto_onsets_choice;
+  std::vector<int> auto_background_choice;
+  //int auto_beats_choice = rand() % 3 + 0;
+  //int auto_onsets_choice = rand() % 5 + 0;
+  //int auto_background_choice = rand() % 5 + 0;
+
+  for(int i = 0; i < segment_changes.size() + 2; i++) {
+    int random_auto_beats_choice = random_int_0_3(rng);
+    int random_auto_onsets_choice = random_int_0_3(rng);
+    int random_auto_background_choice = random_int_0_3(rng);
+
+
+    //std::cout << "random_auto_onsets_choice for segment " << i << " is: " << random_auto_onsets_choice << std::endl;
+
+    auto_beats_choice.push_back(random_auto_beats_choice);
+    auto_onsets_choice.push_back(random_auto_onsets_choice);
+    auto_background_choice.push_back(random_auto_background_choice);
+  }
+
+  Logger::debug("segment_changes.size(): {}", segment_changes.size());
+  Logger::debug("auto_onsets_choice.size(): {}", auto_onsets_choice.size());
 
   for(int i = 0; i < lightshow->get_fixtures().size(); i++) {
     LightshowFixture & fix = lightshow->get_fixtures_reference()[i];
@@ -165,12 +227,12 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
     std::string timestamps_type = fix.get_timestamps_type();
     std::transform(timestamps_type.begin(), timestamps_type.end(), timestamps_type.begin(), ::tolower);
-    std::cout << timestamps_type << std::endl;
+    std::cout << "timestamps_type: " << timestamps_type << std::endl;
 
     std::vector<float> timestamps;
     if(timestamps_type == "onsets")
       timestamps = lightshow->get_onset_timestamps();
-    else if(timestamps_type.find("beats") != string::npos) { // contains beats
+    else if(timestamps_type.find("Beats") != string::npos || timestamps_type.find("beats") != string::npos) { // contains beats
       timestamps = lightshow->get_specific_beats(timestamps_type);
     }
 
@@ -178,6 +240,31 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
     if(!colors.empty() && colors[0] == "auto")
       colors = fix_types_with_colors.at(fix_type);
 
+
+    // for anton aus tirol hardstyle
+    /*segment_changes.clear();
+    segment_changes.shrink_to_fit();
+    segment_changes.push_back({26.5, 1});
+    segment_changes.push_back({51, 1});
+    segment_changes.push_back({77.5, 1});
+    segment_changes.push_back({103, 1});
+    segment_changes.push_back({128, 1});
+    segment_changes.push_back({141, 1});*/
+
+    // for Madsen Athlet
+    /*segment_changes.clear();
+    segment_changes.shrink_to_fit();
+    segment_changes.push_back({13, 1});
+    segment_changes.push_back({23, 1});
+    segment_changes.push_back({34, 1});
+    segment_changes.push_back({56, 1});
+    segment_changes.push_back({68, 1});
+    segment_changes.push_back({90, 1});
+    segment_changes.push_back({101, 1});
+    segment_changes.push_back({122, 1});
+    segment_changes.push_back({133, 1});
+    segment_changes.push_back({166, 1});
+    segment_changes.push_back({189, 1});*/
 
     if(fix.has_shutter) {
       std::vector<time_value_int> v;
@@ -226,11 +313,10 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       float left_right_switch = 0;
 
 
-
       if(fix.get_moving_head_type().find("auto_") != std::string::npos) {
 
         // needed for all auto types
-        auto segment_changes = lightshow->get_timestamps_segment_changes();
+        //auto segment_changes = lightshow->get_timestamps_segment_changes();
         // for now, insert the first segment
         if (!segment_changes.empty() && segment_changes[0].time > 2)
           segment_changes.insert(segment_changes.begin(), {0.0, 0});
@@ -265,25 +351,25 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
               fix.set_amplitude_pan(0);
               fix.set_amplitude_tilt(25);
               int tilt_offset = (int) std::round((float) 90 / (float) fix.get_degrees_per_tilt());
-              this->generate_vertical_line(fix, pan_center, tilt_center + tilt_offset, time_of_one_beat, segment_start, segment_end, fixtures_in_mh_group_auto_background);
+              this->generate_vertical_line(fix, pan_center, tilt_center + tilt_offset, time_of_one_beat * 4, segment_start, segment_end, fixtures_in_mh_group_auto_background);
 
             } else if (onset_timestamps.size() >= four_per_bar) {
-              if(rand() % 1 == 1) {
+              if(random_int_0_1(rng) == 1) {
                 fix.set_amplitude_pan(30);
                 fix.set_amplitude_tilt(20);
-                int tilt_offset = (int) std::round((float) 90 / (float) fix.get_degrees_per_tilt());
-                this->generate_continuous_circle(fix, pan_center, tilt_center + tilt_offset, time_of_two_beats, time_of_two_beats, segment_start, segment_end, fixtures_in_mh_group_auto_background);
+                int tilt_offset = (int) std::round((float) 75 / (float) fix.get_degrees_per_tilt());
+                this->generate_continuous_circle(fix, pan_center, tilt_center + tilt_offset, time_of_two_bars, time_of_two_bars, segment_start, segment_end, fixtures_in_mh_group_auto_background);
               } else {
                 fix.set_amplitude_pan(0);
                 fix.set_amplitude_tilt(25);
                 int tilt_offset = (int) std::round((float) 90 / (float) fix.get_degrees_per_tilt());
-                this->generate_vertical_line(fix, pan_center, tilt_center + tilt_offset, time_of_two_beats, segment_start, segment_end, fixtures_in_mh_group_auto_background);
+                this->generate_vertical_line(fix, pan_center, tilt_center + tilt_offset, time_of_two_beats * 4, segment_start, segment_end, fixtures_in_mh_group_auto_background);
 
               }
             } else if(onset_timestamps.size() >= two_per_bar) {
               fix.set_amplitude_pan(30);
               fix.set_amplitude_tilt(20);
-              this->generate_continuous_8(fix, pan_center, tilt_center, time_of_two_bars / 2, time_of_two_bars / 2, segment_start, segment_end, fixtures_in_mh_group_auto_background);
+              this->generate_continuous_8(fix, pan_center, tilt_center, time_of_two_bars * 2, time_of_two_bars, segment_start, segment_end, fixtures_in_mh_group_auto_background);
 
             } else {
               /*fix.set_amplitude_pan(60);
@@ -292,9 +378,11 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
               this->generate_continuous_8(fix, pan_center, tilt_center, time_of_four_bars, time_of_four_bars, segment_start, segment_end, fixtures_in_mh_group_auto_background);
               //else
               //this->generate_continuous_8(fix, pan_center, tilt_center, time_of_four_bars * 2, time_of_four_bars * 2, segment_start, segment_end, 0);*/
-              int pan_position = 0;
+              int pan_position = 90 / fix.get_degrees_per_pan();
+              if(fix.get_modifier_pan() > 0)
+                pan_position = -90 / fix.get_degrees_per_pan();
               int tilt_position = (float) 30 / fix.get_degrees_per_tilt();
-              this->generate_static_position(fix, pan_center, tilt_center, pan_position, tilt_position, segment_start, fixtures_in_mh_group_auto_background);
+              this->generate_static_position(fix, pan_center, tilt_center, pan_position, tilt_position, segment_start, segment_end, fixtures_in_mh_group_auto_background, time_of_two_bars);
 
             }
 
@@ -320,10 +408,10 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         else if(offset_pan < 0 && offset_pan > amplitude_pan * 1.5)
           offset_pan = offset_pan * 1.6;
 
-        pan_center = 127 + offset_pan;
-        tilt_center = 127 + offset_tilt;
+        //pan_center = 127 + offset_pan;
+        //tilt_center = 127 + offset_tilt;
 
-        this->generate_continuous_circle(fix, pan_center, tilt_center, time_of_four_bars, 2*time_of_four_bars, 0, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), fixtures_in_mh_group_continuous_circle);
+        this->generate_continuous_circle(fix, pan_center, tilt_center, time_of_four_bars, time_of_four_bars, 0, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), fixtures_in_mh_group_continuous_circle);
 
       } else if(fix.get_moving_head_type() == "Continuous Line vertical" || fix.get_moving_head_type() == "Continuous Line vertical group") {
         this->generate_vertical_line(fix, pan_center, tilt_center, time_of_two_beats * 2, 0, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), fixtures_in_mh_group_continuous_line_vertical);
@@ -354,7 +442,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         vc_focus.push_back({0.0, 200});
         vc_focus.push_back({((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0});
 
-        std::vector<time_value_float> segment_changes = lightshow->get_timestamps_segment_changes();
+        //std::vector<time_value_float> segment_changes = lightshow->get_timestamps_segment_changes();
 
         //std::cout << "all segment changes:" << std::endl;
         //for(time_value_int f: segment_changes) {
@@ -415,15 +503,9 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       fix.add_value_changes_to_channel(vc_tilt, fix.get_channel_tilt());
     }
 
+
     if(fix_type.find("auto_") != std::string::npos) {
 
-      // settings for specific auto types
-      if (fix_type == "auto_beats") {
-        this->set_dimmer_values_in_segment(fix, 0, 200, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0);
-      }
-
-      // needed for all auto types
-      auto segment_changes = lightshow->get_timestamps_segment_changes();
       // for now, insert the first segment
       if (!segment_changes.empty() && segment_changes[0].time > 2)
         segment_changes.insert(segment_changes.begin(), {0.0, 0});
@@ -433,8 +515,11 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       float segment_start = 0;
       float segment_end = 0;
 
+
+
       // looping through all segments
       for (int j = 0; j < segment_changes.size(); j++) {
+
         segment_start = segment_changes[j].time;
         if (j < segment_changes.size() - 1)
           segment_end = segment_changes[j + 1].time;
@@ -455,6 +540,23 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         //std::cout << "four_per_bar: " << four_per_bar << std::endl;
         //std::cout << "number of onset timestamps in segment: " << onset_timestamps.size() << std::endl;
 
+
+
+        // GO CRAZY and switch between fixture kinds ++++++++++
+        if(false) {
+          for(auto const & x: fix_types_with_temp_position) {
+            if(fix.get_name() == x.first)
+              fix.set_temp_position_in_group(x.second);
+          }
+          //std::cout << fix.get_temp_position_in_group() << std::endl;
+
+          std::vector<float> beats1234 = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
+          this->generate_group_one_kind_after_another(fix, beats1234, segment_start, segment_end, fix_types_with_temp_position.size());
+          continue;
+        }
+
+
+
         if(fix_type == "auto_beats") {
           if (onset_timestamps.size() >= four_per_bar)
             timestamps = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
@@ -466,10 +568,36 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
             continue;
 
           if (fix.has_global_dimmer) {
-            //this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);
-            //std::vector<std::string> colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
-            colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
-            this->generate_color_changes(fix, colors, timestamps, segment_end);
+            if(auto_beats_choice[j] == 0 || !fix.has_global_dimmer) { // color change
+              this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);
+              colors = fix_types_with_colors.at(fix_type);
+              this->generate_color_changes(fix, colors, timestamps, segment_end);
+            } else if(auto_beats_choice[j] == 1) { // pulse
+              this->set_dimmer_values_in_segment(fix, segment_start, 100, segment_end, 0);
+              this->generate_pulse(fix, timestamps, segment_start, segment_end, 0, lightshow->get_resolution());
+            } else if(auto_beats_choice[j] == 2 || auto_beats_choice[j] == 3) {
+              if(onset_timestamps.size() >= four_per_bar) {
+                if(auto_beats_choice[j] == 2) { // blink
+                  this->generate_blink(fix, timestamps, segment_end);
+                } else if(auto_beats_choice[j] == 3) {
+                  if(lightshow->get_bpm() > 150) // reverse flash
+                    this->generate_flash_reverse(fix, timestamps, segment_start, segment_end);
+                  else { // pulse
+                    this->set_dimmer_values_in_segment(fix, segment_start, 100, segment_end, 0);
+                    this->generate_pulse(fix, timestamps, segment_start, segment_end, 0, lightshow->get_resolution());
+                  }
+                }
+              } else {
+                if(auto_beats_choice[j] == 2) { // color change
+                  this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);
+                  colors = fix_types_with_colors.at(fix_type);
+                  this->generate_color_changes(fix, colors, timestamps, segment_end);
+                } else if(auto_beats_choice[j] == 3) { // pulse
+                  this->set_dimmer_values_in_segment(fix, segment_start, 100, segment_end, 0);
+                  this->generate_pulse(fix, timestamps, segment_start, segment_end, 0, lightshow->get_resolution());
+                }
+              }
+            }
           } else {
           }
         } else if(fix_type == "group_auto_beats") {
@@ -491,45 +619,99 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
             this->generate_group_one_after_another(fix, timestamps, segment_start, segment_end, fixtures_in_group_auto_beats);
           }
 
-          std::vector<std::string> colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
-          this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
 
         } else if(fix_type == "auto_onsets" || fix_type == "group_auto_onsets") {
-          if (onset_timestamps.size() >= eight_per_bar) {
-            if (fix.has_pan && fix.has_tilt) {
-              // flash reverse
-              this->generate_flash_reverse(fix, onset_timestamps, segment_start, segment_end);
+          if(onset_timestamps.size() >= eight_per_bar) {
+            if(fix.has_pan && fix.has_tilt) {
+              if(fix_type == "group_auto_onsets") {
+                if(auto_onsets_choice[j] == 0) // flash reverse
+                  this->generate_flash_reverse(fix, onset_timestamps, segment_start, segment_end);
+                else if(auto_onsets_choice[j] == 1) // one after another
+                  this->generate_group_one_after_another(fix, onset_timestamps, segment_start, segment_end, fixtures_in_group_auto_onsets);
+                else if(auto_onsets_choice[j] == 2) // one after another fade
+                  this->generate_group_one_after_another_fade(fix, onset_timestamps, segment_start, segment_end, fixtures_in_group_auto_onsets, lightshow->get_resolution(), true);
+                else if(auto_onsets_choice[j] == 3) // one after another fade reverse
+                  this->generate_group_one_after_another_fade_reverse(fix, onset_timestamps, segment_start, segment_end, fixtures_in_group_auto_onsets, lightshow->get_resolution(), true);
+              } else {
+                this->generate_flash_reverse(fix, onset_timestamps, segment_start, segment_end);
+              }
             } else {
-              // flash
-              this->generate_flash(fix, onset_timestamps, segment_start, segment_end);
-            }
+              if(fix_type == "group_auto_onsets") {
+                if(auto_onsets_choice[j] == 0) {
 
+                  if(fixtures_in_group_auto_onsets % 4 == 0) // group ABBA
+                    this->generate_group_ABBA(fix, onset_timestamps, segment_start, segment_end);
+
+                  else if(fixtures_in_group_auto_onsets % 3 == 0) // group ABA
+                    this->generate_group_ABA(fix, onset_timestamps, segment_start, segment_end);
+
+                  else if(fixtures_in_group_auto_onsets % 2 == 1) // alternate odd even
+                    this->generate_group_alternate_odd_even(fix, onset_timestamps, segment_start, segment_end);
+
+                  else // alternate odd even
+                    this->generate_group_alternate_odd_even(fix, onset_timestamps, segment_start, segment_end);
+
+                } else if(auto_onsets_choice[j] == 1) { // flash
+                  this->generate_flash(fix, onset_timestamps, segment_start, segment_end);
+                } else if(auto_onsets_choice[j] == 2) { // flash reverse
+                  this->generate_flash_reverse(fix, onset_timestamps, segment_start, segment_end);
+                } else if(auto_onsets_choice[j] == 3) { // pulse on beats 1234
+                  std::vector<float> beats1234 = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
+                  this->generate_pulse(fix, beats1234, segment_start, segment_end, fixtures_in_group_auto_onsets, lightshow->get_resolution());
+                  //this->generate_flash(fix, onset_timestamps, segment_start, segment_end);
+                }
+              } else {
+                //if(auto_onsets_choice[j] == 0) // blink
+                  //this->generate_blink(fix, onset_timestamps, segment_end);
+                //else // flash
+                this->generate_flash(fix, onset_timestamps, segment_start, segment_end);
+              }
+            }
           } else if (onset_timestamps.size() >= four_per_bar) {
-            if (fix.has_pan && fix.has_tilt) {
-              // flash_reverse
-              this->generate_flash_reverse(fix, onset_timestamps, segment_start, segment_end);
+            if (fix.has_pan && fix.has_tilt) { // flash_reverse
+              //this->generate_flash_reverse(fix, onset_timestamps, segment_start, segment_end);
+              //this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);
             } else {
               if (fix_type == "auto_onsets") {
-                // blink
-                this->generate_blink(fix, onset_timestamps, segment_end);
+                if(auto_onsets_choice[j] == 0) // pulse
+                  this->generate_pulse(fix, onset_timestamps, segment_start, segment_end, fixtures_in_group_auto_onsets, lightshow->get_resolution());
+                else // blink
+                  this->generate_blink(fix, onset_timestamps, segment_end);
               } else if (fix_type == "group_auto_onsets") {
-                // blink back and forth
-                this->generate_blink_back_and_forth(fix, onset_timestamps, fixtures_in_group_auto_onsets, segment_end);
+                if(auto_onsets_choice[j] == 0) // blink back and forth
+                  this->generate_blink_back_and_forth(fix, onset_timestamps, fixtures_in_group_auto_onsets, segment_end);
+                else if(auto_onsets_choice[j] == 1) {
+
+                  if(fixtures_in_group_auto_onsets % 4 == 0) // group ABBA
+                    this->generate_group_ABBA(fix, onset_timestamps, segment_start, segment_end);
+
+                  else if(fixtures_in_group_auto_onsets % 3 == 0) // group ABA
+                    this->generate_group_ABA(fix, onset_timestamps, segment_start, segment_end);
+
+                  else if(fixtures_in_group_auto_onsets % 2 == 1) // alternate odd even
+                    this->generate_group_alternate_odd_even(fix, onset_timestamps, segment_start, segment_end);
+
+                  else // alternate odd even
+                    this->generate_group_alternate_odd_even(fix, onset_timestamps, segment_start, segment_end);
+
+                } else if(auto_onsets_choice[j] == 2) // pulse
+                  this->generate_pulse(fix, onset_timestamps, segment_start, segment_end, fixtures_in_group_auto_onsets, lightshow->get_resolution());
+                else if(auto_onsets_choice[j] == 3) // blink
+                  this->generate_blink(fix, onset_timestamps, segment_end);
+                else // blink
+                  this->generate_blink(fix, onset_timestamps, segment_end);
               }
             }
 
           } else if (onset_timestamps.size() >= one_per_bar) {
-            if (fix.has_pan && fix.has_tilt && fix.has_colorwheel) {
-              // do nothing
+            if (fix.has_pan && fix.has_tilt && fix.has_colorwheel) { // do nothing
               if (fix.has_global_dimmer)
                 this->set_dimmer_values_in_segment(fix, segment_start, 0, segment_end, 200);
-            } else if (fix.has_pan && fix.has_tilt) {
-              // color_change on onsets
+            } else if (fix.has_pan && fix.has_tilt) { // color_change on onsets
               if (fix.has_global_dimmer) {
                 this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);
-
-                std::vector<std::string> colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
-                this->generate_color_changes(fix, colors, onset_timestamps, segment_end);
+                std::vector<std::string> colors1 = fix_types_with_colors.at(fix_type);
+                this->generate_color_changes(fix, colors1, onset_timestamps, segment_end);
 
               } else {
 
@@ -540,7 +722,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
                 this->generate_blink(fix, onset_timestamps, segment_end);
               } else if (fix_type == "group_auto_onsets") {
                 // blink back and forth
-                this->generate_blink_back_and_forth(fix, onset_timestamps, fixtures_in_group_auto_onsets, segment_end);
+                //this->generate_blink_back_and_forth(fix, onset_timestamps, fixtures_in_group_auto_onsets, segment_end);
+                this->generate_blink(fix, onset_timestamps, segment_end);
               }
             }
           } else {
@@ -554,11 +737,13 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
             }
           }
 
-          std::vector<std::string> colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
-          this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
+          //std::vector<std::string> colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
+          //this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
 
         }
       }
+      std::vector<std::string> colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
+      this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
     }
 
     else if (fix_type == "bass") {
@@ -727,96 +912,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       }
     } else if (fix_type == "pulse") {
       if (fix.has_global_dimmer) {
-        std::vector<time_value_int> value_changes;
-        float time_difference = 0;
-
-        value_changes.push_back({0, 100});
-
-        for(int j = 0; j < timestamps.size(); j++) {
-
-          if (j == 0) {
-
-          } else if (j < timestamps.size() - 1) {
-            if (timestamps[j] - 0.35 > timestamps[j-1])
-              time_difference = 0.35;
-            else if (timestamps[j] - 0.3 > timestamps[j-1])
-              time_difference = 0.3;
-            else if (timestamps[j] - 0.25 > timestamps[j-1])
-              time_difference = 0.25;
-            else if (timestamps[j] - 0.2 > timestamps[j-1])
-              time_difference = 0.2;
-            else if (timestamps[j] - 0.15 > timestamps[j-1])
-              time_difference = 0.15;
-            else if (timestamps[j] - 0.1 > timestamps[j-1])
-              time_difference = 0.1;
-            else
-              time_difference = 0.025;
-
-            fix.add_value_changes_to_channel(this->generate_single_fade(100,
-                                                                        255,
-                                                                        timestamps[j] - time_difference / 3,
-                                                                        timestamps[j],
-                                                                        lightshow->get_resolution()),
-                                             fix.get_channel_dimmer());
-
-            //std::vector<time_value_int> v;
-            //value_changes.push_back({timestamps[j], 255});
-            //fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
-
-
-            if (timestamps[j] + 1 < timestamps[j+1])
-              time_difference = 1;
-            else if (timestamps[j] + 0.7 < timestamps[j+1])
-              time_difference = 0.7;
-            else if (timestamps[j] + 0.35 < timestamps[j+1])
-              time_difference = 0.35;
-            else if (timestamps[j] + 0.3 < timestamps[j+1])
-              time_difference = 0.3;
-            else if (timestamps[j] + 0.25 < timestamps[j+1])
-              time_difference = 0.25;
-            else if (timestamps[j] + 0.2 < timestamps[j+1])
-              time_difference = 0.2;
-            else if (timestamps[j] + 0.15 < timestamps[j+1])
-              time_difference = 0.15;
-            else if (timestamps[j] + 0.1 < timestamps[j+1])
-              time_difference = 0.1;
-            else
-              time_difference = 0.025;
-
-            fix.add_value_changes_to_channel(this->generate_single_fade(255,
-                                                                        100,
-                                                                        timestamps[j] + time_difference/2,
-                                                                        timestamps[j] + time_difference,
-                                                                        lightshow->get_resolution()),
-                                             fix.get_channel_dimmer());
-
-          } else {
-
-            if (timestamps[j] + 0.35 < ((float) lightshow->get_length() - 3) / lightshow->get_resolution())
-              time_difference = 0.35;
-            else if (timestamps[j] + 0.3 < ((float) lightshow->get_length() - 3) / lightshow->get_resolution())
-              time_difference = 0.3;
-            else if (timestamps[j] + 0.25 < ((float) lightshow->get_length() - 3) / lightshow->get_resolution())
-              time_difference = 0.25;
-            else if (timestamps[j] + 0.2 < ((float) lightshow->get_length() - 3) / lightshow->get_resolution())
-              time_difference = 0.2;
-            else if (timestamps[j] + 0.15 < ((float) lightshow->get_length() - 3) / lightshow->get_resolution())
-              time_difference = 0.15;
-            else if (timestamps[j] + 0.1 < ((float) lightshow->get_length() - 3) / lightshow->get_resolution())
-              time_difference = 0.1;
-
-            fix.add_value_changes_to_channel(this->generate_single_fade(255,
-                                                                        100,
-                                                                        timestamps[j] + time_difference/2,
-                                                                        timestamps[j] + time_difference,
-                                                                        lightshow->get_resolution()),
-                                             fix.get_channel_dimmer());
-
-          }
-        }
-
-        fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
-
+        this->generate_pulse(fix, timestamps, 0, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), 0, lightshow->get_resolution());
         //std::vector<std::string> colors = fix.get_colors();
         this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
       } else {
@@ -832,10 +928,16 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
     } else if (fix_type == "group_one_after_another_fade") {
       this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
-      this->generate_group_one_after_another_fade(fix, timestamps, 0, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), fixtures_in_group_one_after_another_fade, lightshow->get_resolution());
+      this->generate_group_one_after_another_fade(fix, timestamps, 0, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), fixtures_in_group_one_after_another_fade, lightshow->get_resolution(), false);
     } else if (fix_type == "group_one_after_another_fade_reverse") {
       this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
-      this->generate_group_one_after_another_fade_reverse(fix, timestamps, 0, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), fixtures_in_group_one_after_another_fade_reverse, lightshow->get_resolution());
+      this->generate_group_one_after_another_fade_reverse(fix, timestamps, 0, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), fixtures_in_group_one_after_another_fade_reverse, lightshow->get_resolution(), false);
+    } else if (fix_type == "group_one_after_another_fade_single") {
+      this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
+      this->generate_group_one_after_another_fade(fix, timestamps, 0, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), fixtures_in_group_one_after_another_fade_single, lightshow->get_resolution(), true);
+    } else if (fix_type == "group_one_after_another_fade_single_reverse") {
+      this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
+      this->generate_group_one_after_another_fade_reverse(fix, timestamps, 0, ((float) lightshow->get_length() - 3) / lightshow->get_resolution(), fixtures_in_group_one_after_another_fade_single_reverse, lightshow->get_resolution(), true);
     } else if (fix_type == "group_one_after_another_back_and_forth") {
       if (fix.has_global_dimmer) {
 
@@ -972,7 +1074,12 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
       }
     } else if (fix_type == "group_alternate_odd_even") {
-      if (fix.has_global_dimmer) {
+      if(fix.has_global_dimmer) {
+        this->generate_group_alternate_odd_even(fix, timestamps, 0, ((float) lightshow->get_length() - 3) / lightshow->get_resolution());
+        this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
+
+      }
+      /*if (fix.has_global_dimmer) {
 
         //std::vector<float> timestamps = lightshow->get_onset_timestamps();
         std::vector<time_value_int> value_changes;
@@ -997,7 +1104,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
       } else {
 
-      }
+      }*/
     } else if (fix_type == "group_alternate_odd_even") {
       if (fix.has_global_dimmer) {
 
@@ -1699,6 +1806,7 @@ void LightshowGenerator::set_dimmer_values_in_segment(LightshowFixture & fix,
 }
 
 void LightshowGenerator::generate_flash(LightshowFixture & fix, std::vector<float> & onset_timestamps, float segment_start, float segment_end) {
+  Logger::debug("generate_flash");
   if (fix.has_global_dimmer) {
     std::vector<time_value_int> value_changes_flash;
     value_changes_flash.push_back({segment_start, 0});
@@ -1753,6 +1861,7 @@ void LightshowGenerator::generate_flash_reverse(LightshowFixture &fix,
                                                 std::vector<float> &onset_timestamps,
                                                 float segment_start,
                                                 float segment_end) {
+  Logger::debug("generate_flash_reverse");
   if (fix.has_global_dimmer) {
     std::vector<time_value_int> value_changes_flash_reverse;
 
@@ -1796,7 +1905,8 @@ void LightshowGenerator::generate_flash_reverse(LightshowFixture &fix,
   }
 }
 
-void LightshowGenerator::generate_blink(LightshowFixture & fix, std::vector<float> timestamps, float segment_end) {
+void LightshowGenerator::generate_blink(LightshowFixture & fix, std::vector<float> & timestamps, float segment_end) {
+  Logger::debug("generate_blink");
   if (fix.has_global_dimmer) {
     std::vector<time_value_int> value_changes;
     for (int k = 0; k < timestamps.size(); k++) {
@@ -1816,7 +1926,8 @@ void LightshowGenerator::generate_blink(LightshowFixture & fix, std::vector<floa
   }
 }
 
-void LightshowGenerator::generate_blink_back_and_forth(LightshowFixture & fix, std::vector<float> timestamps, int group_counter, float segment_end) {
+void LightshowGenerator::generate_blink_back_and_forth(LightshowFixture & fix, std::vector<float> & timestamps, int group_counter, float segment_end) {
+  Logger::debug("generate_blink_back_and_forth");
   if (fix.has_global_dimmer) {
     std::vector<time_value_int> value_changes;
     if(fix.get_position_in_group() > 0) {
@@ -1854,6 +1965,7 @@ void LightshowGenerator::generate_blink_back_and_forth(LightshowFixture & fix, s
 }
 
 void LightshowGenerator::generate_continuous_8(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_pan, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group) {
+  Logger::debug("generate_continuous_8");
   int amplitude_pan = (int) std::round(fix.get_amplitude_pan() / fix.get_degrees_per_pan());
   int amplitude_tilt = (int) std::round(fix.get_amplitude_tilt() / fix.get_degrees_per_tilt());
 
@@ -1899,6 +2011,7 @@ void LightshowGenerator::generate_continuous_8(LightshowFixture & fix, int pan_c
 }
 
 void LightshowGenerator::generate_continuous_circle(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_pan, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group) {
+  Logger::debug("generate_continuous_circle");
   int amplitude_pan = (int) std::round(fix.get_amplitude_pan() / fix.get_degrees_per_pan());
   int amplitude_tilt = (int) std::round(fix.get_amplitude_tilt() / fix.get_degrees_per_tilt());
 
@@ -1996,7 +2109,8 @@ std::vector<time_value_int> LightshowGenerator::generate_single_fade(int start_v
   return v;
 }
 
-void LightshowGenerator::generate_group_one_after_another(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end, int fixtures_in_group) {
+void LightshowGenerator::generate_group_one_after_another(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end, int fixtures_in_group) {
+  Logger::debug("generate_group_one_after_another");
   std::vector<time_value_int> value_changes;
 
   //std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
@@ -2021,7 +2135,36 @@ void LightshowGenerator::generate_group_one_after_another(LightshowFixture & fix
   }
 }
 
-void LightshowGenerator::generate_group_ABA(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end) {
+void LightshowGenerator::generate_group_one_kind_after_another(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end, int fixtures_in_group) {
+  Logger::debug("generate_group_one_kind_after_another");
+  std::vector<time_value_int> value_changes;
+
+  //std::cout << "pos in grp: " << fix.get_temp_position_in_group() << std::endl;
+  //std::cout << "numbers of fixture kinds: " << fixtures_in_group << std::endl;
+  //std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
+  if(fix.get_temp_position_in_group() > 0) {
+    for (int i = 0; i < timestamps.size(); i++) {
+      if(i % fixtures_in_group + 1 == fix.get_temp_position_in_group()) {
+        value_changes.push_back({timestamps[i], 255});
+        if(i < timestamps.size() - 1)
+          value_changes.push_back({timestamps[i + 1], 0});
+        else
+          value_changes.push_back({segment_end, 0});
+      }
+    }
+
+    if (fix.has_global_dimmer) {
+      //std::cout << "adding " << value_changes.size() << " value changes to dimmer" << std::endl;
+      fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
+    } else if(fix.has_shutter) {
+      this->set_dimmer_values_in_segment(fix, segment_start, 255, segment_end, 0);
+      fix.add_value_changes_to_channel(value_changes, fix.get_channel_shutter());
+    }
+  }
+}
+
+void LightshowGenerator::generate_group_ABA(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end) {
+  Logger::debug("generate_group_ABA");
   std::vector<time_value_int> value_changes;
 
   int use = 1;
@@ -2048,7 +2191,8 @@ void LightshowGenerator::generate_group_ABA(LightshowFixture & fix, std::vector<
   }
 }
 
-void LightshowGenerator::generate_group_ABBA(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end) {
+void LightshowGenerator::generate_group_ABBA(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end) {
+  Logger::debug("generate_group_ABBA");
   std::vector<time_value_int> value_changes;
 
   int use = 1;
@@ -2075,7 +2219,40 @@ void LightshowGenerator::generate_group_ABBA(LightshowFixture & fix, std::vector
   }
 }
 
-void LightshowGenerator::generate_group_one_after_another_fade(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end, int fixtures_in_group, int lightshow_resolution) {
+void LightshowGenerator::generate_group_alternate_odd_even(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end) {
+  Logger::debug("generate_group_alternate_odd_even");
+  std::vector<time_value_int> value_changes;
+
+  int use = 1;
+  if(fix.get_position_in_group() % 2 == 0)
+    use = 0;
+
+  if(fix.get_position_in_group() > 0) {
+    for (int i = 0; i < timestamps.size(); i++) {
+      if(i % 2 == use) {
+        value_changes.push_back({timestamps[i], 255});
+        if(i < timestamps.size() - 1)
+          value_changes.push_back({timestamps[i + 1], 0});
+        else
+          value_changes.push_back({segment_end, 0});
+      }
+    }
+
+    if (fix.has_global_dimmer) {
+      fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
+    } else if(fix.has_shutter) {
+      this->set_dimmer_values_in_segment(fix, segment_start, 255, segment_end, 0);
+      fix.add_value_changes_to_channel(value_changes, fix.get_channel_shutter());
+    }
+  }
+}
+
+void LightshowGenerator::generate_group_one_after_another_fade(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end, int fixtures_in_group, int lightshow_resolution, bool only_single_lamp) {
+  Logger::debug("generate_group_one_after_another_fade");
+  std::cout << "generate_group_one_after_another_fade" << std::endl;
+  std::cout << "fix.pos: " << fix.get_position_in_group() << std::endl;
+  std::cout << "fixtures_in_group: " << fixtures_in_group << std::endl;
+  std::cout << "timestamps.size: " << timestamps.size() << std::endl;
   if (fix.has_global_dimmer) {
     //std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
     //timestamps = lightshow->get_specific_beats("beats 1/2/3/4");
@@ -2100,13 +2277,35 @@ void LightshowGenerator::generate_group_one_after_another_fade(LightshowFixture 
           else
             fix.add_value_changes_to_channel(this->generate_single_fade(0, 255, timestamps_for_this_fixture[j] - 0.025, timestamps_for_this_fixture[j], lightshow_resolution), fix.get_channel_dimmer());
         } else {
-          std::vector<time_value_int> v = this->generate_single_fade(0, 255, (timestamps_for_this_fixture[j - 1] + timestamps_for_this_fixture[j]) / (float) 2, timestamps_for_this_fixture[j], lightshow_resolution);
+          std::vector<time_value_int> v;
+          if(only_single_lamp) {
+            if(timestamps_for_this_fixture[j] - timestamps_for_this_fixture[j - 1] > 0.5)
+              v = this->generate_single_fade(0, 255, timestamps_for_this_fixture[j] - 0.5, timestamps_for_this_fixture[j], lightshow_resolution);
+            else
+              v = this->generate_single_fade(0, 255, (timestamps_for_this_fixture[j - 1] + timestamps_for_this_fixture[j]) / (float) 2, timestamps_for_this_fixture[j], lightshow_resolution);
+          } else {
+            //if(only_single_lamp && timestamps_for_this_fixture[j] - timestamps_for_this_fixture[j - 1] > 0.5)
+              //v = this->generate_single_fade(0, 255, timestamps_for_this_fixture[j] - 0.5, timestamps_for_this_fixture[j], lightshow_resolution);
+            //else
+              v = this->generate_single_fade(0, 255, (timestamps_for_this_fixture[j - 1] + timestamps_for_this_fixture[j]) / (float) 2, timestamps_for_this_fixture[j], lightshow_resolution);
+          }
           fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
         }
 
         // fade out
         if(j < timestamps_for_this_fixture.size() - 1) {
-          std::vector<time_value_int> v = this->generate_single_fade(255, 0, timestamps_for_this_fixture[j], (timestamps_for_this_fixture[j] + timestamps_for_this_fixture[j + 1]) / (float) 2, lightshow_resolution);
+          std::vector<time_value_int> v;
+          if(only_single_lamp) {
+            if(timestamps_for_this_fixture[j+1] - timestamps_for_this_fixture[j] > 0.5)
+              v = this->generate_single_fade(255, 0, timestamps_for_this_fixture[j], timestamps_for_this_fixture[j] + 0.5, lightshow_resolution);
+            else
+              v = this->generate_single_fade(255, 0, timestamps_for_this_fixture[j], (timestamps_for_this_fixture[j] + timestamps_for_this_fixture[j + 1]) / (float) 2, lightshow_resolution);
+          } else {
+            //if(only_single_lamp && timestamps_for_this_fixture[j] - timestamps_for_this_fixture[j - 1] > 0.5)
+            //v = this->generate_single_fade(255, 0, timestamps_for_this_fixture[j], timestamps_for_this_fixture[j] + 0.5, lightshow_resolution);
+            //else
+            v = this->generate_single_fade(255, 0, timestamps_for_this_fixture[j], (timestamps_for_this_fixture[j] + timestamps_for_this_fixture[j + 1]) / (float) 2, lightshow_resolution);
+          }
           fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
         } else {
           if(timestamps_for_this_fixture[j] + 0.5 < segment_end)
@@ -2123,7 +2322,8 @@ void LightshowGenerator::generate_group_one_after_another_fade(LightshowFixture 
   }
 }
 
-void LightshowGenerator::generate_group_one_after_another_fade_reverse(LightshowFixture & fix, std::vector<float> timestamps, float segment_start, float segment_end, int fixtures_in_group, int lightshow_resolution) {
+void LightshowGenerator::generate_group_one_after_another_fade_reverse(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end, int fixtures_in_group, int lightshow_resolution, bool only_single_lamp) {
+  Logger::debug("generate_group_one_after_another_fade_reverse");
   if (fix.has_global_dimmer) {
     //std::cout << "pos in grp: " << fix.get_position_in_group() << std::endl;
     //timestamps = lightshow->get_specific_beats("beats 1/2/3/4");
@@ -2135,6 +2335,7 @@ void LightshowGenerator::generate_group_one_after_another_fade_reverse(Lightshow
           timestamps_for_this_fixture.push_back(timestamps[j]);
         }
       }
+      this->set_dimmer_values_in_segment(fix, segment_start, 255, segment_end, 0);
 
       for(int j = 0; j < timestamps_for_this_fixture.size(); j++) {
         // fade out
@@ -2148,13 +2349,41 @@ void LightshowGenerator::generate_group_one_after_another_fade_reverse(Lightshow
           else
             fix.add_value_changes_to_channel(this->generate_single_fade(255, 0, timestamps_for_this_fixture[j] - 0.025, timestamps_for_this_fixture[j], lightshow_resolution), fix.get_channel_dimmer());
         } else {
-          std::vector<time_value_int> v = this->generate_single_fade(255, 0, (timestamps_for_this_fixture[j - 1] + timestamps_for_this_fixture[j]) / (float) 2, timestamps_for_this_fixture[j], lightshow_resolution);
+          std::vector<time_value_int> v;
+          if(only_single_lamp) {
+            if(timestamps_for_this_fixture[j] - timestamps_for_this_fixture[j - 1] > 0.5)
+              v = this->generate_single_fade(255, 0, timestamps_for_this_fixture[j] - 0.5, timestamps_for_this_fixture[j], lightshow_resolution);
+            else
+              v = this->generate_single_fade(255, 0, (timestamps_for_this_fixture[j - 1] + timestamps_for_this_fixture[j]) / (float) 2, timestamps_for_this_fixture[j], lightshow_resolution);
+          } else {
+            //if(only_single_lamp && timestamps_for_this_fixture[j] - timestamps_for_this_fixture[j - 1] > 0.5)
+            //v = this->generate_single_fade(255, 0, timestamps_for_this_fixture[j] - 0.5, timestamps_for_this_fixture[j], lightshow_resolution);
+            //else
+            v = this->generate_single_fade(255, 0, (timestamps_for_this_fixture[j - 1] + timestamps_for_this_fixture[j]) / (float) 2, timestamps_for_this_fixture[j], lightshow_resolution);
+          }
+          if(only_single_lamp && timestamps_for_this_fixture[j] - timestamps_for_this_fixture[j - 1] > 0.5)
+            v = this->generate_single_fade(255, 0, timestamps_for_this_fixture[j] - 0.5, timestamps_for_this_fixture[j], lightshow_resolution);
+          else
+            v = this->generate_single_fade(255, 0, (timestamps_for_this_fixture[j - 1] + timestamps_for_this_fixture[j]) / (float) 2, timestamps_for_this_fixture[j], lightshow_resolution);
+
+          //std::vector<time_value_int> v = this->generate_single_fade(255, 0, (timestamps_for_this_fixture[j - 1] + timestamps_for_this_fixture[j]) / (float) 2, timestamps_for_this_fixture[j], lightshow_resolution);
           fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
         }
 
         // fade in
         if(j < timestamps_for_this_fixture.size() - 1) {
-          std::vector<time_value_int> v = this->generate_single_fade(0, 255, timestamps_for_this_fixture[j], (timestamps_for_this_fixture[j] + timestamps_for_this_fixture[j + 1]) / (float) 2, lightshow_resolution);
+          std::vector<time_value_int> v;
+          if(only_single_lamp) {
+            if(timestamps_for_this_fixture[j + 1] - timestamps_for_this_fixture[j] > 0.5)
+              v = this->generate_single_fade(0, 255, timestamps_for_this_fixture[j], timestamps_for_this_fixture[j] + 0.5, lightshow_resolution);
+            else
+              v = this->generate_single_fade(0, 255, timestamps_for_this_fixture[j], (timestamps_for_this_fixture[j] + timestamps_for_this_fixture[j + 1]) / (float) 2, lightshow_resolution);
+          } else {
+            //if(only_single_lamp && timestamps_for_this_fixture[j] - timestamps_for_this_fixture[j - 1] > 0.5)
+            //v = this->generate_single_fade(0, 255, timestamps_for_this_fixture[j], timestamps_for_this_fixture[j] + 0.5, lightshow_resolution);
+            //else
+            v = this->generate_single_fade(0, 255, timestamps_for_this_fixture[j], (timestamps_for_this_fixture[j] + timestamps_for_this_fixture[j + 1]) / (float) 2, lightshow_resolution);
+          }
           fix.add_value_changes_to_channel(v, fix.get_channel_dimmer());
         } else {
           if(timestamps_for_this_fixture[j] + 0.5 < segment_end)
@@ -2172,6 +2401,7 @@ void LightshowGenerator::generate_group_one_after_another_fade_reverse(Lightshow
 }
 
 void LightshowGenerator::generate_vertical_line(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group) {
+  Logger::debug("generate_vertical_line");
   int amplitude_pan = (int) std::round(fix.get_amplitude_pan() / fix.get_degrees_per_pan());
   int amplitude_tilt = (int) std::round(fix.get_amplitude_tilt() / fix.get_degrees_per_tilt());
 
@@ -2187,7 +2417,7 @@ void LightshowGenerator::generate_vertical_line(LightshowFixture & fix, int pan_
   else if(pan_center - amplitude_pan < 0)
     amplitude_pan = pan_center;
 
-  float current_timestamp = 0.0;
+  float current_timestamp = start_timestamp;
   uint8_t value = 0;
   if(fix.get_position_on_stage() == "Center")
     vc_pan.push_back({start_timestamp, pan_center});
@@ -2198,7 +2428,7 @@ void LightshowGenerator::generate_vertical_line(LightshowFixture & fix, int pan_
   vc_pan.push_back({end_timestamp, pan_center-1});
 
   float group_offset = 0;
-  if(fix.get_moving_head_type() == "Continuous Line vertical group") {
+  if(fix.get_moving_head_type() == "Continuous Line vertical group" || fix.get_moving_head_type() == "group_auto_background") {
     group_offset = (float) 2 * (float) (fix.get_position_in_mh_group() - 1) / number_of_fixtures_in_group;
   }
 
@@ -2221,18 +2451,213 @@ void LightshowGenerator::generate_static_position(LightshowFixture &fix,
                                                   int pan_position,
                                                   int tilt_position,
                                                   float segment_start,
-                                                  int number_of_fixtures_in_group) {
+                                                  float segment_end,
+                                                  int number_of_fixtures_in_group,
+                                                  float time_of_two_bars) {
+  Logger::debug("generate_static_position");
   if(number_of_fixtures_in_group > 1) {
     std::vector<time_value_int> vc_pan;
     std::vector<time_value_int> vc_tilt;
-    if(fix.get_position_in_mh_group() & 2 == 0) {
+    float current_timestamp = segment_start;
+    bool swapped = false;
+
+    if(fix.get_position_in_mh_group() % 2 == 1) {
       vc_pan.push_back({segment_start, pan_center + pan_position});
       vc_tilt.push_back({segment_start, tilt_center + tilt_position});
+      while(current_timestamp + time_of_two_bars < segment_end) {
+        current_timestamp += time_of_two_bars;
+        if(swapped) {
+          vc_tilt.push_back({current_timestamp, tilt_center + tilt_position});
+        } else {
+          vc_tilt.push_back({current_timestamp, tilt_center - tilt_position});
+        }
+        swapped = !swapped;
+      }
     } else {
       vc_pan.push_back({segment_start, pan_center + pan_position});
       vc_tilt.push_back({segment_start, tilt_center - tilt_position});
+      while(current_timestamp + time_of_two_bars < segment_end) {
+        current_timestamp += time_of_two_bars;
+        if(swapped) {
+          vc_tilt.push_back({current_timestamp, tilt_center - tilt_position});
+        } else {
+          vc_tilt.push_back({current_timestamp, tilt_center + tilt_position});
+        }
+        swapped = !swapped;
+      }
     }
     fix.add_value_changes_to_channel(vc_pan, fix.get_channel_pan());
     fix.add_value_changes_to_channel(vc_tilt, fix.get_channel_tilt());
   }
+}
+
+void LightshowGenerator::generate_pulse(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end, int fixtures_in_group, int lightshow_resolution) {
+  Logger::debug("generate_pulse");
+  std::vector<time_value_int> value_changes;
+  float time_difference = 0;
+
+  value_changes.push_back({segment_start, 100});
+
+  for(int j = 0; j < timestamps.size(); j++) {
+
+    if (j == 0) {
+      time_difference = timestamps[j] - segment_start;
+      if(time_difference > 0.35)
+        time_difference = 0.35;
+      else if(time_difference < 0.05)
+        time_difference = 0.05;
+
+      if(timestamps[j] - segment_start > 0.2) {
+        fix.add_value_changes_to_channel(this->generate_single_fade(100,
+                                                                    255,
+                                                                    timestamps[j] - time_difference / 3,
+                                                                    timestamps[j],
+                                                                    lightshow_resolution),
+                                         fix.get_channel_dimmer());
+      } else {
+        fix.add_value_changes_to_channel(this->generate_single_fade(222,
+                                                                    255,
+                                                                    timestamps[j] - time_difference / 3,
+                                                                    timestamps[j],
+                                                                    lightshow_resolution),
+                                         fix.get_channel_dimmer());
+      }
+
+      time_difference = timestamps[j+1] - timestamps[j] - 0.01;
+      if(time_difference > 1)
+        time_difference = 1;
+      else if(time_difference < 0.05)
+        time_difference = 0.05;
+
+      if(timestamps[j+1] - timestamps[j] > 0.2) {
+        fix.add_value_changes_to_channel(this->generate_single_fade(255,
+                                                                    100,
+                                                                    timestamps[j] + time_difference / 2,
+                                                                    timestamps[j] + time_difference,
+                                                                    lightshow_resolution),
+                                         fix.get_channel_dimmer());
+      }
+    } else if (j < timestamps.size() - 1) {
+      time_difference = timestamps[j] - timestamps[j-1];
+      if(time_difference > 0.35)
+        time_difference = 0.35;
+      else if(time_difference < 0.05)
+        time_difference = 0.05;
+
+      /*if (timestamps[j] - 0.35 > timestamps[j-1])
+        time_difference = 0.35;
+      else if (timestamps[j] - 0.3 > timestamps[j-1])
+        time_difference = 0.3;
+      else if (timestamps[j] - 0.25 > timestamps[j-1])
+        time_difference = 0.25;
+      else if (timestamps[j] - 0.2 > timestamps[j-1])
+        time_difference = 0.2;
+      else if (timestamps[j] - 0.15 > timestamps[j-1])
+        time_difference = 0.15;
+      else if (timestamps[j] - 0.1 > timestamps[j-1])
+        time_difference = 0.1;
+      else
+        time_difference = 0.05;*/
+
+      if(timestamps[j] - timestamps[j-1] > 0.2) {
+        fix.add_value_changes_to_channel(this->generate_single_fade(100,
+                                                                    255,
+                                                                    timestamps[j] - time_difference / 3,
+                                                                    timestamps[j],
+                                                                    lightshow_resolution),
+                                         fix.get_channel_dimmer());
+      } else {
+        fix.add_value_changes_to_channel(this->generate_single_fade(222,
+                                                                    255,
+                                                                    timestamps[j] - time_difference / 3,
+                                                                    timestamps[j],
+                                                                    lightshow_resolution),
+                                         fix.get_channel_dimmer());
+      }
+
+      time_difference = timestamps[j+1] - timestamps[j] - 0.01;
+      if(time_difference > 0.7)
+        time_difference = 0.7;
+      else if(time_difference < 0.05)
+        time_difference = 0.05;
+
+      /*if (timestamps[j] + 1 < timestamps[j+1])
+        time_difference = 1;
+      else if (timestamps[j] + 0.7 < timestamps[j+1])
+        time_difference = 0.69;
+      else if (timestamps[j] + 0.35 < timestamps[j+1])
+        time_difference = 0.34;
+      else if (timestamps[j] + 0.3 < timestamps[j+1])
+        time_difference = 0.29;
+      else if (timestamps[j] + 0.25 < timestamps[j+1])
+        time_difference = 0.24;
+      else if (timestamps[j] + 0.2 < timestamps[j+1])
+        time_difference = 0.19;
+      else if (timestamps[j] + 0.15 < timestamps[j+1])
+        time_difference = 0.14;
+      else if (timestamps[j] + 0.1 < timestamps[j+1])
+        time_difference = 0.09;
+      else
+        time_difference = 0.05;*/
+
+      if(timestamps[j+1] - timestamps[j] > 0.2) {
+        fix.add_value_changes_to_channel(this->generate_single_fade(255,
+                                                                    100,
+                                                                    timestamps[j] + time_difference / 3,
+                                                                    timestamps[j] + time_difference * 3 / 4,
+                                                                    lightshow_resolution),
+                                         fix.get_channel_dimmer());
+      }
+
+    } else {
+
+      time_difference = timestamps[j] - timestamps[j-1];
+      if(time_difference > 0.35)
+        time_difference = 0.35;
+      else if(time_difference < 0.05)
+        time_difference = 0.05;
+
+      if(timestamps[j] - timestamps[j-1] > 0.2) {
+        fix.add_value_changes_to_channel(this->generate_single_fade(100,
+                                                                    255,
+                                                                    timestamps[j] - time_difference / 3,
+                                                                    timestamps[j],
+                                                                    lightshow_resolution),
+                                         fix.get_channel_dimmer());
+      } else {
+        fix.add_value_changes_to_channel(this->generate_single_fade(222,
+                                                                    255,
+                                                                    timestamps[j] - time_difference / 3,
+                                                                    timestamps[j],
+                                                                    lightshow_resolution),
+                                         fix.get_channel_dimmer());
+      }
+
+      if (timestamps[j] + 0.35 < segment_end)
+        time_difference = 0.35;
+      else if (timestamps[j] + 0.3 < segment_end)
+        time_difference = 0.3;
+      else if (timestamps[j] + 0.25 < segment_end)
+        time_difference = 0.25;
+      else if (timestamps[j] + 0.2 < segment_end)
+        time_difference = 0.2;
+      else if (timestamps[j] + 0.15 < segment_end)
+        time_difference = 0.15;
+      else if (timestamps[j] + 0.1 < segment_end)
+        time_difference = 0.1;
+
+
+      fix.add_value_changes_to_channel(this->generate_single_fade(255,
+                                                                  100,
+                                                                  timestamps[j] + time_difference / 2,
+                                                                  timestamps[j] + time_difference,
+                                                                  lightshow_resolution),
+                                       fix.get_channel_dimmer());
+
+
+    }
+  }
+
+  fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
+
 }
