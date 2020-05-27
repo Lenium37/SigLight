@@ -1982,11 +1982,15 @@ void LightshowGenerator::generate_continuous_8(LightshowFixture & fix, int pan_c
     amplitude_pan = pan_center;
 
   float left_right_switch = 0;
+  float invert_tilt = 0;
 
   float current_timestamp = start_timestamp;
   uint8_t value = 0;
   if(fix.get_position_on_stage() == "Left")
     left_right_switch = PI;
+
+  if(fix.get_invert_tilt())
+    invert_tilt = PI;
 
   float group_offset = 0;
   if((fix.get_moving_head_type() == "Continuous 8 group" || fix.get_moving_head_type() == "group_auto_background") && number_of_fixtures_in_group > 0) {
@@ -1998,10 +2002,11 @@ void LightshowGenerator::generate_continuous_8(LightshowFixture & fix, int pan_c
       // x * cos(2 * PI * f * t + phi) + pan_center mit phi = (group_offset * PI)
     value = (int) (cos((2*PI*current_timestamp)/(time_of_one_loop_pan) + left_right_switch + (group_offset * PI)) * amplitude_pan) + pan_center;
     vc_pan.push_back({current_timestamp, value});
-    if(fix.get_invert_tilt())
+    value = (int) (sin((2*PI*current_timestamp)/(time_of_one_loop_tilt) + invert_tilt + (group_offset * PI)) * amplitude_tilt) + tilt_center;
+    /*if(fix.get_invert_tilt())
       value = (int) (sin((2*PI*current_timestamp)/(time_of_one_loop_tilt) + (group_offset * PI) + PI) * amplitude_tilt) + tilt_center;
     else
-      value = (int) (sin((2*PI*current_timestamp)/(time_of_one_loop_tilt) + (group_offset * PI)) * amplitude_tilt) + tilt_center;
+      value = (int) (sin((2*PI*current_timestamp)/(time_of_one_loop_tilt) + (group_offset * PI)) * amplitude_tilt) + tilt_center;*/
     vc_tilt.push_back({current_timestamp, value});
     current_timestamp += 0.025f;
   }

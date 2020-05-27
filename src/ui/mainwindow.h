@@ -115,10 +115,10 @@ private slots:
     void on_fixture_list_itemSelectionChanged();
 
     void on_action_fixture_management_triggered();
-    void on_action_player_view_triggered();
+    //void on_action_player_view_triggered();
     void on_action_switch_play_pause_triggered();
     void on_action_stop_triggered();
-    void on_go_to_player_button_clicked();
+    //void on_go_to_player_button_clicked();
     void on_go_to_fixtures_button_clicked();
     void on_exit_client_button_clicked();
     void on_action_add_song_to_player_triggered();

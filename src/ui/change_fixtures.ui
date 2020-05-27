@@ -92,10 +92,16 @@
         <property name="text">
          <string>Onset Value:</string>
         </property>
+        <property name="toolTip">
+         <string>Default: 9.0, increse for more detected onsets, decrease for less.</string>
+        </property>
        </widget>
       </item>
       <item>
        <widget class="QDoubleSpinBox" name="sB_onset_value">
+        <property name="toolTip">
+         <string>Default: 9.0, increse for more detected onsets, decrease for less.</string>
+        </property>
        </widget>
       </item>
       <item>

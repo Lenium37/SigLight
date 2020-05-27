@@ -1618,7 +1618,7 @@ void Analysis::make_csv_matrix_f(std::vector <std::vector<float>> v, char const 
 
 std::vector <time_value_float> Analysis::get_segments() {
 
-    bool FILEPRINT = true; // print csv files for plotting?
+    bool FILEPRINT = false; // print csv files for plotting?
 
     bool filter_by_bars = false; // filter extrema that are too close?
     int bars_c = 4; // left/right distance for filtering extrema that are too close
@@ -1794,6 +1794,13 @@ std::vector <time_value_float> Analysis::get_segments() {
 
     std::vector<time_value_float> segments = filter_extrema(extrema, extrema_middle, middle_factor, extrema_variance,
                                                             extrema_deviation, this->bpm, filter_by_bars, bars_c);
+
+    auto comp1 = [] ( const time_value_float& tvf1, const time_value_float& tvf2 ) {return tvf1.time == tvf2.time;};
+    auto last = std::unique(segments.begin(), segments.end(),comp1);
+    segments.erase(last, segments.end());
+
+
+  //segments.erase( unique( segments.begin(), segments.end() ), segments.end() );
     auto end_extrema = std::chrono::system_clock::now();
 
     // #######################

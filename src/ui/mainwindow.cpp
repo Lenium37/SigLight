@@ -309,25 +309,39 @@ void MainWindow::add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int star
                                                                     Qt::MatchExactly | Qt::MatchRecursive,
                                                                     0);*/
   itm->setText(2, QString::fromStdString(universes[0].get_fixtures().back().get_colors()));
-  itm->setText(3, QString::fromStdString(universes[0].get_fixtures().back().get_timestamps_type()));
+  if(_fixture.get_type().find("auto_") != std::string::npos)
+    itm->setText(3, "auto");
+  else
+    itm->setText(3, QString::fromStdString(universes[0].get_fixtures().back().get_timestamps_type()));
+
   itm->setText(4, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_position_in_group())));
+
   itm->setText(5, QString::fromStdString(universes[0].get_fixtures().back().get_position_on_stage()));
+
   if(universes[0].get_fixtures().back().get_moving_head_type() != "Nothing")
     itm->setText(6, QString::fromStdString(universes[0].get_fixtures().back().get_moving_head_type()));
   else itm->setText(6, "");
-  itm->setText(7, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_position_in_mh_group())));
+
+  if(universes[0].get_fixtures().back().get_moving_head_type() != "Nothing")
+    itm->setText(7, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_position_in_mh_group())));
+  else itm->setText(7, "");
+
   if(universes[0].get_fixtures().back().get_amplitude_pan())
     itm->setText(8, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_amplitude_pan()) + "°"));
   else itm->setText(8, "");
+
   if(universes[0].get_fixtures().back().get_amplitude_tilt())
     itm->setText(9, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_amplitude_tilt()) + "°"));
   else itm->setText(9, "");
+
   if(universes[0].get_fixtures().back().get_modifier_pan())
     itm->setText(10, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_modifier_pan()) + "°"));
   else itm->setText(10, "");
+
   if(universes[0].get_fixtures().back().get_modifier_tilt())
     itm->setText(11, QString::fromStdString(std::to_string(universes[0].get_fixtures().back().get_modifier_tilt()) + "°"));
   else itm->setText(11, "");
+
   if(universes[0].get_fixtures().back().get_invert_tilt())
     itm->setText(12, "yes");
   else itm->setText(12, "");
@@ -785,11 +799,11 @@ void MainWindow::on_action_fixture_management_triggered() {
  *
  * @brief MainWindow::on_action_player_view_triggered
  */
-void MainWindow::on_action_player_view_triggered() {
+/*void MainWindow::on_action_player_view_triggered() {
   has_fixture_changed();
   ui->stackedWidget->setCurrentIndex(1);
   show_edit_tools();
-}
+}*/
 
 void MainWindow::start_to_play_lightshow() {
   Logger::info("Start to play Lightshow");
@@ -946,12 +960,12 @@ void MainWindow::get_fixture_from_dialog() {
   }
 }
 
-void MainWindow::on_go_to_player_button_clicked() {
-  on_action_player_view_triggered();
+/*void MainWindow::on_go_to_player_button_clicked() {
+  //on_action_player_view_triggered();
   ui->menuBar->show();
   ui->mainToolBa->show();
   ui->statusBar->show();
-}
+}*/
 
 void MainWindow::on_go_to_fixtures_button_clicked() {
   on_action_fixture_management_triggered();
@@ -1896,16 +1910,26 @@ void MainWindow::get_edited_fixture() {
                     QIcon(
                         ":icons_svg/svg/" + QString::fromStdString(fix.get_icon()) + ".svg"));
   new_item->setText(2, QString::fromStdString(fix.get_colors()));
-  new_item->setText(3, QString::fromStdString(fix.get_timestamps_type()));
+  if(fix.get_type().find("auto_") != std::string::npos)
+      new_item->setText(3, "auto");
+  else
+    new_item->setText(3, QString::fromStdString(fix.get_timestamps_type()));
+
   new_item->setText(4, QString::fromStdString(std::to_string(fix.get_position_in_group())));
   new_item->setText(5, QString::fromStdString(fix.get_position_on_stage()));
+
   if(fix.get_moving_head_type() != "Nothing")
     new_item->setText(6, QString::fromStdString(fix.get_moving_head_type()));
   else new_item->setText(6, "");
-  new_item->setText(7, QString::fromStdString(std::to_string(fix.get_position_in_mh_group())));
+
+  if(fix.get_moving_head_type() != "Nothing")
+    new_item->setText(7, QString::fromStdString(std::to_string(fix.get_position_in_mh_group())));
+  else new_item->setText(7, "");
+
   if(fix.get_amplitude_pan())
     new_item->setText(8, QString::fromStdString(std::to_string(fix.get_amplitude_pan()) + "°"));
   else new_item->setText(8, "");
+
   if(fix.get_amplitude_tilt())
     new_item->setText(9, QString::fromStdString(std::to_string(fix.get_amplitude_tilt()) + "°"));
   else new_item->setText(9, "");

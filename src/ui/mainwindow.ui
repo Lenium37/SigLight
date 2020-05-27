@@ -123,13 +123,13 @@
             </property>
            </widget>
           </item>
-          <item>
+          <!--<item>
            <widget class="QPushButton" name="go_to_player_button">
             <property name="text">
              <string>Go to Player view</string>
             </property>
            </widget>
-          </item>
+          </item>-->
           <item>
            <widget class="QPushButton" name="go_to_playlist_button">
             <property name="text">
@@ -295,7 +295,7 @@
      <string>View</string>
     </property>
     <addaction name="action_fixture_management"/>
-    <addaction name="action_player_view"/>
+    <!--<addaction name="action_player_view"/>-->
     <addaction name="action_playlist_view"/>
     <addaction name="separator"/>
     <addaction name="actionFullscreen"/>
@@ -317,7 +317,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="action_fixture_management"/>
-   <addaction name="action_player_view"/>
+   <!--<addaction name="action_player_view"/>-->
    <addaction name="action_playlist_view"/>
    <addaction name="action_add_song_to_player"/>
    <addaction name="action_stop"/>
@@ -335,14 +335,14 @@
     <string>Display fixture management</string>
    </property>
   </action>
-  <action name="action_player_view">
+  <!--<action name="action_player_view">
    <property name="text">
     <string>Player view</string>
    </property>
    <property name="toolTip">
     <string>Display lightshow</string>
    </property>
-  </action>
+  </action>-->
   <action name="action_switch_play_pause">
    <property name="icon">
     <iconset resource="resources/resources.qrc">
