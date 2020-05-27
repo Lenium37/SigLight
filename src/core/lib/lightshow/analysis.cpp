@@ -1648,16 +1648,16 @@ Analysis::filter_extrema(std::vector<time_value_float> extrema, float middle, fl
         if (!segments.empty()) {
             for (int i = 0; i < segments.size() - 1; i++) {
 
-                if ((abs(segments[i + 1].time - segments[i].time)) < bars_time && multiple_peaks) {
+                if ((abs(segments[i + 1].time - segments[i].time)) < bars_time * 4 && multiple_peaks) {
                     indexes_of_multiple_peaks.push_back(i);
                 }
 
-                if ((abs(segments[i + 1].time - segments[i].time)) < bars_time && !multiple_peaks) {
+                if ((abs(segments[i + 1].time - segments[i].time)) < bars_time * 4 && !multiple_peaks) {
                     multiple_peaks = true;
                     indexes_of_multiple_peaks.push_back(i);
                 }
 
-                if (((abs(segments[i + 1].time - segments[i].time)) >= bars_time || i == segments.size() - 2) &&
+                if (((abs(segments[i + 1].time - segments[i].time)) >= bars_time * 4 || i == segments.size() - 2) &&
                     multiple_peaks) {
                     multiple_peaks = false;
                     float max_value_of_multiple_peaks = 0;

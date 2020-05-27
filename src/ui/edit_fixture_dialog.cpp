@@ -373,6 +373,11 @@ void EditFixtureDialog::update_moving_head_position_status(QString current_fixtu
   if(current_fixture == "SGM X-5 (1CH)"
       || current_fixture == "SGM X-5 (3CH)"
       || current_fixture == "SGM X-5 (4CH)") {
+    std::cout << "X-5 selected (edit)" << std::endl;
+    int index_strobe = ui->cB_type->findText("strobe_if_many_onsets");
+    if ( index_strobe != -1 ) { // -1 for not found
+      ui->cB_type->setCurrentIndex(index_strobe);
+    }
     ui->cB_type->setEnabled(false);
     int index_white = ui->cB_colors->findText("W");
     if ( index_white != -1 ) { // -1 for not found

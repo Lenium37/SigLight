@@ -22,7 +22,7 @@ class ChangeFixtures : public QMainWindow {
  Q_OBJECT
 
  public:
-  explicit ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string> _color_palettes, std::list<Fixture> _fixture_presets, QUrl _song_url, int _user_bpm, float onset_value, QWidget *parent = nullptr);
+  explicit ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string> _color_palettes, std::list<Fixture> _fixture_presets, QStringList _lighting_types, QUrl _song_url, int _user_bpm, float onset_value, QWidget *parent = nullptr);
   ~ChangeFixtures() override;
 
   void setup_dialog();
@@ -46,6 +46,7 @@ class ChangeFixtures : public QMainWindow {
   Universe universes[5];
   list<QTreeWidgetItem> universe_tree;
   int user_bpm;
+  QStringList lighting_types;
 
   void add_universe(QString name);
   void add_fixture(QTreeWidgetItem *parent, Fixture _fixture, int start_channel, QString type, std::string _colors, int position_in_group, std::string position_on_stage, std::string moving_head_type, int modifier_pan, int modifier_tilt, std::string timestamps_type, int position_in_mh_group, bool invert_tilt, int amplitude_pan, int amplitude_tilt);

@@ -740,7 +740,7 @@ void MainWindow::on_add_fixture_button_clicked() {
                           "Reached maximum amount of Fixtures. Only 512 Devices allowed.",
                           QMessageBox::Ok);
   } else {
-    this->fcd = new FixtureChoosingDialog(this, fixtures, color_palettes, this->types);
+    this->fcd = new FixtureChoosingDialog(this, fixtures, color_palettes, this->lighting_types);
     this->fcd->set_up_dialog_options(universes[0].get_blocked_adress_range());
     connect(this->fcd, SIGNAL(accepted()), this, SLOT(get_fixture_for_universe()));
     this->fcd->exec();
@@ -1015,7 +1015,7 @@ void MainWindow::on_action_add_song_to_player_triggered() {
 
           if (msgBox.clickedButton()->text() == "Change") {
             std::cout << "change" << std::endl;
-            change_fixtures_dialog = new ChangeFixtures(this->universes[0].get_fixtures(), this->color_palettes, this->fixtures, url, 0, 9, this);
+            change_fixtures_dialog = new ChangeFixtures(this->universes[0].get_fixtures(), this->color_palettes, this->fixtures, this->lighting_types, url, 0, 9, this);
             change_fixtures_dialog->setWindowModality(Qt::ApplicationModal);
             if(connect(this->change_fixtures_dialog, SIGNAL(changed_fixtures_ready(QUrl, std::list<Fixture>, int, float)), this, SLOT(changed_fixtures_for_lightshow_ready(QUrl, std::list<Fixture>, int, float)))) {
               std::cout << "connection worked" << std::endl;
@@ -1675,7 +1675,7 @@ bool MainWindow::xml_has_no_error(tinyxml2::XMLError error) {
 void MainWindow::update_fixture_list() {
   //QStringList types = (QStringList() << "auto_beats" << "group_auto_beats" << "auto_onsets" << "group_auto_onsets" << "Ambient" << "Bass" << "Mid" << "High" << "color_change" << "flash" << "flash_reverse" << "blink" << "pulse" << "group_one_after_another" << "group_one_after_another_fade" << "group_one_after_another_fade_reverse" << "group_one_after_another_blink" << "group_one_after_another_back_and_forth" << "group_one_after_another_back_and_forth_blink" << "group_two_after_another" << "group_alternate_odd_even" << "group_random_flashes" << "strobe_if_many_onsets");
 
-  for (auto type : types) {
+  for (auto type : lighting_types) {
     QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(QString::fromStdString(type.toStdString()),
                                                                       Qt::MatchExactly | Qt::MatchRecursive,
                                                                       0);
@@ -1771,7 +1771,7 @@ void MainWindow::on_edit_fixture_clicked() {
                                              universes[0].get_blocked_adress_range(), false);
           connect(create_dialog, SIGNAL(accepted()), this, SLOT(get_edited_fixture()));
           create_dialog->exec();*/
-          this->efd = new EditFixtureDialog(this, fixtures, color_palettes, this->types);
+          this->efd = new EditFixtureDialog(this, fixtures, color_palettes, this->lighting_types);
           std::string modifier_pan_s = ui->fixture_list->currentItem()->text(10).toStdString();
           std::string modifier_tilt_s = ui->fixture_list->currentItem()->text(11).toStdString();
           std::string timestamps_type = ui->fixture_list->currentItem()->text(3).toStdString();
@@ -2434,7 +2434,7 @@ void MainWindow::change_fixtures_of_existing_song() {
     _fixtures.push_back(fix);
   }
 
-  change_fixtures_dialog = new ChangeFixtures(_fixtures, this->color_palettes, this->fixtures, url, lightshow->get_bpm(), lightshow->get_onset_value(), this);
+  change_fixtures_dialog = new ChangeFixtures(_fixtures, this->color_palettes, this->fixtures, this->lighting_types, url, lightshow->get_bpm(), lightshow->get_onset_value(), this);
   change_fixtures_dialog->set_song(song);
   change_fixtures_dialog->setWindowModality(Qt::ApplicationModal);
   if(connect(this->change_fixtures_dialog, SIGNAL(changed_fixtures_of_existing_lightshow(Song*, std::list<Fixture>, int, float)), this, SLOT(changed_fixtures_for_existing_lightshow_ready(Song*, std::list<Fixture>, int, float)))) {

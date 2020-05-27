@@ -103,7 +103,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   std::vector<std::string> colors_2 = color_palette;
 
   std::map<std::string, std::vector<std::string>> fix_types_with_colors;
-  std::map<std::string, int> fix_types_with_temp_position;
+  std::map<std::string, int> fix_names_with_temp_position;
   int temp_position_counter = 1;
 
 
@@ -170,9 +170,9 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       // found
     }
 
-    if(fix_types_with_temp_position.find(fix_kind) == fix_types_with_temp_position.end() ) { // alternatively could also divide by fix name
+    if(fix_names_with_temp_position.find(fix_kind) == fix_names_with_temp_position.end() ) { // alternatively could also divide by fix name
       // not found
-      fix_types_with_temp_position.insert(std::pair<std::string, int>(fix_kind, temp_position_counter));
+      fix_names_with_temp_position.insert(std::pair<std::string, int>(fix_kind, temp_position_counter));
       temp_position_counter++;
     } else {
       // found
@@ -187,7 +187,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
     std::cout << std::endl;
   }
 
-  for (auto const& x : fix_types_with_temp_position) {
+  for (auto const& x : fix_names_with_temp_position) {
     std::cout << x.first << std::endl;
     std::cout << x.second << std::endl;
     std::cout << std::endl;
@@ -195,6 +195,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
 
   auto segment_changes = lightshow->get_timestamps_segment_changes();
+  std::cout << "numer of segments: " << segment_changes.size() << std::endl;
 
   // randomize some auto stuff for every segment
   std::vector<int> auto_beats_choice;
@@ -227,7 +228,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
     std::string timestamps_type = fix.get_timestamps_type();
     std::transform(timestamps_type.begin(), timestamps_type.end(), timestamps_type.begin(), ::tolower);
-    std::cout << "timestamps_type: " << timestamps_type << std::endl;
+    //std::cout << "timestamps_type: " << timestamps_type << std::endl;
 
     std::vector<float> timestamps;
     if(timestamps_type == "onsets")
@@ -544,14 +545,14 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
         // GO CRAZY and switch between fixture kinds ++++++++++
         if(false) {
-          for(auto const & x: fix_types_with_temp_position) {
+          for(auto const & x: fix_names_with_temp_position) {
             if(fix.get_name() == x.first)
               fix.set_temp_position_in_group(x.second);
           }
           //std::cout << fix.get_temp_position_in_group() << std::endl;
 
           std::vector<float> beats1234 = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
-          this->generate_group_one_kind_after_another(fix, beats1234, segment_start, segment_end, fix_types_with_temp_position.size());
+          this->generate_group_one_kind_after_another(fix, beats1234, segment_start, segment_end, fix_names_with_temp_position.size());
           continue;
         }
 
@@ -622,6 +623,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
         } else if(fix_type == "auto_onsets" || fix_type == "group_auto_onsets") {
           if(onset_timestamps.size() >= eight_per_bar) {
+            std::cout << ">= eight_per_bar" << std::endl;
             if(fix.has_pan && fix.has_tilt) {
               if(fix_type == "group_auto_onsets") {
                 if(auto_onsets_choice[j] == 0) // flash reverse
@@ -656,9 +658,9 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
                 } else if(auto_onsets_choice[j] == 2) { // flash reverse
                   this->generate_flash_reverse(fix, onset_timestamps, segment_start, segment_end);
                 } else if(auto_onsets_choice[j] == 3) { // pulse on beats 1234
-                  std::vector<float> beats1234 = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
-                  this->generate_pulse(fix, beats1234, segment_start, segment_end, fixtures_in_group_auto_onsets, lightshow->get_resolution());
-                  //this->generate_flash(fix, onset_timestamps, segment_start, segment_end);
+                  //std::vector<float> beats1234 = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
+                  //this->generate_pulse(fix, beats1234, segment_start, segment_end, fixtures_in_group_auto_onsets, lightshow->get_resolution()); // doesnt work that well
+                  this->generate_flash(fix, onset_timestamps, segment_start, segment_end);
                 }
               } else {
                 //if(auto_onsets_choice[j] == 0) // blink
@@ -668,19 +670,20 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
               }
             }
           } else if (onset_timestamps.size() >= four_per_bar) {
+            std::cout << ">= four_per_bar" << std::endl;
             if (fix.has_pan && fix.has_tilt) { // flash_reverse
               //this->generate_flash_reverse(fix, onset_timestamps, segment_start, segment_end);
               //this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);
             } else {
               if (fix_type == "auto_onsets") {
-                if(auto_onsets_choice[j] == 0) // pulse
-                  this->generate_pulse(fix, onset_timestamps, segment_start, segment_end, fixtures_in_group_auto_onsets, lightshow->get_resolution());
-                else // blink
+//                if(auto_onsets_choice[j] == 0) // pulse
+//                  this->generate_pulse(fix, onset_timestamps, segment_start, segment_end, fixtures_in_group_auto_onsets, lightshow->get_resolution());
+//                else // blink
                   this->generate_blink(fix, onset_timestamps, segment_end);
               } else if (fix_type == "group_auto_onsets") {
                 if(auto_onsets_choice[j] == 0) // blink back and forth
                   this->generate_blink_back_and_forth(fix, onset_timestamps, fixtures_in_group_auto_onsets, segment_end);
-                else if(auto_onsets_choice[j] == 1) {
+                else if(auto_onsets_choice[j] == 1 || auto_onsets_choice[j] == 2) {
 
                   if(fixtures_in_group_auto_onsets % 4 == 0) // group ABBA
                     this->generate_group_ABBA(fix, onset_timestamps, segment_start, segment_end);
@@ -691,19 +694,21 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
                   else if(fixtures_in_group_auto_onsets % 2 == 1) // alternate odd even
                     this->generate_group_alternate_odd_even(fix, onset_timestamps, segment_start, segment_end);
 
-                  else // alternate odd even
-                    this->generate_group_alternate_odd_even(fix, onset_timestamps, segment_start, segment_end);
+                  else // blink back and forth
+                    this->generate_blink(fix, onset_timestamps, segment_end);
+//                    this->generate_blink_back_and_forth(fix, onset_timestamps, fixtures_in_group_auto_onsets, segment_end);
 
-                } else if(auto_onsets_choice[j] == 2) // pulse
+                } /*else if(auto_onsets_choice[j] == 2) // pulse
                   this->generate_pulse(fix, onset_timestamps, segment_start, segment_end, fixtures_in_group_auto_onsets, lightshow->get_resolution());
                 else if(auto_onsets_choice[j] == 3) // blink
-                  this->generate_blink(fix, onset_timestamps, segment_end);
+                  this->generate_blink(fix, onset_timestamps, segment_end);*/
                 else // blink
                   this->generate_blink(fix, onset_timestamps, segment_end);
               }
             }
 
           } else if (onset_timestamps.size() >= one_per_bar) {
+            std::cout << ">= one_per_bar" << std::endl;
             if (fix.has_pan && fix.has_tilt && fix.has_colorwheel) { // do nothing
               if (fix.has_global_dimmer)
                 this->set_dimmer_values_in_segment(fix, segment_start, 0, segment_end, 200);
@@ -727,6 +732,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
               }
             }
           } else {
+            std::cout << "< one_per_bar (just blink)" << std::endl;
             if (fix.has_pan && fix.has_tilt) {
               // do nothing
               if (fix.has_global_dimmer)

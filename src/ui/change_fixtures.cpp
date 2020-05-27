@@ -6,7 +6,7 @@
 #include "change_fixtures.h"
 #include "ui_change_fixtures.h"
 
-ChangeFixtures::ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string> _color_palettes, std::list<Fixture> _fixture_presets, QUrl _song_url, int _user_bpm, float onset_value, QWidget *parent) :
+ChangeFixtures::ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string> _color_palettes, std::list<Fixture> _fixture_presets, QStringList _lighting_types, QUrl _song_url, int _user_bpm, float onset_value, QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::ChangeFixtures) {
     ui->setupUi(this);
@@ -16,6 +16,7 @@ ChangeFixtures::ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string>
     this->color_palettes = _color_palettes;
     this->song_url = _song_url;
     this->user_bpm = _user_bpm;
+    this->lighting_types = _lighting_types;
 
     this->setWindowIcon(QIcon(":/icons_svg/svg/rtl_icon.svg"));
     std::string window_title = "Change Fixtures for " + _song_url.fileName().toStdString();
@@ -81,7 +82,7 @@ void ChangeFixtures::on_add_fixture_button_clicked() {
                           "Reached maximum amount of Fixtures. Only 512 Devices allowed.",
                           QMessageBox::Ok);
   } else {
-    this->fcd = new FixtureChoosingDialog(this, this->fixture_presets, this->color_palettes);
+    this->fcd = new FixtureChoosingDialog(this, this->fixture_presets, this->color_palettes, this->lighting_types);
     this->fcd->set_up_dialog_options(universes[0].get_blocked_adress_range());
     connect(this->fcd, SIGNAL(accepted()), this, SLOT(get_fixture_for_universe()));
     this->fcd->exec();
@@ -96,7 +97,7 @@ void ChangeFixtures::on_edit_fixture_clicked() {
     if (ui->fixture_list->currentItem()) {
       if (ui->fixture_list->currentItem()->parent()) {
         if (ui->fixture_list->currentItem()->parent()->parent()) {
-          this->efd = new EditFixtureDialog(this, this->fixture_presets, this->color_palettes);
+          this->efd = new EditFixtureDialog(this, this->fixture_presets, this->color_palettes, this->lighting_types);
           std::string modifier_pan_s = ui->fixture_list->currentItem()->text(10).toStdString();
           std::string modifier_tilt_s = ui->fixture_list->currentItem()->text(11).toStdString();
           std::string timestamps_type = ui->fixture_list->currentItem()->text(3).toStdString();
