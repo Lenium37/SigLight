@@ -273,7 +273,7 @@ private:
     bool ls_generating_thread_is_alive;
     bool is_in_dark_mode;
 
-    std::vector<std::string> color_palettes{"auto", "R", "G", "B", "C", "LG", "P", "Y", "O", "W", "R/Y/O", "B/C/W", "G/LG/C", "R/C/LG/B/P", "B/LG/C/R/G", "G/Y/R/W/B", "B/LG/P/C/R/G/Y/W", "LG/P/C/R/G/Y/W/B", "P/C/R/G/Y/W/B/LG", "C/R/G/Y/W/B/LG/P", "R/G/Y/W/B/LG/P/C", "G/Y/W/B/LG/P/C/R", "Y/W/B/LG/P/C/R/G", "W/B/LG/P/C/R/G/Y"};
+    std::vector<std::string> color_palettes{"auto", "R/Y/O/P", "Y/O/P/R", "O/P/R/Y", "P/R/Y/O", "B/LG/W/C", "LG/W/C/B", "W/C/B/LG", "C/B/LG/W", "R", "G", "B", "C", "LG", "P", "Y", "O", "W", "R/Y/O", "B/C/W", "G/LG/C", "R/C/LG/B/P", "B/LG/C/R/G", "G/Y/R/W/B", "B/LG/P/C/R/G/Y/W", "LG/P/C/R/G/Y/W/B", "P/C/R/G/Y/W/B/LG", "C/R/G/Y/W/B/LG/P", "R/G/Y/W/B/LG/P/C", "G/Y/W/B/LG/P/C/R", "Y/W/B/LG/P/C/R/G", "W/B/LG/P/C/R/G/Y"};
 
     bool fixtures_changed = false;
     /**
@@ -398,7 +398,7 @@ private:
     std::vector<std::uint8_t> get_control_channels_with_ignite_value();
     std::vector<std::uint8_t> get_control_channels_with_turn_off_value();
 
-    QStringList lighting_types = (QStringList() << "auto_beats" << "group_auto_beats" << "auto_onsets" << "group_auto_onsets" << "Ambient" << "Bass" << "Mid" << "High" << "color_change" << "flash" << "flash_reverse" << "blink" << "pulse" << "group_one_after_another" << "group_one_after_another_fade" << "group_one_after_another_fade_reverse" << "group_one_after_another_fade_single" << "group_one_after_another_fade_single_reverse" << "group_one_after_another_blink" << "group_one_after_another_back_and_forth" << "group_one_after_another_back_and_forth_blink" << "group_two_after_another" << "group_alternate_odd_even" << "group_random_flashes" << "strobe_if_many_onsets");
+    QStringList lighting_types = (QStringList() << "auto_beats" << "group_auto_beats" << "auto_onsets" << "group_auto_onsets" << "Ambient" << "Bass" << "Mid" << "High" << "color_change" << "color_fade" << "flash" << "flash_reverse" << "blink" << "pulse" << "group_one_after_another" << "group_one_after_another_fade" << "group_one_after_another_fade_reverse" << "group_one_after_another_fade_single" << "group_one_after_another_fade_single_reverse" << "group_one_after_another_blink" << "group_one_after_another_back_and_forth" << "group_one_after_another_back_and_forth_blink" << "group_two_after_another" << "group_alternate_odd_even" << "group_random_flashes" << "strobe_if_many_onsets");
 };
 
 #endif // MAINWINDOW_H

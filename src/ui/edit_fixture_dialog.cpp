@@ -19,7 +19,6 @@ EditFixtureDialog::EditFixtureDialog(QWidget *parent, list<Fixture> &fixtures, s
     QDialog(parent),
     ui(new Ui::EditFixtureDialog) {
   ui->setupUi(this);
-  //types << "auto_beats" << "group_auto_beats" << "auto_onsets" << "group_auto_onsets" << "Ambient" << "Bass" << "Mid" << "High" << "color_change" << "flash" << "flash_reverse" << "blink" << "group_one_after_another" << "group_one_after_another_fade" << "group_one_after_another_blink" << "group_one_after_another_back_and_forth" << "group_one_after_another_back_and_forth_blink" << "group_two_after_another" << "group_alternate_odd_even" << "group_random_flashes" << "strobe_if_many_onsets";
   this->types = _types;
   for(std::string _colors: color_palettes)
     colors << QString::fromStdString(_colors);
@@ -295,6 +294,7 @@ void EditFixtureDialog::update_position_in_group_status(QString current_type) {
   }
 
   if(current_type == "color_change"
+      || current_type == "color_fade"
       || current_type == "flash"
       || current_type == "flash_reverse"
       || current_type == "blink"

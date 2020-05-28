@@ -349,6 +349,7 @@ void LightshowFixture::set_type(std::string type) {
   || type == "everything"
   || type == "ambient"
   || type == "color_change"
+  || type == "color_fade"
   || type == "flash"
   || type == "flash_reverse"
   || type == "blink"

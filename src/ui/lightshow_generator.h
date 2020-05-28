@@ -35,9 +35,14 @@ class LightshowGenerator {
                               std::vector<std::string> &colors,
                               std::vector<float> timestamps,
                               float end_of_last_color);
-  void set_soft_color_changes(std::shared_ptr<Lightshow> lightshow_from_analysis, LightshowFixture& fix, std::vector<color_change> color_changes, float fade_duration);
+  void generate_color_fades(LightshowFixture &fix,
+                            std::vector<std::string> &colors,
+                            std::vector<float> timestamps,
+                            float end_of_song,
+                            int lightshow_resolution);
+  void set_soft_color_changes(LightshowFixture& fix, std::vector<color_change> color_changes, float fade_duration, float end_of_song, int lightshow_resolution);
   void set_hard_color_changes(LightshowFixture &fix, std::vector<color_change> color_changes, float end_of_last_color);
-  std::vector<time_value_int> calculate_single_color_fade(const shared_ptr<Lightshow> lightshow_from_analysis,
+  std::vector<time_value_int> calculate_single_color_fade(int lightshow_resolution,
                                                           float fade_duration,
                                                           int c_old,
                                                           int c_new);
@@ -56,6 +61,7 @@ class LightshowGenerator {
   void generate_group_ABA(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end);
   void generate_group_ABBA(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end);
   void generate_group_alternate_odd_even(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end);
+  void generate_group_blink_alternate_odd_even(LightshowFixture & fix, std::vector<float> & timestamps, float segment_end);
   void generate_pulse(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end, int fixtures_in_group, int lightshow_resolution);
 
   void generate_continuous_8(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_pan, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group);

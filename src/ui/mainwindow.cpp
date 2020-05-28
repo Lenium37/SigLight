@@ -1632,6 +1632,7 @@ void MainWindow::ShowContextMenu(const QPoint &pos) {
   QAction *type_middle = type_menu->addAction("Mid");
   QAction *type_high = type_menu->addAction("High");
   QAction *type_color_change = type_menu->addAction("color_change");
+  QAction *type_color_fade = type_menu->addAction("color_fade");
   QAction *type_flash = type_menu->addAction("flash");
   QAction *type_flash_reverse = type_menu->addAction("flash_reverse");
   QAction *type_blink = type_menu->addAction("blink");
@@ -1673,7 +1674,6 @@ bool MainWindow::xml_has_no_error(tinyxml2::XMLError error) {
 }
 
 void MainWindow::update_fixture_list() {
-  //QStringList types = (QStringList() << "auto_beats" << "group_auto_beats" << "auto_onsets" << "group_auto_onsets" << "Ambient" << "Bass" << "Mid" << "High" << "color_change" << "flash" << "flash_reverse" << "blink" << "pulse" << "group_one_after_another" << "group_one_after_another_fade" << "group_one_after_another_fade_reverse" << "group_one_after_another_blink" << "group_one_after_another_back_and_forth" << "group_one_after_another_back_and_forth_blink" << "group_two_after_another" << "group_alternate_odd_even" << "group_random_flashes" << "strobe_if_many_onsets");
 
   for (auto type : lighting_types) {
     QList<QTreeWidgetItem *> type_items = ui->fixture_list->findItems(QString::fromStdString(type.toStdString()),
