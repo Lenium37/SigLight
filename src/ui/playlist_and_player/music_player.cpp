@@ -78,7 +78,7 @@ Song * MusicPlayer::add_to_playlist(QUrl url) {
     _ls_for_song = song;
   } else {
     int first_index_playlist_insertion = this->pls->playlist_length();
-    bool read_successful = this->pls->read_m3u_file(url.toString().toStdString());
+    bool read_successful = this->pls->read_m3u_file(url.toString().toStdString(), this->songs_directory_path);
     int last_index_playlist_insertion = this->pls->playlist_length() - 1;
 
     if (read_successful) {
@@ -212,10 +212,8 @@ void MusicPlayer::save_playlist(std::string directory_to_save_playlist) {
 }
 
 void MusicPlayer::read_own_m_3_u_on_startup(std::string standard_directory_to_read_playlist) {
-  std::cout << "debug" << std::endl;
   pls->set_directory(standard_directory_to_read_playlist);
-  std::cout << "debug0" << std::endl;
-  pls->read_m3u_file("");
+  pls->read_m3u_file("", this->songs_directory_path);
 }
 
 Song *MusicPlayer::get_current_song() {

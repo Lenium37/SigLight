@@ -2,6 +2,7 @@
 
 #include <sys/stat.h>
 #include <song_info_utils.h>
+#include <QtCore/QTextStream>
 
 Playlist::Playlist() {
   m3u_file_name = "current_rtl_playlist.m3u";
@@ -86,101 +87,70 @@ void Playlist::delete_current_playlist() {
 
 }
 
-bool Playlist::read_m3u_file(std::string file_to_read) {
+bool Playlist::read_m3u_file(std::string file_to_read, std::string _songs_directory_path) {
 
-  std::cout << "debug00" << std::endl;
   bool success = false;
-  std::cout << "debug000" << std::endl;
-  std::ifstream input_file(directory_path + m3u_file_name, std::ifstream::in);
-  std::cout << "debug0000" << std::endl;
-  /*if (file_to_read.empty()) {
-    std::string s = directory_path + m3u_file_name;
-    input_file.open(s);
-  } else {
-    try {
-      file_to_read = QUrl(QString::fromStdString(file_to_read)).path().toStdString().substr(1);
-      input_file.open(file_to_read);
-    } catch (...) {
-      Logger::error("Something went wrong while opening the playlist!");
+//  std::ifstream input_file(directory_path + m3u_file_name, std::ifstream::in);
+  std::string path_to_file = directory_path + m3u_file_name;
+
+  QFile playlist_file(QString::fromStdString(path_to_file));
+  if (!playlist_file.open(QIODevice::ReadOnly | QIODevice::Text))
+    return success;
+
+  QTextStream in(&playlist_file);
+  QString line = in.readLine();
+
+  int sec = 0;
+  std::string file_name;
+  std::string song_title;
+  std::string song_artist;
+  bool useless_line = false;
+
+  while (!line.isNull()) {
+//    std::cout << "line[0]: " << line.toStdString().c_str()[0] << "    line[4]: " << line.toStdString().c_str()[4] << std::endl;
+    if (line.toStdString().c_str()[0] == '#') {
+      if (line.toStdString().c_str()[4] == 'I') {
+        std::string string_sec;
+        size_t pos_comma = line.indexOf(",");//find_first_of(",");
+//        std::cout << "pos_comma: " << pos_comma << std::endl;
+        file_name = line.mid(pos_comma + 1).toStdString();
+        string_sec = line.mid(8, pos_comma - 8).toStdString();//substr(8, pos_comma - 8);
+        sec = std::stoi(string_sec);
+        size_t pos_minus = line.indexOf("-");//find_first_of("-");
+//        std::cout << "pos_minus: " << pos_minus << std::endl;
+        song_artist = line.mid(pos_comma + 1, pos_minus - pos_comma - 1).toStdString();//substr(pos_comma + 1, pos_minus - pos_comma - 1);
+        size_t pos_last_dot = line.lastIndexOf(".");//find_last_of('.');
+//        std::cout << "pos_last_dot: " << pos_last_dot << std::endl;
+        song_title = line.mid(pos_minus + 1, pos_last_dot - pos_minus - 1).toStdString();//substr(pos_minus + 1, pos_last_dot - pos_minus - 1);
+
+
+        if(!QString::fromStdString(file_name).contains(".wav"))
+          file_name.append(".wav");
+
+        std::string file_path = _songs_directory_path + file_name;
+//        std::cout << "file_name: " << file_name << std::endl;
+//        std::cout << "file_path: " << file_path << std::endl;
+//        std::cout << "sec: " << sec << std::endl;
+//        std::cout << "song_title: " << song_title << std::endl;
+//        std::cout << "song_artist: " << song_artist << std::endl;
+        Song *song = new Song(file_path, sec);
+        song->set_title(song_title);
+        song->set_artist(song_artist);
+        auto *pls_item = new Playlist_item(song);
+        playlist.push_back(pls_item);
+        success = true;
+      } else {
+        useless_line = true;
+      }
+
     }
+
+    line = in.readLine();
   }
-  std::string read_data;
-
-  if (input_file) {
-    int i = 1;
-    std::string url;
-    int sec = 0000;
-    std::string file_name;
-    std::string song_title;
-    std::string song_artist;
-    std::getline(input_file, read_data);
-    bool useless_line = false;
-    while (std::getline(input_file, read_data)) {
-
-      if (read_data[0] == '#') {
-        if (read_data[4] == 'I') {
-          std::string string_sec;
-          size_t pos_comma = read_data.find_first_of(",");
-          string_sec = read_data.substr(8, pos_comma - 8);
-          sec = std::stoi(string_sec);
-          size_t pos_minus = read_data.find_first_of("-");
-          song_artist = read_data.substr(pos_comma + 1, pos_minus - pos_comma - 1);
-          size_t pos_last_dot = read_data.find_last_of('.');
-          song_title = read_data.substr(pos_minus + 1, pos_last_dot - pos_minus - 1);
-        } else {
-          useless_line = true;
-        }
-
-      } else {
-        url = read_data;
-        size_t pos_last_slash = read_data.find_last_of("/");
-        file_name = read_data.substr(pos_last_slash + 1);
-      }
-
-      if (!useless_line) {
-        if (i % 2 == 0 && i != 0) {
-          const QUrl qurl = QUrl(QString::fromStdString(url));
-          std::string file_path;
-          const bool is_file_url = qurl.scheme() == "file";
-
-          if (is_file_url) {
-            file_path = url.substr(8);
-          } else {
-            file_path = url;
-          }
-
-          const bool exists = ghc::filesystem::exists(file_path);
-          if (!exists) {
-            // check for relative path
-            std::string music_folder = QStandardPaths::writableLocation(QStandardPaths::MusicLocation).toStdString();
-            auto absolute_path = ghc::filesystem::path(music_folder).append(file_path);
-            if (ghc::filesystem::exists(absolute_path)) {
-              file_path = absolute_path.string();
-            }
-          } else {
-            Song *song = new Song(file_path, sec);
-            song->set_title(song_title);
-            song->set_artist(song_artist);
-            auto *pls_item = new Playlist_item(song);
-            playlist.push_back(pls_item);
-            success = true;
-          }
-        }
-        i++;
-      } else {
-        useless_line = false;
-      }
-    }
-  }*/
-
-  input_file.close();
 
   if (file_to_read.empty() && success == true) {
     emit current_rtl_m3u_read_and_inserted(0, this->playlist_length() - 1);
   }
-
-  // TODO it is crashing here somehow?!
-  std::cout << "before return" << std::endl;
 
   return success;
 }
@@ -198,14 +168,14 @@ bool Playlist::write_m3u_file() {
   } else {
     temp = true;
     for (int i = 0; i < playlist.size(); i++) {
-      if (playlist_item_at(i)->get_song()->get_title() != "" && playlist_item_at(i)->get_song()->get_artist() != "") {
-        output_file << "#EXTINF:" << playlist.at(i)->get_song()->get_duration() << ","
-                    << playlist.at(i)->get_song()->get_artist() << "-" << playlist.at(i)->get_song()->get_title()
-                    << std::endl;
-      } else {
+//      if (playlist_item_at(i)->get_song()->get_title() != "" && playlist_item_at(i)->get_song()->get_artist() != "") {
+//        output_file << "#EXTINF:" << playlist.at(i)->get_song()->get_duration() << ","
+//                    << playlist.at(i)->get_song()->get_artist() << "-" << playlist.at(i)->get_song()->get_title()
+//                    << std::endl;
+//      } else {
         output_file << "#EXTINF:" << playlist.at(i)->get_song()->get_duration() << ","
                     << playlist.at(i)->get_song()->get_song_name() << std::endl;
-      }
+//      }
 
       output_file
           //<< QUrl::fromLocalFile(QString::fromStdString(playlist.at(std::size_t(i))->get_song()->get_file_path())).toString().toStdString()

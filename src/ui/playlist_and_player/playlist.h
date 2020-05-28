@@ -29,7 +29,7 @@ public:
     void set_m3u_file_name(std::string _m3u_file_name);
     std::string name_of_m3u_file();
     void delete_current_playlist();
-    bool read_m3u_file(std::string file_to_read);
+    bool read_m3u_file(std::string file_to_read, std::string _songs_directory_path);
     bool write_m3u_file();
     Playlist_item* playlist_item_at(int index);
     Song* next_song();

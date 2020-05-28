@@ -63,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
   init_shortcuts();
   init_connects();
   init();
-  //this->read_own_m3u_on_startup(); // TODO currently not working because of build type RELEASE
+  this->read_own_m3u_on_startup();
 }
 
 void MainWindow::init() {
@@ -1264,16 +1264,11 @@ void MainWindow::change_player_edit_view(int index) {
 }
 
 void MainWindow::read_own_m3u_on_startup() {
-  std::cout << "debug6.1" << std::endl;
   if (universes[0].get_fixture_count() != 0) {
-    std::cout << "debug6.2" << std::endl;
-    std::cout << sig_light_path.toStdString() << std::endl;
-    std::cout << "debug6.3" << std::endl;
+//    std::cout << sig_light_path.toStdString() << std::endl;
     player->read_own_m_3_u_on_startup(sig_light_path.toStdString());
-    std::cout << "debug6.4" << std::endl;
   }
 
-  std::cout << "debug6.5" << std::endl;
   int i = 0;
   while (player->get_playlist_media_at(i) != nullptr) {
     Song *song = player->get_playlist_media_at(i)->get_song();
