@@ -151,7 +151,28 @@ std::string Fixture::get_colors() {
     return "LG/P/C/R/G/Y/W/B";
 }
 
+static inline void ReplaceAllSubstrings(std::string &str, const std::string& from, const std::string& to) {
+  size_t start_pos = 0;
+  while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+    str.replace(start_pos, from.length(), to);
+    start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+  }
+}
+
 void Fixture::set_colors(std::string colors) {
+//  std::cout << colors << " " << std::any_of(colors.begin(), colors.end(), ::islower) << std::endl;
+  if(std::any_of(colors.begin(), colors.end(), ::islower) && colors != "auto") { // if there are any lower case characters
+    ReplaceAllSubstrings(colors, "light-green", "LG");
+    ReplaceAllSubstrings(colors, "pink", "P");
+    ReplaceAllSubstrings(colors, "cyan", "C");
+    ReplaceAllSubstrings(colors, "red", "R");
+    ReplaceAllSubstrings(colors, "green", "G");
+    ReplaceAllSubstrings(colors, "yellow", "Y");
+    ReplaceAllSubstrings(colors, "white", "W");
+    ReplaceAllSubstrings(colors, "orange", "O");
+    ReplaceAllSubstrings(colors, "blue", "B");
+    std::cout << "colors after replacing: " << colors << std::endl;
+  }
   this->colors = colors;
 }
 

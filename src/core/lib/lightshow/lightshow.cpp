@@ -181,7 +181,7 @@ void Lightshow::prepare_analysis_for_song(char *song_path, bool need_bass, bool 
 
   float bpm_from_onsets = 0;
   if(need_onsets) {
-    this->onset_timestamps = this->analysis.get_onset_timestamps_energy_difference(onset_value);
+    tie(this->onset_timestamps, this->onset_bass_timestamps, this->onset_snare_timestamps) = this->analysis.get_onset_timestamps_energy_difference(onset_value);
     //this->onset_timestamps = this->analysis.get_onset_timestamps_frequencies(1, 60);
 
     // trying to get bpm from onsets
@@ -436,6 +436,14 @@ std::vector<double> Lightshow::get_all_beats() {
 
 std::vector<float> Lightshow::get_onset_timestamps() {
   return this->onset_timestamps;
+}
+
+std::vector<float> Lightshow::get_onset_bass_timestamps() {
+  return this->onset_bass_timestamps;
+}
+
+std::vector<float> Lightshow::get_onset_snare_timestamps() {
+  return this->onset_snare_timestamps;
 }
 
 std::vector<float> Lightshow::get_onset_timestamps_in_segment(float start, float end) {

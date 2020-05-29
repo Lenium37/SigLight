@@ -144,7 +144,7 @@ void Analysis::stft() {
 
 }
 
-std::vector<float> Analysis::get_onset_timestamps_energy_difference(float onset_value) {
+std::tuple<std::vector<float>, std::vector<float>, std::vector<float>> Analysis::get_onset_timestamps_energy_difference(float onset_value) {
 
     std::vector<float> onset_timestamps;
 
@@ -192,7 +192,11 @@ std::vector<float> Analysis::get_onset_timestamps_energy_difference(float onset_
     for(int i = co_f2; i < window_size_onsets; i++);*/
 
 
-
+  std::cout << "result.size(): " << result.size() << std::endl;
+  std::cout << "window_size: " << window_size << std::endl;
+//  std::cout << "wav_values_mono.size(): " << wav_values_mono.size() << std::endl;
+  std::cout << "signal_length_mono - window_size_onsets: " << signal_length_mono - window_size_onsets << std::endl;
+  std::cout << "window_size_onsets: " << window_size_onsets << std::endl;
 
     // works good for rocky stuff and clear electronic bass
     for (int i = 0; i < signal_length_mono - window_size_onsets; i = i + window_size_onsets / 2) {
@@ -293,7 +297,59 @@ std::vector<float> Analysis::get_onset_timestamps_energy_difference(float onset_
     //for(float ts: onset_timestamps)
     //std::cout << ts << std::endl;
 
-    return onset_timestamps;
+
+
+
+
+  // ####################### testing bass / snare detection
+
+  std::vector<time_value_int> peaks_bass = this->peaks_per_band(0, 50);
+  std::vector<time_value_int> peaks_snare = this->peaks_per_band(450, 1000);
+
+//  std::vector<time_value_int> onset_bass_values;
+//  std::vector<time_value_int> onset_snare_values;
+  std::vector<float> bass_onsets;
+  std::vector<float> snare_onsets;
+
+
+
+  for(float &timestamp : onset_timestamps) {
+
+    // find nearest bass value
+    auto j = min_element(begin(peaks_bass), end(peaks_bass), [=] (time_value_int x, time_value_int y)
+    {
+      return abs(x.time - timestamp) < abs(y.time - timestamp);
+    });
+//    onset_bass_values.push_back(peaks_bass[std::distance(begin(peaks_bass), j)]);
+    float time_bass = peaks_bass[std::distance(begin(peaks_bass), j)].time;
+    int value_bass = peaks_bass[std::distance(begin(peaks_bass), j)].value;
+
+    // find nearest snare value
+    auto k = min_element(begin(peaks_snare), end(peaks_snare), [=] (time_value_int x, time_value_int y)
+    {
+      return abs(x.time - timestamp) < abs(y.time - timestamp);
+    });
+//    onset_snare_values.push_back(peaks_snare[std::distance(begin(peaks_snare), k)]);
+
+    float time_snare = peaks_snare[std::distance(begin(peaks_snare), k)].time;
+    int value_snare = peaks_snare[std::distance(begin(peaks_snare), k)].value;
+
+    std::cout << "value_bass: " << value_bass << "   value_snare: " << value_snare << std::endl;
+
+//    if(value_bass < 99)
+    if(value_snare >= value_bass)
+      snare_onsets.push_back(timestamp);
+    else
+      bass_onsets.push_back(timestamp);
+
+
+  }
+
+
+
+
+
+    return std::make_tuple(onset_timestamps, bass_onsets, snare_onsets);
 }
 
 std::vector<float> Analysis::get_onset_timestamps_frequencies(float f_start, float f_end) {

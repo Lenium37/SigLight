@@ -214,6 +214,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
 
     //std::cout << "random_auto_onsets_choice for segment " << i << " is: " << random_auto_onsets_choice << std::endl;
+//    std::cout << "segment_changes[i].time: " << segment_changes[i].time << std::endl;
+//    std::cout << "segment_changes[i].value: " << segment_changes[i].value << std::endl;
 
     auto_beats_choice.push_back(random_auto_beats_choice);
     auto_onsets_choice.push_back(random_auto_onsets_choice);
@@ -235,9 +237,15 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
     std::vector<float> timestamps;
     if(timestamps_type == "onsets")
       timestamps = lightshow->get_onset_timestamps();
+    else if(timestamps_type == "onsets bass")
+      timestamps = lightshow->get_onset_bass_timestamps();
+    else if(timestamps_type == "onsets snare")
+      timestamps = lightshow->get_onset_snare_timestamps();
     else if(timestamps_type.find("Beats") != string::npos || timestamps_type.find("beats") != string::npos) { // contains beats
       timestamps = lightshow->get_specific_beats(timestamps_type);
     }
+
+    std::cout << timestamps_type << " timestamps.size(): " << timestamps.size() << std::endl;
 
     std::vector<std::string> colors = fix.get_colors();
     if(!colors.empty() && colors[0] == "auto")
@@ -776,7 +784,10 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
         }
       }
-      std::vector<std::string> colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
+
+      std::vector<std::string> colors = fix.get_colors();
+      if(fix_type == "auto")
+        colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
       this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
     }
 

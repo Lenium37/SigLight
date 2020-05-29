@@ -32,8 +32,8 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
 
     ui->cB_timestamps->addItem("None");
     ui->cB_timestamps->addItem("Onsets");
-    //ui->cB_timestamps->addItem("Onsets bass");
-    //ui->cB_timestamps->addItem("Onsets snare");
+    ui->cB_timestamps->addItem("Onsets bass");
+    ui->cB_timestamps->addItem("Onsets snare");
     ui->cB_timestamps->addItem("Beats 1/2/3/4");
     ui->cB_timestamps->addItem("Beats 2/4");
     ui->cB_timestamps->addItem("Beats 1/3");

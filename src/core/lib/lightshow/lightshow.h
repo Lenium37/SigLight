@@ -75,6 +75,8 @@ class Lightshow {
   std::vector<double> get_all_beats();
   std::vector<float> get_specific_beats(std::string beat_type, float start = 0, float end = 0);
   std::vector<float> get_onset_timestamps();
+  std::vector<float> get_onset_bass_timestamps();
+  std::vector<float> get_onset_snare_timestamps();
   std::vector<float> get_onset_timestamps_in_segment(float start, float end);
   int get_bpm();
   void set_bpm(int _bpm);
@@ -98,6 +100,8 @@ class Lightshow {
   std::vector<time_value_int> value_changes_high;
   std::vector<time_value_float> timestamps_segment_changes;
   std::vector<float> onset_timestamps;
+  std::vector<float> onset_bass_timestamps;
+  std::vector<float> onset_snare_timestamps;
 
   int resolution = 40; // 40 = DMX update every 25ms.    20 = DMX update every 50ms.    10 = DMX update every 100ms.
   float fade_duration = 1; // fade of color changes takes 1s
