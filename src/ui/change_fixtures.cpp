@@ -6,7 +6,7 @@
 #include "change_fixtures.h"
 #include "ui_change_fixtures.h"
 
-ChangeFixtures::ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string> _color_palettes, std::list<Fixture> _fixture_presets, QStringList _lighting_types, QUrl _song_url, int _user_bpm, float onset_value, QWidget *parent) :
+ChangeFixtures::ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string> _color_palettes, std::list<Fixture> _fixture_presets, QStringList _lighting_types, QUrl _song_url, int _user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold, QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::ChangeFixtures) {
     ui->setupUi(this);
@@ -29,6 +29,36 @@ ChangeFixtures::ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string>
     ui->sB_onset_value->setValue(onset_value);
     ui->sB_onset_value->setDecimals(1);
     ui->sB_onset_value->setSingleStep(0.1);
+
+    ui->sB_onset_bass_lower_frequency->setRange(0, 500);
+    ui->sB_onset_bass_lower_frequency->setValue(onset_bass_lower_frequency);
+    ui->sB_onset_bass_lower_frequency->setDecimals(0);
+    ui->sB_onset_bass_lower_frequency->setSingleStep(1);
+
+    ui->sB_onset_bass_upper_frequency->setRange(0, 1000);
+    ui->sB_onset_bass_upper_frequency->setValue(onset_bass_upper_frequency);
+    ui->sB_onset_bass_upper_frequency->setDecimals(0);
+    ui->sB_onset_bass_upper_frequency->setSingleStep(1);
+
+    ui->sB_onset_bass_threshold->setRange(0, 255);
+    ui->sB_onset_bass_threshold->setValue(onset_bass_threshold);
+    ui->sB_onset_bass_threshold->setDecimals(0);
+    ui->sB_onset_bass_threshold->setSingleStep(1);
+
+    ui->sB_onset_snare_lower_frequency->setRange(0, 500);
+    ui->sB_onset_snare_lower_frequency->setValue(onset_snare_lower_frequency);
+    ui->sB_onset_snare_lower_frequency->setDecimals(0);
+    ui->sB_onset_snare_lower_frequency->setSingleStep(1);
+
+    ui->sB_onset_snare_upper_frequency->setRange(0, 1000);
+    ui->sB_onset_snare_upper_frequency->setValue(onset_snare_upper_frequency);
+    ui->sB_onset_snare_upper_frequency->setDecimals(0);
+    ui->sB_onset_snare_upper_frequency->setSingleStep(1);
+
+    ui->sB_onset_snare_threshold->setRange(0, 255);
+    ui->sB_onset_snare_threshold->setValue(onset_snare_threshold);
+    ui->sB_onset_snare_threshold->setDecimals(0);
+    ui->sB_onset_snare_threshold->setSingleStep(1);
 
     ui->fixture_list->setStyleSheet("background-color: rgb(238, 238, 236);");
 
@@ -465,10 +495,30 @@ void ChangeFixtures::on_use_changed_fixtures_clicked() {
   if(this->song)
     std::cout << this->song->get_song_name() << std::endl;
 
-  if(this->song)
-    emit changed_fixtures_of_existing_lightshow(this->song, this->universes[0].get_fixtures(), ui->sB_user_bpm->value(), (float) ui->sB_onset_value->value());
-  else
-    emit changed_fixtures_ready(song_url, this->universes[0].get_fixtures(), ui->sB_user_bpm->value(), (float) ui->sB_onset_value->value());
+  if(this->song) {
+    emit changed_fixtures_of_existing_lightshow(this->song,
+                                                this->universes[0].get_fixtures(),
+                                                ui->sB_user_bpm->value(),
+                                                (float) ui->sB_onset_value->value(),
+                                                (int) ui->sB_onset_bass_lower_frequency->value(),
+                                                (int) ui->sB_onset_bass_upper_frequency->value(),
+                                                (int) ui->sB_onset_bass_threshold->value(),
+                                                (int) ui->sB_onset_snare_lower_frequency->value(),
+                                                (int) ui->sB_onset_snare_upper_frequency->value(),
+                                                (int) ui->sB_onset_snare_threshold->value());
+  }
+  else {
+    emit changed_fixtures_ready(song_url,
+                                this->universes[0].get_fixtures(),
+                                ui->sB_user_bpm->value(),
+                                (float) ui->sB_onset_value->value(),
+                                (int) ui->sB_onset_bass_lower_frequency->value(),
+                                (int) ui->sB_onset_bass_upper_frequency->value(),
+                                (int) ui->sB_onset_bass_threshold->value(),
+                                (int) ui->sB_onset_snare_lower_frequency->value(),
+                                (int) ui->sB_onset_snare_upper_frequency->value(),
+                                (int) ui->sB_onset_snare_threshold->value());
+  }
 }
 
 void ChangeFixtures::set_song(Song* _song) {

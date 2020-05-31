@@ -72,6 +72,209 @@
         </property>
        </spacer>
       </item>
+
+
+
+
+      <item>
+       <widget class="QLabel" name="l_onset_bass_lower_frequency">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>Onset bass lower frequency:</string>
+        </property>
+        <property name="toolTip">
+         <string>Default: 30</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="sB_onset_bass_lower_frequency">
+        <property name="toolTip">
+         <string>Default: 30</string>
+        </property>
+       </widget>
+      </item>
+
+      <item>
+       <widget class="QLabel" name="l_onset_bass_upper_frequency">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>Onset bass upper frequency:</string>
+        </property>
+        <property name="toolTip">
+         <string>Default: 65</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="sB_onset_bass_upper_frequency">
+        <property name="toolTip">
+         <string>Default: 65</string>
+        </property>
+       </widget>
+      </item>
+
+      <item>
+       <widget class="QLabel" name="l_onset_bass_threshold">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>Onset bass threshold:</string>
+        </property>
+        <property name="toolTip">
+         <string>Default: 160</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="sB_onset_bass_threshold">
+        <property name="toolTip">
+         <string>Default: 160</string>
+        </property>
+       </widget>
+      </item>
+
+      <item>
+       <widget class="QLabel" name="l_onset_snare_lower_frequency">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>Onset snare lower frequency:</string>
+        </property>
+        <property name="toolTip">
+         <string>Default: 150</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="sB_onset_snare_lower_frequency">
+        <property name="toolTip">
+         <string>Default: 150</string>
+        </property>
+       </widget>
+      </item>
+
+      <item>
+       <widget class="QLabel" name="l_onset_snare_upper_frequency">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>Onset snare upper frequency:</string>
+        </property>
+        <property name="toolTip">
+         <string>Default: 300</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="sB_onset_snare_upper_frequency">
+        <property name="toolTip">
+         <string>Default: 300</string>
+        </property>
+       </widget>
+      </item>
+
+      <item>
+       <widget class="QLabel" name="l_onset_snare_threshold">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>Onset snare threshold:</string>
+        </property>
+        <property name="toolTip">
+         <string>Default: 175</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="sB_onset_snare_threshold">
+        <property name="toolTip">
+         <string>Default: 175</string>
+        </property>
+       </widget>
+      </item>
+
+
       <item>
        <widget class="QLabel" name="l_onset_value">
         <property name="sizePolicy">

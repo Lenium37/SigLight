@@ -22,7 +22,7 @@ class ChangeFixtures : public QMainWindow {
  Q_OBJECT
 
  public:
-  explicit ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string> _color_palettes, std::list<Fixture> _fixture_presets, QStringList _lighting_types, QUrl _song_url, int _user_bpm, float onset_value, QWidget *parent = nullptr);
+  explicit ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string> _color_palettes, std::list<Fixture> _fixture_presets, QStringList _lighting_types, QUrl _song_url, int _user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold, QWidget *parent = nullptr);
   ~ChangeFixtures() override;
 
   void setup_dialog();
@@ -30,8 +30,8 @@ class ChangeFixtures : public QMainWindow {
   Song* get_song();
 
  signals:
-  void changed_fixtures_of_existing_lightshow(Song* song, std::list<Fixture> fixtures, int user_bpm, float onset_value);
-  void changed_fixtures_ready(QUrl song_url, std::list<Fixture> fixtures, int user_bpm, float onset_value);
+  void changed_fixtures_of_existing_lightshow(Song* song, std::list<Fixture> fixtures, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold);
+  void changed_fixtures_ready(QUrl song_url, std::list<Fixture> fixtures, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold);
 
 
  private:

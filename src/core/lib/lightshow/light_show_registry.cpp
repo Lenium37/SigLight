@@ -42,6 +42,12 @@ void LightShowRegistry::write_lightshow(const std::string &lightshow_filename, s
   lightshow_element->SetAttribute("res", lightshow->get_resolution());
   lightshow_element->SetAttribute("bpm", lightshow->get_bpm());
   lightshow_element->SetAttribute("onset_value", lightshow->get_onset_value());
+  lightshow_element->SetAttribute("onset_bass_lower_frequency", lightshow->get_onset_bass_lower_frequency());
+  lightshow_element->SetAttribute("onset_bass_upper_frequency", lightshow->get_onset_bass_upper_frequency());
+  lightshow_element->SetAttribute("onset_bass_threshold", lightshow->get_onset_bass_threshold());
+  lightshow_element->SetAttribute("onset_snare_lower_frequency", lightshow->get_onset_snare_lower_frequency());
+  lightshow_element->SetAttribute("onset_snare_upper_frequency", lightshow->get_onset_snare_upper_frequency());
+  lightshow_element->SetAttribute("onset_snare_threshold", lightshow->get_onset_snare_threshold());
   lightshow_xml.InsertFirstChild(lightshow_element);
 
   for(auto fixture : lightshow->get_fixtures()){
@@ -141,6 +147,12 @@ std::shared_ptr<Lightshow> LightShowRegistry::read_lightshow(const std::string f
     lightshow->set_resolution(std::stoi(lightshow_element->Attribute("res")));
     lightshow->set_bpm(std::stoi(lightshow_element->Attribute("bpm")));
     lightshow->set_onset_value(std::stof(lightshow_element->Attribute("onset_value")));
+    lightshow->set_onset_bass_lower_frequency(std::stoi(lightshow_element->Attribute("onset_bass_lower_frequency")));
+    lightshow->set_onset_bass_upper_frequency(std::stoi(lightshow_element->Attribute("onset_bass_upper_frequency")));
+    lightshow->set_onset_bass_threshold(std::stoi(lightshow_element->Attribute("onset_bass_threshold")));
+    lightshow->set_onset_snare_lower_frequency(std::stoi(lightshow_element->Attribute("onset_snare_lower_frequency")));
+    lightshow->set_onset_snare_upper_frequency(std::stoi(lightshow_element->Attribute("onset_snare_upper_frequency")));
+    lightshow->set_onset_snare_threshold(std::stoi(lightshow_element->Attribute("onset_snare_threshold")));
 
 
     tinyxml2::XMLElement *fixture_element = lightshow_element->FirstChildElement("fixture");

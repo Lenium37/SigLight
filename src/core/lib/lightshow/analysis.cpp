@@ -144,7 +144,7 @@ void Analysis::stft() {
 
 }
 
-std::tuple<std::vector<float>, std::vector<float>, std::vector<float>> Analysis::get_onset_timestamps_energy_difference(float onset_value) {
+std::tuple<std::vector<float>, std::vector<float>, std::vector<float>> Analysis::get_onset_timestamps_energy_difference(float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold) {
 
     std::vector<float> onset_timestamps;
 
@@ -303,10 +303,11 @@ std::tuple<std::vector<float>, std::vector<float>, std::vector<float>> Analysis:
 
   // ####################### testing bass / snare detection
 
-  std::vector<time_value_int> peaks_bass = this->peaks_per_band(40, 65);
-  std::vector<time_value_int> peaks_bass_attack = this->peaks_per_band(3000, 4000);
-//  std::vector<time_value_int> peaks_snare = this->peaks_per_band(450, 1000);
-  std::vector<time_value_int> peaks_snare = this->peaks_per_band(200, 300);
+//  std::vector<time_value_int> peaks_bass = this->peaks_per_band(40, 65);
+  std::vector<time_value_int> peaks_bass = this->peaks_per_band(onset_bass_lower_frequency, onset_bass_upper_frequency);
+//  std::vector<time_value_int> peaks_bass_attack = this->peaks_per_band(3000, 4000);
+//  std::vector<time_value_int> peaks_snare = this->peaks_per_band(200, 300);
+  std::vector<time_value_int> peaks_snare = this->peaks_per_band(onset_snare_lower_frequency, onset_snare_upper_frequency);
 
 //  for(int i = 0; i < peaks_bass.size(); i++) {
 //    std::cout << peaks_bass[i].time << " bass: " << peaks_bass[i].value << " snare: " << peaks_snare[i].value << std::endl;
@@ -435,10 +436,10 @@ std::tuple<std::vector<float>, std::vector<float>, std::vector<float>> Analysis:
 
 
 
-    if(value_bass_next2 > 160) {
+    if(value_bass_next2 > onset_bass_threshold) {
       bass_onsets.push_back(timestamp);
     }
-    if(value_snare_next2 >= 175) {
+    if(value_snare_next2 >= onset_snare_threshold) {
       snare_onsets.push_back(timestamp);
     }
 
@@ -3229,16 +3230,16 @@ double Analysis::generate_seed_for_song() {
 
   int middle_of_song = this->signal_length_mono / 2;
   int seed_area_size = 2048;
-  std::cout << "signal_length_mono: " << signal_length_mono << std::endl;
+//  std::cout << "signal_length_mono: " << signal_length_mono << std::endl;
 
   double seed = 0;
   for(int i = middle_of_song; i < middle_of_song + seed_area_size - 1; i++) {
 //    std::cout << "hi " << this->wav_values_mono[i] * this->wav_values_mono[i] << std::endl;
     seed += this->wav_values_mono[i] * this->wav_values_mono[i];
   }
-  std::cout << "seed after adding: " << seed << std::endl;
+//  std::cout << "seed after adding: " << seed << std::endl;
   seed = sqrt(seed);
-  std::cout << "seed after sqrt: " << seed << std::endl;
+//  std::cout << "seed after sqrt: " << seed << std::endl;
 
   return seed;
 }

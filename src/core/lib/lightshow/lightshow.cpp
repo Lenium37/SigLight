@@ -158,7 +158,7 @@ void Lightshow::get_bpm_and_beats(bool &finished, int user_bpm) {
   finished = true;
 }
 
-void Lightshow::prepare_analysis_for_song(char *song_path, bool need_bass, bool need_mid, bool need_high, bool need_onsets, int user_bpm, float onset_value) {
+void Lightshow::prepare_analysis_for_song(char *song_path, bool need_bass, bool need_mid, bool need_high, bool need_onsets, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold) {
   this->analysis.set_resolution(this->resolution);
   this->analysis.read_wav(song_path);
   this->analysis.stft(); //dauert lang
@@ -182,7 +182,7 @@ void Lightshow::prepare_analysis_for_song(char *song_path, bool need_bass, bool 
 
   float bpm_from_onsets = 0;
   if(need_onsets) {
-    tie(this->onset_timestamps, this->onset_bass_timestamps, this->onset_snare_timestamps) = this->analysis.get_onset_timestamps_energy_difference(onset_value);
+    tie(this->onset_timestamps, this->onset_bass_timestamps, this->onset_snare_timestamps) = this->analysis.get_onset_timestamps_energy_difference(onset_value, onset_bass_lower_frequency, onset_bass_upper_frequency, onset_bass_threshold, onset_snare_lower_frequency, onset_snare_upper_frequency, onset_snare_threshold);
     //this->onset_timestamps = this->analysis.get_onset_timestamps_frequencies(1, 60);
 
     // trying to get bpm from onsets
@@ -567,4 +567,52 @@ void Lightshow::prepare_beat_timestamps() {
 
 double Lightshow::get_seed() {
   return this->seed;
+}
+
+int Lightshow::get_onset_bass_lower_frequency() {
+  return this->onset_bass_lower_frequency;
+}
+
+void Lightshow::set_onset_bass_lower_frequency(int _onset_bass_lower_frequency) {
+  this->onset_bass_lower_frequency = _onset_bass_lower_frequency;
+}
+
+int Lightshow::get_onset_bass_upper_frequency() {
+  return this->onset_bass_upper_frequency;
+}
+
+void Lightshow::set_onset_bass_upper_frequency(int _onset_bass_upper_frequency) {
+  this->onset_bass_upper_frequency = _onset_bass_upper_frequency;
+}
+
+int Lightshow::get_onset_bass_threshold() {
+  return this->onset_bass_threshold;
+}
+
+void Lightshow::set_onset_bass_threshold(int _onset_bass_threshold) {
+  this->onset_bass_threshold = _onset_bass_threshold;
+}
+
+int Lightshow::get_onset_snare_lower_frequency() {
+  return this->onset_snare_lower_frequency;
+}
+
+void Lightshow::set_onset_snare_lower_frequency(int _onset_snare_lower_frequency) {
+  this->onset_snare_lower_frequency = _onset_snare_lower_frequency;
+}
+
+int Lightshow::get_onset_snare_upper_frequency() {
+  return this->onset_snare_upper_frequency;
+}
+
+void Lightshow::set_onset_snare_upper_frequency(int _onset_snare_upper_frequency) {
+  this->onset_snare_upper_frequency = _onset_snare_upper_frequency;
+}
+
+int Lightshow::get_onset_snare_threshold() {
+  return this->onset_snare_threshold;
+}
+
+void Lightshow::set_onset_snare_threshold(int _onset_snare_threshold) {
+  this->onset_snare_threshold = _onset_snare_threshold;
 }

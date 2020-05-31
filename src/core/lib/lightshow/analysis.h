@@ -62,7 +62,7 @@ class Analysis {
   Analysis();
   ~Analysis();
 
-  std::tuple<std::vector<float>, std::vector<float>, std::vector<float>> get_onset_timestamps_energy_difference(float onset_value);
+  std::tuple<std::vector<float>, std::vector<float>, std::vector<float>> get_onset_timestamps_energy_difference(float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold);
   std::vector<float> get_onset_timestamps_frequencies(float f_start, float f_end);
   void read_wav(char *filepath);
   void stft();

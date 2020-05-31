@@ -47,6 +47,12 @@ struct ls_generating_parameter
     std::list<Fixture> fixtures;
     int user_bpm;
     float onset_value;
+    int onset_bass_lower_frequency;
+    int onset_bass_upper_frequency;
+    int onset_bass_threshold;
+    int onset_snare_lower_frequency;
+    int onset_snare_upper_frequency;
+    int onset_snare_threshold;
 };
 
 
@@ -91,8 +97,8 @@ public:
     void lightshow_for_song_is_ready(Song *song);
 
 private slots:
-    void changed_fixtures_for_lightshow_ready(QUrl url, std::list<Fixture> _fixtures, int user_bpm, float onset_value);
-    void changed_fixtures_for_existing_lightshow_ready(Song* song, std::list<Fixture> _fixtures, int user_bpm, float onset_value);
+    void changed_fixtures_for_lightshow_ready(QUrl url, std::list<Fixture> _fixtures, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold);
+    void changed_fixtures_for_existing_lightshow_ready(Song* song, std::list<Fixture> _fixtures, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold);
     void right_click_on_playlist_item(QPersistentModelIndex index);
 
     /**
@@ -386,8 +392,8 @@ private:
      */
     bool has_fixture_changed();
 
-    void generate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm, float onset_value);
-    void regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm, float onset_value);
+    void generate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold);
+    void regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold);
     void queue_for_generating_light_show();
     void start_thread_for_generating_queue();
     void init_shortcuts();

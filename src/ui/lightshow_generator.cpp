@@ -41,7 +41,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
   lightshow->set_resolution(resolution);
   lightshow->set_sound_src(song->get_file_path());
-  lightshow->prepare_analysis_for_song((char*)song->get_file_path().c_str(), need_bass, need_mid, need_high, need_onsets, user_bpm, onset_value);
+  lightshow->prepare_analysis_for_song((char*)song->get_file_path().c_str(), need_bass, need_mid, need_high, need_onsets, user_bpm, onset_value, lightshow->get_onset_bass_lower_frequency(), lightshow->get_onset_bass_upper_frequency(), lightshow->get_onset_bass_threshold(), lightshow->get_onset_snare_lower_frequency(), lightshow->get_onset_snare_upper_frequency(), lightshow->get_onset_snare_threshold());
 
 
 //  auto seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -511,7 +511,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         std::vector<float> timestamps_of_drops;
         for(int i = 1; i < segment_changes.size(); i++) {
           //if(segment_changes[i].value > segment_changes[i-1].value + 30 && segment_changes[i].time > segment_changes[i-1].time + time_of_four_bars) {
-          if(segment_changes[i].value >= 90) {
+          if(segment_changes[i].value >= 0.9) {
             if(segment_changes[i].time - time_of_two_bars > 0)
               timestamps_of_drops.push_back(segment_changes[i].time - time_of_two_bars);
             else if(segment_changes[i].time - 2 * time_of_two_beats > 0)
@@ -579,6 +579,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
       // looping through all segments
       for (int j = 0; j < segment_changes.size(); j++) {
+        std::cout << "segment_changes[j].value: " << segment_changes[j].value << std::endl;
 
         segment_start = segment_changes[j].time;
         if (j < segment_changes.size() - 1)
@@ -601,12 +602,12 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         //std::cout << "number of onset timestamps in segment: " << onset_timestamps.size() << std::endl;
 
 
-        std::cout << "onset_timestamps.size(): " << onset_timestamps.size() << std::endl;
-        std::cout << "eight_per_bar: " << eight_per_bar << std::endl;
-        std::cout << "six_per_bar: " << six_per_bar << std::endl;
-        std::cout << "four_per_bar: " << four_per_bar << std::endl;
-        std::cout << "two_per_bar: " << two_per_bar << std::endl;
-        std::cout << "one_per_bar: " << one_per_bar << std::endl;
+//        std::cout << "onset_timestamps.size(): " << onset_timestamps.size() << std::endl;
+//        std::cout << "eight_per_bar: " << eight_per_bar << std::endl;
+//        std::cout << "six_per_bar: " << six_per_bar << std::endl;
+//        std::cout << "four_per_bar: " << four_per_bar << std::endl;
+//        std::cout << "two_per_bar: " << two_per_bar << std::endl;
+//        std::cout << "one_per_bar: " << one_per_bar << std::endl;
 
         // GO CRAZY and switch between fixture kinds ++++++++++
         if(false) {

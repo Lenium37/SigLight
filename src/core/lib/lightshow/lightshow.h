@@ -41,7 +41,7 @@ class Lightshow {
 
   std::vector<std::vector<std::uint8_t>> read_channel_values();
 
-  void prepare_analysis_for_song(char *song_path, bool need_bass, bool need_mid, bool need_high, bool need_onsets, int user_bpm, float onset_value);
+  void prepare_analysis_for_song(char *song_path, bool need_bass, bool need_mid, bool need_high, bool need_onsets, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold);
 
   std::vector<LightshowFixture> get_fixtures_bass();
   std::vector<LightshowFixture> get_fixtures_middle();
@@ -83,6 +83,20 @@ class Lightshow {
 
   float get_onset_value();
   void set_onset_value(float _onset_value);
+
+  int get_onset_bass_lower_frequency();
+  void set_onset_bass_lower_frequency(int _onset_bass_lower_frequency);
+  int get_onset_bass_upper_frequency();
+  void set_onset_bass_upper_frequency(int _onset_bass_upper_frequency);
+  int get_onset_bass_threshold();
+  void set_onset_bass_threshold(int _onset_bass_threshold);
+  int get_onset_snare_lower_frequency();
+  void set_onset_snare_lower_frequency(int _onset_snare_lower_frequency);
+  int get_onset_snare_upper_frequency();
+  void set_onset_snare_upper_frequency(int _onset_snare_upper_frequency);
+  int get_onset_snare_threshold();
+  void set_onset_snare_threshold(int _onset_snare_threshold);
+
   double get_seed();
 
  private:
@@ -129,6 +143,12 @@ class Lightshow {
   void get_bpm_and_beats(bool &finished, int user_bpm);
   double first_beat = 0;
   float onset_value = 9;
+  int onset_bass_lower_frequency = 30;
+  int onset_bass_upper_frequency = 65;
+  int onset_bass_threshold = 160;
+  int onset_snare_lower_frequency = 150;
+  int onset_snare_upper_frequency = 300;
+  int onset_snare_threshold = 175;
 
   void prepare_beat_timestamps();
 
