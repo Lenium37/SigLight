@@ -21,18 +21,6 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
   lightshow->set_onset_value(onset_value);
 
-  //std::random_device rd;     // only used once to initialise (seed) engine
-  //std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
-  auto seed = std::chrono::system_clock::now().time_since_epoch().count();
-  std::mt19937 rng(seed);    // random-number engine used (Mersenne-Twister in this case)
-  std::uniform_int_distribution<> random_int_0_1(0, 1);
-  std::uniform_int_distribution<> random_int_0_2(0, 2);
-  std::uniform_int_distribution<> random_int_0_3(0, 3);
-  std::uniform_int_distribution<> random_int_0_4(0, 4);
-  std::uniform_int_distribution<> random_int_0_5(0, 5);
-  std::uniform_int_distribution<> random_int_0_6(0, 6);
-  std::uniform_int_distribution<> random_int_0_7(0, 7);
-
   for(int i = 0; i < lightshow->get_fixtures().size(); i++) {
     std::string fix_type = lightshow->get_fixtures()[i].get_type();
     std::string timestamp_type = lightshow->get_fixtures()[i].get_timestamps_type();
@@ -54,6 +42,21 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   lightshow->set_resolution(resolution);
   lightshow->set_sound_src(song->get_file_path());
   lightshow->prepare_analysis_for_song((char*)song->get_file_path().c_str(), need_bass, need_mid, need_high, need_onsets, user_bpm, onset_value);
+
+
+//  auto seed = std::chrono::system_clock::now().time_since_epoch().count();
+  auto seed = lightshow->get_seed();
+  std::cout << "seed: " << seed << std::endl;
+  std::mt19937 rng(seed);    // random-number engine used (Mersenne-Twister in this case)
+  std::uniform_int_distribution<> random_int_0_1(0, 1);
+  std::uniform_int_distribution<> random_int_0_2(0, 2);
+  std::uniform_int_distribution<> random_int_0_3(0, 3);
+  std::uniform_int_distribution<> random_int_0_4(0, 4);
+  std::uniform_int_distribution<> random_int_0_5(0, 5);
+  std::uniform_int_distribution<> random_int_0_6(0, 6);
+  std::uniform_int_distribution<> random_int_0_7(0, 7);
+
+
 
   float end_of_song = ((float) lightshow->get_length() - 3) / lightshow->get_resolution();
 
@@ -225,6 +228,10 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
   Logger::debug("segment_changes.size(): {}", segment_changes.size());
   Logger::debug("auto_onsets_choice.size(): {}", auto_onsets_choice.size());
 
+  for(int i = 0; i < auto_onsets_choice.size(); i++) {
+    std::cout << "auto_onsets_choice[" << i << "]: " << auto_onsets_choice[i] << std::endl;
+  }
+
   for(int i = 0; i < lightshow->get_fixtures().size(); i++) {
     LightshowFixture & fix = lightshow->get_fixtures_reference()[i];
     std::string fix_type = fix.get_type();
@@ -285,6 +292,23 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
      * 152s
      * 184s
     */
+
+    // for Rammstein Pussy
+//    segment_changes.clear();
+//    segment_changes.shrink_to_fit();
+//    segment_changes.push_back({7, 1});
+//    segment_changes.push_back({35, 1});
+//    segment_changes.push_back({50, 1});
+//    segment_changes.push_back({64, 1});
+//    segment_changes.push_back({71, 1});
+//    segment_changes.push_back({99, 1});
+//    segment_changes.push_back({114, 1});
+//    segment_changes.push_back({127, 1});
+//    segment_changes.push_back({134, 1});
+//    segment_changes.push_back({163, 1});
+//    segment_changes.push_back({177, 1});
+//    segment_changes.push_back({191, 1});
+//    segment_changes.push_back({206, 1});
 
     // for Rammstein Was Ich Liebe
     /* maybe around 30s
@@ -380,6 +404,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
           float four_per_bar = (segment_end - segment_start) / time_of_one_bar * 4;
           float two_per_bar = (segment_end - segment_start) / time_of_one_bar * 2;
           float one_per_bar = (segment_end - segment_start) / time_of_one_bar;
+
 
           if(fix.get_moving_head_type() == "auto_background" || fix.get_moving_head_type() == "group_auto_background") {
             if (onset_timestamps.size() >= eight_per_bar) {
@@ -576,6 +601,12 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         //std::cout << "number of onset timestamps in segment: " << onset_timestamps.size() << std::endl;
 
 
+        std::cout << "onset_timestamps.size(): " << onset_timestamps.size() << std::endl;
+        std::cout << "eight_per_bar: " << eight_per_bar << std::endl;
+        std::cout << "six_per_bar: " << six_per_bar << std::endl;
+        std::cout << "four_per_bar: " << four_per_bar << std::endl;
+        std::cout << "two_per_bar: " << two_per_bar << std::endl;
+        std::cout << "one_per_bar: " << one_per_bar << std::endl;
 
         // GO CRAZY and switch between fixture kinds ++++++++++
         if(false) {

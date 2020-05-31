@@ -303,17 +303,69 @@ std::tuple<std::vector<float>, std::vector<float>, std::vector<float>> Analysis:
 
   // ####################### testing bass / snare detection
 
-  std::vector<time_value_int> peaks_bass = this->peaks_per_band(0, 50);
-  std::vector<time_value_int> peaks_snare = this->peaks_per_band(450, 1000);
+  std::vector<time_value_int> peaks_bass = this->peaks_per_band(40, 65);
+  std::vector<time_value_int> peaks_bass_attack = this->peaks_per_band(3000, 4000);
+//  std::vector<time_value_int> peaks_snare = this->peaks_per_band(450, 1000);
+  std::vector<time_value_int> peaks_snare = this->peaks_per_band(200, 300);
+
+//  for(int i = 0; i < peaks_bass.size(); i++) {
+//    std::cout << peaks_bass[i].time << " bass: " << peaks_bass[i].value << " snare: " << peaks_snare[i].value << std::endl;
+//  }
 
 //  std::vector<time_value_int> onset_bass_values;
 //  std::vector<time_value_int> onset_snare_values;
   std::vector<float> bass_onsets;
   std::vector<float> snare_onsets;
 
+  std::vector<freq_value> frequency_values;
+  std::vector<int> frequencies;
+
 
 
   for(float &timestamp : onset_timestamps) {
+
+//    for(int freq = 1; freq < 500 / 25; freq++) {
+//      std::vector<time_value_int> peaks_freq = this->peaks_per_band((freq - 1) * 25 + 1, freq * 25);
+//
+//      // find nearest bass value
+//      auto j = min_element(begin(peaks_freq), end(peaks_freq), [=] (time_value_int x, time_value_int y)
+//      {
+//        return abs(x.time - timestamp) < abs(y.time - timestamp);
+//      });
+//
+//      int value_freq = peaks_freq[std::distance(begin(peaks_freq), j)].value;
+//
+////      std::cout << "freq: " << (freq - 1) * 25 + 1 << "  value: " << value_freq << std::endl;
+//
+//      frequency_values.push_back({freq, value_freq});
+////      frequencies.push_back(freq);
+////      frequencies.push_back(value_freq);
+//
+//    }
+//
+//    std::cout << frequency_values[2].value << std::endl;
+//    std::cout << frequency_values[3].value << std::endl;
+//    std::cout << frequency_values[4].value << std::endl;
+//    std::cout << std::endl;
+//    if(frequency_values[2].value >= 150)
+//      if(frequency_values[4].value > frequency_values[3].value)
+//        snare_onsets.push_back(timestamp);
+//      else
+//        bass_onsets.push_back(timestamp);
+//    else
+//      snare_onsets.push_back(timestamp);
+//
+//    frequency_values.clear();
+//
+//    int maxElementIndex = std::max_element(frequencies.begin(), frequencies.end()) - frequencies.begin();
+//
+////    std::cout << "peak at onset in frequency: " << frequencies[maxElementIndex] << " with value: " << frequency_values[maxElementIndex].value << std::endl;
+////    std::cout << "peak at onset in frequency: " << frequency_values[maxElementIndex].frequency << " with value: " << frequency_values[maxElementIndex].value << std::endl;
+
+
+
+
+
 
     // find nearest bass value
     auto j = min_element(begin(peaks_bass), end(peaks_bass), [=] (time_value_int x, time_value_int y)
@@ -321,26 +373,74 @@ std::tuple<std::vector<float>, std::vector<float>, std::vector<float>> Analysis:
       return abs(x.time - timestamp) < abs(y.time - timestamp);
     });
 //    onset_bass_values.push_back(peaks_bass[std::distance(begin(peaks_bass), j)]);
-    float time_bass = peaks_bass[std::distance(begin(peaks_bass), j)].time;
+//    float time_bass = peaks_bass[std::distance(begin(peaks_bass), j)].time;
     int value_bass = peaks_bass[std::distance(begin(peaks_bass), j)].value;
+    int value_bass_prev = value_bass;
+    int value_bass_next = value_bass;
+    int value_bass_next2 = value_bass;
+    if (std::distance(begin(peaks_bass), j) > 1) {
+//      value_bass = peaks_bass[std::distance(begin(peaks_bass), j)].value - peaks_bass[std::distance(begin(peaks_bass), j) - 1].value;
+      value_bass_prev = peaks_bass[std::distance(begin(peaks_bass), j) - 1].value;
+    }
+    if(std::distance(begin(peaks_bass), j) < peaks_bass.size() - 2) {
+      value_bass_next = peaks_bass[std::distance(begin(peaks_bass), j) + 1].value;
+      value_bass_next2 = peaks_bass[std::distance(begin(peaks_bass), j) + 2].value;
+    }
+
+
+//    // find nearest bass attack
+//    auto j2 = min_element(begin(peaks_bass_attack), end(peaks_bass_attack), [=] (time_value_int x, time_value_int y)
+//    {
+//      return abs(x.time - timestamp) < abs(y.time - timestamp);
+//    });
+//    int value_bass_attack = peaks_bass_attack[std::distance(begin(peaks_bass_attack), j2)].value;
+//    if (std::distance(begin(peaks_bass), j) > 1)
+//      value_bass_attack = peaks_bass[std::distance(begin(peaks_bass), j)].value - peaks_bass[std::distance(begin(peaks_bass), j-1)].value;
+
+
 
     // find nearest snare value
     auto k = min_element(begin(peaks_snare), end(peaks_snare), [=] (time_value_int x, time_value_int y)
     {
       return abs(x.time - timestamp) < abs(y.time - timestamp);
     });
-//    onset_snare_values.push_back(peaks_snare[std::distance(begin(peaks_snare), k)]);
-
-    float time_snare = peaks_snare[std::distance(begin(peaks_snare), k)].time;
     int value_snare = peaks_snare[std::distance(begin(peaks_snare), k)].value;
+    int value_snare_prev = value_snare;
+    int value_snare_next = value_snare;
+    int value_snare_next2 = value_snare;
 
-    std::cout << "value_bass: " << value_bass << "   value_snare: " << value_snare << std::endl;
+    if (std::distance(begin(peaks_snare), k) > 1)
+      value_snare_prev = peaks_snare[std::distance(begin(peaks_snare), k)].value - peaks_snare[std::distance(begin(peaks_snare), k)-1].value;
 
-//    if(value_bass < 99)
-    if(value_snare >= value_bass)
-      snare_onsets.push_back(timestamp);
-    else
+    if(std::distance(begin(peaks_snare), k) < peaks_snare.size() - 2) {
+      value_snare_next = peaks_snare[std::distance(begin(peaks_snare), k) + 1].value;
+      value_snare_next2 = peaks_snare[std::distance(begin(peaks_snare), k) + 2].value;
+    }
+
+//    std::cout << timestamp << "   value_bass: " << value_bass << " value_bass_attack: " << value_bass_attack << "     value_snare: " << value_snare << std::endl;
+//    std::cout << timestamp << "    value_bass_prev: " << value_bass_prev << "    value_bass: " << value_bass << "    value_bass_next: " << value_bass_next << "    value_bass_next2: " << value_bass_next2 << "      value_snare: " << value_snare << std::endl;
+
+//    std::cout << timestamp << "    value_bass_prev: " << value_bass_prev << "    value_bass: " << value_bass << "    value_bass_next: " << value_bass_next << "    value_bass_next2: " << value_bass_next2 << std::endl;
+//    std::cout << timestamp << "    value_snare_prev: " << value_snare_prev << "    value_snare: " << value_snare << "    value_snare_next: " << value_snare_next << "    value_snare_next2: " << value_snare_next2 << std::endl;
+
+    std::cout << timestamp << "   value_bass_next2: " << value_bass_next2 << "     value_snare_next2: " << value_snare_next2 << std::endl;
+
+//    if(value_snare >= value_bass)
+//    if(value_bass < 3)
+//    if(value_bass_next2 <= value_snare)
+//      snare_onsets.push_back(timestamp);
+//    else
+//      bass_onsets.push_back(timestamp);
+
+
+
+
+    if(value_bass_next2 > 160) {
       bass_onsets.push_back(timestamp);
+    }
+    if(value_snare_next2 >= 175) {
+      snare_onsets.push_back(timestamp);
+    }
 
 
   }
@@ -3122,4 +3222,23 @@ int Analysis::get_spectral_flux() {
 
 void Analysis::set_bpm(int _bpm) {
     this->bpm = _bpm;
+}
+
+
+double Analysis::generate_seed_for_song() {
+
+  int middle_of_song = this->signal_length_mono / 2;
+  int seed_area_size = 2048;
+  std::cout << "signal_length_mono: " << signal_length_mono << std::endl;
+
+  double seed = 0;
+  for(int i = middle_of_song; i < middle_of_song + seed_area_size - 1; i++) {
+//    std::cout << "hi " << this->wav_values_mono[i] * this->wav_values_mono[i] << std::endl;
+    seed += this->wav_values_mono[i] * this->wav_values_mono[i];
+  }
+  std::cout << "seed after adding: " << seed << std::endl;
+  seed = sqrt(seed);
+  std::cout << "seed after sqrt: " << seed << std::endl;
+
+  return seed;
 }

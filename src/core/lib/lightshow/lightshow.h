@@ -83,6 +83,7 @@ class Lightshow {
 
   float get_onset_value();
   void set_onset_value(float _onset_value);
+  double get_seed();
 
  private:
   std::string sound_src;
@@ -130,6 +131,8 @@ class Lightshow {
   float onset_value = 9;
 
   void prepare_beat_timestamps();
+
+  double seed;
 
 };
 

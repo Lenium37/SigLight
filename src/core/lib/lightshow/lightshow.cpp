@@ -178,6 +178,7 @@ void Lightshow::prepare_analysis_for_song(char *song_path, bool need_bass, bool 
   }
 
   this->analysis.normalize();
+  this->seed = this->analysis.generate_seed_for_song();
 
   float bpm_from_onsets = 0;
   if(need_onsets) {
@@ -562,4 +563,8 @@ void Lightshow::prepare_beat_timestamps() {
     if(i % 8 == 0)
       this->beats_1_every_other_bar.push_back((float) this->all_beats[i] / (float) 44100);
   }
+}
+
+double Lightshow::get_seed() {
+  return this->seed;
 }

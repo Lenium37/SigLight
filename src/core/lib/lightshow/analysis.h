@@ -18,6 +18,12 @@
 //#include <algorithm.h>
 
 
+struct freq_value {
+  int frequency;
+  int value;
+};
+
+
 struct time_value_int {
   float time;
   int value;
@@ -117,6 +123,7 @@ class Analysis {
   void set_resolution(int resolution);
   int get_samplerate();
   int get_spectral_flux();
+  double generate_seed_for_song();
 
   ////////////////////////////////
   // START ///////////////////////
