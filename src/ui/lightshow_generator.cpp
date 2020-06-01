@@ -255,8 +255,16 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
     std::cout << timestamps_type << " timestamps.size(): " << timestamps.size() << std::endl;
 
     std::vector<std::string> colors = fix.get_colors();
+//    std::cout << "colors: " << std::endl;
+//    for(int i = 0; i < colors.size(); i++) {
+//      std::cout << colors[i] << std::endl;
+//    }
     if(!colors.empty() && colors[0] == "auto")
       colors = fix_types_with_colors.at(fix_type);
+//    std::cout << "colors after: " << std::endl;
+//    for(int i = 0; i < colors.size(); i++) {
+//      std::cout << colors[i] << std::endl;
+//    }
 
 
     // for anton aus tirol hardstyle
@@ -574,6 +582,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       }
       float segment_start = 0;
       float segment_end = 0;
+      float segment_value = 0;
 
 
 
@@ -586,6 +595,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
           segment_end = segment_changes[j + 1].time;
         else
           segment_end = end_of_song;
+
+        segment_value = segment_changes[j].value;
 
         //std::cout << "segment_start_seconds: " << segment_start << std::endl;
         //std::cout << "segment_end_seconds: " << segment_end << std::endl;
@@ -601,72 +612,150 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         //std::cout << "four_per_bar: " << four_per_bar << std::endl;
         //std::cout << "number of onset timestamps in segment: " << onset_timestamps.size() << std::endl;
 
-
-//        std::cout << "onset_timestamps.size(): " << onset_timestamps.size() << std::endl;
-//        std::cout << "eight_per_bar: " << eight_per_bar << std::endl;
-//        std::cout << "six_per_bar: " << six_per_bar << std::endl;
-//        std::cout << "four_per_bar: " << four_per_bar << std::endl;
-//        std::cout << "two_per_bar: " << two_per_bar << std::endl;
-//        std::cout << "one_per_bar: " << one_per_bar << std::endl;
+        if(onset_timestamps.size() >= eight_per_bar)
+          std::cout << ">= eight_per_bar" << std::endl;
+        else if(onset_timestamps.size() >= six_per_bar)
+          std::cout << ">= six_per_bar" << std::endl;
+        else if(onset_timestamps.size() >= four_per_bar)
+          std::cout << ">= four_per_bar" << std::endl;
+        else if(onset_timestamps.size() >= two_per_bar)
+          std::cout << ">= two_per_bar" << std::endl;
+        else if(onset_timestamps.size() >= one_per_bar)
+          std::cout << ">= one_per_bar" << std::endl;
+        else
+          std::cout << "< one_per_bar" << std::endl;
 
         // GO CRAZY and switch between fixture kinds ++++++++++
-        if(false) {
-          for(auto const & x: fix_names_with_temp_position) {
-            if(fix.get_name() == x.first)
-              fix.set_temp_position_in_group(x.second);
-          }
-          //std::cout << fix.get_temp_position_in_group() << std::endl;
+        if(segment_value > 0.9) {
+          if(segment_start == segment_changes[segment_changes.size() - 1].time) {                                   // if last segment
+            if(segment_end - segment_start <= 15) {                                                                 // if segment is shorter than 15s
+              for (auto const &x: fix_names_with_temp_position) {
+                if (fix.get_name() == x.first)
+                  fix.set_temp_position_in_group(x.second);
+              }
+              //std::cout << fix.get_temp_position_in_group() << std::endl;
 
-          std::vector<float> beats1234 = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
-          this->generate_group_one_kind_after_another(fix, beats1234, segment_start, segment_end, fix_names_with_temp_position.size());
-          continue;
+//          std::vector<float> beats1234 = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
+//          this->generate_group_one_kind_after_another(fix, beats1234, segment_start, segment_end, fix_names_with_temp_position.size());
+              this->generate_group_one_kind_after_another(fix, onset_timestamps, segment_start, segment_end, fix_names_with_temp_position.size());
+              continue;
+            }
+          }
         }
 
 
 
         if(fix_type == "auto_beats") {
-          if (onset_timestamps.size() >= four_per_bar)
-            timestamps = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
-          else if (onset_timestamps.size() >= two_per_bar)
-            timestamps = lightshow->get_specific_beats("beats 2/4", segment_start, segment_end);
-          else if (onset_timestamps.size() >= one_per_bar)
-            timestamps = lightshow->get_specific_beats("beats 1", segment_start, segment_end);
-          else
-            continue;
 
-          if (fix.has_global_dimmer) {
-            if(auto_beats_choice[j] == 0 || !fix.has_global_dimmer) { // color change
-              this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);
-              colors = fix_types_with_colors.at(fix_type);
-              this->generate_color_changes(fix, colors, timestamps, segment_end);
-            } else if(auto_beats_choice[j] == 1) { // pulse
-              this->set_dimmer_values_in_segment(fix, segment_start, 100, segment_end, 0);
-              this->generate_pulse(fix, timestamps, segment_start, segment_end, 0, lightshow->get_resolution());
-            } else if(auto_beats_choice[j] == 2 || auto_beats_choice[j] == 3) {
-              if(onset_timestamps.size() >= four_per_bar) {
-                if(auto_beats_choice[j] == 2) { // blink
-                  this->generate_blink(fix, timestamps, segment_end);
-                } else if(auto_beats_choice[j] == 3) {
-                  if(lightshow->get_bpm() > 150) // reverse flash
-                    this->generate_flash_reverse(fix, timestamps, segment_start, segment_end);
-                  else { // pulse
-                    this->set_dimmer_values_in_segment(fix, segment_start, 100, segment_end, 0);
-                    this->generate_pulse(fix, timestamps, segment_start, segment_end, 0, lightshow->get_resolution());
-                  }
-                }
-              } else {
-                if(auto_beats_choice[j] == 2) { // color change
-                  this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);
-                  colors = fix_types_with_colors.at(fix_type);
-                  this->generate_color_changes(fix, colors, timestamps, segment_end);
-                } else if(auto_beats_choice[j] == 3) { // pulse
-                  this->set_dimmer_values_in_segment(fix, segment_start, 100, segment_end, 0);
-                  this->generate_pulse(fix, timestamps, segment_start, segment_end, 0, lightshow->get_resolution());
-                }
-              }
+          if(segment_value < 0.1) {
+            if(segment_start == segment_changes[0].time) {                                                            // if first segment
+              this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);                            // ambient
             }
-          } else {
+            else if(segment_start > end_of_song/2) {                                                                  // if segment is in 2nd half of song
+              // nothing
+            }
+
           }
+          else if(segment_value < 0.5) {
+
+          }
+          else if(segment_value < 0.75) {
+            this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);                              // ambient
+          }
+          else if(segment_value < 0.9) {
+            if(onset_timestamps.size() >= six_per_bar) {
+//              timestamps = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
+              timestamps = lightshow->get_specific_beats("beats 2/4", segment_start, segment_end);
+              this->set_dimmer_values_in_segment(fix, segment_start, 100, segment_end, 0);
+              this->generate_pulse(fix, timestamps, segment_start, segment_end, 0, lightshow->get_resolution());      // pulse 2/4
+            } else if(onset_timestamps.size() >= four_per_bar) {
+              timestamps = lightshow->get_specific_beats("beats 2/4", segment_start, segment_end);
+              this->set_dimmer_values_in_segment(fix, segment_start, 100, segment_end, 0);
+              this->generate_pulse(fix, timestamps, segment_start, segment_end, 0, lightshow->get_resolution());      // pulse 2/4
+            } else {
+              this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);                            // ambient
+            }
+          }
+          else if(segment_value > 0.9) {
+            if(segment_start == segment_changes[segment_changes.size() - 1].time)
+              timestamps = lightshow->get_specific_beats("beats 1/2/3/4 action", segment_start, segment_end);         // only take action beats in last segment to catch fade out at the end
+            else
+              timestamps = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
+            this->set_dimmer_values_in_segment(fix, segment_start, 100, segment_end, 0);
+            this->generate_pulse(fix, timestamps, segment_start, segment_end, 0, lightshow->get_resolution());        // pulse 1/2/3/4
+          }
+
+
+//          if (onset_timestamps.size() >= eight_per_bar) {
+//
+//          } else if(onset_timestamps.size() >= six_per_bar) {
+//
+//          } else if(onset_timestamps.size() >= four_per_bar) {
+//
+//          } else if(onset_timestamps.size() >= two_per_bar) {
+//
+//          } else if(onset_timestamps.size() >= one_per_bar) {
+//
+//          } else {
+//
+//          }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//
+//          if (onset_timestamps.size() >= four_per_bar)
+//            timestamps = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
+//          else if (onset_timestamps.size() >= two_per_bar)
+//            timestamps = lightshow->get_specific_beats("beats 2/4", segment_start, segment_end);
+//          else if (onset_timestamps.size() >= one_per_bar)
+//            timestamps = lightshow->get_specific_beats("beats 1", segment_start, segment_end);
+//          else
+//            continue;
+//
+//          if (fix.has_global_dimmer) {
+//            if(auto_beats_choice[j] == 0 || !fix.has_global_dimmer) { // color change
+//              this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);
+//              colors = fix_types_with_colors.at(fix_type);
+//              this->generate_color_changes(fix, colors, timestamps, segment_end);
+//            } else if(auto_beats_choice[j] == 1) { // pulse
+//              this->set_dimmer_values_in_segment(fix, segment_start, 100, segment_end, 0);
+//              this->generate_pulse(fix, timestamps, segment_start, segment_end, 0, lightshow->get_resolution());
+//            } else if(auto_beats_choice[j] == 2 || auto_beats_choice[j] == 3) {
+//              if(onset_timestamps.size() >= four_per_bar) {
+//                if(auto_beats_choice[j] == 2) { // blink
+//                  this->generate_blink(fix, timestamps, segment_end);
+//                } else if(auto_beats_choice[j] == 3) {
+//                  if(lightshow->get_bpm() > 150) // reverse flash
+//                    this->generate_flash_reverse(fix, timestamps, segment_start, segment_end);
+//                  else { // pulse
+//                    this->set_dimmer_values_in_segment(fix, segment_start, 100, segment_end, 0);
+//                    this->generate_pulse(fix, timestamps, segment_start, segment_end, 0, lightshow->get_resolution());
+//                  }
+//                }
+//              } else {
+//                if(auto_beats_choice[j] == 2) { // color change
+//                  this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);
+//                  colors = fix_types_with_colors.at(fix_type);
+//                  this->generate_color_changes(fix, colors, timestamps, segment_end);
+//                } else if(auto_beats_choice[j] == 3) { // pulse
+//                  this->set_dimmer_values_in_segment(fix, segment_start, 100, segment_end, 0);
+//                  this->generate_pulse(fix, timestamps, segment_start, segment_end, 0, lightshow->get_resolution());
+//                }
+//              }
+//            }
+//          } else {
+//          }
         } else if(fix_type == "group_auto_beats") {
           if (onset_timestamps.size() >= four_per_bar)
             timestamps = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
@@ -817,9 +906,9 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         }
       }
 
-      std::vector<std::string> colors = fix.get_colors();
-      if(fix_type == "auto")
-        colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
+//      std::vector<std::string> colors = fix.get_colors();
+//      if(fix_type == "auto")
+//        colors = fix_types_with_colors.at(fix_type);// = fix.get_colors();
       this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
     }
 
@@ -2260,6 +2349,7 @@ void LightshowGenerator::generate_group_one_after_another(LightshowFixture & fix
 
 void LightshowGenerator::generate_group_one_kind_after_another(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end, int fixtures_in_group) {
   Logger::debug("generate_group_one_kind_after_another");
+  std::cout << "generate_group_one_kind_after_another" << std::endl;
   std::vector<time_value_int> value_changes;
 
   //std::cout << "pos in grp: " << fix.get_temp_position_in_group() << std::endl;
@@ -2662,10 +2752,10 @@ void LightshowGenerator::generate_pulse(LightshowFixture & fix, std::vector<floa
   for(int j = 0; j < timestamps.size(); j++) {
 
     if (j == 0) {
-      time_difference = timestamps[j] - segment_start;
-      if(time_difference > 0.35)
-        time_difference = 0.35;
-      else if(time_difference < 0.05)
+//      time_difference = timestamps[j] - segment_start;
+//      if(time_difference > 0.1)
+//        time_difference = 0.1;
+//      else if(time_difference < 0.05)
         time_difference = 0.05;
 
       if(timestamps[j] - segment_start > 0.2) {
@@ -2676,7 +2766,7 @@ void LightshowGenerator::generate_pulse(LightshowFixture & fix, std::vector<floa
                                                                     lightshow_resolution),
                                          fix.get_channel_dimmer());
       } else {
-        fix.add_value_changes_to_channel(this->generate_single_fade(222,
+        fix.add_value_changes_to_channel(this->generate_single_fade(200,
                                                                     255,
                                                                     timestamps[j] - time_difference / 3,
                                                                     timestamps[j],
@@ -2685,8 +2775,10 @@ void LightshowGenerator::generate_pulse(LightshowFixture & fix, std::vector<floa
       }
 
       time_difference = timestamps[j+1] - timestamps[j] - 0.01;
-      if(time_difference > 1)
-        time_difference = 1;
+      if(time_difference > 0.2)
+        time_difference = 0.2;
+      else if(time_difference < 0.1)
+        time_difference = 0.1;
       else if(time_difference < 0.05)
         time_difference = 0.05;
 
@@ -2697,11 +2789,20 @@ void LightshowGenerator::generate_pulse(LightshowFixture & fix, std::vector<floa
                                                                     timestamps[j] + time_difference,
                                                                     lightshow_resolution),
                                          fix.get_channel_dimmer());
+      } else {
+        fix.add_value_changes_to_channel(this->generate_single_fade(255,
+                                                                    200,
+                                                                    timestamps[j] + time_difference / 4,
+                                                                    timestamps[j] + time_difference * 3 / 4,
+                                                                    lightshow_resolution),
+                                         fix.get_channel_dimmer());
       }
+
+
     } else if (j < timestamps.size() - 1) {
       time_difference = timestamps[j] - timestamps[j-1];
-      if(time_difference > 0.35)
-        time_difference = 0.35;
+      if(time_difference > 0.1)
+        time_difference = 0.1;
       else if(time_difference < 0.05)
         time_difference = 0.05;
 
@@ -2728,7 +2829,7 @@ void LightshowGenerator::generate_pulse(LightshowFixture & fix, std::vector<floa
                                                                     lightshow_resolution),
                                          fix.get_channel_dimmer());
       } else {
-        fix.add_value_changes_to_channel(this->generate_single_fade(222,
+        fix.add_value_changes_to_channel(this->generate_single_fade(200,
                                                                     255,
                                                                     timestamps[j] - time_difference / 3,
                                                                     timestamps[j],
@@ -2737,8 +2838,10 @@ void LightshowGenerator::generate_pulse(LightshowFixture & fix, std::vector<floa
       }
 
       time_difference = timestamps[j+1] - timestamps[j] - 0.01;
-      if(time_difference > 0.7)
-        time_difference = 0.7;
+      if(time_difference > 0.2)
+        time_difference = 0.2;
+      else if(time_difference < 0.1)
+        time_difference = 0.1;
       else if(time_difference < 0.05)
         time_difference = 0.05;
 
@@ -2768,13 +2871,20 @@ void LightshowGenerator::generate_pulse(LightshowFixture & fix, std::vector<floa
                                                                     timestamps[j] + time_difference * 3 / 4,
                                                                     lightshow_resolution),
                                          fix.get_channel_dimmer());
+      } else {
+        fix.add_value_changes_to_channel(this->generate_single_fade(255,
+                                                                    200,
+                                                                    timestamps[j] + time_difference / 4,
+                                                                    timestamps[j] + time_difference * 3 / 4,
+                                                                    lightshow_resolution),
+                                         fix.get_channel_dimmer());
       }
 
     } else {
 
       time_difference = timestamps[j] - timestamps[j-1];
-      if(time_difference > 0.35)
-        time_difference = 0.35;
+      if(time_difference > 0.1)
+        time_difference = 0.1;
       else if(time_difference < 0.05)
         time_difference = 0.05;
 
@@ -2786,7 +2896,7 @@ void LightshowGenerator::generate_pulse(LightshowFixture & fix, std::vector<floa
                                                                     lightshow_resolution),
                                          fix.get_channel_dimmer());
       } else {
-        fix.add_value_changes_to_channel(this->generate_single_fade(222,
+        fix.add_value_changes_to_channel(this->generate_single_fade(200,
                                                                     255,
                                                                     timestamps[j] - time_difference / 3,
                                                                     timestamps[j],
@@ -2794,18 +2904,27 @@ void LightshowGenerator::generate_pulse(LightshowFixture & fix, std::vector<floa
                                          fix.get_channel_dimmer());
       }
 
-      if (timestamps[j] + 0.35 < segment_end)
-        time_difference = 0.35;
-      else if (timestamps[j] + 0.3 < segment_end)
-        time_difference = 0.3;
-      else if (timestamps[j] + 0.25 < segment_end)
-        time_difference = 0.25;
-      else if (timestamps[j] + 0.2 < segment_end)
+//      if (timestamps[j] + 0.35 < segment_end)
+//        time_difference = 0.35;
+//      else if (timestamps[j] + 0.3 < segment_end)
+//        time_difference = 0.3;
+//      else if (timestamps[j] + 0.25 < segment_end)
+//        time_difference = 0.25;
+//      else if (timestamps[j] + 0.2 < segment_end)
+//        time_difference = 0.2;
+//      else if (timestamps[j] + 0.15 < segment_end)
+//        time_difference = 0.15;
+//      else if (timestamps[j] + 0.1 < segment_end)
+//        time_difference = 0.1;
+
+
+      time_difference = segment_end - timestamps[j] - 0.01;
+      if(time_difference > 0.2)
         time_difference = 0.2;
-      else if (timestamps[j] + 0.15 < segment_end)
-        time_difference = 0.15;
-      else if (timestamps[j] + 0.1 < segment_end)
+      else if(time_difference < 0.1)
         time_difference = 0.1;
+      else if(time_difference < 0.05)
+        time_difference = 0.05;
 
 
       fix.add_value_changes_to_channel(this->generate_single_fade(255,
