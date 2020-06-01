@@ -424,7 +424,7 @@ std::tuple<std::vector<float>, std::vector<float>, std::vector<float>> Analysis:
 //    std::cout << timestamp << "    value_bass_prev: " << value_bass_prev << "    value_bass: " << value_bass << "    value_bass_next: " << value_bass_next << "    value_bass_next2: " << value_bass_next2 << std::endl;
 //    std::cout << timestamp << "    value_snare_prev: " << value_snare_prev << "    value_snare: " << value_snare << "    value_snare_next: " << value_snare_next << "    value_snare_next2: " << value_snare_next2 << std::endl;
 
-    std::cout << timestamp << "   value_bass_next2: " << value_bass_next2 << "     value_snare_next2: " << value_snare_next2 << std::endl;
+//    std::cout << timestamp << "   value_bass_next2: " << value_bass_next2 << "     value_snare_next2: " << value_snare_next2 << std::endl;
 
 //    if(value_snare >= value_bass)
 //    if(value_bass < 3)
@@ -3132,7 +3132,6 @@ int Analysis::get_bpm() {
     fftw_free(ifft_result);
 
     //std::cout << "BPM: " << finalBPM << std::endl;
-    this->bpm = finalBPM;
     this->bpm = finalBPM;
 
     return finalBPM;

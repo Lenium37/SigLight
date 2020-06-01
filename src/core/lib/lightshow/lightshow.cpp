@@ -478,6 +478,7 @@ std::vector<float> Lightshow::get_specific_beats(std::string beat_type, float st
   Logger::debug("start: {}", start);
   Logger::debug("end: {}", end);
 
+
   if(beat_type == "beats 1/2/3/4" || beat_type == "beats 1/2/3/4 action") {
     all_timestamps = this->beats_1_2_3_4;
   } else if(beat_type == "beats 2/4" || beat_type == "beats 2/4 action") {
@@ -543,30 +544,79 @@ void Lightshow::set_onset_value(float _onset_value) {
 }
 
 void Lightshow::prepare_beat_timestamps() {
+
+
+  double first_beat = this->analysis.get_first_beat();
+  auto first_beat_f = (float) first_beat / 44100;
+
+  std::cout << "first beat: " << first_beat_f << std::endl;
+
+  int beats_before_first_beat = 0;
+  for(int i = 0; i < this->all_beats.size(); i++) {
+    if(this->all_beats[i] == (float) first_beat)
+      beats_before_first_beat = i;
+//      std::cout << "found first beat at index: " << i << std::endl;
+//    std::cout << this->all_beats[i] << std::endl;
+  }
+
+  std::cout << "beats_before_first_beat " << beats_before_first_beat << std::endl;
+  if(beats_before_first_beat % 2 == 1) {
+    std::cout << "beats are calculated wrong, swapping 1/3 and 2/4" << std::endl;
+  }
+
+
+
+
   //std::cout << "all_beats.size: " << this->all_beats.size() << std::endl;
   for(int i = 0; i < this->all_beats.size(); i++) {
     this->beats_1_2_3_4.push_back((float) this->all_beats[i] / (float) 44100);
 
-    if((i + 1) % 2 == 0)
-      this->beats_2_4.push_back((float) this->all_beats[i] / (float) 44100);
+    if(beats_before_first_beat % 2 == 0) {
+      if ((i + 1) % 2 == 0)
+        this->beats_2_4.push_back((float) this->all_beats[i] / (float) 44100);
 
-    if((i + 1) % 2 == 1)
-      this->beats_1_3.push_back((float) this->all_beats[i] / (float) 44100);
+      if ((i + 1) % 2 == 1)
+        this->beats_1_3.push_back((float) this->all_beats[i] / (float) 44100);
 
-    if(i % 4 == 0)
-      this->beats_1.push_back((float) this->all_beats[i] / (float) 44100);
+      if(i % 4 == 0)
+        this->beats_1.push_back((float) this->all_beats[i] / (float) 44100);
 
-    if((i - 1) % 4 == 0)
-      this->beats_2.push_back((float) this->all_beats[i] / (float) 44100);
+      if((i - 1) % 4 == 0)
+        this->beats_2.push_back((float) this->all_beats[i] / (float) 44100);
 
-    if((i - 2) % 4 == 0)
-      this->beats_3.push_back((float) this->all_beats[i] / (float) 44100);
+      if((i - 2) % 4 == 0)
+        this->beats_3.push_back((float) this->all_beats[i] / (float) 44100);
 
-    if((i - 3) % 4 == 0)
-      this->beats_4.push_back((float) this->all_beats[i] / (float) 44100);
+      if((i - 3) % 4 == 0)
+        this->beats_4.push_back((float) this->all_beats[i] / (float) 44100);
 
-    if(i % 8 == 0)
-      this->beats_1_every_other_bar.push_back((float) this->all_beats[i] / (float) 44100);
+      if(i % 8 == 0)
+        this->beats_1_every_other_bar.push_back((float) this->all_beats[i] / (float) 44100);
+
+    } else {
+      if ((i + 1) % 2 == 0)
+        this->beats_1_3.push_back((float) this->all_beats[i] / (float) 44100);
+
+      if ((i + 1) % 2 == 1)
+        this->beats_2_4.push_back((float) this->all_beats[i] / (float) 44100);
+
+      if(i % 4 == 0)
+        this->beats_2.push_back((float) this->all_beats[i] / (float) 44100);
+
+      if((i - 1) % 4 == 0)
+        this->beats_3.push_back((float) this->all_beats[i] / (float) 44100);
+
+      if((i - 2) % 4 == 0)
+        this->beats_4.push_back((float) this->all_beats[i] / (float) 44100);
+
+      if((i - 3) % 4 == 0)
+        this->beats_1.push_back((float) this->all_beats[i] / (float) 44100);
+
+      if((i - 3) % 8 == 0)
+        this->beats_1_every_other_bar.push_back((float) this->all_beats[i] / (float) 44100);
+    }
+
+
   }
 }
 

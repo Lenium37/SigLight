@@ -626,7 +626,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
           std::cout << "< one_per_bar" << std::endl;
 
         // GO CRAZY and switch between fixture kinds ++++++++++
-        if(segment_value > 0.9) {
+        if(segment_value > 0.9 && lightshow->get_bpm() > 120) {
           if(segment_start == segment_changes[segment_changes.size() - 1].time) {                                   // if last segment
             if(segment_end - segment_start <= 15) {                                                                 // if segment is shorter than 15s
               for (auto const &x: fix_names_with_temp_position) {
@@ -657,10 +657,20 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
           }
           else if(segment_value < 0.5) {
-
+            this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);                              // ambient
           }
           else if(segment_value < 0.75) {
-            this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);                              // ambient
+            if(lightshow->get_bpm() < 100) {
+              if(segment_start != segment_changes[0].time && segment_changes[j - 1].value == 1) {
+                this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);                          // ambient
+              } else {
+                timestamps = lightshow->get_specific_beats("beats 2/4", segment_start, segment_end);
+                this->set_dimmer_values_in_segment(fix, segment_start, 100, segment_end, 0);
+                this->generate_pulse(fix, timestamps, segment_start, segment_end, 0, lightshow->get_resolution());    // pulse 2/4
+              }
+            } else {
+              this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);                            // ambient
+            }
           }
           else if(segment_value < 0.9) {
             if(onset_timestamps.size() >= six_per_bar) {
@@ -677,10 +687,17 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
             }
           }
           else if(segment_value > 0.9) {
-            if(segment_start == segment_changes[segment_changes.size() - 1].time)
-              timestamps = lightshow->get_specific_beats("beats 1/2/3/4 action", segment_start, segment_end);         // only take action beats in last segment to catch fade out at the end
-            else
-              timestamps = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
+
+            if(lightshow->get_bpm() < 100) {
+              timestamps = lightshow->get_specific_beats("beats 2/4", segment_start, segment_end);
+            } else {
+              if(segment_start == segment_changes[segment_changes.size() - 1].time)
+                timestamps = lightshow->get_specific_beats("beats 1/2/3/4 action", segment_start, segment_end);       // only take action beats in last segment to catch fade out at the end
+              else
+                timestamps = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
+            }
+
+            
             this->set_dimmer_values_in_segment(fix, segment_start, 100, segment_end, 0);
             this->generate_pulse(fix, timestamps, segment_start, segment_end, 0, lightshow->get_resolution());        // pulse 1/2/3/4
           }
