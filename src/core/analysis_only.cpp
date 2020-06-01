@@ -36,7 +36,8 @@ int main() {
 
     lightshow->set_sound_src(song);
     //lightshow->prepare_analysis_for_song((char*)file_path.c_str());
-    lightshow->prepare_analysis_for_song((char*)song.c_str(), false, false, false, false, 0, 9, 30, 65, 160, 150, 300, 175);
+    std::vector<float> empty_vector;
+    lightshow->prepare_analysis_for_song((char*)song.c_str(), false, false, false, false, 0, 9, 30, 65, 160, 150, 300, 175, empty_vector);
 
     system("python /Users/sd/CLionProjects/Sound-to-Light-2.0/CSV/plot_novelty.py --kernel --mfcc --chroma --stft");
     // --kernel --mfcc --chroma --stft --rhythm --energybars

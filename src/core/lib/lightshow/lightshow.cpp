@@ -129,7 +129,7 @@ bool compare_by_timestamp(const time_value_float &a, const time_value_float &b)
   return a.time < b.time;
 }
 
-void Lightshow::get_bpm_and_beats(bool &finished, int user_bpm) {
+void Lightshow::get_bpm_and_beats(bool &finished, int user_bpm, std::vector<float> _custom_segments) {
   int bpm_result = -1;
   if(user_bpm == 0) {
     bpm_result = analysis.get_bpm(); //dauert lang
@@ -142,7 +142,12 @@ void Lightshow::get_bpm_and_beats(bool &finished, int user_bpm) {
   Logger::debug("5");
   if(bpm_result == -1) {
     Logger::error("song too short to get bpm or do segmentation analysis");
-    this->timestamps_segment_changes.push_back({0.0, 0});
+    if(_custom_segments.empty())
+      this->timestamps_segment_changes.push_back({0.0, 0});
+    else {
+      for(int i = 0; i < _custom_segments.size(); i++)
+        this->timestamps_segment_changes.push_back({_custom_segments[i], 1});
+    }
   } else {
     //Logger::info("analysed bpm of: {}", this->bpm);
     this->first_beat = analysis.get_first_beat();
@@ -153,12 +158,12 @@ void Lightshow::get_bpm_and_beats(bool &finished, int user_bpm) {
      * TODO: threshold wert damit nur changes in intensity_changes gepeichert werden, die um threshold % vom letzten change abweichen
      */
     //std::vector<time_value_int> intensity_changes = analysis.get_intensity_changes(segment_intensities, 15);
-    this->timestamps_segment_changes = this->analysis.get_segments();
+    this->timestamps_segment_changes = this->analysis.get_segments(_custom_segments);
   }
   finished = true;
 }
 
-void Lightshow::prepare_analysis_for_song(char *song_path, bool need_bass, bool need_mid, bool need_high, bool need_onsets, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold) {
+void Lightshow::prepare_analysis_for_song(char *song_path, bool need_bass, bool need_mid, bool need_high, bool need_onsets, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold, std::vector<float> _custom_segments) {
   this->analysis.set_resolution(this->resolution);
   this->analysis.read_wav(song_path);
   this->analysis.stft(); //dauert lang
@@ -171,7 +176,7 @@ void Lightshow::prepare_analysis_for_song(char *song_path, bool need_bass, bool 
 
   bool bpm_analysis_finished = false;
   try {
-    std::thread t(&Lightshow::get_bpm_and_beats, this, std::ref(bpm_analysis_finished), user_bpm);
+    std::thread t(&Lightshow::get_bpm_and_beats, this, std::ref(bpm_analysis_finished), user_bpm, _custom_segments);
     t.detach();
   } catch (const std::bad_alloc &e) {
     Logger::error("Allocation failed during bpm thread creation: {}", e.what());
@@ -292,7 +297,7 @@ void Lightshow::prepare_analysis_for_song(char *song_path, bool need_bass, bool 
      * TODO: threshold wert damit nur changes in intensity_changes gepeichert werden, die um threshold % vom letzten change abweichen
      */
     //std::vector<time_value_int> intensity_changes = analysis.get_intensity_changes(segment_intensities, 15);
-    this->timestamps_segment_changes = this->analysis.get_segments();
+    this->timestamps_segment_changes = this->analysis.get_segments(_custom_segments);
   }
 
   this->prepare_beat_timestamps();
@@ -615,4 +620,12 @@ int Lightshow::get_onset_snare_threshold() {
 
 void Lightshow::set_onset_snare_threshold(int _onset_snare_threshold) {
   this->onset_snare_threshold = _onset_snare_threshold;
+}
+
+std::vector<float> Lightshow::get_custom_segments() {
+  return this->custom_segments;
+}
+
+void Lightshow::set_custom_segments(std::vector<float> _custom_segments) {
+  this->custom_segments = _custom_segments;
 }

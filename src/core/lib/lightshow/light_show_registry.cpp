@@ -48,6 +48,16 @@ void LightShowRegistry::write_lightshow(const std::string &lightshow_filename, s
   lightshow_element->SetAttribute("onset_snare_lower_frequency", lightshow->get_onset_snare_lower_frequency());
   lightshow_element->SetAttribute("onset_snare_upper_frequency", lightshow->get_onset_snare_upper_frequency());
   lightshow_element->SetAttribute("onset_snare_threshold", lightshow->get_onset_snare_threshold());
+
+  std::string lightshow_segments = "";
+  for(int i = 0; i < lightshow->get_custom_segments().size(); i++) {
+    if(i < lightshow->get_custom_segments().size() - 1)
+      lightshow_segments += std::to_string(lightshow->get_custom_segments()[i]) + "-";
+    else
+      lightshow_segments += std::to_string(lightshow->get_custom_segments()[i]);
+  }
+  lightshow_element->SetAttribute("lightshow_segments", lightshow_segments.c_str());
+
   lightshow_xml.InsertFirstChild(lightshow_element);
 
   for(auto fixture : lightshow->get_fixtures()){
@@ -153,6 +163,22 @@ std::shared_ptr<Lightshow> LightShowRegistry::read_lightshow(const std::string f
     lightshow->set_onset_snare_lower_frequency(std::stoi(lightshow_element->Attribute("onset_snare_lower_frequency")));
     lightshow->set_onset_snare_upper_frequency(std::stoi(lightshow_element->Attribute("onset_snare_upper_frequency")));
     lightshow->set_onset_snare_threshold(std::stoi(lightshow_element->Attribute("onset_snare_threshold")));
+
+    std::string lightshow_segments = lightshow_element->Attribute("lightshow_segments");
+    std::vector<float> custom_segments;
+    std::string delimiter = "-";
+    size_t last = 0;
+    size_t next = 0;
+    while ((next = lightshow_segments.find(delimiter, last)) != std::string::npos) {
+      custom_segments.push_back(std::stof(lightshow_segments.substr(last, next-last)));
+      last = next + 1;
+    }
+    custom_segments.push_back(std::stof(lightshow_segments.substr(last)));
+//    std::cout << "read custom segments from xml: " << std::endl;
+//    for(int i = 0; i < custom_segments.size(); i++) {
+//      std::cout << custom_segments[i] << std::endl;
+//    }
+    lightshow->set_custom_segments(custom_segments);
 
 
     tinyxml2::XMLElement *fixture_element = lightshow_element->FirstChildElement("fixture");

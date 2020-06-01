@@ -41,7 +41,7 @@ class Lightshow {
 
   std::vector<std::vector<std::uint8_t>> read_channel_values();
 
-  void prepare_analysis_for_song(char *song_path, bool need_bass, bool need_mid, bool need_high, bool need_onsets, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold);
+  void prepare_analysis_for_song(char *song_path, bool need_bass, bool need_mid, bool need_high, bool need_onsets, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold, std::vector<float> custom_segments);
 
   std::vector<LightshowFixture> get_fixtures_bass();
   std::vector<LightshowFixture> get_fixtures_middle();
@@ -97,6 +97,9 @@ class Lightshow {
   int get_onset_snare_threshold();
   void set_onset_snare_threshold(int _onset_snare_threshold);
 
+  std::vector<float> get_custom_segments();
+  void set_custom_segments(std::vector<float> _custom_segments);
+
   double get_seed();
 
  private:
@@ -117,6 +120,7 @@ class Lightshow {
   std::vector<float> onset_timestamps;
   std::vector<float> onset_bass_timestamps;
   std::vector<float> onset_snare_timestamps;
+  std::vector<float> custom_segments;
 
   int resolution = 40; // 40 = DMX update every 25ms.    20 = DMX update every 50ms.    10 = DMX update every 100ms.
   float fade_duration = 1; // fade of color changes takes 1s
@@ -140,7 +144,7 @@ class Lightshow {
                          std::uint8_t lower_border,
                          std::uint8_t upper_border,
                          std::uint8_t value);
-  void get_bpm_and_beats(bool &finished, int user_bpm);
+  void get_bpm_and_beats(bool &finished, int user_bpm, std::vector<float> _custom_segments);
   double first_beat = 0;
   float onset_value = 9;
   int onset_bass_lower_frequency = 30;

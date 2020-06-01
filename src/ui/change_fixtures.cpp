@@ -6,7 +6,7 @@
 #include "change_fixtures.h"
 #include "ui_change_fixtures.h"
 
-ChangeFixtures::ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string> _color_palettes, std::list<Fixture> _fixture_presets, QStringList _lighting_types, QUrl _song_url, int _user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold, QWidget *parent) :
+ChangeFixtures::ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string> _color_palettes, std::list<Fixture> _fixture_presets, QStringList _lighting_types, QUrl _song_url, int _user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold, std::vector<float> _custom_segments, QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::ChangeFixtures) {
     ui->setupUi(this);
@@ -17,6 +17,7 @@ ChangeFixtures::ChangeFixtures(list<Fixture> _fixtures, std::vector<std::string>
     this->song_url = _song_url;
     this->user_bpm = _user_bpm;
     this->lighting_types = _lighting_types;
+    this->custom_segments = _custom_segments;
 
     this->setWindowIcon(QIcon(":/icons_svg/svg/rtl_icon.svg"));
     std::string window_title = "Change Fixtures for " + _song_url.fileName().toStdString();
@@ -505,7 +506,8 @@ void ChangeFixtures::on_use_changed_fixtures_clicked() {
                                                 (int) ui->sB_onset_bass_threshold->value(),
                                                 (int) ui->sB_onset_snare_lower_frequency->value(),
                                                 (int) ui->sB_onset_snare_upper_frequency->value(),
-                                                (int) ui->sB_onset_snare_threshold->value());
+                                                (int) ui->sB_onset_snare_threshold->value(),
+                                                this->custom_segments);
   }
   else {
     emit changed_fixtures_ready(song_url,
@@ -517,7 +519,8 @@ void ChangeFixtures::on_use_changed_fixtures_clicked() {
                                 (int) ui->sB_onset_bass_threshold->value(),
                                 (int) ui->sB_onset_snare_lower_frequency->value(),
                                 (int) ui->sB_onset_snare_upper_frequency->value(),
-                                (int) ui->sB_onset_snare_threshold->value());
+                                (int) ui->sB_onset_snare_threshold->value(),
+                                this->custom_segments);
   }
 }
 
@@ -527,4 +530,25 @@ void ChangeFixtures::set_song(Song* _song) {
 
 Song* ChangeFixtures::get_song() {
   return this->song;
+}
+
+
+void ChangeFixtures::on_add_custom_segments_clicked() {
+  std::cout << "custom segments clicked" << std::endl;
+  this->csd = new CustomSegmentsDialog(this->custom_segments, this);
+
+
+//  this->csd->insert_segments(list); // add existing segment timestamps (if lightshow was already saved)
+
+  connect(this->csd, SIGNAL(accepted()), this, SLOT(get_custom_segments()));
+  this->csd->exec();
+}
+
+void ChangeFixtures::get_custom_segments() {
+  std::cout << "custom segments accepted" << std::endl;
+  this->custom_segments = this->csd->get_custom_segments();
+
+  for(int i = 0; i < this->custom_segments.size(); i++) {
+    std::cout << this->custom_segments[i] << std::endl;
+  }
 }

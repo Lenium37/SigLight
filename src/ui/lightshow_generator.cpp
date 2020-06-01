@@ -41,7 +41,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
   lightshow->set_resolution(resolution);
   lightshow->set_sound_src(song->get_file_path());
-  lightshow->prepare_analysis_for_song((char*)song->get_file_path().c_str(), need_bass, need_mid, need_high, need_onsets, user_bpm, onset_value, lightshow->get_onset_bass_lower_frequency(), lightshow->get_onset_bass_upper_frequency(), lightshow->get_onset_bass_threshold(), lightshow->get_onset_snare_lower_frequency(), lightshow->get_onset_snare_upper_frequency(), lightshow->get_onset_snare_threshold());
+  lightshow->prepare_analysis_for_song((char*)song->get_file_path().c_str(), need_bass, need_mid, need_high, need_onsets, user_bpm, onset_value, lightshow->get_onset_bass_lower_frequency(), lightshow->get_onset_bass_upper_frequency(), lightshow->get_onset_bass_threshold(), lightshow->get_onset_snare_lower_frequency(), lightshow->get_onset_snare_upper_frequency(), lightshow->get_onset_snare_threshold(), lightshow->get_custom_segments());
 
 
 //  auto seed = std::chrono::system_clock::now().time_since_epoch().count();

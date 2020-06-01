@@ -1015,9 +1015,10 @@ void MainWindow::on_action_add_song_to_player_triggered() {
 
           if (msgBox.clickedButton()->text() == "Change") {
             std::cout << "change" << std::endl;
-            change_fixtures_dialog = new ChangeFixtures(this->universes[0].get_fixtures(), this->color_palettes, this->fixtures, this->lighting_types, url, 0, 9, 30, 65, 160, 150, 300, 175, this);
+            std::vector<float> empty_vector;
+            change_fixtures_dialog = new ChangeFixtures(this->universes[0].get_fixtures(), this->color_palettes, this->fixtures, this->lighting_types, url, 0, 9, 30, 65, 160, 150, 300, 175, empty_vector, this);
             change_fixtures_dialog->setWindowModality(Qt::ApplicationModal);
-            if(connect(this->change_fixtures_dialog, SIGNAL(changed_fixtures_ready(QUrl, std::list<Fixture>, int, float, int, int, int, int, int, int)), this, SLOT(changed_fixtures_for_lightshow_ready(QUrl, std::list<Fixture>, int, float, int, int, int, int, int, int)))) {
+            if(connect(this->change_fixtures_dialog, SIGNAL(changed_fixtures_ready(QUrl, std::list<Fixture>, int, float, int, int, int, int, int, int, std::vector<float>)), this, SLOT(changed_fixtures_for_lightshow_ready(QUrl, std::list<Fixture>, int, float, int, int, int, int, int, int, std::vector<float>)))) {
               std::cout << "connection worked" << std::endl;
             } else {
               std::cout << "connection did not work" << std::endl;
@@ -1025,8 +1026,9 @@ void MainWindow::on_action_add_song_to_player_triggered() {
             change_fixtures_dialog->show();
           } else {
             std::cout << "default" << std::endl;
+            std::vector<float> empty_vector;
             Song * song = player->add_to_playlist(url);
-            lightshows_to_generate_for.push_back({false, song, universes[0].get_fixtures(), 0, 9, 30, 65, 160, 150, 300, 175});
+            lightshows_to_generate_for.push_back({false, song, universes[0].get_fixtures(), 0, 9, 30, 65, 160, 150, 300, 175, empty_vector});
             this->start_thread_for_generating_queue();
           }
         }
@@ -1055,11 +1057,11 @@ void MainWindow::queue_for_generating_light_show(){
         if(!lightshow_parameter.is_regenerate)
             generate_lightshow(lightshow_parameter.song, lightshow_parameter.fixtures, lightshow_parameter.user_bpm, lightshow_parameter.onset_value,
                 lightshow_parameter.onset_bass_lower_frequency, lightshow_parameter.onset_bass_upper_frequency, lightshow_parameter.onset_bass_threshold,
-                lightshow_parameter.onset_snare_lower_frequency, lightshow_parameter.onset_snare_upper_frequency, lightshow_parameter.onset_snare_threshold);
+                lightshow_parameter.onset_snare_lower_frequency, lightshow_parameter.onset_snare_upper_frequency, lightshow_parameter.onset_snare_threshold, lightshow_parameter.custom_segments);
         else
             regenerate_lightshow(lightshow_parameter.song, lightshow_parameter.fixtures, lightshow_parameter.user_bpm, lightshow_parameter.onset_value,
                 lightshow_parameter.onset_bass_lower_frequency, lightshow_parameter.onset_bass_upper_frequency, lightshow_parameter.onset_bass_threshold,
-                lightshow_parameter.onset_snare_lower_frequency, lightshow_parameter.onset_snare_upper_frequency, lightshow_parameter.onset_snare_threshold);
+                lightshow_parameter.onset_snare_lower_frequency, lightshow_parameter.onset_snare_upper_frequency, lightshow_parameter.onset_snare_threshold, lightshow_parameter.custom_segments);
     }
     ls_generating_thread_is_alive = false;
     lightshows_to_generate_for.clear();
@@ -1068,7 +1070,7 @@ void MainWindow::queue_for_generating_light_show(){
 }
 
 
-void MainWindow::generate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold) {
+void MainWindow::generate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold, std::vector<float> custom_segments) {
   //Logger::info("K8062 connected: {}", dmx_device_k8062.is_connected());
   std::shared_ptr<Lightshow> generated_lightshow = std::make_shared<Lightshow>();
 
@@ -1099,6 +1101,7 @@ void MainWindow::generate_lightshow(Song *song, std::list<Fixture> _fixtures, in
   generated_lightshow->set_onset_snare_lower_frequency(onset_snare_lower_frequency);
   generated_lightshow->set_onset_snare_upper_frequency(onset_snare_upper_frequency);
   generated_lightshow->set_onset_snare_threshold(onset_snare_threshold);
+  generated_lightshow->set_custom_segments(custom_segments);
 
   this->lightshow_generator.generate(this->lightshow_resolution, song, generated_lightshow, user_bpm, onset_value);
   std::cout << "generated lightshow" << std::endl;
@@ -1111,7 +1114,7 @@ void MainWindow::generate_lightshow(Song *song, std::list<Fixture> _fixtures, in
   }
 }
 
-void MainWindow::regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold) {
+void MainWindow::regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold, std::vector<float> custom_segments) {
   std::shared_ptr<Lightshow> regenerated_lightshow = std::make_shared<Lightshow>();
 
   for (Fixture fix: _fixtures) {
@@ -1141,6 +1144,7 @@ void MainWindow::regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, 
   regenerated_lightshow->set_onset_snare_lower_frequency(onset_snare_lower_frequency);
   regenerated_lightshow->set_onset_snare_upper_frequency(onset_snare_upper_frequency);
   regenerated_lightshow->set_onset_snare_threshold(onset_snare_threshold);
+  regenerated_lightshow->set_custom_segments(custom_segments);
 
   this->lightshow_generator.generate(this->lightshow_resolution, song, regenerated_lightshow, user_bpm, onset_value);
 
@@ -2380,10 +2384,10 @@ std::vector<std::uint8_t> MainWindow::get_control_channels_with_turn_off_value()
   return channel_values;
 }
 
-void MainWindow::changed_fixtures_for_lightshow_ready(QUrl url, std::list<Fixture> _fixtures, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold) {
+void MainWindow::changed_fixtures_for_lightshow_ready(QUrl url, std::list<Fixture> _fixtures, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold, std::vector<float> custom_segments) {
   std::cout << "URL: " << url.toString().toStdString() << std::endl;
   Song * song = player->add_to_playlist(url);
-  lightshows_to_generate_for.push_back({false, song, _fixtures, user_bpm, onset_value, onset_bass_lower_frequency, onset_bass_upper_frequency, onset_bass_threshold, onset_snare_lower_frequency, onset_snare_upper_frequency, onset_snare_threshold});
+  lightshows_to_generate_for.push_back({false, song, _fixtures, user_bpm, onset_value, onset_bass_lower_frequency, onset_bass_upper_frequency, onset_bass_threshold, onset_snare_lower_frequency, onset_snare_upper_frequency, onset_snare_threshold, custom_segments});
   this->start_thread_for_generating_queue();
   this->change_fixtures_dialog->deleteLater();
 }
@@ -2447,10 +2451,10 @@ void MainWindow::change_fixtures_of_existing_song() {
     _fixtures.push_back(fix);
   }
 
-  change_fixtures_dialog = new ChangeFixtures(_fixtures, this->color_palettes, this->fixtures, this->lighting_types, url, lightshow->get_bpm(), lightshow->get_onset_value(), lightshow->get_onset_bass_lower_frequency(), lightshow->get_onset_bass_upper_frequency(), lightshow->get_onset_bass_threshold(), lightshow->get_onset_snare_lower_frequency(), lightshow->get_onset_snare_upper_frequency(), lightshow->get_onset_snare_threshold(), this);
+  change_fixtures_dialog = new ChangeFixtures(_fixtures, this->color_palettes, this->fixtures, this->lighting_types, url, lightshow->get_bpm(), lightshow->get_onset_value(), lightshow->get_onset_bass_lower_frequency(), lightshow->get_onset_bass_upper_frequency(), lightshow->get_onset_bass_threshold(), lightshow->get_onset_snare_lower_frequency(), lightshow->get_onset_snare_upper_frequency(), lightshow->get_onset_snare_threshold(), lightshow->get_custom_segments(), this);
   change_fixtures_dialog->set_song(song);
   change_fixtures_dialog->setWindowModality(Qt::ApplicationModal);
-  if(connect(this->change_fixtures_dialog, SIGNAL(changed_fixtures_of_existing_lightshow(Song*, std::list<Fixture>, int, float, int, int, int, int, int, int)), this, SLOT(changed_fixtures_for_existing_lightshow_ready(Song*, std::list<Fixture>, int, float, int, int, int, int, int, int)))) {
+  if(connect(this->change_fixtures_dialog, SIGNAL(changed_fixtures_of_existing_lightshow(Song*, std::list<Fixture>, int, float, int, int, int, int, int, int, std::vector<float>)), this, SLOT(changed_fixtures_for_existing_lightshow_ready(Song*, std::list<Fixture>, int, float, int, int, int, int, int, int, std::vector<float>)))) {
     std::cout << "connection worked" << std::endl;
   } else {
     std::cout << "connection did not work" << std::endl;
@@ -2460,10 +2464,10 @@ void MainWindow::change_fixtures_of_existing_song() {
 
 }
 
-void MainWindow::changed_fixtures_for_existing_lightshow_ready(Song* song, std::list<Fixture> _fixtures, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold) {
+void MainWindow::changed_fixtures_for_existing_lightshow_ready(Song* song, std::list<Fixture> _fixtures, int user_bpm, float onset_value, int onset_bass_lower_frequency, int onset_bass_upper_frequency, int onset_bass_threshold, int onset_snare_lower_frequency, int onset_snare_upper_frequency, int onset_snare_threshold, std::vector<float> custom_segments) {
   std::cout << "URL: " << song->get_file_path() << std::endl;
   this->lightShowRegistry.get_lightshow(song)->set_onset_value(onset_value);
-  lightshows_to_generate_for.push_back({true, song, _fixtures, user_bpm, onset_value, onset_bass_lower_frequency, onset_bass_upper_frequency, onset_bass_threshold, onset_snare_lower_frequency, onset_snare_upper_frequency, onset_snare_threshold});
+  lightshows_to_generate_for.push_back({true, song, _fixtures, user_bpm, onset_value, onset_bass_lower_frequency, onset_bass_upper_frequency, onset_bass_threshold, onset_snare_lower_frequency, onset_snare_upper_frequency, onset_snare_threshold, custom_segments});
   this->start_thread_for_generating_queue();
   this->playlist_view->reset_lightshow_status(this->player->playlist_index_for(song));
   this->change_fixtures_dialog->deleteLater();
@@ -2476,7 +2480,8 @@ void MainWindow::regenerate_lightshow_with_default_fixtures() {
 
   Song *song = player->get_playlist_media_at(index_of_song)->get_song();
 
-  lightshows_to_generate_for.push_back({true, song, this->universes[0].get_fixtures(), this->lightShowRegistry.get_lightshow(song)->get_bpm(), this->lightShowRegistry.get_lightshow(song)->get_onset_value(), this->lightShowRegistry.get_lightshow(song)->get_onset_bass_lower_frequency(), this->lightShowRegistry.get_lightshow(song)->get_onset_bass_upper_frequency(), this->lightShowRegistry.get_lightshow(song)->get_onset_bass_threshold(), this->lightShowRegistry.get_lightshow(song)->get_onset_snare_lower_frequency(), this->lightShowRegistry.get_lightshow(song)->get_onset_snare_upper_frequency(), this->lightShowRegistry.get_lightshow(song)->get_onset_snare_threshold()});
+  std::shared_ptr<Lightshow> lightshow = this->lightShowRegistry.get_lightshow(song);
+  lightshows_to_generate_for.push_back({true, song, this->universes[0].get_fixtures(), lightshow->get_bpm(), lightshow->get_onset_value(), lightshow->get_onset_bass_lower_frequency(), lightshow->get_onset_bass_upper_frequency(), lightshow->get_onset_bass_threshold(), lightshow->get_onset_snare_lower_frequency(), lightshow->get_onset_snare_upper_frequency(), lightshow->get_onset_snare_threshold(), lightshow->get_custom_segments()});
   this->start_thread_for_generating_queue();
 
   this->playlist_view->reset_lightshow_status(index_of_song);

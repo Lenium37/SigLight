@@ -100,7 +100,7 @@ class Analysis {
   float get_average_energy_for_segment(float start, float end, float *vals, int sr, bool last);
 
 
-  std::vector<time_value_float> get_segments();
+  std::vector<time_value_float> get_segments(std::vector<float> _custom_segments);
 
   // Metal threshold = 0.804
   // Film threshold 0.292
