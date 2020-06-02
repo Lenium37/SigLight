@@ -60,6 +60,8 @@ FixtureChoosingDialog::FixtureChoosingDialog(QWidget *parent, list<Fixture> &fix
     ui->cB_moving_head_type->addItem("group_auto_background");
     ui->cB_moving_head_type->addItem("auto_action");
     ui->cB_moving_head_type->addItem("group_auto_action");
+    ui->cB_moving_head_type->addItem("auto_special");
+    ui->cB_moving_head_type->addItem("group_auto_special");
     ui->cB_moving_head_type->addItem("Continuous 8");
     ui->cB_moving_head_type->addItem("Continuous Circle");
     ui->cB_moving_head_type->addItem("Continuous Line vertical");
