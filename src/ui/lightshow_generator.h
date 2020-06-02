@@ -67,7 +67,25 @@ class LightshowGenerator {
   void generate_continuous_8(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_pan, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group);
   void generate_continuous_circle(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_pan, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group);
   void generate_vertical_line(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group);
-  void generate_static_position(LightshowFixture & fix, int pan_center, int tilt_center, int pan_position, int tilt_position, float segment_start, float segment_end, int number_of_fixtures_in_group, float time_of_two_bars);
+  void generate_continuous_cross_change(LightshowFixture &fix,
+                                        int pan_center,
+                                        int tilt_center,
+                                        int pan_position,
+                                        int tilt_position,
+                                        float segment_start,
+                                        float segment_end,
+                                        int number_of_fixtures_in_group,
+                                        float time_of_two_bars);
+  void generate_static_position(LightshowFixture &fix,
+                                int pan_center,
+                                int tilt_center,
+                                int pan_position,
+                                int tilt_position,
+                                float segment_start,
+                                float segment_end,
+                                int number_of_fixtures_in_group,
+                                bool crossed,
+                                bool tilt_inverted);
 
   std::vector<time_value_int> generate_single_fade(int start_value, int end_value, float start_timestamp, float end_timestamp, int lightshow_resolution);
 };
