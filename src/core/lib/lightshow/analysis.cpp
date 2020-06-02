@@ -2304,7 +2304,8 @@ std::vector<time_value_float> Analysis::get_segments(std::vector<float> _custom_
 
   } else {
     for(int i = 0; i < _custom_segments.size(); i++)
-      segments.push_back({_custom_segments[i], 1});
+      if(_custom_segments[i] > 0)
+        segments.push_back({_custom_segments[i], 1});
   }
 
 
