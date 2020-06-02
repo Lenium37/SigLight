@@ -405,7 +405,7 @@ private:
     std::vector<std::uint8_t> get_control_channels_with_ignite_value();
     std::vector<std::uint8_t> get_control_channels_with_turn_off_value();
 
-    QStringList lighting_types = (QStringList() << "auto_beats" << "group_auto_beats" << "auto_onsets" << "group_auto_onsets" << "Ambient" << "Bass" << "Mid" << "High" << "color_change" << "color_fade" << "flash" << "flash_reverse" << "blink" << "pulse" << "group_one_after_another" << "group_one_after_another_fade" << "group_one_after_another_fade_reverse" << "group_one_after_another_fade_single" << "group_one_after_another_fade_single_reverse" << "group_one_after_another_blink" << "group_one_after_another_back_and_forth" << "group_one_after_another_back_and_forth_blink" << "group_two_after_another" << "group_alternate_odd_even" << "group_random_flashes" << "strobe_if_many_onsets");
+    QStringList lighting_types = (QStringList() << "auto_beats" << "group_auto_beats" << "auto_onsets" << "group_auto_onsets" << "Ambient" << "Bass" << "Mid" << "High" << "color_change" << "color_fade" << "flash" << "flash_reverse" << "blink" << "pulse" << "group_one_after_another" << "group_one_after_another_fade" << "group_one_after_another_fade_reverse" << "group_one_after_another_fade_single" << "group_one_after_another_fade_single_reverse" << "group_one_after_another_blink" << "group_one_after_another_back_and_forth" << "group_one_after_another_back_and_forth_blink" << "group_two_after_another" << "group_alternate_odd_even" << "group_random_flashes" << "strobe_if_many_onsets" << "OFF");
 };
 
 #endif // MAINWINDOW_H

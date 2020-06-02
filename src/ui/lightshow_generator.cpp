@@ -240,6 +240,9 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
     std::string fix_type = fix.get_type();
     std::transform(fix_type.begin(), fix_type.end(), fix_type.begin(), ::tolower);
 
+    if(fix_type == "OFF")
+      continue;
+
     std::string timestamps_type = fix.get_timestamps_type();
     std::transform(timestamps_type.begin(), timestamps_type.end(), timestamps_type.begin(), ::tolower);
     //std::cout << "timestamps_type: " << timestamps_type << std::endl;
@@ -837,6 +840,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
       // looping through all segments
       for (int j = 0; j < segment_changes.size(); j++) {
+
         std::cout << "segment_changes[j].value: " << segment_changes[j].value << std::endl;
 
         segment_start = segment_changes[j].time;
