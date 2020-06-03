@@ -3405,9 +3405,9 @@ void LightshowGenerator::generate_vertical_line(LightshowFixture & fix, int pan_
       int positionRemoved = positionStaying + 1;
 
       for(int i = positionRemoved; i <= number_of_fixtures_in_group; i++) {
-        if(fix.get_position_in_group() == i) {
+        if(fix.get_position_in_mh_group() == i) {
           temp_position_of_fix = positionStaying - (i - positionRemoved);
-          std::cout << "changed position of fix for group vertical line from: " << fix.get_position_in_group() << " to: " << temp_position_of_fix << std::endl;
+          std::cout << "changed position of fix for group vertical line from: " << fix.get_position_in_mh_group() << " to: " << temp_position_of_fix << std::endl;
         }
       }
     }
