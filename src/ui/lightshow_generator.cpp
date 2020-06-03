@@ -438,6 +438,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         float segment_end = 0;
 
         bool auto_action_last_segment_was_crossed_tilt = false;
+        bool auto_background_last_segment_was_crossed_tilt = false;
 
         // looping through all segments
         for (int j = 0; j < segment_changes.size(); j++) {
@@ -485,7 +486,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
                                                  segment_end,
                                                  fixtures_in_mh_group_auto_action,
                                                  false,
-                                                 false); // default position
+                                                 false); // 45 degree position
                 } else {
                   this->generate_static_position(fix,
                                                  pan_center,
@@ -507,11 +508,106 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
 
           if(!crazy_finale) {
-            if (fix.get_moving_head_type() == "auto_background"
-                || fix.get_moving_head_type() == "group_auto_background") {
+            if (fix.get_moving_head_type() == "auto_background" || fix.get_moving_head_type() == "group_auto_background") {
 
-            } else if (fix.get_moving_head_type() == "auto_action"
-                || fix.get_moving_head_type() == "group_auto_action") {
+              if(segment_value < 0.1) {
+
+                int pan_position = 0;
+                int tilt_position = 0;
+                this->generate_static_position(fix,
+                                               pan_center,
+                                               tilt_center,
+                                               pan_position,
+                                               tilt_position,
+                                               segment_start,
+                                               segment_end,
+                                               fixtures_in_mh_group_auto_special,
+                                               false,
+                                               false); // default position
+                auto_background_last_segment_was_crossed_tilt = false;
+              } else if(segment_value < 0.5) {
+
+                int pan_position = 0;
+                int tilt_position = 0;
+                this->generate_static_position(fix,
+                                               pan_center,
+                                               tilt_center,
+                                               pan_position,
+                                               tilt_position,
+                                               segment_start,
+                                               segment_end,
+                                               fixtures_in_mh_group_auto_special,
+                                               false,
+                                               false); // default position
+                auto_background_last_segment_was_crossed_tilt = false;
+              } else if(segment_value < 0.75) {
+
+                int pan_position = 0;
+                int tilt_position = 0;
+                this->generate_static_position(fix,
+                                               pan_center,
+                                               tilt_center,
+                                               pan_position,
+                                               tilt_position,
+                                               segment_start,
+                                               segment_end,
+                                               fixtures_in_mh_group_auto_special,
+                                               false,
+                                               false); // default position
+                auto_background_last_segment_was_crossed_tilt = false;
+              } else if(segment_value < 0.9) {
+                // crossed straight down
+                int pan_position = 90 / fix.get_degrees_per_pan();
+                //if(fix.get_modifier_pan() > 0)
+                if (fix.get_position_in_mh_group() % 2 == 0)
+                  pan_position = -90 / fix.get_degrees_per_pan();
+                int tilt_position = 25 / fix.get_degrees_per_tilt();
+                this->generate_static_position(fix,
+                                               pan_center,
+                                               tilt_center,
+                                               pan_position,
+                                               tilt_position,
+                                               segment_start,
+                                               segment_end,
+                                               fixtures_in_mh_group_auto_background,
+                                               false,
+                                               auto_background_last_segment_was_crossed_tilt); // crossed straight down/up
+                if (auto_background_last_segment_was_crossed_tilt)
+                  std::cout << fix.get_moving_head_type() << " crossed straight down (inverted)" << std::endl;
+                else
+                  std::cout << fix.get_moving_head_type() << " crossed straight down" << std::endl;
+                auto_background_last_segment_was_crossed_tilt = !auto_background_last_segment_was_crossed_tilt;
+
+
+
+              } else if(segment_value > 0.9) {
+
+                if(fix.get_type() == "auto_onsets" || fix.get_type() == "group_auto_onsets") {
+                  // pan 35 degrees towards middle
+                  // tilt 45 degrees towards crowd
+                  int pan_position = 35 / fix.get_degrees_per_pan();
+                  //if(fix.get_modifier_pan() > 0)
+                  if (fix.get_position_on_stage()
+                      == "Left")                                    // maybe need to swap to Right
+                    pan_position = -35 / fix.get_degrees_per_pan();
+                  int tilt_position = 45 / fix.get_degrees_per_tilt();
+                  this->generate_static_position(fix,
+                                                 pan_center,
+                                                 tilt_center,
+                                                 pan_position,
+                                                 tilt_position,
+                                                 segment_start,
+                                                 segment_end,
+                                                 fixtures_in_mh_group_auto_background,
+                                                 false,
+                                                 false); // crossed into crowd
+                  auto_background_last_segment_was_crossed_tilt = false;
+                }
+                }
+
+              }
+
+            } else if (fix.get_moving_head_type() == "auto_action" || fix.get_moving_head_type() == "group_auto_action") {
               if (segment_value < 0.1) {
                 int pan_position = 0;
                 int tilt_position = 0;
@@ -583,8 +679,31 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
               } else if (segment_value < 0.9) {
 
-//              if(onset_timestamps.size() >= six_per_bar) {
-                if (!auto_action_last_segment_was_crossed_tilt) {
+              if(onset_timestamps.size() >= six_per_bar && (fix.get_type() == "auto_onsets" || fix.get_type() == "group_auto_onsets")) {
+//                if(onset_timestamps.size() >= eight_per_bar)
+
+                int pan_position = 90 / fix.get_degrees_per_pan();
+                //if(fix.get_modifier_pan() > 0)
+                if (fix.get_position_in_mh_group() % 2 == 0)
+                  pan_position = -90 / fix.get_degrees_per_pan();
+                int tilt_position = 25 / fix.get_degrees_per_tilt();
+                this->generate_static_position(fix,
+                                               pan_center,
+                                               tilt_center,
+                                               pan_position,
+                                               tilt_position,
+                                               segment_start,
+                                               segment_end,
+                                               fixtures_in_mh_group_auto_action,
+                                               false,
+                                               auto_action_last_segment_was_crossed_tilt); // crossed straight down/up
+                if (auto_action_last_segment_was_crossed_tilt)
+                  std::cout << fix.get_moving_head_type() << " crossed straight down (inverted)" << std::endl;
+                else
+                  std::cout << fix.get_moving_head_type() << " crossed straight down" << std::endl;
+                auto_action_last_segment_was_crossed_tilt = !auto_action_last_segment_was_crossed_tilt;
+              }
+              else if (!auto_action_last_segment_was_crossed_tilt) {
                   // just 45/90° into crowd, rest comes from lighting type
                   int pan_position = 0 / fix.get_degrees_per_pan();
 //                int pan_position = 90 / fix.get_degrees_per_pan();
@@ -625,31 +744,14 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
                     std::cout << fix.get_moving_head_type() << " crossed straight down" << std::endl;
                   auto_action_last_segment_was_crossed_tilt = !auto_action_last_segment_was_crossed_tilt;
                 }
+              }
 
               } else if (segment_value > 0.9) {
-                // always 90° into crowd (or 45°)
-                if (onset_timestamps.size() >= six_per_bar) {
-                  fix.set_amplitude_pan(0);
-                  fix.set_amplitude_tilt(25);
-                  int tilt_offset = (int) std::round((float) 45 / (float) fix.get_degrees_per_tilt()); // or 90°
-                  if (fix.get_invert_tilt())
-                    tilt_offset = -1 * tilt_offset;
-                  this->generate_vertical_line(fix,
-                                               pan_center,
-                                               tilt_center + tilt_offset,
-                                               time_of_one_beat * 4,
-                                               segment_start,
-                                               segment_end,
-                                               fixtures_in_mh_group_auto_action); // vertical lines 45° into crowd, check timing (time_of_one_beat * 4)
-                  std::cout << fix.get_moving_head_type() << " 45° into crowd, vertical lines" << std::endl;
-                  auto_action_last_segment_was_crossed_tilt = false;
-                } else {
-                  // just 45/90° into crowd, rest comes from lighting type
-                  int pan_position = 0 / fix.get_degrees_per_pan();
-//                int pan_position = 90 / fix.get_degrees_per_pan();
-//                if(fix.get_modifier_pan() > 0)
-//                  pan_position = -90 / fix.get_degrees_per_pan();
-                  int tilt_position = 90 / fix.get_degrees_per_tilt();
+
+                if(fix.get_type() == "auto_onsets" || fix.get_type() == "group_auto_onsets") {
+
+                  int pan_position = 0;
+                  int tilt_position = 45 / fix.get_degrees_per_tilt();
                   this->generate_static_position(fix,
                                                  pan_center,
                                                  tilt_center,
@@ -659,15 +761,52 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
                                                  segment_end,
                                                  fixtures_in_mh_group_auto_action,
                                                  false,
-                                                 false); // 90° into crowd
-                  std::cout << fix.get_moving_head_type() << " 90° into crowd > 0.9" << std::endl;
+                                                 false); // 45 degree position
                   auto_action_last_segment_was_crossed_tilt = false;
+                } else {
+                  // always 90° into crowd (or 45°)
+                  if (onset_timestamps.size() >= six_per_bar) {
+                    fix.set_amplitude_pan(0);
+                    fix.set_amplitude_tilt(25);
+                    int tilt_offset = (int) std::round((float) 45 / (float) fix.get_degrees_per_tilt()); // or 90°
+                    if (fix.get_invert_tilt())
+                      tilt_offset = -1 * tilt_offset;
+                    this->generate_vertical_line(fix,
+                                                 pan_center,
+                                                 tilt_center + tilt_offset,
+                                                 time_of_one_beat * 4,
+                                                 segment_start,
+                                                 segment_end,
+                                                 fixtures_in_mh_group_auto_action); // vertical lines 45° into crowd, check timing (time_of_one_beat * 4)
+                    std::cout << fix.get_moving_head_type() << " 45° into crowd, vertical lines" << std::endl;
+                    auto_action_last_segment_was_crossed_tilt = false;
+                  } else {
+                    // just 45/90° into crowd, rest comes from lighting type
+                    int pan_position = 0 / fix.get_degrees_per_pan();
+//                int pan_position = 90 / fix.get_degrees_per_pan();
+//                if(fix.get_modifier_pan() > 0)
+//                  pan_position = -90 / fix.get_degrees_per_pan();
+                    int tilt_position = 90 / fix.get_degrees_per_tilt();
+                    this->generate_static_position(fix,
+                                                   pan_center,
+                                                   tilt_center,
+                                                   pan_position,
+                                                   tilt_position,
+                                                   segment_start,
+                                                   segment_end,
+                                                   fixtures_in_mh_group_auto_action,
+                                                   false,
+                                                   false); // 90° into crowd
+                    std::cout << fix.get_moving_head_type() << " 90° into crowd > 0.9" << std::endl;
+                    auto_action_last_segment_was_crossed_tilt = false;
+                  }
                 }
 
               }
 
-            } else if (fix.get_moving_head_type() == "auto_special"
-                || fix.get_moving_head_type() == "group_auto_special") {
+
+
+            } else if (fix.get_moving_head_type() == "auto_special" || fix.get_moving_head_type() == "group_auto_special") {
 
               vc_pan.push_back({segment_end, pan_center-1});
               vc_tilt.push_back({segment_end, tilt_center-1});
@@ -880,8 +1019,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
                   }
 
-                } else if (fix.get_moving_head_type() == "auto_special"
-                    || fix.get_moving_head_type() == "group_auto_special") {
+                } else if (fix.get_moving_head_type() == "auto_special" || fix.get_moving_head_type() == "group_auto_special") {
 
                   if (segment_value >= 0.95) {
                     this->set_dimmer_values_in_segment(fix, segment_start, 150, segment_end, 0); // ambient
@@ -897,6 +1035,61 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
                 }
 
               } else if (fix.get_type() == "auto_onsets" || fix.get_type() == "group_auto_onsets") {
+
+
+                if(fix.get_moving_head_type() == "auto_action" || fix.get_moving_head_type() == "group_auto_action") {
+                  if (segment_value < 0.1) {
+
+                  } else if (segment_value < 0.5) {
+
+                  } else if (segment_value < 0.75) {
+
+                  } else if (segment_value < 0.9) {
+
+                    this->generate_flash_reverse(fix, onset_timestamps, segment_start, segment_end);
+
+                  } else if (segment_value > 0.9) {
+
+                    if (fixtures_in_mh_group_auto_action % 6 == 0) {
+                      int random_7 = random_int_0_6(rng);
+
+                      if (random_7 == 0 || random_7 == 1 || random_7 == 2) {
+                        this->generate_group_ABA(fix, onset_timestamps, segment_start, segment_end);
+                      } else if (random_7 == 3 || random_7 == 4 || random_7 == 5) {
+                        this->generate_group_ABCCBA(fix, onset_timestamps, segment_start, segment_end);
+                      }
+                      if (random_7 == 6) {
+                        this->generate_group_alternate_odd_even(fix, onset_timestamps, segment_start, segment_end);
+                      }
+
+                    } else if (fixtures_in_mh_group_auto_action % 4 == 0) {
+                      this->generate_group_ABBA(fix, onset_timestamps, segment_start, segment_end);
+                    } else if (fixtures_in_mh_group_auto_action % 3 == 0) {
+                      this->generate_group_ABA(fix, onset_timestamps, segment_start, segment_end);
+                    }
+
+                  }
+                } else if(fix.get_moving_head_type() == "auto_background" || fix.get_moving_head_type() == "group_auto_background") {
+
+                  if(segment_value < 0.1) {
+                    this->set_dimmer_values_in_segment(fix, segment_start, 0, segment_end, 0);
+                  }
+                  else if(segment_value < 0.5) {
+                    this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);
+                  } else if(segment_value < 0.9) {
+                    if(onset_timestamps.size() < four_per_bar)
+                      this->generate_pulse(fix, onset_timestamps, segment_start, segment_end, fixtures_in_mh_group_auto_background, lightshow->get_resolution());
+                    else
+                      this->set_dimmer_values_in_segment(fix, segment_start, 200, segment_end, 0);
+                  } else if(segment_value > 0.9) {
+//                    this->generate_pulse(fix, onset_timestamps, segment_start, segment_end, fixtures_in_mh_group_auto_background, lightshow->get_resolution());
+                    // maybe reverse flash if MH dimmer is too slow for pulse
+                    this->generate_flash_reverse(fix, onset_timestamps, segment_start, segment_end);
+                  }
+
+                }
+
+
 
               }
             }
@@ -2889,6 +3082,37 @@ void LightshowGenerator::generate_group_ABA(LightshowFixture & fix, std::vector<
   }
 }
 
+void LightshowGenerator::generate_group_ABCCBA(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end) {
+  std::cout << "generate_group_ABCCBA" << std::endl;
+  Logger::debug("generate_group_ABCCBA");
+  std::vector<time_value_int> value_changes;
+
+  int use = 2;
+  if(fix.get_position_in_group() % 6 == 1 || fix.get_position_in_group() % 6 == 0)
+    use = 0;
+  else if(fix.get_position_in_group() % 6 == 2 || fix.get_position_in_group() % 6 == 5)
+    use = 1;
+
+  if(fix.get_position_in_group() > 0) {
+    for (int i = 0; i < timestamps.size(); i++) {
+      if(i % 3 == use) {
+        value_changes.push_back({timestamps[i], 255});
+        if(i < timestamps.size() - 1)
+          value_changes.push_back({timestamps[i + 1], 0});
+        else
+          value_changes.push_back({segment_end, 0});
+      }
+    }
+
+    if (fix.has_global_dimmer) {
+      fix.add_value_changes_to_channel(value_changes, fix.get_channel_dimmer());
+    } else if(fix.has_shutter) {
+      this->set_dimmer_values_in_segment(fix, segment_start, 255, segment_end, 0);
+      fix.add_value_changes_to_channel(value_changes, fix.get_channel_shutter());
+    }
+  }
+}
+
 void LightshowGenerator::generate_group_ABBA(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end) {
   Logger::debug("generate_group_ABBA");
   std::vector<time_value_int> value_changes;
@@ -3240,7 +3464,7 @@ void LightshowGenerator::generate_static_position(LightshowFixture &fix,
   if(fix.get_invert_tilt())
     tilt_position = -1 * tilt_position;
 
-  if(number_of_fixtures_in_group > 1) {
+  if(number_of_fixtures_in_group >= 1) {
     std::vector<time_value_int> vc_pan;
     std::vector<time_value_int> vc_tilt;
 

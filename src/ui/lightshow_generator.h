@@ -60,6 +60,7 @@ class LightshowGenerator {
   void generate_group_one_after_another_fade_reverse(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end, int fixtures_in_group, int lightshow_resolution, bool only_single_lamp);
   void generate_group_ABA(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end);
   void generate_group_ABBA(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end);
+  void generate_group_ABCCBA(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end);
   void generate_group_alternate_odd_even(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end);
   void generate_group_blink_alternate_odd_even(LightshowFixture & fix, std::vector<float> & timestamps, float segment_end);
   void generate_pulse(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end, int fixtures_in_group, int lightshow_resolution);
