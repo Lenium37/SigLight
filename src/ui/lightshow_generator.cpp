@@ -748,7 +748,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 
               } else if (segment_value > 0.9) {
 
-                if(fix.get_type() == "auto_onsets" || fix.get_type() == "group_auto_onsets") {
+                if((fix.get_type() == "auto_onsets" || fix.get_type() == "group_auto_onsets") && onset_timestamps.size() >= six_per_bar) {
 
                   int pan_position = 0;
                   int tilt_position = 45 / fix.get_degrees_per_tilt();
@@ -766,7 +766,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
                 } else {
                   std::cout << "hellllo" << std::endl;
                   // always 90° into crowd (or 45°)
-                  if (onset_timestamps.size() >= six_per_bar) {
+//                  if (onset_timestamps.size() >= six_per_bar) {
+                  if (lightshow->get_bpm() > 150) {
                     fix.set_amplitude_pan(0);
                     fix.set_amplitude_tilt(25);
                     int tilt_offset = (int) std::round((float) 45 / (float) fix.get_degrees_per_tilt()); // or 90°
