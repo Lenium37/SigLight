@@ -744,7 +744,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
                     std::cout << fix.get_moving_head_type() << " crossed straight down" << std::endl;
                   auto_action_last_segment_was_crossed_tilt = !auto_action_last_segment_was_crossed_tilt;
                 }
-              }
+
 
               } else if (segment_value > 0.9) {
 
