@@ -764,6 +764,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
                                                  false); // 45 degree position
                   auto_action_last_segment_was_crossed_tilt = false;
                 } else {
+                  std::cout << "hellllo" << std::endl;
                   // always 90° into crowd (or 45°)
                   if (onset_timestamps.size() >= six_per_bar) {
                     fix.set_amplitude_pan(0);
@@ -3372,6 +3373,7 @@ void LightshowGenerator::generate_group_one_after_another_fade_reverse(Lightshow
 
 void LightshowGenerator::generate_vertical_line(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group, bool group_lines_towards_middle) {
   Logger::debug("generate_vertical_line");
+  std::cout << "generate_vertical_line" << std::endl;
   int amplitude_pan = (int) std::round(fix.get_amplitude_pan() / fix.get_degrees_per_pan());
   int amplitude_tilt = (int) std::round(fix.get_amplitude_tilt() / fix.get_degrees_per_tilt());
 
