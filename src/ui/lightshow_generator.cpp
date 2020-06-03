@@ -3220,9 +3220,9 @@ void LightshowGenerator::generate_group_one_after_another_fade(LightshowFixture 
           int positionStaying = fixtures_in_group / 2;
           int positionRemoved = positionStaying + 1;
 
-          for(int i = positionRemoved; i < fixtures_in_group; i++) {
+          for(int i = positionRemoved; i <= fixtures_in_group; i++) {
             if(fix.get_position_in_group() == i) {
-              temp_position_of_fix = positionStaying - (positionRemoved - i);
+              temp_position_of_fix = positionStaying - (i - positionRemoved);
               std::cout << "changed position of fix for fade from: " << fix.get_position_in_group() << " to: " << temp_position_of_fix << std::endl;
             }
           }
@@ -3404,9 +3404,9 @@ void LightshowGenerator::generate_vertical_line(LightshowFixture & fix, int pan_
       int positionStaying = number_of_fixtures_in_group / 2;
       int positionRemoved = positionStaying + 1;
 
-      for(int i = positionRemoved; i < number_of_fixtures_in_group; i++) {
+      for(int i = positionRemoved; i <= number_of_fixtures_in_group; i++) {
         if(fix.get_position_in_group() == i) {
-          temp_position_of_fix = positionStaying - (positionRemoved - i);
+          temp_position_of_fix = positionStaying - (i - positionRemoved);
           std::cout << "changed position of fix for group vertical line from: " << fix.get_position_in_group() << " to: " << temp_position_of_fix << std::endl;
         }
       }
