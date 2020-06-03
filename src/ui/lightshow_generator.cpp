@@ -34,7 +34,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
     if(fix_type == "high")
       need_high = true;
 
-    if(timestamp_type == "Onsets" || fix_type.find("onsets") != string::npos || fix_type.find("auto") != string::npos || fix_mh_type.find("auto") != string::npos) { // TODO das letzte wieder entfernen, war nur testweise
+    if(timestamp_type.find("Onsets") != std::string::npos || fix_type.find("onsets") != string::npos || fix_type.find("auto") != string::npos || fix_mh_type.find("auto") != string::npos) { // TODO das letzte wieder entfernen, war nur testweise
       need_onsets = true;
     }
   }
@@ -1079,7 +1079,10 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
           if(segment_start == segment_changes[segment_changes.size() - 1].time) {                                   // if last segment
             if(segment_end - segment_start <= 15) {                                                                 // if segment is shorter than 15s
               for (auto const &x: fix_names_with_temp_position) {
-                if (fix.get_name() == x.first)
+                std::cout << "x.first: " << x.first << std::endl;
+                std::cout << "fix.get_name(): " << fix.get_name() << std::endl;
+                //if (fix.get_name() == x.first)
+                if(fix.get_name().find(x.first) != std::string::npos)
                   fix.set_temp_position_in_group(x.second);
               }
               //std::cout << fix.get_temp_position_in_group() << std::endl;
