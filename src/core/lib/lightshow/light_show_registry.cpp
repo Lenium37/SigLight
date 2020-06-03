@@ -173,7 +173,8 @@ std::shared_ptr<Lightshow> LightShowRegistry::read_lightshow(const std::string f
       custom_segments.push_back(std::stof(lightshow_segments.substr(last, next-last)));
       last = next + 1;
     }
-    custom_segments.push_back(std::stof(lightshow_segments.substr(last)));
+    if(!lightshow_segments.empty())
+      custom_segments.push_back(std::stof(lightshow_segments.substr(last)));
 //    std::cout << "read custom segments from xml: " << std::endl;
 //    for(int i = 0; i < custom_segments.size(); i++) {
 //      std::cout << custom_segments[i] << std::endl;

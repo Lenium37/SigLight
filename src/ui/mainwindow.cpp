@@ -588,9 +588,19 @@ void MainWindow::create_fixtures() {
                             0);
     channels.clear();
 
+    channels << "Red (0-100%)~0~225" << "Green (0-100%)~0~225" << "Blue (0-100%)~0~225" << "Master dimmer (0-100%)~0~255" << "something~0~255";
+    create_new_fixture("BAR TRI-LED (5CH)",
+                       "Ambient",
+                       "DMX-Funktionen: Farben",
+                       channels,
+                       "lamp",
+                       color_palettes[0],
+                       0);
+    channels.clear();
+
     channels << "Blackout/colour mix CH3 - CH5~0~4|Red~5~15|Green~16~26|Blue~27~37|Yellow~38~48|Magenta~49~59|Cyan~60~70|White~71~80|Color change (rate)~81~150|Color blending~151~220"
              << "Master dimmer (0-100%)~0~255" << "Strobo~0~255" << "Red (0-100%)~0~225" << "Green (0-100%)~0~225" << "Blue (0-100%)~0~225";
-    create_new_fixture("BAR TRI-LED",
+    create_new_fixture("BAR TRI-LED (6CH)",
                        "Ambient",
                        "DMX-Funktionen: Farben",
                        channels,
@@ -1087,7 +1097,8 @@ void MainWindow::generate_lightshow(Song *song, std::list<Fixture> _fixtures, in
         || fix.get_name() == "Cobalt Plus Spot 5R"
         || fix.get_name() == "Varytec PAD7 seventy"
         || fix.get_name() == "TOURSPOT PRO"
-        || fix.get_name() == "BAR TRI-LED"
+        || fix.get_name() == "BAR TRI-LED (5CH)"
+        || fix.get_name() == "BAR TRI-LED (6CH)"
         || fix.get_name() == "SGM X-5 (1CH)"
         || fix.get_name() == "SGM X-5 (3CH)"
         || fix.get_name() == "SGM X-5 (4CH)") {
@@ -1130,7 +1141,8 @@ void MainWindow::regenerate_lightshow(Song *song, std::list<Fixture> _fixtures, 
         || fix.get_name() == "Cobalt Plus Spot 5R"
         || fix.get_name() == "Varytec PAD7 seventy"
         || fix.get_name() == "TOURSPOT PRO"
-        || fix.get_name() == "BAR TRI-LED"
+        || fix.get_name() == "BAR TRI-LED (5CH)"
+        || fix.get_name() == "BAR TRI-LED (6CH)"
         || fix.get_name() == "SGM X-5 (1CH)"
         || fix.get_name() == "SGM X-5 (3CH)"
         || fix.get_name() == "SGM X-5 (4CH)") {

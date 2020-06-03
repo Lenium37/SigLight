@@ -128,7 +128,8 @@ void ChangeFixtures::on_edit_fixture_clicked() {
     if (ui->fixture_list->currentItem()) {
       if (ui->fixture_list->currentItem()->parent()) {
         if (ui->fixture_list->currentItem()->parent()->parent()) {
-          this->efd = new EditFixtureDialog(this, this->fixture_presets, this->color_palettes, this->lighting_types);
+          //this->efd = new EditFixtureDialog(this, this->fixture_presets, this->color_palettes, this->lighting_types);
+          this->efd = new EditFixtureDialog(this, this->fixtures, this->color_palettes, this->lighting_types);
           std::string modifier_pan_s = ui->fixture_list->currentItem()->text(10).toStdString();
           std::string modifier_tilt_s = ui->fixture_list->currentItem()->text(11).toStdString();
           std::string timestamps_type = ui->fixture_list->currentItem()->text(3).toStdString();

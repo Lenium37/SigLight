@@ -199,7 +199,13 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->set_channel_blue(5);
     this->has_global_dimmer = true;
     this->has_strobe = true;
-  } else if (name == "BAR TRI-LED") {
+  } else if (name == "BAR TRI-LED (5CH)") {
+    this->set_channel_dimmer(4);
+    this->set_channel_red(1);
+    this->set_channel_green(2);
+    this->set_channel_blue(3);
+    this->has_global_dimmer = true;
+  } else if (name == "BAR TRI-LED (6CH)") {
     this->set_channel_dimmer(2);
     this->set_channel_strobo(3);
     this->set_channel_red(4);
@@ -209,7 +215,7 @@ LightshowFixture::LightshowFixture(std::string name, int start_channel, int numb
     this->has_strobe = true;
   } else if(name == "SGM X-5 (1CH)") {
     this->set_channel_blinder(1);
-    this->set_blinder_value(249);
+    this->set_blinder_value(255);
     this->is_blinder = true;
   } else if(name == "SGM X-5 (3CH)") {
     this->set_channel_blinder(1);
