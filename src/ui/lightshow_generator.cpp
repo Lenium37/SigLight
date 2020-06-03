@@ -777,7 +777,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
                                                  time_of_one_beat * 4,
                                                  segment_start,
                                                  segment_end,
-                                                 fixtures_in_mh_group_auto_action); // vertical lines 45° into crowd, check timing (time_of_one_beat * 4)
+                                                 fixtures_in_mh_group_auto_action,
+                                                 true); // vertical lines 45° into crowd, check timing (time_of_one_beat * 4)
                     std::cout << fix.get_moving_head_type() << " 45° into crowd, vertical lines" << std::endl;
                     auto_action_last_segment_was_crossed_tilt = false;
                   } else {
@@ -855,7 +856,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
               }
 
             }
-          }
+
 
 
 //          if(fix.get_moving_head_type() == "auto_background" || fix.get_moving_head_type() == "group_auto_background") {
@@ -863,7 +864,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 //              fix.set_amplitude_pan(0);
 //              fix.set_amplitude_tilt(25);
 //              int tilt_offset = (int) std::round((float) 90 / (float) fix.get_degrees_per_tilt());
-//              this->generate_vertical_line(fix, pan_center, tilt_center + tilt_offset, time_of_one_beat * 4, segment_start, segment_end, fixtures_in_mh_group_auto_background);
+//              this->generate_vertical_line(fix, pan_center, tilt_center + tilt_offset, time_of_one_beat * 4, segment_start, segment_end, fixtures_in_mh_group_auto_background, false);
 //
 //            } else if (onset_timestamps.size() >= four_per_bar) {
 //              if(random_int_0_1(rng) == 1) {
@@ -875,7 +876,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
 //                fix.set_amplitude_pan(0);
 //                fix.set_amplitude_tilt(25);
 //                int tilt_offset = (int) std::round((float) 90 / (float) fix.get_degrees_per_tilt());
-//                this->generate_vertical_line(fix, pan_center, tilt_center + tilt_offset, time_of_two_beats * 4, segment_start, segment_end, fixtures_in_mh_group_auto_background);
+//                this->generate_vertical_line(fix, pan_center, tilt_center + tilt_offset, time_of_two_beats * 4, segment_start, segment_end, fixtures_in_mh_group_auto_background, false);
 //
 //              }
 //            } else if(onset_timestamps.size() >= two_per_bar) {
@@ -984,7 +985,8 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
                                                                   segment_end,
                                                                   fixtures_in_mh_group_auto_action,
                                                                   lightshow->get_resolution(),
-                                                                  false);
+                                                                  false,
+                                                                  true);
                       //this->generate_group_one_after_another(fix, timestamps, segment_start, segment_end, fixtures_in_mh_group_auto_action); // on/off at every timestamp
 
                       //timestamps = lightshow->get_specific_beats("beats 1/2/3/4", segment_start, segment_end);
@@ -1123,7 +1125,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
         this->generate_continuous_circle(fix, pan_center, tilt_center, time_of_four_bars, time_of_four_bars, 0, end_of_song, fixtures_in_mh_group_continuous_circle);
 
       } else if(fix.get_moving_head_type() == "Continuous Line vertical" || fix.get_moving_head_type() == "Continuous Line vertical group") {
-        this->generate_vertical_line(fix, pan_center, tilt_center, time_of_two_beats * 2, 0, end_of_song, fixtures_in_mh_group_continuous_line_vertical);
+        this->generate_vertical_line(fix, pan_center, tilt_center, time_of_two_beats * 2, 0, end_of_song, fixtures_in_mh_group_continuous_line_vertical, false);
 
       } else if(fix.get_moving_head_type() == "Backlight, drop on action") {
         //amplitude_tilt = 100 / fix.get_degrees_per_tilt();
@@ -1448,7 +1450,7 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
                 else if(auto_onsets_choice[j] == 1) // one after another
                   this->generate_group_one_after_another(fix, onset_timestamps, segment_start, segment_end, fixtures_in_group_auto_onsets);
                 else if(auto_onsets_choice[j] == 2) // one after another fade
-                  this->generate_group_one_after_another_fade(fix, onset_timestamps, segment_start, segment_end, fixtures_in_group_auto_onsets, lightshow->get_resolution(), true);
+                  this->generate_group_one_after_another_fade(fix, onset_timestamps, segment_start, segment_end, fixtures_in_group_auto_onsets, lightshow->get_resolution(), true, true);
                 else if(auto_onsets_choice[j] == 3) // one after another fade reverse
                   this->generate_group_one_after_another_fade_reverse(fix, onset_timestamps, segment_start, segment_end, fixtures_in_group_auto_onsets, lightshow->get_resolution(), true);
               } else {
@@ -1769,13 +1771,13 @@ std::shared_ptr<Lightshow> LightshowGenerator::generate(int resolution, Song *so
       this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
     } else if (fix_type == "group_one_after_another_fade") {
       this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
-      this->generate_group_one_after_another_fade(fix, timestamps, 0, end_of_song, fixtures_in_group_one_after_another_fade, lightshow->get_resolution(), false);
+      this->generate_group_one_after_another_fade(fix, timestamps, 0, end_of_song, fixtures_in_group_one_after_another_fade, lightshow->get_resolution(), false, false);
     } else if (fix_type == "group_one_after_another_fade_reverse") {
       this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
       this->generate_group_one_after_another_fade_reverse(fix, timestamps, 0, end_of_song, fixtures_in_group_one_after_another_fade_reverse, lightshow->get_resolution(), false);
     } else if (fix_type == "group_one_after_another_fade_single") {
       this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
-      this->generate_group_one_after_another_fade(fix, timestamps, 0, end_of_song, fixtures_in_group_one_after_another_fade_single, lightshow->get_resolution(), true);
+      this->generate_group_one_after_another_fade(fix, timestamps, 0, end_of_song, fixtures_in_group_one_after_another_fade_single, lightshow->get_resolution(), true, false);
     } else if (fix_type == "group_one_after_another_fade_single_reverse") {
       this->generate_color_fades_on_segment_changes(lightshow, fix, colors);
       this->generate_group_one_after_another_fade_reverse(fix, timestamps, 0, end_of_song, fixtures_in_group_one_after_another_fade_single_reverse, lightshow->get_resolution(), true);
@@ -3198,7 +3200,7 @@ void LightshowGenerator::generate_group_blink_alternate_odd_even(LightshowFixtur
   }
 }
 
-void LightshowGenerator::generate_group_one_after_another_fade(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end, int fixtures_in_group, int lightshow_resolution, bool only_single_lamp) {
+void LightshowGenerator::generate_group_one_after_another_fade(LightshowFixture & fix, std::vector<float> & timestamps, float segment_start, float segment_end, int fixtures_in_group, int lightshow_resolution, bool only_single_lamp, bool fade_towards_middle) {
   Logger::debug("generate_group_one_after_another_fade");
   std::cout << "generate_group_one_after_another_fade" << std::endl;
   std::cout << "fix.pos: " << fix.get_position_in_group() << std::endl;
@@ -3210,6 +3212,23 @@ void LightshowGenerator::generate_group_one_after_another_fade(LightshowFixture 
     //std::cout << "timestamps.size(): " << timestamps.size() << std::endl;
     std::vector<float> timestamps_for_this_fixture;
     if(fix.get_position_in_group() > 0) {
+
+      if(fade_towards_middle) {
+        int temp_position_of_fix = 0;
+
+        if(fixtures_in_group % 2 == 0) {
+          int positionStaying = fixtures_in_group / 2;
+          int positionRemoved = positionStaying + 1;
+
+          for(int i = positionRemoved; i < fixtures_in_group; i++) {
+            if(fix.get_position_in_group() == i) {
+              temp_position_of_fix = positionStaying - (positionRemoved - i);
+              std::cout << "changed position of fix for fade from: " << fix.get_position_in_group() << " to: " << temp_position_of_fix << std::endl;
+            }
+          }
+        }
+      }
+
       for (int j = 0; j < timestamps.size(); j++) {
         if(j % fixtures_in_group + 1 == fix.get_position_in_group()) {
           timestamps_for_this_fixture.push_back(timestamps[j]);
@@ -3351,7 +3370,7 @@ void LightshowGenerator::generate_group_one_after_another_fade_reverse(Lightshow
   }
 }
 
-void LightshowGenerator::generate_vertical_line(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group) {
+void LightshowGenerator::generate_vertical_line(LightshowFixture & fix, int pan_center, int tilt_center, float time_of_one_loop_tilt, float start_timestamp, float end_timestamp, int number_of_fixtures_in_group, bool group_lines_towards_middle) {
   Logger::debug("generate_vertical_line");
   int amplitude_pan = (int) std::round(fix.get_amplitude_pan() / fix.get_degrees_per_pan());
   int amplitude_tilt = (int) std::round(fix.get_amplitude_tilt() / fix.get_degrees_per_tilt());
@@ -3378,9 +3397,28 @@ void LightshowGenerator::generate_vertical_line(LightshowFixture & fix, int pan_
     vc_pan.push_back({start_timestamp, pan_center + amplitude_pan});
   vc_pan.push_back({end_timestamp, pan_center-1});
 
+  int temp_position_of_fix = 0;
+  if(group_lines_towards_middle) {
+
+    if(number_of_fixtures_in_group % 2 == 0) {
+      int positionStaying = number_of_fixtures_in_group / 2;
+      int positionRemoved = positionStaying + 1;
+
+      for(int i = positionRemoved; i < number_of_fixtures_in_group; i++) {
+        if(fix.get_position_in_group() == i) {
+          temp_position_of_fix = positionStaying - (positionRemoved - i);
+          std::cout << "changed position of fix for group vertical line from: " << fix.get_position_in_group() << " to: " << temp_position_of_fix << std::endl;
+        }
+      }
+    }
+  }
+
   float group_offset = 0;
   if(fix.get_moving_head_type() == "Continuous Line vertical group" || fix.get_moving_head_type() == "group_auto_background" || fix.get_moving_head_type() == "group_auto_action" || fix.get_moving_head_type() == "group_auto_special") {
-    group_offset = (float) 2 * (float) (fix.get_position_in_mh_group() - 1) / number_of_fixtures_in_group;
+    if(group_lines_towards_middle)
+      group_offset = (float) 2 * (float) (temp_position_of_fix - 1) / number_of_fixtures_in_group;
+    else
+      group_offset = (float) 2 * (float) (fix.get_position_in_mh_group() - 1) / number_of_fixtures_in_group;
   }
 
   while(current_timestamp < end_timestamp) {
