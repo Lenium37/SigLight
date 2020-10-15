@@ -1,7 +1,14 @@
 # SigLight
-SigLight is used to automatically generate Lightshows from .mp3 or .wav files. You can add DMX fixtures, select their current DMX channel and tell SigLight what each fixture should represent. For example a fixture can visualize certain frequency areas (Bass/Mid/High), blink on onsets or just act as an ambient light and change colors, whenever there is a new segment in the song. The whole analysis and generation of the lightshow is then done automatically.
+SigLight is used to automatically generate Lightshows from .mp3 or .wav files. You can add DMX fixtures, select their current DMX channel and tell SigLight what each fixture should represent. For example a fixture can visualize certain frequency areas (Bass/Mid/High), blink on onsets or just act as an ambient light and change colors, whenever there is a new segment in the song. Auto-Types take it to the next level by automatically selecting the fitting type for each segment - depending on your input if a certain fixture should be more active in the foreground or rather a background light. The whole analysis and generation of the lightshow is then done automatically.
 
 It should run on Windows, Linux and Mac. Even on a Raspberry Pi 4.
+
+## Demos
+Some videos we took of generated Lightshows:
+
+ - [Foo Fighters - The Pretender (second half)](https://www.youtube.com/watch?v=HQ3oEwyQBOY)
+ - [Rammstein - Pussy](https://www.youtube.com/watch?v=BE-hXpBuePE)
+ - [Red Hot Chili Peppers - Californication](https://www.youtube.com/watch?v=vu3IhwIEHVQ)
 
 ## Building
 
