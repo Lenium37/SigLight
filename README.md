@@ -53,3 +53,5 @@ mingw32-make -j %NUMBER_OF_PROCESSORS%
 ```
 Your executable is located at: build/src/SigLight.exe
 
+## USB DMX interface
+The interface used for development of this project is the [Eurolite USB-DMX512-Interface/Update-Ad](https://www.thomann.de/de/eurolite_usb_dmx512_interface_update_ad.htm). To make it work with this software you need to use [Zadig](https://zadig.akeo.ie/) to install the correct driver. Other DMX softwares need it to be a WinUSB or FTDIBugs driver, our software needs it to be a libusb driver.
